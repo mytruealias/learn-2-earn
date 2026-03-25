@@ -40,23 +40,37 @@ export default function AdminPayoutsPage() {
   const [actionNote, setActionNote] = useState("");
   const [activeAction, setActiveAction] = useState<{ payoutId: string; action: string } | null>(null);
   const [processing, setProcessing] = useState(false);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
 
-  const fetchPayouts = () => {
+  const fetchPayouts = (p = page) => {
     setLoading(true);
     const token = localStorage.getItem("l2e_admin_token");
     const headers: Record<string, string> = {};
     if (token) headers["Authorization"] = `Bearer ${token}`;
-    fetch(`/api/admin/payouts?status=${statusFilter}`, { headers })
+    fetch(`/api/admin/payouts?status=${statusFilter}&page=${p}`, { headers })
       .then((r) => r.json())
       .then((data) => {
-        if (data.ok) setPayouts(data.payouts);
+        if (data.ok) {
+          setPayouts(data.payouts);
+          setTotalPages(data.pagination.totalPages);
+          setTotal(data.pagination.total);
+        }
       })
       .finally(() => setLoading(false));
   };
 
   useEffect(() => {
-    fetchPayouts();
+    setPage(1);
+    fetchPayouts(1);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statusFilter]);
+
+  useEffect(() => {
+    fetchPayouts(page);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
 
   const handleAction = async () => {
     if (!activeAction) return;
@@ -378,6 +392,52 @@ export default function AdminPayoutsPage() {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {totalPages > 1 && (
+        <div style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginTop: "1.5rem",
+          padding: "0.75rem 1rem",
+          backgroundColor: "#15202b",
+          border: "1px solid #253341",
+        }}>
+          <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: "0.65rem", color: "#8899a6" }}>
+            {total} total · page {page} of {totalPages}
+          </div>
+          <div style={{ display: "flex", gap: "0.5rem" }}>
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+              style={{
+                padding: "0.4rem 0.8rem",
+                backgroundColor: page === 1 ? "#0f1419" : "#253341",
+                color: page === 1 ? "#425063" : "#e1e8ed",
+                border: "1px solid #253341",
+                fontFamily: "'Share Tech Mono', monospace",
+                fontSize: "0.65rem",
+                cursor: page === 1 ? "default" : "pointer",
+                letterSpacing: "0.05em",
+              }}
+            >← PREV</button>
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              style={{
+                padding: "0.4rem 0.8rem",
+                backgroundColor: page === totalPages ? "#0f1419" : "#253341",
+                color: page === totalPages ? "#425063" : "#e1e8ed",
+                border: "1px solid #253341",
+                fontFamily: "'Share Tech Mono', monospace",
+                fontSize: "0.65rem",
+                cursor: page === totalPages ? "default" : "pointer",
+                letterSpacing: "0.05em",
+              }}
+            >NEXT →</button>
+          </div>
         </div>
       )}
     </div>

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import prisma from "@/lib/prisma";
 import { logAudit } from "@/lib/audit";
+import { setUserSessionCookie } from "@/lib/user-session";
 
 export async function POST(req: Request) {
   try {
@@ -40,7 +41,7 @@ export async function POST(req: Request) {
       data: { lastActiveAt: new Date() },
     });
 
-    return NextResponse.json({
+    const res = NextResponse.json({
       ok: true,
       user: {
         id: user.id,
@@ -51,6 +52,9 @@ export async function POST(req: Request) {
         streak: user.streak,
       },
     });
+
+    setUserSessionCookie(res, user.id);
+    return res;
   } catch (error) {
     console.error("Login error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

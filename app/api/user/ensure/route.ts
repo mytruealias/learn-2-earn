@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { setUserSessionCookie } from "@/lib/user-session";
 
 export async function POST(req: Request) {
   try {
@@ -8,6 +9,8 @@ export async function POST(req: Request) {
     if (!userId) {
       return NextResponse.json({ error: "Missing userId" }, { status: 400 });
     }
+
+    let resolvedId = userId;
 
     const existing = await prisma.user.findUnique({ where: { id: userId } });
 
@@ -23,7 +26,10 @@ export async function POST(req: Request) {
           where: { id: guestUser.id },
           data: { lastActiveAt: new Date() },
         });
-        return NextResponse.json({ ok: true, actualUserId: guestUser.id });
+        resolvedId = guestUser.id;
+        const res = NextResponse.json({ ok: true, actualUserId: guestUser.id });
+        setUserSessionCookie(res, guestUser.id);
+        return res;
       }
 
       await prisma.user.create({
@@ -31,7 +37,9 @@ export async function POST(req: Request) {
       });
     }
 
-    return NextResponse.json({ ok: true });
+    const res = NextResponse.json({ ok: true });
+    setUserSessionCookie(res, resolvedId);
+    return res;
   } catch (error) {
     console.error("User ensure error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

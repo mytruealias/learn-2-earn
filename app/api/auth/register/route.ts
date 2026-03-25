@@ -2,11 +2,15 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import prisma from "@/lib/prisma";
 import { logAudit } from "@/lib/audit";
+import { setUserSessionCookie } from "@/lib/user-session";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { email, password, fullName, dateOfBirth, phone, city, state, zipCode, caseNumber, emergencyContactName, emergencyContactPhone, guestId } = body;
+    const {
+      email, password, fullName, dateOfBirth, phone, city, state, zipCode,
+      caseNumber, emergencyContactName, emergencyContactPhone, guestId,
+    } = body;
 
     if (!email || !password || !fullName) {
       return NextResponse.json({ error: "Name, email, and password are required" }, { status: 400 });
@@ -74,7 +78,7 @@ export async function POST(req: Request) {
       ipAddress: req.headers.get("x-forwarded-for") || "unknown",
     });
 
-    return NextResponse.json({
+    const res = NextResponse.json({
       ok: true,
       user: {
         id: user.id,
@@ -83,6 +87,9 @@ export async function POST(req: Request) {
         totalXp: user.totalXp,
       },
     });
+
+    setUserSessionCookie(res, user.id);
+    return res;
   } catch (error) {
     console.error("Registration error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

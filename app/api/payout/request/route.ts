@@ -2,61 +2,88 @@ import { NextResponse } from "next/server";
 import { PaymentMethod } from "@prisma/client";
 import prisma from "@/lib/prisma";
 import { logAudit } from "@/lib/audit";
+import { getUserIdFromRequest } from "@/lib/user-session";
 
 const VALID_PAYMENT_METHODS: PaymentMethod[] = ["venmo", "paypal", "cashapp", "check"];
+const MAX_HANDLE_LENGTH = 255;
+const MIN_XP = 3;
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const { userId, xpAmount, paymentMethod, paymentHandle } = body;
+    const sessionUserId = getUserIdFromRequest(req);
 
-    if (!userId || !xpAmount) {
-      return NextResponse.json({ error: "Invalid request." }, { status: 400 });
+    const body = await req.json();
+    const { xpAmount, paymentMethod, paymentHandle } = body;
+
+    const userId = sessionUserId ?? body.userId;
+
+    if (!userId) {
+      return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
+    }
+
+    if (sessionUserId && body.userId && sessionUserId !== body.userId) {
+      return NextResponse.json({ error: "Not authorized." }, { status: 403 });
+    }
+
+    if (!Number.isInteger(xpAmount) || xpAmount < MIN_XP) {
+      return NextResponse.json(
+        { error: `You need at least ${MIN_XP} XP to request a payout` },
+        { status: 400 }
+      );
     }
 
     if (!paymentMethod || !VALID_PAYMENT_METHODS.includes(paymentMethod)) {
       return NextResponse.json({ error: "Please select a valid payment method." }, { status: 400 });
     }
 
-    if (!paymentHandle || !paymentHandle.trim()) {
-      return NextResponse.json({ error: "Please provide your payment handle or address." }, { status: 400 });
+    const handle = typeof paymentHandle === "string" ? paymentHandle.trim() : "";
+    if (!handle) {
+      return NextResponse.json(
+        { error: "Please provide your payment handle or address." },
+        { status: 400 }
+      );
+    }
+    if (handle.length > MAX_HANDLE_LENGTH) {
+      return NextResponse.json(
+        { error: `Payment handle must be ${MAX_HANDLE_LENGTH} characters or fewer.` },
+        { status: 400 }
+      );
     }
 
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      include: {
-        payoutRequests: true,
-      },
-    });
+    const user = await prisma.user.findUnique({ where: { id: userId } });
 
     if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+      return NextResponse.json({ error: "User not found." }, { status: 404 });
     }
 
     if (!user.email || !user.fullName) {
-      return NextResponse.json({ error: "Please complete your profile before requesting a payout" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Please complete your profile before requesting a payout." },
+        { status: 400 }
+      );
     }
 
-    const totalPayoutXp = user.payoutRequests
-      .filter((p) => p.status !== "rejected")
-      .reduce((sum, p) => sum + p.xpAmount, 0);
+    const { _sum } = await prisma.payoutRequest.aggregate({
+      where: { userId, status: { not: "rejected" } },
+      _sum: { xpAmount: true },
+    });
 
+    const totalPayoutXp = _sum.xpAmount ?? 0;
     const availableXp = user.totalXp - totalPayoutXp;
 
-    if (availableXp < 3) {
-      const needed = 3 - availableXp;
-      return NextResponse.json({ error: `You need ${needed} more XP to request a payout` }, { status: 400 });
-    }
-
-    if (xpAmount < 3) {
-      return NextResponse.json({ error: "You need at least 3 XP to request a payout" }, { status: 400 });
+    if (availableXp < MIN_XP) {
+      const needed = MIN_XP - availableXp;
+      return NextResponse.json(
+        { error: `You need ${needed} more XP to request a payout.` },
+        { status: 400 }
+      );
     }
 
     if (xpAmount > availableXp) {
-      return NextResponse.json({ error: "Insufficient XP balance" }, { status: 400 });
+      return NextResponse.json({ error: "Insufficient XP balance." }, { status: 400 });
     }
 
-    const dollarAmount = Math.floor((xpAmount / 3) * 100) / 100;
+    const dollarAmount = Math.round((xpAmount / 3) * 100) / 100;
 
     const methodLabels: Record<string, string> = {
       venmo: "Venmo",
@@ -65,10 +92,11 @@ export async function POST(req: Request) {
       check: "Check",
     };
 
-    const methodLabel = methodLabels[paymentMethod] || paymentMethod;
-    const note = paymentMethod === "check"
-      ? `Pay via Check to: ${paymentHandle.trim()}`
-      : `Pay via ${methodLabel}: ${paymentHandle.trim()}`;
+    const methodLabel = methodLabels[paymentMethod] ?? paymentMethod;
+    const note =
+      paymentMethod === "check"
+        ? `Pay via Check to: ${handle}`
+        : `Pay via ${methodLabel}: ${handle}`;
 
     const payout = await prisma.payoutRequest.create({
       data: {
@@ -78,7 +106,7 @@ export async function POST(req: Request) {
         status: "pending",
         note,
         paymentMethod,
-        paymentHandle: paymentHandle.trim(),
+        paymentHandle: handle,
       },
     });
 
@@ -87,7 +115,7 @@ export async function POST(req: Request) {
       entity: "PayoutRequest",
       entityId: payout.id,
       details: JSON.stringify({ userId, xpAmount, dollarAmount, paymentMethod }),
-      ipAddress: req.headers.get("x-forwarded-for") || "unknown",
+      ipAddress: req.headers.get("x-forwarded-for") ?? "unknown",
     });
 
     return NextResponse.json({ ok: true, payout });

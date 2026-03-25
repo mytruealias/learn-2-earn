@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import HelpButton from "../components/HelpButton";
-import { StarIcon, BookIcon, WalletIcon, CashIcon, BankIcon, LightbulbIcon, ClipboardIcon, ClockIcon, CheckCircleIcon, XCircleIcon, ChevronRightIcon } from "../components/icons";
+import { StarIcon, BookIcon, WalletIcon, CashIcon, LightbulbIcon, ClipboardIcon, ClockIcon, CheckCircleIcon, XCircleIcon, ChevronRightIcon } from "../components/icons";
 
 interface PayoutRequest {
   id: string;
@@ -545,20 +545,6 @@ export default function ProfilePage() {
               </div>
             )}
 
-            <div style={{
-              backgroundColor: "var(--bg-card)",
-              border: "1px solid var(--border-color)",
-              borderRadius: "14px",
-              padding: "1rem 1.25rem",
-            }}>
-              <div style={{ fontSize: "0.75rem", fontWeight: "700", color: "var(--accent-blue)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: "0.5rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>
-                <BankIcon size={16} color="var(--accent-blue)" />
-                Bank Connection
-              </div>
-              <div style={{ color: "var(--text-secondary)", fontSize: "0.85rem", lineHeight: "1.5" }}>
-                Bank connection is coming soon. When ready, you&apos;ll be able to link your bank account or prepaid card to receive payouts directly.
-              </div>
-            </div>
           </div>
         )}
 
