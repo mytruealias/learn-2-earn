@@ -1,0 +1,40 @@
+{
+  "name": "learn-2-earn",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 5000 -H 0.0.0.0",
+    "build": "prisma generate && next build",
+    "start": "next start -p 5000 -H 0.0.0.0",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "@octokit/rest": "^22.0.0",
+    "@prisma/client": "6.1.0",
+    "@types/bcryptjs": "^2.4.6",
+    "bcryptjs": "^3.0.3",
+    "next": "15.5.12",
+    "prisma": "6.1.0",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "15.5.12",
+    "typescript": "^5"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
+  "overrides": {
+    "minimatch@3": "3.1.4",
+    "minimatch@9": "9.0.7",
+    "flatted": "3.4.2"
+  }
+}

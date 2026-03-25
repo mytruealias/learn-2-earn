@@ -1,0 +1,133 @@
+"use client";
+
+import { useState } from "react";
+import { SOSIcon, PhoneIcon, HomeIcon, ChatIcon, HandshakeIcon, HeartPulseIcon } from "./icons";
+
+export default function HelpButton() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <button
+        onClick={() => setOpen(true)}
+        style={{
+          position: "fixed",
+          bottom: "5rem",
+          right: "1.5rem",
+          backgroundColor: "var(--accent-red)",
+          color: "#fff",
+          border: "none",
+          width: "48px",
+          height: "48px",
+          borderRadius: "50%",
+          padding: 0,
+          zIndex: 1000,
+          boxShadow: "0 4px 12px rgba(255,75,75,0.4)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          transition: "all 0.2s",
+        }}
+      >
+        <SOSIcon size={24} color="#fff" />
+      </button>
+
+      {open && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            backgroundColor: "rgba(0,0,0,0.7)",
+            zIndex: 2000,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "1rem",
+          }}
+          onClick={() => setOpen(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              backgroundColor: "var(--bg-secondary)",
+              border: "2px solid var(--accent-red)",
+              borderRadius: "20px",
+              padding: "2rem",
+              maxWidth: "440px",
+              width: "100%",
+              position: "relative",
+              overflow: "hidden",
+            }}
+          >
+            <div style={{ marginBottom: "0.5rem" }}>
+              <HeartPulseIcon size={32} color="var(--accent-gold)" />
+            </div>
+            <h2 style={{
+              fontFamily: "var(--font-display)",
+              fontSize: "1.5rem",
+              fontWeight: "700",
+              marginBottom: "0.5rem",
+            }}>
+              You Are Not Alone
+            </h2>
+            <p style={{
+              color: "var(--text-secondary)",
+              fontSize: "0.85rem",
+              marginBottom: "1.25rem",
+              lineHeight: "1.5",
+            }}>
+              Free help is available right now. Tap to call or text.
+            </p>
+            <div style={{ display: "grid", gap: "0.5rem" }}>
+              {[
+                { href: "tel:988", label: "988 Suicide & Crisis Lifeline", color: "var(--accent-red)", icon: <PhoneIcon size={20} color="var(--accent-red)" /> },
+                { href: "tel:211", label: "211 — Food, Shelter, & Services", color: "var(--accent-blue)", icon: <HomeIcon size={20} color="var(--accent-blue)" /> },
+                { href: "sms:741741&body=HELLO", label: "Text HOME to 741741", color: "var(--accent-purple)", icon: <ChatIcon size={20} color="var(--accent-purple)" /> },
+                { href: "tel:18007997233", label: "SAMHSA Helpline", color: "var(--accent-gold)", icon: <HandshakeIcon size={20} color="var(--accent-gold)" /> },
+              ].map((item) => (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.75rem",
+                    padding: "0.85rem 1rem",
+                    backgroundColor: "var(--bg-card)",
+                    border: `1px solid ${item.color}40`,
+                    borderRadius: "12px",
+                    color: "var(--text-primary)",
+                    fontWeight: "600",
+                    fontSize: "0.9rem",
+                    fontFamily: "var(--font-display)",
+                    transition: "all 0.2s",
+                  }}
+                >
+                  {item.icon}
+                  {item.label}
+                </a>
+              ))}
+            </div>
+            <button
+              onClick={() => setOpen(false)}
+              style={{
+                width: "100%",
+                padding: "0.75rem",
+                marginTop: "1rem",
+                backgroundColor: "var(--bg-card)",
+                color: "var(--text-muted)",
+                border: "1px solid var(--border-color)",
+                borderRadius: "12px",
+                fontWeight: "600",
+                fontSize: "0.85rem",
+                fontFamily: "var(--font-display)",
+              }}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
