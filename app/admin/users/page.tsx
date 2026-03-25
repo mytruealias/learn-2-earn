@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useToast } from "../AdminToastContext";
+import styles from "../users.module.css";
 
 interface UserSummary {
   id: string;
@@ -31,6 +33,7 @@ interface UserDetail {
   streak: number;
   createdAt: string;
   lastActiveAt: string;
+  isActive: boolean;
   consentGiven: boolean;
   progress: Array<{
     id: string;
@@ -47,6 +50,13 @@ interface UserDetail {
   }>;
 }
 
+interface EditForm {
+  caseNumber: string;
+  xpAdjustment: string;
+  xpReason: string;
+  isActive: boolean;
+}
+
 function formatDate(d: string) {
   return new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
@@ -56,6 +66,7 @@ function formatDateTime(d: string) {
 }
 
 export default function AdminUsersPage() {
+  const { showToast } = useToast();
   const [users, setUsers] = useState<UserSummary[]>([]);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -63,13 +74,14 @@ export default function AdminUsersPage() {
   const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState<UserDetail | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
+  const [showEdit, setShowEdit] = useState(false);
+  const [editForm, setEditForm] = useState<EditForm>({ caseNumber: "", xpAdjustment: "", xpReason: "", isActive: true });
+  const [editError, setEditError] = useState("");
+  const [editSaving, setEditSaving] = useState(false);
 
   const fetchUsers = () => {
     setLoading(true);
-    const token = localStorage.getItem("l2e_admin_token");
-    const headers: Record<string, string> = {};
-    if (token) headers["Authorization"] = `Bearer ${token}`;
-    fetch(`/api/admin/users?search=${encodeURIComponent(search)}&page=${page}`, { headers })
+    fetch(`/api/admin/users?search=${encodeURIComponent(search)}&page=${page}`, { credentials: "include" })
       .then((r) => r.json())
       .then((data) => {
         if (data.ok) {
@@ -92,16 +104,77 @@ export default function AdminUsersPage() {
 
   const viewUser = (userId: string) => {
     setDetailLoading(true);
-    const token = localStorage.getItem("l2e_admin_token");
-    const headers: Record<string, string> = {};
-    if (token) headers["Authorization"] = `Bearer ${token}`;
-    fetch(`/api/admin/users/${userId}`, { headers })
+    fetch(`/api/admin/users/${userId}`, { credentials: "include" })
       .then((r) => r.json())
       .then((data) => {
         if (data.ok) setSelectedUser(data.user);
       })
       .finally(() => setDetailLoading(false));
   };
+
+  const openEdit = () => {
+    if (!selectedUser) return;
+    setEditForm({
+      caseNumber: selectedUser.caseNumber || "",
+      xpAdjustment: "",
+      xpReason: "",
+      isActive: selectedUser.isActive,
+    });
+    setEditError("");
+    setShowEdit(true);
+  };
+
+  const handleSaveEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedUser) return;
+    setEditError("");
+    setEditSaving(true);
+
+    const xpAdj = editForm.xpAdjustment ? parseInt(editForm.xpAdjustment) : 0;
+    if (xpAdj !== 0 && !editForm.xpReason.trim()) {
+      setEditError("A reason is required for XP adjustments");
+      setEditSaving(false);
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/admin/users/${selectedUser.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          caseNumber: editForm.caseNumber,
+          xpAdjustment: xpAdj || undefined,
+          xpReason: editForm.xpReason || undefined,
+          isActive: editForm.isActive,
+        }),
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (data.ok) {
+        setSelectedUser((prev) =>
+          prev ? {
+            ...prev,
+            caseNumber: data.user.caseNumber,
+            totalXp: data.user.totalXp,
+            isActive: data.user.isActive ?? prev.isActive,
+            consentGiven: data.user.consentGiven,
+          } : prev
+        );
+        setShowEdit(false);
+        showToast("User updated successfully", "success");
+      } else {
+        setEditError(data.error || "Failed to update user");
+      }
+    } catch {
+      setEditError("Connection error");
+    } finally {
+      setEditSaving(false);
+    }
+  };
+
+  if (detailLoading) {
+    return <div className={styles.loading}>Loading user...</div>;
+  }
 
   if (selectedUser) {
     const totalPayoutXp = selectedUser.payoutRequests
@@ -111,125 +184,128 @@ export default function AdminUsersPage() {
 
     return (
       <div>
-        <button
-          onClick={() => setSelectedUser(null)}
-          style={{
-            fontFamily: "'Share Tech Mono', monospace",
-            fontSize: "0.75rem",
-            color: "#00ff88",
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-            letterSpacing: "0.1em",
-            marginBottom: "1.5rem",
-          }}
-        >
-          {'<'} back_to_users
+        <button onClick={() => setSelectedUser(null)} className={styles.backBtn}>
+          {"<"} back_to_users
         </button>
 
-        <div style={{
-          backgroundColor: "#15202b",
-          border: "1px solid #253341",
-          padding: "1.5rem",
-          marginBottom: "1.5rem",
-        }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+        {showEdit && (
+          <div className={styles.modalOverlay} onClick={(e) => e.target === e.currentTarget && setShowEdit(false)}>
+            <div className={styles.modal}>
+              <h2 className={styles.modalTitle}>Edit User</h2>
+              {editError && <div className={styles.modalError}>{editError}</div>}
+              <form onSubmit={handleSaveEdit}>
+                <div className={styles.modalField}>
+                  <label className={styles.modalLabel}>Case Number</label>
+                  <input
+                    className={styles.modalInput}
+                    value={editForm.caseNumber}
+                    onChange={(e) => setEditForm((f) => ({ ...f, caseNumber: e.target.value }))}
+                    placeholder="e.g. CASE-12345"
+                  />
+                </div>
+                <div className={styles.modalRow}>
+                  <div className={styles.modalField}>
+                    <label className={styles.modalLabel}>XP Adjustment</label>
+                    <input
+                      type="number"
+                      className={styles.modalInput}
+                      value={editForm.xpAdjustment}
+                      onChange={(e) => setEditForm((f) => ({ ...f, xpAdjustment: e.target.value }))}
+                      placeholder="e.g. +50 or -20"
+                    />
+                  </div>
+                  <div className={styles.modalField}>
+                    <label className={styles.modalLabel}>Reason (required for XP)</label>
+                    <input
+                      className={styles.modalInput}
+                      value={editForm.xpReason}
+                      onChange={(e) => setEditForm((f) => ({ ...f, xpReason: e.target.value }))}
+                      placeholder="Why?"
+                    />
+                  </div>
+                </div>
+                <div className={styles.modalField}>
+                  <label className={styles.modalLabel}>Account Status</label>
+                  <select
+                    className={styles.modalSelect}
+                    value={editForm.isActive ? "active" : "inactive"}
+                    onChange={(e) => setEditForm((f) => ({ ...f, isActive: e.target.value === "active" }))}
+                  >
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive / Deactivated</option>
+                  </select>
+                </div>
+                <div className={styles.modalActions}>
+                  <button type="submit" disabled={editSaving} className={styles.modalSaveBtn}>
+                    {editSaving ? "SAVING..." : "SAVE"}
+                  </button>
+                  <button type="button" className={styles.modalCancelBtn} onClick={() => setShowEdit(false)}>
+                    CANCEL
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        <div className={styles.detailCard}>
+          <div className={styles.detailHeader}>
             <div>
-              <h1 style={{
-                fontFamily: "'Rajdhani', sans-serif",
-                fontSize: "1.5rem",
-                fontWeight: "700",
-                color: "#e1e8ed",
-                marginBottom: "0.25rem",
-              }}>{selectedUser.fullName || "Guest User"}</h1>
-              <div style={{ fontSize: "0.85rem", color: "#8899a6" }}>
+              <h1 className={styles.detailName}>{selectedUser.fullName || "Guest User"}</h1>
+              <div className={styles.detailEmail}>
                 {selectedUser.email || "No email"} {selectedUser.caseNumber && `• Case: ${selectedUser.caseNumber}`}
               </div>
-              <div style={{ fontSize: "0.75rem", color: "#8899a6", marginTop: "0.25rem" }}>
+              <div className={styles.detailLocation}>
                 {selectedUser.city && `${selectedUser.city}, `}{selectedUser.state} {selectedUser.zipCode}
               </div>
             </div>
-            <div style={{
-              fontFamily: "'Share Tech Mono', monospace",
-              fontSize: "0.6rem",
-              color: selectedUser.consentGiven ? "#00ff88" : "#ff6b6b",
-              border: `1px solid ${selectedUser.consentGiven ? "rgba(0,255,136,0.3)" : "rgba(255,107,107,0.3)"}`,
-              padding: "0.3rem 0.6rem",
-              letterSpacing: "0.1em",
-            }}>
-              {selectedUser.consentGiven ? "CONSENT_GIVEN" : "NO_CONSENT"}
+            <div className={styles.detailHeaderActions}>
+              <span className={`${styles.consentBadge} ${selectedUser.consentGiven ? styles.consentYes : styles.consentNo}`}>
+                {selectedUser.consentGiven ? "CONSENT_GIVEN" : "NO_CONSENT"}
+              </span>
+              <button className={styles.editBtn} onClick={openEdit}>EDIT</button>
             </div>
           </div>
 
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))",
-            gap: "1rem",
-            marginTop: "1.5rem",
-            paddingTop: "1rem",
-            borderTop: "1px solid #253341",
-          }}>
-            <div>
-              <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: "0.6rem", color: "#8899a6", letterSpacing: "0.1em" }}>TOTAL_XP</div>
-              <div style={{ fontSize: "1.25rem", fontWeight: "700", color: "#ffd700" }}>{selectedUser.totalXp}</div>
+          <div className={styles.detailStats}>
+            <div className={styles.statItem}>
+              <span className={styles.statItemLabel}>TOTAL_XP</span>
+              <span className={`${styles.statItemValue} ${styles.xpColor}`}>{selectedUser.totalXp}</span>
             </div>
-            <div>
-              <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: "0.6rem", color: "#8899a6", letterSpacing: "0.1em" }}>AVAILABLE_XP</div>
-              <div style={{ fontSize: "1.25rem", fontWeight: "700", color: "#00ff88" }}>{availableXp}</div>
+            <div className={styles.statItem}>
+              <span className={styles.statItemLabel}>AVAILABLE_XP</span>
+              <span className={`${styles.statItemValue} ${styles.availColor}`}>{availableXp}</span>
             </div>
-            <div>
-              <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: "0.6rem", color: "#8899a6", letterSpacing: "0.1em" }}>LESSONS</div>
-              <div style={{ fontSize: "1.25rem", fontWeight: "700", color: "#00d4ff" }}>{selectedUser.progress.length}</div>
+            <div className={styles.statItem}>
+              <span className={styles.statItemLabel}>LESSONS</span>
+              <span className={`${styles.statItemValue} ${styles.lessonsColor}`}>{selectedUser.progress.length}</span>
             </div>
-            <div>
-              <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: "0.6rem", color: "#8899a6", letterSpacing: "0.1em" }}>STREAK</div>
-              <div style={{ fontSize: "1.25rem", fontWeight: "700", color: "#a855f7" }}>{selectedUser.streak}</div>
+            <div className={styles.statItem}>
+              <span className={styles.statItemLabel}>STREAK</span>
+              <span className={`${styles.statItemValue} ${styles.streakColor}`}>{selectedUser.streak}</span>
             </div>
-            <div>
-              <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: "0.6rem", color: "#8899a6", letterSpacing: "0.1em" }}>JOINED</div>
-              <div style={{ fontSize: "0.85rem", fontWeight: "600", color: "#e1e8ed" }}>{formatDate(selectedUser.createdAt)}</div>
+            <div className={styles.statItem}>
+              <span className={styles.statItemLabel}>JOINED</span>
+              <span className={`${styles.statItemValue} ${styles.joinedValue}`}>{formatDate(selectedUser.createdAt)}</span>
             </div>
           </div>
         </div>
 
         {selectedUser.progress.length > 0 && (
-          <div style={{
-            backgroundColor: "#15202b",
-            border: "1px solid #253341",
-            padding: "1.5rem",
-            marginBottom: "1.5rem",
-          }}>
-            <h2 style={{
-              fontFamily: "'Share Tech Mono', monospace",
-              fontSize: "0.75rem",
-              color: "#8899a6",
-              letterSpacing: "0.1em",
-              marginBottom: "1rem",
-            }}>LESSON_HISTORY</h2>
-            <div style={{ display: "grid", gap: "0.5rem" }}>
+          <div className={styles.historyCard}>
+            <h2 className={styles.historyTitle}>LESSON_HISTORY</h2>
+            <div className={styles.historyList}>
               {selectedUser.progress.slice(0, 20).map((p) => (
-                <div key={p.id} style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  padding: "0.5rem 0.75rem",
-                  backgroundColor: "#0f1419",
-                  border: "1px solid #253341",
-                  fontSize: "0.8rem",
-                }}>
+                <div key={p.id} className={styles.historyItem}>
                   <div>
-                    <span style={{ color: "#e1e8ed" }}>{p.lesson.title}</span>
-                    <span style={{ color: "#8899a6", marginLeft: "0.5rem", fontSize: "0.7rem" }}>
+                    <span className={styles.lessonName}>{p.lesson.title}</span>
+                    <span className={styles.lessonPath}>
                       {p.lesson.module.path.title} › {p.lesson.module.title}
                     </span>
                   </div>
-                  <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
-                    <span style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: "0.7rem", color: "#ffd700" }}>
-                      +{p.xpEarned}xp
-                    </span>
-                    <span style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: "0.65rem", color: "#8899a6" }}>
-                      {formatDateTime(p.completedAt)}
-                    </span>
+                  <div className={styles.historyMeta}>
+                    <span className={styles.xpTag}>+{p.xpEarned}xp</span>
+                    <span className={styles.dateTag}>{formatDateTime(p.completedAt)}</span>
                   </div>
                 </div>
               ))}
@@ -238,47 +314,17 @@ export default function AdminUsersPage() {
         )}
 
         {selectedUser.payoutRequests.length > 0 && (
-          <div style={{
-            backgroundColor: "#15202b",
-            border: "1px solid #253341",
-            padding: "1.5rem",
-          }}>
-            <h2 style={{
-              fontFamily: "'Share Tech Mono', monospace",
-              fontSize: "0.75rem",
-              color: "#8899a6",
-              letterSpacing: "0.1em",
-              marginBottom: "1rem",
-            }}>PAYOUT_HISTORY</h2>
-            <div style={{ display: "grid", gap: "0.5rem" }}>
+          <div className={styles.historyCard}>
+            <h2 className={styles.historyTitle}>PAYOUT_HISTORY</h2>
+            <div className={styles.historyList}>
               {selectedUser.payoutRequests.map((p) => {
-                const statusColor = { pending: "#ffd700", reviewed: "#00d4ff", approved: "#00ff88", completed: "#00ff88", rejected: "#ff6b6b" }[p.status] || "#8899a6";
+                const statusCls = ({ pending: "statusYellow", reviewed: "statusBlue", approved: "statusGreen", completed: "statusGreen", rejected: "statusRed" } as Record<string, string>)[p.status] || "statusDefault";
                 return (
-                  <div key={p.id} style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    padding: "0.5rem 0.75rem",
-                    backgroundColor: "#0f1419",
-                    border: "1px solid #253341",
-                    fontSize: "0.8rem",
-                  }}>
-                    <div>
-                      <span style={{ color: "#e1e8ed" }}>{p.xpAmount} XP → ${p.dollarAmount.toFixed(2)}</span>
-                    </div>
-                    <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
-                      <span style={{
-                        fontFamily: "'Share Tech Mono', monospace",
-                        fontSize: "0.65rem",
-                        color: statusColor,
-                        border: `1px solid ${statusColor}`,
-                        padding: "0.15rem 0.5rem",
-                        letterSpacing: "0.1em",
-                        textTransform: "uppercase",
-                      }}>{p.status}</span>
-                      <span style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: "0.65rem", color: "#8899a6" }}>
-                        {formatDate(p.createdAt)}
-                      </span>
+                  <div key={p.id} className={styles.historyItem}>
+                    <span className={styles.payoutHistoryAmount}>{p.xpAmount} XP → ${p.dollarAmount.toFixed(2)}</span>
+                    <div className={styles.historyMeta}>
+                      <span className={`${styles.statusBadge} ${styles[statusCls]}`}>{p.status}</span>
+                      <span className={styles.dateTag}>{formatDate(p.createdAt)}</span>
                     </div>
                   </div>
                 );
@@ -291,137 +337,64 @@ export default function AdminUsersPage() {
   }
 
   return (
-    <div>
-      <div style={{ marginBottom: "2rem" }}>
-        <div style={{
-          fontFamily: "'Share Tech Mono', monospace",
-          fontSize: "0.65rem",
-          color: "#00ff88",
-          letterSpacing: "0.15em",
-          marginBottom: "0.25rem",
-        }}>USER_MANAGEMENT</div>
-        <h1 style={{
-          fontFamily: "'Rajdhani', sans-serif",
-          fontSize: "1.75rem",
-          fontWeight: "700",
-          color: "#e1e8ed",
-        }}>Users</h1>
+    <div className={styles.page}>
+      <div className={styles.pageHeader}>
+        <div className={styles.pageTag}>USER_MANAGEMENT</div>
+        <h1 className={styles.pageTitle}>Users</h1>
       </div>
 
-      <form onSubmit={handleSearch} style={{
-        display: "flex",
-        gap: "0.75rem",
-        marginBottom: "1.5rem",
-      }}>
+      <form onSubmit={handleSearch} className={styles.searchForm}>
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search by name, email, or case number..."
-          style={{
-            flex: 1,
-            padding: "0.75rem",
-            backgroundColor: "#15202b",
-            border: "1px solid #253341",
-            color: "#e1e8ed",
-            fontSize: "0.85rem",
-            fontFamily: "'Share Tech Mono', monospace",
-            outline: "none",
-          }}
+          className={styles.searchInput}
         />
-        <button type="submit" style={{
-          padding: "0.75rem 1.5rem",
-          backgroundColor: "#00ff88",
-          color: "#0f1419",
-          border: "none",
-          fontFamily: "'Share Tech Mono', monospace",
-          fontSize: "0.8rem",
-          fontWeight: "700",
-          letterSpacing: "0.1em",
-          cursor: "pointer",
-        }}>SEARCH</button>
+        <button type="submit" className={styles.searchBtn}>SEARCH</button>
       </form>
 
       {loading ? (
-        <div style={{ color: "#8899a6", fontFamily: "'Share Tech Mono', monospace" }}>Loading...</div>
+        <div className={styles.loading}>Loading...</div>
       ) : (
         <>
-          <div style={{ display: "grid", gap: "0.5rem" }}>
+          <div className={styles.userList}>
             {users.map((user) => (
               <div
                 key={user.id}
                 onClick={() => viewUser(user.id)}
-                style={{
-                  backgroundColor: "#15202b",
-                  border: "1px solid #253341",
-                  padding: "1rem 1.25rem",
-                  cursor: "pointer",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
+                className={styles.userRow}
               >
                 <div>
-                  <div style={{ color: "#e1e8ed", fontWeight: "600", fontSize: "0.9rem" }}>
-                    {user.fullName || "Guest User"}
-                  </div>
-                  <div style={{ color: "#8899a6", fontSize: "0.75rem", marginTop: "0.15rem" }}>
+                  <div className={styles.userName}>{user.fullName || "Guest User"}</div>
+                  <div className={styles.userMeta}>
                     {user.email || "No email"} {user.caseNumber && `• Case: ${user.caseNumber}`}
                   </div>
                 </div>
-                <div style={{ display: "flex", gap: "1.5rem", alignItems: "center" }}>
-                  <div style={{ textAlign: "right" }}>
-                    <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: "0.7rem", color: "#ffd700" }}>
-                      {user.totalXp} XP
-                    </div>
-                    <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: "0.6rem", color: "#8899a6" }}>
-                      {user._count.progress} lessons
-                    </div>
+                <div className={styles.userStats}>
+                  <div className={styles.xpDisplay}>
+                    <div className={styles.xpAmount}>{user.totalXp} XP</div>
+                    <div className={styles.lessonCount}>{user._count.progress} lessons</div>
                   </div>
-                  <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: "0.65rem", color: "#8899a6" }}>
-                    {formatDate(user.lastActiveAt)}
-                  </div>
-                  <span style={{ color: "#8899a6" }}>{'>'}</span>
+                  <div className={styles.lastActive}>{formatDate(user.lastActiveAt)}</div>
+                  <span className={styles.chevron}>{">"}</span>
                 </div>
               </div>
             ))}
           </div>
 
           {totalPages > 1 && (
-            <div style={{ display: "flex", justifyContent: "center", gap: "1rem", marginTop: "1.5rem" }}>
+            <div className={styles.pagination}>
               <button
                 onClick={() => setPage(Math.max(1, page - 1))}
                 disabled={page <= 1}
-                style={{
-                  padding: "0.5rem 1rem",
-                  backgroundColor: page <= 1 ? "#253341" : "#15202b",
-                  border: "1px solid #253341",
-                  color: page <= 1 ? "#8899a6" : "#e1e8ed",
-                  fontFamily: "'Share Tech Mono', monospace",
-                  fontSize: "0.75rem",
-                  cursor: page <= 1 ? "default" : "pointer",
-                }}
+                className={styles.pageBtn}
               >PREV</button>
-              <span style={{
-                fontFamily: "'Share Tech Mono', monospace",
-                fontSize: "0.75rem",
-                color: "#8899a6",
-                alignSelf: "center",
-              }}>
-                {page} / {totalPages}
-              </span>
+              <span className={styles.pageInfo}>{page} / {totalPages}</span>
               <button
                 onClick={() => setPage(Math.min(totalPages, page + 1))}
                 disabled={page >= totalPages}
-                style={{
-                  padding: "0.5rem 1rem",
-                  backgroundColor: page >= totalPages ? "#253341" : "#15202b",
-                  border: "1px solid #253341",
-                  color: page >= totalPages ? "#8899a6" : "#e1e8ed",
-                  fontFamily: "'Share Tech Mono', monospace",
-                  fontSize: "0.75rem",
-                  cursor: page >= totalPages ? "default" : "pointer",
-                }}
+                className={styles.pageBtn}
               >NEXT</button>
             </div>
           )}

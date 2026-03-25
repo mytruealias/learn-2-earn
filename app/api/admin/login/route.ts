@@ -12,29 +12,30 @@ export async function POST(req: Request) {
     }
 
     const result = await adminLogin(email, password);
-    if (!result) {
+
+    if (!result.success) {
       await logAudit({
         action: "LOGIN_FAILED",
         entity: "AdminUser",
-        details: JSON.stringify({ email }),
+        details: JSON.stringify({ email, reason: result.error }),
         ipAddress: req.headers.get("x-forwarded-for") || "unknown",
       });
-      return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
+      return NextResponse.json({ error: result.error }, { status: 401 });
     }
 
     await logAudit({
-      adminId: result.admin.id,
+      adminId: result.admin!.id,
       action: "LOGIN_SUCCESS",
       entity: "AdminUser",
-      entityId: result.admin.id,
+      entityId: result.admin!.id,
       ipAddress: req.headers.get("x-forwarded-for") || "unknown",
     });
 
-    const response = NextResponse.json({ ok: true, admin: result.admin, token: result.token });
-    response.cookies.set(SESSION_COOKIE, result.token, {
-      httpOnly: false,
-      secure: true,
-      sameSite: "none",
+    const response = NextResponse.json({ ok: true, admin: result.admin });
+    response.cookies.set(SESSION_COOKIE, result.token!, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
       maxAge: 8 * 60 * 60,
       path: "/",
     });

@@ -1,0 +1,139 @@
+.page {
+  color: #e1e8ed;
+}
+
+.pageHeader {
+  margin-bottom: 2rem;
+}
+
+.pageTag {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  color: #00ff88;
+  letter-spacing: 0.15em;
+  margin-bottom: 0.25rem;
+}
+
+.pageTitle {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #e1e8ed;
+  margin: 0;
+}
+
+.section {
+  margin-bottom: 2rem;
+}
+
+.sectionTitle {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.75rem;
+  color: #8899a6;
+  letter-spacing: 0.1em;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+}
+
+.statGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.statCard {
+  background-color: #15202b;
+  border: 1px solid #253341;
+  border-top: 2px solid #8899a6;
+  padding: 1.25rem;
+}
+
+.colorGreen  { border-top-color: #00ff88; }
+.colorBlue   { border-top-color: #00d4ff; }
+.colorYellow { border-top-color: #ffd700; }
+.colorPurple { border-top-color: #a855f7; }
+.colorRed    { border-top-color: #ff6b6b; }
+.colorMuted  { border-top-color: #8899a6; }
+
+.colorGreen  .statValue { color: #00ff88; }
+.colorBlue   .statValue { color: #00d4ff; }
+.colorYellow .statValue { color: #ffd700; }
+.colorPurple .statValue { color: #a855f7; }
+.colorRed    .statValue { color: #ff6b6b; }
+.colorMuted  .statValue { color: #8899a6; }
+
+.statLabel {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  color: #8899a6;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+}
+
+.statValue {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+  color: #e1e8ed;
+}
+
+.statSub {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  color: #8899a6;
+  margin-top: 0.5rem;
+}
+
+.chartsRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.chartCard {
+  background-color: #15202b;
+  border: 1px solid #253341;
+  padding: 1.25rem;
+}
+
+.chartTitle {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  color: #8899a6;
+  letter-spacing: 0.1em;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+}
+
+.chartArea {
+  width: 100%;
+  height: 120px;
+  overflow: visible;
+}
+
+.chartLoading {
+  color: #8899a6;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.75rem;
+  text-align: center;
+  padding: 2rem 0;
+}
+
+.loading {
+  color: #8899a6;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.error {
+  color: #ff6b6b;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+@media (max-width: 768px) {
+  .chartsRow {
+    grid-template-columns: 1fr;
+  }
+}

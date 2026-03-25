@@ -1,0 +1,323 @@
+.page {
+  color: #e1e8ed;
+}
+
+.pageHeader {
+  margin-bottom: 2rem;
+}
+
+.pageTag {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  color: #00ff88;
+  letter-spacing: 0.15em;
+  margin-bottom: 0.25rem;
+}
+
+.pageTitle {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #e1e8ed;
+  margin: 0;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1.5rem;
+}
+
+.createBtn {
+  padding: 0.65rem 1.25rem;
+  background-color: #00ff88;
+  color: #0f1419;
+  border: none;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+}
+
+.staffList {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.staffRow {
+  background-color: #15202b;
+  border: 1px solid #253341;
+  padding: 1rem 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.staffInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.staffName {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #e1e8ed;
+}
+
+.staffEmail {
+  font-size: 0.75rem;
+  color: #8899a6;
+}
+
+.staffMeta {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.staffRole {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  color: #00d4ff;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.staffLastLogin {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  color: #8899a6;
+}
+
+.statusBadge {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem;
+  padding: 0.2rem 0.5rem;
+  border: 1px solid;
+  letter-spacing: 0.1em;
+}
+
+.statusActive {
+  color: #00ff88;
+  border-color: rgba(0, 255, 136, 0.3);
+}
+
+.statusInactive {
+  color: #ff6b6b;
+  border-color: rgba(255, 107, 107, 0.3);
+}
+
+.statusLocked {
+  color: #ffd700;
+  border-color: rgba(255, 215, 0, 0.3);
+}
+
+.accessDenied {
+  color: #ff6b6b;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.staffActions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.deactivateBtn {
+  padding: 0.4rem 0.8rem;
+  background-color: transparent;
+  color: #ff6b6b;
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  cursor: pointer;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  transition: background-color 0.15s;
+}
+
+.deactivateBtn:hover {
+  background-color: rgba(255, 107, 107, 0.1);
+}
+
+.reactivateBtn {
+  padding: 0.4rem 0.8rem;
+  background-color: transparent;
+  color: #00ff88;
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  cursor: pointer;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  transition: background-color 0.15s;
+}
+
+.reactivateBtn:hover {
+  background-color: rgba(0, 255, 136, 0.1);
+}
+
+.loading {
+  color: #8899a6;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+/* Modal */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+  padding: 1rem;
+}
+
+.modal {
+  background-color: #15202b;
+  border: 1px solid #253341;
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 440px;
+}
+
+.modalTitle {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #e1e8ed;
+  margin: 0 0 1.5rem;
+}
+
+.modalField {
+  margin-bottom: 1rem;
+}
+
+.modalLabel {
+  display: block;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  color: #8899a6;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.4rem;
+  text-transform: uppercase;
+}
+
+.modalInput {
+  width: 100%;
+  padding: 0.65rem;
+  background-color: #0f1419;
+  border: 1px solid #253341;
+  color: #e1e8ed;
+  font-size: 0.85rem;
+  font-family: 'Share Tech Mono', monospace;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+
+.modalInput:focus {
+  border-color: #00ff88;
+}
+
+.modalSelect {
+  width: 100%;
+  padding: 0.65rem;
+  background-color: #0f1419;
+  border: 1px solid #253341;
+  color: #e1e8ed;
+  font-size: 0.85rem;
+  font-family: 'Share Tech Mono', monospace;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.modalError {
+  padding: 0.6rem;
+  background-color: rgba(255, 107, 107, 0.1);
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  color: #ff6b6b;
+  font-size: 0.8rem;
+  font-family: 'Share Tech Mono', monospace;
+  margin-bottom: 1rem;
+}
+
+.tempPassword {
+  padding: 0.75rem;
+  background-color: rgba(0, 255, 136, 0.05);
+  border: 1px solid rgba(0, 255, 136, 0.2);
+  margin-bottom: 1rem;
+}
+
+.tempPasswordLabel {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem;
+  color: #00ff88;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.4rem;
+}
+
+.tempPasswordValue {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.9rem;
+  color: #e1e8ed;
+  word-break: break-all;
+}
+
+.tempPasswordNote {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem;
+  color: #8899a6;
+  margin-top: 0.4rem;
+}
+
+.modalActions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.modalSaveBtn {
+  padding: 0.65rem 1.25rem;
+  background-color: #00ff88;
+  color: #0f1419;
+  border: none;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.1em;
+}
+
+.modalSaveBtn:disabled {
+  background-color: #253341;
+  color: #8899a6;
+  cursor: default;
+}
+
+.modalCancelBtn {
+  padding: 0.65rem 1.25rem;
+  background-color: transparent;
+  color: #8899a6;
+  border: 1px solid #253341;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.75rem;
+  cursor: pointer;
+  letter-spacing: 0.1em;
+}
+
+@media (max-width: 600px) {
+  .staffRow {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .staffMeta {
+    gap: 0.5rem;
+  }
+}

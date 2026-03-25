@@ -1,0 +1,182 @@
+.loadingScreen {
+  min-height: 100vh;
+  background-color: #0f1419;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #8899a6;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.adminShell {
+  min-height: 100vh;
+  background-color: #0f1419;
+  display: flex;
+}
+
+.sidebar {
+  width: 240px;
+  background-color: #15202b;
+  border-right: 1px solid #253341;
+  padding: 1.5rem 0;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 100;
+  transition: transform 0.25s ease;
+}
+
+.sidebarBrand {
+  padding: 0 1.25rem 1.5rem;
+  border-bottom: 1px solid #253341;
+  margin-bottom: 1rem;
+}
+
+.brandTag {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  color: #00ff88;
+  letter-spacing: 0.15em;
+  margin-bottom: 0.25rem;
+}
+
+.brandTitle {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #e1e8ed;
+}
+
+.sidebarNav {
+  flex: 1;
+  padding: 0 0.75rem;
+  overflow-y: auto;
+}
+
+.navLink {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  color: #8899a6;
+  background-color: transparent;
+  border-left: 2px solid transparent;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  text-decoration: none;
+  margin-bottom: 0.25rem;
+  transition: color 0.15s, background-color 0.15s;
+}
+
+.navLink:hover {
+  color: #e1e8ed;
+  background-color: rgba(255, 255, 255, 0.04);
+}
+
+.navLinkActive {
+  color: #00ff88;
+  background-color: rgba(0, 255, 136, 0.08);
+  border-left-color: #00ff88;
+}
+
+.navIcon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.sidebarFooter {
+  padding: 1rem 1.25rem;
+  border-top: 1px solid #253341;
+}
+
+.adminName {
+  font-size: 0.75rem;
+  color: #e1e8ed;
+  margin-bottom: 0.25rem;
+  font-weight: 600;
+}
+
+.adminRole {
+  font-size: 0.65rem;
+  color: #8899a6;
+  font-family: 'Share Tech Mono', monospace;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+}
+
+.logoutBtn {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  color: #ff6b6b;
+  background: none;
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  padding: 0.4rem 0.75rem;
+  cursor: pointer;
+  letter-spacing: 0.1em;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.logoutBtn:hover {
+  background-color: rgba(255, 107, 107, 0.1);
+}
+
+.mainContent {
+  flex: 1;
+  margin-left: 240px;
+  padding: 2rem;
+  min-width: 0;
+}
+
+.hamburger {
+  display: none;
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 200;
+  background: #15202b;
+  border: 1px solid #253341;
+  color: #e1e8ed;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.1rem;
+}
+
+.sidebarOverlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 99;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+  }
+
+  .sidebarOpen {
+    transform: translateX(0);
+  }
+
+  .sidebarOverlay {
+    display: block;
+  }
+
+  .mainContent {
+    margin-left: 0;
+    padding: 1rem;
+    padding-top: 4rem;
+  }
+
+  .hamburger {
+    display: flex;
+  }
+}

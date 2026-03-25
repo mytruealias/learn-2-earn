@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import styles from "../audit.module.css";
 
 interface AuditEntry {
   id: string;
@@ -13,15 +14,19 @@ interface AuditEntry {
   admin: { fullName: string; email: string; role: string } | null;
 }
 
-const actionColors: Record<string, string> = {
-  LOGIN_SUCCESS: "#00ff88",
-  LOGIN_FAILED: "#ff6b6b",
-  VIEW_USERS: "#00d4ff",
-  VIEW_USER_DETAIL: "#00d4ff",
-  PAYOUT_REVIEW: "#ffd700",
-  PAYOUT_APPROVE: "#00ff88",
-  PAYOUT_REJECT: "#ff6b6b",
-  PAYOUT_COMPLETE: "#00ff88",
+const actionColorClass: Record<string, string> = {
+  LOGIN_SUCCESS: "colorGreen",
+  LOGIN_FAILED: "colorRed",
+  VIEW_USERS: "colorBlue",
+  VIEW_USER_DETAIL: "colorBlue",
+  PAYOUT_REVIEW: "colorYellow",
+  PAYOUT_APPROVE: "colorGreen",
+  PAYOUT_REJECT: "colorRed",
+  PAYOUT_COMPLETE: "colorGreen",
+  USER_EDIT: "colorPurple",
+  STAFF_CREATE: "colorGreen",
+  STAFF_DEACTIVATE: "colorRed",
+  STAFF_REACTIVATE: "colorGreen",
 };
 
 function formatDateTime(d: string) {
@@ -45,10 +50,7 @@ export default function AdminAuditPage() {
     setLoading(true);
     const params = new URLSearchParams({ page: String(page) });
     if (entityFilter) params.set("entity", entityFilter);
-    const token = localStorage.getItem("l2e_admin_token");
-    const headers: Record<string, string> = {};
-    if (token) headers["Authorization"] = `Bearer ${token}`;
-    fetch(`/api/admin/audit?${params}`, { headers })
+    fetch(`/api/admin/audit?${params}`, { credentials: "include" })
       .then((r) => r.json())
       .then((data) => {
         if (data.ok) {
@@ -64,129 +66,56 @@ export default function AdminAuditPage() {
   }, [page, entityFilter]);
 
   return (
-    <div>
-      <div style={{ marginBottom: "2rem" }}>
-        <div style={{
-          fontFamily: "'Share Tech Mono', monospace",
-          fontSize: "0.65rem",
-          color: "#00ff88",
-          letterSpacing: "0.15em",
-          marginBottom: "0.25rem",
-        }}>SECURITY_LOG</div>
-        <h1 style={{
-          fontFamily: "'Rajdhani', sans-serif",
-          fontSize: "1.75rem",
-          fontWeight: "700",
-          color: "#e1e8ed",
-        }}>Audit Trail</h1>
+    <div className={styles.page}>
+      <div className={styles.pageHeader}>
+        <div className={styles.pageTag}>SECURITY_LOG</div>
+        <h1 className={styles.pageTitle}>Audit Trail</h1>
       </div>
 
-      <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1.5rem", flexWrap: "wrap" }}>
+      <div className={styles.filterRow}>
         {["", "AdminUser", "User", "PayoutRequest"].map((e) => (
           <button
             key={e}
             onClick={() => { setEntityFilter(e); setPage(1); }}
-            style={{
-              padding: "0.5rem 1rem",
-              backgroundColor: entityFilter === e ? "#00ff88" : "#15202b",
-              color: entityFilter === e ? "#0f1419" : "#8899a6",
-              border: "1px solid #253341",
-              fontFamily: "'Share Tech Mono', monospace",
-              fontSize: "0.7rem",
-              letterSpacing: "0.1em",
-              cursor: "pointer",
-              textTransform: "uppercase",
-            }}
-          >{e || "ALL"}</button>
+            className={`${styles.filterBtn} ${entityFilter === e ? styles.filterBtnActive : ""}`}
+          >
+            {e || "ALL"}
+          </button>
         ))}
       </div>
 
       {loading ? (
-        <div style={{ color: "#8899a6", fontFamily: "'Share Tech Mono', monospace" }}>Loading...</div>
+        <div className={styles.loading}>Loading...</div>
       ) : logs.length === 0 ? (
-        <div style={{
-          color: "#8899a6",
-          fontFamily: "'Share Tech Mono', monospace",
-          textAlign: "center",
-          padding: "3rem",
-          backgroundColor: "#15202b",
-          border: "1px solid #253341",
-        }}>
-          No audit entries found
-        </div>
+        <div className={styles.emptyState}>No audit entries found</div>
       ) : (
-        <div style={{ display: "grid", gap: "0.5rem" }}>
+        <div className={styles.logList}>
           {logs.map((log) => {
-            const color = actionColors[log.action] || "#8899a6";
+            const colorClass = actionColorClass[log.action] || "colorDefault";
             return (
-              <div key={log.id} style={{
-                backgroundColor: "#15202b",
-                border: "1px solid #253341",
-                padding: "0.85rem 1rem",
-                display: "flex",
-                gap: "1rem",
-                alignItems: "flex-start",
-              }}>
-                <div style={{
-                  fontFamily: "'Share Tech Mono', monospace",
-                  fontSize: "0.6rem",
-                  color: "#8899a6",
-                  minWidth: "130px",
-                  flexShrink: 0,
-                }}>{formatDateTime(log.createdAt)}</div>
-
-                <div style={{
-                  fontFamily: "'Share Tech Mono', monospace",
-                  fontSize: "0.65rem",
-                  color,
-                  minWidth: "140px",
-                  flexShrink: 0,
-                  letterSpacing: "0.05em",
-                }}>{log.action}</div>
-
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: "0.8rem", color: "#e1e8ed" }}>
-                    <span style={{ color: "#8899a6" }}>{log.entity}</span>
+              <div key={log.id} className={styles.logEntry}>
+                <div className={styles.logTime}>{formatDateTime(log.createdAt)}</div>
+                <div className={`${styles.logAction} ${styles[colorClass]}`}>{log.action}</div>
+                <div className={styles.logBody}>
+                  <div className={styles.logEntity}>
+                    <span>{log.entity}</span>
                     {log.entityId && (
-                      <span style={{
-                        fontFamily: "'Share Tech Mono', monospace",
-                        fontSize: "0.65rem",
-                        color: "#8899a6",
-                        marginLeft: "0.5rem",
-                      }}>
-                        [{log.entityId.slice(0, 8)}...]
-                      </span>
+                      <span className={styles.logEntityId}>[{log.entityId.slice(0, 8)}...]</span>
                     )}
                   </div>
                   {log.admin && (
-                    <div style={{
-                      fontSize: "0.7rem",
-                      color: "#8899a6",
-                      marginTop: "0.15rem",
-                    }}>
+                    <div className={styles.logAdmin}>
                       by {log.admin.fullName} ({log.admin.role})
                     </div>
                   )}
                   {log.details && (
-                    <div style={{
-                      fontFamily: "'Share Tech Mono', monospace",
-                      fontSize: "0.6rem",
-                      color: "#657786",
-                      marginTop: "0.25rem",
-                      wordBreak: "break-all",
-                    }}>
+                    <div className={styles.logDetails}>
                       {log.details.length > 200 ? log.details.slice(0, 200) + "..." : log.details}
                     </div>
                   )}
                 </div>
-
                 {log.ipAddress && (
-                  <div style={{
-                    fontFamily: "'Share Tech Mono', monospace",
-                    fontSize: "0.55rem",
-                    color: "#657786",
-                    flexShrink: 0,
-                  }}>{log.ipAddress}</div>
+                  <div className={styles.logIp}>{log.ipAddress}</div>
                 )}
               </div>
             );
@@ -195,38 +124,17 @@ export default function AdminAuditPage() {
       )}
 
       {totalPages > 1 && (
-        <div style={{ display: "flex", justifyContent: "center", gap: "1rem", marginTop: "1.5rem" }}>
+        <div className={styles.pagination}>
           <button
             onClick={() => setPage(Math.max(1, page - 1))}
             disabled={page <= 1}
-            style={{
-              padding: "0.5rem 1rem",
-              backgroundColor: page <= 1 ? "#253341" : "#15202b",
-              border: "1px solid #253341",
-              color: page <= 1 ? "#8899a6" : "#e1e8ed",
-              fontFamily: "'Share Tech Mono', monospace",
-              fontSize: "0.75rem",
-              cursor: page <= 1 ? "default" : "pointer",
-            }}
+            className={styles.pageBtn}
           >PREV</button>
-          <span style={{
-            fontFamily: "'Share Tech Mono', monospace",
-            fontSize: "0.75rem",
-            color: "#8899a6",
-            alignSelf: "center",
-          }}>{page} / {totalPages}</span>
+          <span className={styles.pageInfo}>{page} / {totalPages}</span>
           <button
             onClick={() => setPage(Math.min(totalPages, page + 1))}
             disabled={page >= totalPages}
-            style={{
-              padding: "0.5rem 1rem",
-              backgroundColor: page >= totalPages ? "#253341" : "#15202b",
-              border: "1px solid #253341",
-              color: page >= totalPages ? "#8899a6" : "#e1e8ed",
-              fontFamily: "'Share Tech Mono', monospace",
-              fontSize: "0.75rem",
-              cursor: page >= totalPages ? "default" : "pointer",
-            }}
+            className={styles.pageBtn}
           >NEXT</button>
         </div>
       )}

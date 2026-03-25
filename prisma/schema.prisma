@@ -82,6 +82,7 @@ model User {
   caseNumber    String?
   emergencyContactName  String?
   emergencyContactPhone String?
+  isActive      Boolean  @default(true)
   hearts        Int      @default(5)
   totalXp       Int      @default(0)
   streak        Int      @default(0)
@@ -131,6 +132,7 @@ model PayoutRequest {
   reviewNote    String?
   approvedById  String?
   approvedAt    DateTime?
+  decisionNote  String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
@@ -140,14 +142,16 @@ model PayoutRequest {
 }
 
 model AdminUser {
-  id            String   @id @default(cuid())
-  email         String   @unique
-  passwordHash  String
-  fullName      String
-  role          String   @default("caseworker")
-  isActive      Boolean  @default(true)
-  createdAt     DateTime @default(now())
-  lastLoginAt   DateTime?
+  id              String    @id @default(cuid())
+  email           String    @unique
+  passwordHash    String
+  fullName        String
+  role            String    @default("caseworker")
+  isActive        Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  lastLoginAt     DateTime?
+  loginFailures   Int       @default(0)
+  lockedUntil     DateTime?
 
   reviewedPayouts  PayoutRequest[] @relation("PayoutReviewer")
   approvedPayouts  PayoutRequest[] @relation("PayoutApprover")

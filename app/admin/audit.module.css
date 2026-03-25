@@ -1,0 +1,179 @@
+.page {
+  color: #e1e8ed;
+}
+
+.pageHeader {
+  margin-bottom: 2rem;
+}
+
+.pageTag {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  color: #00ff88;
+  letter-spacing: 0.15em;
+  margin-bottom: 0.25rem;
+}
+
+.pageTitle {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #e1e8ed;
+  margin: 0;
+}
+
+.filterRow {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.filterBtn {
+  padding: 0.5rem 1rem;
+  background-color: #15202b;
+  border: 1px solid #253341;
+  color: #8899a6;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.filterBtnActive {
+  background-color: #00ff88;
+  color: #0f1419;
+}
+
+.emptyState {
+  color: #8899a6;
+  font-family: 'Share Tech Mono', monospace;
+  text-align: center;
+  padding: 3rem;
+  background-color: #15202b;
+  border: 1px solid #253341;
+}
+
+.logList {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.logEntry {
+  background-color: #15202b;
+  border: 1px solid #253341;
+  padding: 0.85rem 1rem;
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.logTime {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem;
+  color: #8899a6;
+  min-width: 130px;
+  flex-shrink: 0;
+}
+
+.logAction {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  min-width: 140px;
+  flex-shrink: 0;
+  letter-spacing: 0.05em;
+}
+
+.colorGreen { color: #00ff88; }
+.colorRed { color: #ff6b6b; }
+.colorBlue { color: #00d4ff; }
+.colorYellow { color: #ffd700; }
+.colorPurple { color: #a855f7; }
+.colorDefault { color: #8899a6; }
+
+.logBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.logEntity {
+  font-size: 0.8rem;
+  color: #e1e8ed;
+}
+
+.logEntityId {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  color: #8899a6;
+  margin-left: 0.5rem;
+}
+
+.logAdmin {
+  font-size: 0.7rem;
+  color: #8899a6;
+  margin-top: 0.15rem;
+}
+
+.logDetails {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem;
+  color: #657786;
+  margin-top: 0.25rem;
+  word-break: break-all;
+}
+
+.logIp {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.55rem;
+  color: #657786;
+  flex-shrink: 0;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  align-items: center;
+}
+
+.pageBtn {
+  padding: 0.5rem 1rem;
+  background-color: #15202b;
+  border: 1px solid #253341;
+  color: #e1e8ed;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.pageBtn:disabled {
+  background-color: #253341;
+  color: #8899a6;
+  cursor: default;
+}
+
+.pageInfo {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.75rem;
+  color: #8899a6;
+}
+
+.loading {
+  color: #8899a6;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+@media (max-width: 600px) {
+  .logEntry {
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .logTime,
+  .logAction {
+    min-width: unset;
+  }
+}

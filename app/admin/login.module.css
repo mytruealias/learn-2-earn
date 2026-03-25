@@ -1,0 +1,96 @@
+.page {
+  min-height: 100vh;
+  background-color: #0f1419;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.card {
+  width: 100%;
+  max-width: 400px;
+  background-color: #15202b;
+  border: 1px solid #253341;
+  padding: 2.5rem;
+}
+
+.brandTag {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  color: #00ff88;
+  letter-spacing: 0.2em;
+  margin-bottom: 0.5rem;
+}
+
+.title {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #e1e8ed;
+  margin-bottom: 2rem;
+}
+
+.errorBox {
+  padding: 0.75rem;
+  background-color: rgba(255, 107, 107, 0.1);
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  color: #ff6b6b;
+  font-size: 0.85rem;
+  margin-bottom: 1.5rem;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.field {
+  margin-bottom: 1.25rem;
+}
+
+.fieldLast {
+  margin-bottom: 1.5rem;
+}
+
+.label {
+  display: block;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  color: #8899a6;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.5rem;
+}
+
+.input {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #0f1419;
+  border: 1px solid #253341;
+  color: #e1e8ed;
+  font-size: 0.9rem;
+  font-family: 'Share Tech Mono', monospace;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+
+.input:focus {
+  border-color: #00ff88;
+}
+
+.submitBtn {
+  width: 100%;
+  padding: 0.85rem;
+  background-color: #00ff88;
+  color: #0f1419;
+  border: none;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.submitBtn:disabled {
+  background-color: #253341;
+  color: #8899a6;
+  cursor: default;
+}

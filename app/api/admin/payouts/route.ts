@@ -54,7 +54,7 @@ export async function PATCH(req: Request) {
     }
 
     const body = await req.json();
-    const { payoutId, action, note } = body;
+    const { payoutId, action, note, decisionNote } = body;
 
     if (!payoutId || !action) {
       return NextResponse.json({ error: "Missing payoutId or action" }, { status: 400 });
@@ -78,6 +78,7 @@ export async function PATCH(req: Request) {
       }, { status: 400 });
     }
 
+    const finalDecisionNote = decisionNote ? decisionNote.slice(0, 500) : null;
     let updateData: Record<string, unknown> = {};
 
     if (action === "review") {
@@ -89,6 +90,7 @@ export async function PATCH(req: Request) {
         reviewedById: admin.id,
         reviewedAt: new Date(),
         reviewNote: note || null,
+        ...(finalDecisionNote !== null ? { decisionNote: finalDecisionNote } : {}),
       };
     } else if (action === "approve") {
       if (!requireRole(admin.role, ["admin", "finance"])) {
@@ -99,6 +101,7 @@ export async function PATCH(req: Request) {
         approvedById: admin.id,
         approvedAt: new Date(),
         note: note || payout.note,
+        ...(finalDecisionNote !== null ? { decisionNote: finalDecisionNote } : {}),
       };
     } else if (action === "reject") {
       if (!requireRole(admin.role, ["admin", "finance", "caseworker"])) {
@@ -109,6 +112,7 @@ export async function PATCH(req: Request) {
         reviewedById: admin.id,
         reviewedAt: new Date(),
         reviewNote: note || "Rejected",
+        ...(finalDecisionNote !== null ? { decisionNote: finalDecisionNote } : {}),
       };
     } else if (action === "complete") {
       if (!requireRole(admin.role, ["admin", "finance"])) {
@@ -117,6 +121,7 @@ export async function PATCH(req: Request) {
       updateData = {
         status: "completed",
         note: note || "Payment sent",
+        ...(finalDecisionNote !== null ? { decisionNote: finalDecisionNote } : {}),
       };
     } else {
       return NextResponse.json({ error: "Invalid action" }, { status: 400 });
@@ -132,7 +137,7 @@ export async function PATCH(req: Request) {
       action: `PAYOUT_${action.toUpperCase()}`,
       entity: "PayoutRequest",
       entityId: payoutId,
-      details: JSON.stringify({ previousStatus: payout.status, newStatus: updated.status, note }),
+      details: JSON.stringify({ previousStatus: payout.status, newStatus: updated.status, note, decisionNote: finalDecisionNote }),
       ipAddress: req.headers.get("x-forwarded-for") || "unknown",
     });
 

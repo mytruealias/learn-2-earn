@@ -1,17 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getAdminSession, getAdminSessionFromToken, SESSION_COOKIE } from "@/lib/admin-auth";
+import { NextResponse } from "next/server";
+import { getAdminSession, SESSION_COOKIE } from "@/lib/admin-auth";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
-    let admin = await getAdminSession();
-
-    if (!admin) {
-      const authHeader = req.headers.get("authorization");
-      if (authHeader?.startsWith("Bearer ")) {
-        const token = authHeader.slice(7);
-        admin = await getAdminSessionFromToken(token);
-      }
-    }
+    const admin = await getAdminSession();
 
     if (!admin) {
       return NextResponse.json({ authenticated: false }, { status: 401 });
@@ -27,9 +19,9 @@ export async function DELETE() {
   try {
     const response = NextResponse.json({ ok: true });
     response.cookies.set(SESSION_COOKIE, "", {
-      httpOnly: false,
-      secure: true,
-      sameSite: "none",
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
       maxAge: 0,
       path: "/",
     });

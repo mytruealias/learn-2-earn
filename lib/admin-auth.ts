@@ -1,29 +1,48 @@
 import { cookies } from "next/headers";
 import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
 
 const SESSION_COOKIE = "l2e_admin_session";
 const SESSION_DURATION = 8 * 60 * 60 * 1000;
+const MAX_LOGIN_FAILURES = 5;
+const LOCKOUT_DURATION_MS = 15 * 60 * 1000;
 
 function generateSessionToken(): string {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let result = "";
-  for (let i = 0; i < 64; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return result;
+  return crypto.randomBytes(48).toString("hex");
 }
 
 export async function adminLogin(email: string, password: string) {
   const admin = await prisma.adminUser.findUnique({ where: { email } });
-  if (!admin || !admin.isActive) return null;
+  if (!admin || !admin.isActive) return { success: false, error: "Invalid credentials" };
+
+  if (admin.lockedUntil && admin.lockedUntil > new Date()) {
+    const minutesLeft = Math.ceil((admin.lockedUntil.getTime() - Date.now()) / 60000);
+    return { success: false, error: `Account locked. Try again in ${minutesLeft} minute(s).` };
+  }
+
+  const currentFailures = admin.lockedUntil && admin.lockedUntil <= new Date() ? 0 : admin.loginFailures;
 
   const valid = await bcrypt.compare(password, admin.passwordHash);
-  if (!valid) return null;
+  if (!valid) {
+    const newFailures = currentFailures + 1;
+    const locked = newFailures >= MAX_LOGIN_FAILURES;
+    await prisma.adminUser.update({
+      where: { id: admin.id },
+      data: {
+        loginFailures: newFailures,
+        lockedUntil: locked ? new Date(Date.now() + LOCKOUT_DURATION_MS) : null,
+      },
+    });
+    if (locked) {
+      return { success: false, error: `Too many failed attempts. Account locked for 15 minutes.` };
+    }
+    return { success: false, error: "Invalid credentials" };
+  }
 
   await prisma.adminUser.update({
     where: { id: admin.id },
-    data: { lastLoginAt: new Date() },
+    data: { lastLoginAt: new Date(), loginFailures: 0, lockedUntil: null },
   });
 
   const token = generateSessionToken();
@@ -35,7 +54,11 @@ export async function adminLogin(email: string, password: string) {
     },
   });
 
-  return { token, admin: { id: admin.id, email: admin.email, fullName: admin.fullName, role: admin.role } };
+  return {
+    success: true,
+    token,
+    admin: { id: admin.id, email: admin.email, fullName: admin.fullName, role: admin.role },
+  };
 }
 
 export async function getAdminSessionFromToken(token: string) {
@@ -74,18 +97,19 @@ export async function getAdminSession() {
 }
 
 export async function getAdminFromRequest(req: Request) {
-  let admin = await getAdminSession();
-  if (!admin) {
-    const authHeader = req.headers.get("authorization");
-    if (authHeader?.startsWith("Bearer ")) {
-      admin = await getAdminSessionFromToken(authHeader.slice(7));
-    }
-  }
+  const admin = await getAdminSession();
   return admin;
 }
 
 export async function adminLogout(token: string) {
   await prisma.adminSession.deleteMany({ where: { token } }).catch(() => {});
+}
+
+export async function unlockAdminAccount(adminId: string) {
+  await prisma.adminUser.update({
+    where: { id: adminId },
+    data: { loginFailures: 0, lockedUntil: null },
+  });
 }
 
 export function requireRole(adminRole: string, requiredRoles: string[]): boolean {

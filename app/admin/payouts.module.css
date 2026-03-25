@@ -1,0 +1,487 @@
+.page {
+  color: #e1e8ed;
+}
+
+.pageHeader {
+  margin-bottom: 2rem;
+}
+
+.pageTag {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  color: #00ff88;
+  letter-spacing: 0.15em;
+  margin-bottom: 0.25rem;
+}
+
+.pageTitle {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #e1e8ed;
+  margin: 0;
+}
+
+.filterRow {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.filterBtn {
+  padding: 0.5rem 1rem;
+  background-color: #15202b;
+  border: 1px solid #253341;
+  color: #8899a6;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.filterBtnActive {
+  color: #0f1419;
+  background-color: #00ff88;
+  border-color: #00ff88;
+}
+
+.filter_pending.filterBtnActive  { background-color: #ffd700; border-color: #ffd700; }
+.filter_reviewed.filterBtnActive { background-color: #00d4ff; border-color: #00d4ff; }
+.filter_approved.filterBtnActive { background-color: #00ff88; border-color: #00ff88; }
+.filter_completed.filterBtnActive { background-color: #00ff88; border-color: #00ff88; }
+.filter_rejected.filterBtnActive { background-color: #ff6b6b; border-color: #ff6b6b; }
+.filter_all.filterBtnActive      { background-color: #8899a6; border-color: #8899a6; }
+
+.filter_pending  { border-color: rgba(255, 215, 0, 0.3); }
+.filter_reviewed { border-color: rgba(0, 212, 255, 0.3); }
+.filter_approved { border-color: rgba(0, 255, 136, 0.3); }
+.filter_completed { border-color: rgba(0, 255, 136, 0.3); }
+.filter_rejected { border-color: rgba(255, 107, 107, 0.3); }
+.filter_all      { border-color: #253341; }
+
+.actionPanel {
+  background-color: #15202b;
+  border: 1px solid #253341;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.actionTitle {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  color: #ffd700;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+}
+
+.actionNote {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #0f1419;
+  border: 1px solid #253341;
+  color: #e1e8ed;
+  font-size: 0.85rem;
+  font-family: 'Share Tech Mono', monospace;
+  outline: none;
+  resize: vertical;
+  min-height: 60px;
+  margin-bottom: 0.75rem;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+
+.actionNote:focus {
+  border-color: #00ff88;
+}
+
+.actionNoteCount {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem;
+  color: #8899a6;
+  text-align: right;
+  margin-top: -0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.actionBtns {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.confirmBtn {
+  padding: 0.6rem 1.25rem;
+  border: none;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.1em;
+  color: #0f1419;
+}
+
+.confirmBtnApprove {
+  background-color: #00ff88;
+}
+
+.confirmBtnReject {
+  background-color: #ff6b6b;
+}
+
+.confirmBtn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.cancelBtn {
+  padding: 0.6rem 1.25rem;
+  background-color: transparent;
+  color: #8899a6;
+  border: 1px solid #253341;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.75rem;
+  cursor: pointer;
+  letter-spacing: 0.1em;
+}
+
+.emptyState {
+  color: #8899a6;
+  font-family: 'Share Tech Mono', monospace;
+  text-align: center;
+  padding: 3rem;
+  background-color: #15202b;
+  border: 1px solid #253341;
+}
+
+.payoutList {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.payoutCard {
+  background-color: #15202b;
+  border: 1px solid #253341;
+  border-left: 3px solid #8899a6;
+  padding: 1.25rem;
+  position: relative;
+}
+
+.statusYellow { border-left-color: #ffd700; color: #ffd700; border-color: #ffd700; }
+.statusBlue   { border-left-color: #00d4ff; color: #00d4ff; border-color: #00d4ff; }
+.statusGreen  { border-left-color: #00ff88; color: #00ff88; border-color: #00ff88; }
+.statusRed    { border-left-color: #ff6b6b; color: #ff6b6b; border-color: #ff6b6b; }
+.statusDefault { border-left-color: #8899a6; color: #8899a6; border-color: #8899a6; }
+
+.payoutCardLeft {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.payoutCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+}
+
+.payoutUser {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #e1e8ed;
+}
+
+.payoutUserMeta {
+  color: #8899a6;
+  font-size: 0.75rem;
+  margin-top: 0.15rem;
+}
+
+.statusBadge {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  padding: 0.2rem 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: 1px solid #8899a6;
+  color: #8899a6;
+}
+
+.payoutBody {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 0.75rem;
+  border-top: 1px solid #253341;
+  gap: 1rem;
+}
+
+.payoutFields {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.payoutField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.payoutFieldLabel {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem;
+  color: #8899a6;
+}
+
+.payoutFieldValue {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.xpValue {
+  color: #ffd700;
+}
+
+.amountValue {
+  color: #00ff88;
+}
+
+.payoutFieldValueSm {
+  font-size: 0.8rem;
+  color: #e1e8ed;
+}
+
+.payMethodValue {
+  color: #00d4ff;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.payoutActions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.actionBtn {
+  padding: 0.4rem 0.8rem;
+  border: none;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.1em;
+  color: #0f1419;
+  white-space: nowrap;
+}
+
+.actionBtnReview {
+  background-color: #00d4ff;
+}
+
+.actionBtnApprove {
+  background-color: #00ff88;
+}
+
+.actionBtnDanger {
+  padding: 0.4rem 0.8rem;
+  background-color: transparent;
+  color: #ff6b6b;
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  cursor: pointer;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+}
+
+.payLink {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #253341;
+}
+
+.payLinkInner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.payLinkMailLabel {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem;
+  color: #8899a6;
+  letter-spacing: 0.1em;
+  flex-shrink: 0;
+}
+
+.payLinkAddress {
+  font-size: 0.8rem;
+  color: #e1e8ed;
+  flex: 1;
+  min-width: 0;
+  word-break: break-word;
+}
+
+.copyBtn {
+  padding: 0.4rem 0.9rem;
+  background-color: transparent;
+  color: #00ff88;
+  border: 1px solid #00ff88;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.1em;
+  flex-shrink: 0;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.copyBtnCopied {
+  background-color: #00ff88;
+  color: #0f1419;
+}
+
+.payLinkBtn {
+  display: inline-block;
+  padding: 0.5rem 1.25rem;
+  background-color: #00ff88;
+  color: #0f1419;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-decoration: none;
+}
+
+.payLinkHint {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem;
+  color: #8899a6;
+  letter-spacing: 0.05em;
+}
+
+.payoutReviewer {
+  margin-top: 0.75rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid #253341;
+  font-size: 0.7rem;
+  color: #8899a6;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.decisionNote {
+  margin-top: 0.25rem;
+  color: #e1e8ed;
+  font-size: 0.75rem;
+}
+
+.reviewNote {
+  margin-top: 0.25rem;
+  color: #8899a6;
+  font-size: 0.7rem;
+}
+
+.paginationBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1.5rem;
+  padding: 0.75rem 1rem;
+  background-color: #15202b;
+  border: 1px solid #253341;
+}
+
+.paginationInfo {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  color: #8899a6;
+}
+
+.paginationBtns {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.paginationBtn {
+  padding: 0.4rem 0.8rem;
+  background-color: #253341;
+  color: #e1e8ed;
+  border: 1px solid #253341;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+}
+
+.paginationBtn:disabled {
+  background-color: #0f1419;
+  color: #425063;
+  cursor: default;
+}
+
+.loading {
+  color: #8899a6;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.bulkBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background-color: #15202b;
+  border: 1px solid #253341;
+  margin-bottom: 1rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.bulkInfo {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  color: #8899a6;
+}
+
+.exportBtn {
+  padding: 0.5rem 1rem;
+  background-color: #00ff88;
+  color: #0f1419;
+  border: none;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+}
+
+.selectCell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.5rem 0 0;
+  cursor: pointer;
+}
+
+.checkboxInput {
+  width: 16px;
+  height: 16px;
+  accent-color: #00ff88;
+  cursor: pointer;
+}
+
+@media (max-width: 600px) {
+  .payoutBody {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .payoutActions {
+    width: 100%;
+  }
+}
