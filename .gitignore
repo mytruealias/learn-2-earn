@@ -42,6 +42,10 @@ next-env.d.ts
 
 /app/generated/prisma
 
+# Local SQLite dev database
+prisma/dev.db
+prisma/dev.db-journal
+
 # Replit workspace files (not part of the project)
 .local/
 attached_assets/
