@@ -9,7 +9,7 @@ import {
   ShieldIcon, TargetIcon, DollarIcon, HeartIcon, HandshakeIcon,
   MessageIcon, UsersIcon, LockIcon, UserIcon, FileTextIcon,
   CheckCircleIcon, GlobeIcon, BuildingIcon,
-} from "./components/Icons";
+} from "./components/LandingIcons";
 
 export default function HomePage() {
   return (
