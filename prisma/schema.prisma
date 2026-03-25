@@ -108,13 +108,22 @@ model Progress {
   @@unique([userId, lessonId])
 }
 
+enum PaymentMethod {
+  venmo
+  paypal
+  cashapp
+  check
+}
+
 model PayoutRequest {
-  id            String   @id @default(cuid())
+  id            String         @id @default(cuid())
   userId        String
   xpAmount      Int
   dollarAmount  Float
-  status        String   @default("pending")
+  status        String         @default("pending")
   note          String?
+  paymentMethod PaymentMethod?
+  paymentHandle String?
   reviewedById  String?
   reviewedAt    DateTime?
   reviewNote    String?

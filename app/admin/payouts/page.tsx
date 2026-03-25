@@ -9,6 +9,8 @@ interface Payout {
   dollarAmount: number;
   status: string;
   note: string | null;
+  paymentMethod: string | null;
+  paymentHandle: string | null;
   reviewNote: string | null;
   createdAt: string;
   reviewedAt: string | null;
@@ -250,7 +252,7 @@ export default function AdminPayoutsPage() {
                   paddingTop: "0.75rem",
                   borderTop: "1px solid #253341",
                 }}>
-                  <div style={{ display: "flex", gap: "1.5rem" }}>
+                  <div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap" }}>
                     <div>
                       <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: "0.6rem", color: "#8899a6" }}>XP</div>
                       <div style={{ fontSize: "1rem", fontWeight: "700", color: "#ffd700" }}>{p.xpAmount}</div>
@@ -263,6 +265,18 @@ export default function AdminPayoutsPage() {
                       <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: "0.6rem", color: "#8899a6" }}>DATE</div>
                       <div style={{ fontSize: "0.8rem", color: "#e1e8ed" }}>{formatDate(p.createdAt)}</div>
                     </div>
+                    {p.paymentMethod && (
+                      <div>
+                        <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: "0.6rem", color: "#8899a6" }}>PAY VIA</div>
+                        <div style={{ fontSize: "0.8rem", fontWeight: "700", color: "#00d4ff", textTransform: "uppercase" }}>{p.paymentMethod}</div>
+                      </div>
+                    )}
+                    {p.paymentHandle && (
+                      <div>
+                        <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: "0.6rem", color: "#8899a6" }}>HANDLE</div>
+                        <div style={{ fontSize: "0.8rem", color: "#e1e8ed" }}>{p.paymentHandle}</div>
+                      </div>
+                    )}
                   </div>
 
                   <div style={{ display: "flex", gap: "0.5rem" }}>

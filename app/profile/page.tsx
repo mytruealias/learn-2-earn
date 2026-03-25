@@ -12,6 +12,8 @@ interface PayoutRequest {
   dollarAmount: number;
   status: string;
   note: string | null;
+  paymentMethod: string | null;
+  paymentHandle: string | null;
   createdAt: string;
 }
 
@@ -46,12 +48,28 @@ interface UserProfile {
   badges?: Badge[];
 }
 
+const PAYMENT_METHODS = [
+  { value: "venmo", label: "Venmo" },
+  { value: "paypal", label: "PayPal" },
+  { value: "cashapp", label: "Cash App" },
+  { value: "check", label: "Check" },
+];
+
+const PAYMENT_PLACEHOLDERS: Record<string, string> = {
+  venmo: "@your-venmo-handle",
+  paypal: "your@email.com or PayPal handle",
+  cashapp: "$your-cashtag",
+  check: "Full name and mailing address",
+};
+
 export default function ProfilePage() {
   const router = useRouter();
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [payoutLoading, setPayoutLoading] = useState(false);
   const [payoutMsg, setPayoutMsg] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("");
+  const [paymentHandle, setPaymentHandle] = useState("");
   const [tab, setTab] = useState<"overview" | "earnings" | "info">("overview");
 
   useEffect(() => {
@@ -90,6 +108,7 @@ export default function ProfilePage() {
 
   const handlePayout = async () => {
     if (!user || user.availableXp < 3) return;
+    if (!paymentMethod || !paymentHandle.trim()) return;
 
     setPayoutLoading(true);
     setPayoutMsg("");
@@ -98,13 +117,15 @@ export default function ProfilePage() {
       const res = await fetch("/api/payout/request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: user.id, xpAmount: user.availableXp }),
+        body: JSON.stringify({ userId: user.id, xpAmount: user.availableXp, paymentMethod, paymentHandle }),
       });
 
       const data = await res.json();
 
       if (res.ok) {
         setPayoutMsg("Payout request submitted! You'll be notified when it's ready.");
+        setPaymentMethod("");
+        setPaymentHandle("");
         loadProfile();
       } else {
         setPayoutMsg(data.error || "Failed to submit request");
@@ -309,26 +330,112 @@ export default function ProfilePage() {
                 </div>
               </div>
               <div style={{ fontSize: "0.8rem", color: "var(--text-secondary)", marginBottom: "1rem" }}>
-                Total earned: ${user.totalEarnings.toFixed(2)} from {user.totalXp} XP
+                Total earned: ${user.totalEarnings.toFixed(2)} • {user.totalXp} XP total
               </div>
-              <button
-                onClick={handlePayout}
-                disabled={payoutLoading || user.availableXp < 3}
-                style={{
+
+              {(!user.fullName || !user.email) ? (
+                <div style={{
+                  padding: "1rem",
+                  backgroundColor: "rgba(255,180,0,0.08)",
+                  border: "1px solid rgba(255,180,0,0.3)",
+                  borderRadius: "10px",
+                  fontSize: "0.85rem",
+                  color: "var(--text-secondary)",
+                  lineHeight: "1.5",
+                }}>
+                  Complete your profile (name and email) before requesting a payout.{" "}
+                  <Link href="/profile?tab=info" style={{ color: "var(--accent-gold)", fontWeight: "700" }}>
+                    Fill in your info →
+                  </Link>
+                </div>
+              ) : user.availableXp < 3 ? (
+                <div style={{
                   width: "100%",
                   padding: "0.85rem",
-                  backgroundColor: user.availableXp < 3 ? "var(--bg-card-hover)" : "var(--accent-gold)",
-                  color: user.availableXp < 3 ? "var(--text-muted)" : "#0f1923",
+                  backgroundColor: "var(--bg-card-hover)",
+                  color: "var(--text-muted)",
                   border: "none",
                   borderRadius: "12px",
                   fontWeight: "700",
-                  fontSize: "0.95rem",
+                  fontSize: "0.9rem",
                   fontFamily: "var(--font-display)",
-                  letterSpacing: "0.03em",
-                }}
-              >
-                {payoutLoading ? "Processing..." : user.availableXp < 3 ? "Earn More XP to Cash Out" : "Request Payout"}
-              </button>
+                  textAlign: "center",
+                }}>
+                  You need {3 - user.availableXp} more XP to request a payout
+                </div>
+              ) : (
+                <div style={{ display: "grid", gap: "0.75rem" }}>
+                  <div>
+                    <div style={{ fontSize: "0.72rem", fontWeight: "700", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "0.4rem" }}>
+                      Payment Method
+                    </div>
+                    <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
+                      {PAYMENT_METHODS.map((m) => (
+                        <button
+                          key={m.value}
+                          onClick={() => { setPaymentMethod(m.value); setPaymentHandle(""); }}
+                          style={{
+                            padding: "0.45rem 0.9rem",
+                            backgroundColor: paymentMethod === m.value ? "var(--accent-gold)" : "var(--bg-card-hover)",
+                            color: paymentMethod === m.value ? "#0f1923" : "var(--text-secondary)",
+                            border: `1px solid ${paymentMethod === m.value ? "var(--accent-gold)" : "var(--border-color)"}`,
+                            borderRadius: "8px",
+                            fontWeight: "700",
+                            fontSize: "0.8rem",
+                          }}
+                        >
+                          {m.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {paymentMethod && (
+                    <div>
+                      <div style={{ fontSize: "0.72rem", fontWeight: "700", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "0.4rem" }}>
+                        {paymentMethod === "check" ? "Mailing Address" : "Handle / Address"}
+                      </div>
+                      <input
+                        type="text"
+                        value={paymentHandle}
+                        onChange={(e) => setPaymentHandle(e.target.value)}
+                        placeholder={PAYMENT_PLACEHOLDERS[paymentMethod] || ""}
+                        style={{
+                          width: "100%",
+                          padding: "0.65rem 0.85rem",
+                          backgroundColor: "var(--bg-card-hover)",
+                          border: "1px solid var(--border-color)",
+                          borderRadius: "10px",
+                          color: "var(--text-primary)",
+                          fontSize: "0.9rem",
+                          outline: "none",
+                          boxSizing: "border-box",
+                        }}
+                      />
+                    </div>
+                  )}
+
+                  <button
+                    onClick={handlePayout}
+                    disabled={payoutLoading || !paymentMethod || !paymentHandle.trim()}
+                    style={{
+                      width: "100%",
+                      padding: "0.85rem",
+                      backgroundColor: (!paymentMethod || !paymentHandle.trim()) ? "var(--bg-card-hover)" : "var(--accent-gold)",
+                      color: (!paymentMethod || !paymentHandle.trim()) ? "var(--text-muted)" : "#0f1923",
+                      border: "none",
+                      borderRadius: "12px",
+                      fontWeight: "700",
+                      fontSize: "0.95rem",
+                      fontFamily: "var(--font-display)",
+                      letterSpacing: "0.03em",
+                    }}
+                  >
+                    {payoutLoading ? "Processing..." : "Request Payout"}
+                  </button>
+                </div>
+              )}
+
               {payoutMsg && (
                 <div style={{
                   marginTop: "0.75rem",

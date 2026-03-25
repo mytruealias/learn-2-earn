@@ -1,14 +1,25 @@
 import { NextResponse } from "next/server";
+import { PaymentMethod } from "@prisma/client";
 import prisma from "@/lib/prisma";
 import { logAudit } from "@/lib/audit";
+
+const VALID_PAYMENT_METHODS: PaymentMethod[] = ["venmo", "paypal", "cashapp", "check"];
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { userId, xpAmount } = body;
+    const { userId, xpAmount, paymentMethod, paymentHandle } = body;
 
-    if (!userId || !xpAmount || xpAmount < 3) {
-      return NextResponse.json({ error: "Invalid request. Minimum 3 XP required." }, { status: 400 });
+    if (!userId || !xpAmount) {
+      return NextResponse.json({ error: "Invalid request." }, { status: 400 });
+    }
+
+    if (!paymentMethod || !VALID_PAYMENT_METHODS.includes(paymentMethod)) {
+      return NextResponse.json({ error: "Please select a valid payment method." }, { status: 400 });
+    }
+
+    if (!paymentHandle || !paymentHandle.trim()) {
+      return NextResponse.json({ error: "Please provide your payment handle or address." }, { status: 400 });
     }
 
     const user = await prisma.user.findUnique({
@@ -32,11 +43,32 @@ export async function POST(req: Request) {
 
     const availableXp = user.totalXp - totalPayoutXp;
 
+    if (availableXp < 3) {
+      const needed = 3 - availableXp;
+      return NextResponse.json({ error: `You need ${needed} more XP to request a payout` }, { status: 400 });
+    }
+
+    if (xpAmount < 3) {
+      return NextResponse.json({ error: "You need at least 3 XP to request a payout" }, { status: 400 });
+    }
+
     if (xpAmount > availableXp) {
       return NextResponse.json({ error: "Insufficient XP balance" }, { status: 400 });
     }
 
     const dollarAmount = Math.floor((xpAmount / 3) * 100) / 100;
+
+    const methodLabels: Record<string, string> = {
+      venmo: "Venmo",
+      paypal: "PayPal",
+      cashapp: "Cash App",
+      check: "Check",
+    };
+
+    const methodLabel = methodLabels[paymentMethod] || paymentMethod;
+    const note = paymentMethod === "check"
+      ? `Pay via Check to: ${paymentHandle.trim()}`
+      : `Pay via ${methodLabel}: ${paymentHandle.trim()}`;
 
     const payout = await prisma.payoutRequest.create({
       data: {
@@ -44,7 +76,9 @@ export async function POST(req: Request) {
         xpAmount,
         dollarAmount,
         status: "pending",
-        note: "Awaiting bank connection setup",
+        note,
+        paymentMethod,
+        paymentHandle: paymentHandle.trim(),
       },
     });
 
@@ -52,7 +86,7 @@ export async function POST(req: Request) {
       action: "PAYOUT_REQUESTED",
       entity: "PayoutRequest",
       entityId: payout.id,
-      details: JSON.stringify({ userId, xpAmount, dollarAmount }),
+      details: JSON.stringify({ userId, xpAmount, dollarAmount, paymentMethod }),
       ipAddress: req.headers.get("x-forwarded-for") || "unknown",
     });
 

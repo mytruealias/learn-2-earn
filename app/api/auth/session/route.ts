@@ -68,9 +68,19 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const totalPayoutXp = user.payoutRequests
-      .filter((p) => p.status !== "rejected")
-      .reduce((sum, p) => sum + p.xpAmount, 0);
+    const [totalPayoutXpAgg, totalEarningsAgg] = await Promise.all([
+      prisma.payoutRequest.aggregate({
+        where: { userId, status: { not: "rejected" } },
+        _sum: { xpAmount: true },
+      }),
+      prisma.payoutRequest.aggregate({
+        where: { userId, status: { in: ["approved", "completed"] } },
+        _sum: { dollarAmount: true },
+      }),
+    ]);
+
+    const totalPayoutXp = totalPayoutXpAgg._sum.xpAmount ?? 0;
+    const totalEarnings = Math.floor((totalEarningsAgg._sum.dollarAmount ?? 0) * 100) / 100;
 
     const availableXp = user.totalXp - totalPayoutXp;
     const availableBalance = Math.floor((availableXp / 3) * 100) / 100;
@@ -123,7 +133,7 @@ export async function POST(req: Request) {
         lessonsCompleted: user.progress.length,
         availableXp,
         availableBalance,
-        totalEarnings: Math.floor((user.totalXp / 3) * 100) / 100,
+        totalEarnings,
         payoutRequests: user.payoutRequests,
         badges,
       },
