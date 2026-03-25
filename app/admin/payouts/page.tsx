@@ -32,6 +32,21 @@ function formatDate(d: string) {
   return new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
 
+function buildPayLink(method: string, handle: string, amount: number): string | null {
+  const clean = handle.trim();
+  const amt = amount.toFixed(2);
+  switch (method.toLowerCase()) {
+    case "paypal":
+      return `https://paypal.me/${clean.replace(/^@+/, "")}/${amt}`;
+    case "venmo":
+      return `venmo://paycharge?txn=pay&recipients=${encodeURIComponent(clean.replace(/^@+/, ""))}&amount=${amt}&note=Learn2Earn%20Payout`;
+    case "cashapp":
+      return `https://cash.app/${clean.startsWith("$") ? clean : "$" + clean}/${amt}`;
+    default:
+      return null;
+  }
+}
+
 export default function AdminPayoutsPage() {
   const { admin } = useAdmin();
   const [payouts, setPayouts] = useState<Payout[]>([]);
@@ -43,6 +58,7 @@ export default function AdminPayoutsPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const fetchPayouts = (p = page) => {
     setLoading(true);
@@ -374,6 +390,83 @@ export default function AdminPayoutsPage() {
                     )}
                   </div>
                 </div>
+
+                {p.status === "approved" && p.paymentMethod && p.paymentHandle && (() => {
+                  const payLink = buildPayLink(p.paymentMethod, p.paymentHandle, p.dollarAmount);
+                  const isCheck = p.paymentMethod.toLowerCase() === "check";
+                  const isVenmo = p.paymentMethod.toLowerCase() === "venmo";
+                  const isCopied = copiedId === p.id;
+                  return (
+                    <div style={{
+                      marginTop: "0.75rem",
+                      paddingTop: "0.75rem",
+                      borderTop: "1px solid #253341",
+                    }}>
+                      {isCheck ? (
+                        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap" }}>
+                          <div style={{
+                            fontFamily: "'Share Tech Mono', monospace",
+                            fontSize: "0.6rem",
+                            color: "#8899a6",
+                            letterSpacing: "0.1em",
+                            flexShrink: 0,
+                          }}>MAIL CHECK TO</div>
+                          <div style={{ fontSize: "0.8rem", color: "#e1e8ed", flex: 1, minWidth: 0, wordBreak: "break-word" }}>
+                            {p.paymentHandle}
+                          </div>
+                          <button
+                            onClick={() => {
+                              navigator.clipboard.writeText(p.paymentHandle!);
+                              setCopiedId(p.id);
+                              setTimeout(() => setCopiedId(null), 2000);
+                            }}
+                            style={{
+                              padding: "0.4rem 0.9rem",
+                              backgroundColor: isCopied ? "#00ff88" : "transparent",
+                              color: isCopied ? "#0f1419" : "#00ff88",
+                              border: "1px solid #00ff88",
+                              fontFamily: "'Share Tech Mono', monospace",
+                              fontSize: "0.65rem",
+                              fontWeight: "700",
+                              cursor: "pointer",
+                              letterSpacing: "0.1em",
+                              flexShrink: 0,
+                              transition: "background-color 0.15s, color 0.15s",
+                            }}
+                          >{isCopied ? "COPIED!" : "COPY ADDRESS"}</button>
+                        </div>
+                      ) : payLink ? (
+                        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap" }}>
+                          <a
+                            href={payLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                              display: "inline-block",
+                              padding: "0.5rem 1.25rem",
+                              backgroundColor: "#00ff88",
+                              color: "#0f1419",
+                              fontFamily: "'Share Tech Mono', monospace",
+                              fontSize: "0.75rem",
+                              fontWeight: "700",
+                              letterSpacing: "0.1em",
+                              textDecoration: "none",
+                              cursor: "pointer",
+                            }}
+                          >PAY ${p.dollarAmount.toFixed(2)} VIA {p.paymentMethod.toUpperCase()} →</a>
+                          {isVenmo && (
+                            <span style={{
+                              fontFamily: "'Share Tech Mono', monospace",
+                              fontSize: "0.6rem",
+                              color: "#8899a6",
+                              letterSpacing: "0.05em",
+                            }}>Opens Venmo app on mobile</span>
+                          )}
+                        </div>
+                      ) : null}
+                    </div>
+                  );
+                })()}
 
                 {(p.reviewedBy || p.approvedBy) && (
                   <div style={{
