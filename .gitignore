@@ -42,6 +42,8 @@ next-env.d.ts
 
 /app/generated/prisma
 
-# Replit
+# Replit workspace files (not part of the project)
 .local/
 attached_assets/
+replit.md
+.replit

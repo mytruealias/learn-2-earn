@@ -1,43 +1,18 @@
 import { Octokit } from '@octokit/rest'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let connectionSettings: Record<string, any> | null = null;
-
-async function getAccessToken() {
-  if (connectionSettings && connectionSettings.settings.expires_at && new Date(connectionSettings.settings.expires_at).getTime() > Date.now()) {
-    return connectionSettings.settings.access_token;
+/**
+ * Returns an authenticated GitHub API client.
+ * Requires the GITHUB_TOKEN environment variable to be set
+ * (a personal access token or GitHub App installation token with
+ * the appropriate repository scopes).
+ */
+export async function getUncachableGitHubClient(): Promise<Octokit> {
+  const token = process.env.GITHUB_TOKEN;
+  if (!token) {
+    throw new Error(
+      'GITHUB_TOKEN environment variable is not set. ' +
+      'Create a token at https://github.com/settings/tokens and add it to your environment.'
+    );
   }
-  
-  const hostname = process.env.REPLIT_CONNECTORS_HOSTNAME
-  const xReplitToken = process.env.REPL_IDENTITY 
-    ? 'repl ' + process.env.REPL_IDENTITY 
-    : process.env.WEB_REPL_RENEWAL 
-    ? 'depl ' + process.env.WEB_REPL_RENEWAL 
-    : null;
-
-  if (!xReplitToken) {
-    throw new Error('X-Replit-Token not found for repl/depl');
-  }
-
-  connectionSettings = await fetch(
-    'https://' + hostname + '/api/v2/connection?include_secrets=true&connector_names=github',
-    {
-      headers: {
-        'Accept': 'application/json',
-        'X-Replit-Token': xReplitToken
-      }
-    }
-  ).then(res => res.json()).then(data => data.items?.[0]);
-
-  const accessToken = connectionSettings?.settings?.access_token || connectionSettings.settings?.oauth?.credentials?.access_token;
-
-  if (!connectionSettings || !accessToken) {
-    throw new Error('GitHub not connected');
-  }
-  return accessToken;
-}
-
-export async function getUncachableGitHubClient() {
-  const accessToken = await getAccessToken();
-  return new Octokit({ auth: accessToken });
+  return new Octokit({ auth: token });
 }
