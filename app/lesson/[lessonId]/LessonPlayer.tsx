@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { HeartIcon, CloseIcon, LightbulbIcon } from "@/app/components/icons";
 
@@ -21,6 +21,7 @@ interface Lesson {
   xpReward: number;
   cards: Card[];
   module: {
+    title: string;
     path: {
       slug: string;
       title: string;
@@ -28,9 +29,107 @@ interface Lesson {
   };
 }
 
+const MOTIVATIONAL_MESSAGES = [
+  "Nailed it!",
+  "Amazing!",
+  "Keep going!",
+  "You got it!",
+  "Brilliant!",
+  "Fantastic!",
+  "That's right!",
+  "Well done!",
+  "Excellent!",
+  "You're on fire!",
+];
+
+function pickMotivational() {
+  return MOTIVATIONAL_MESSAGES[Math.floor(Math.random() * MOTIVATIONAL_MESSAGES.length)];
+}
+
+function ConfettiCanvas() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const colors = ["#58cc02", "#f5b731", "#3b9eff", "#a78bfa", "#f55050", "#f59e0b"];
+    const particles: {
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      color: string;
+      size: number;
+      angle: number;
+      spin: number;
+    }[] = [];
+
+    for (let i = 0; i < 120; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: -10 - Math.random() * 200,
+        vx: (Math.random() - 0.5) * 4,
+        vy: 2 + Math.random() * 4,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        size: 6 + Math.random() * 8,
+        angle: Math.random() * Math.PI * 2,
+        spin: (Math.random() - 0.5) * 0.2,
+      });
+    }
+
+    let animId: number;
+    let frame = 0;
+
+    function draw() {
+      if (!ctx || !canvas) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach((p) => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.05;
+        p.angle += p.spin;
+
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.angle);
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
+        ctx.restore();
+      });
+      frame++;
+      if (frame < 200) {
+        animId = requestAnimationFrame(draw);
+      }
+    }
+
+    animId = requestAnimationFrame(draw);
+    return () => cancelAnimationFrame(animId);
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        pointerEvents: "none",
+        zIndex: 999,
+      }}
+    />
+  );
+}
+
 export default function LessonPlayer({ lesson }: { lesson: Lesson }) {
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [hearts, setHearts] = useState(5);
+  const [initialHearts] = useState(5);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
@@ -40,13 +139,26 @@ export default function LessonPlayer({ lesson }: { lesson: Lesson }) {
   const [earnedXp, setEarnedXp] = useState(0);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
+  const [comboCount, setComboCount] = useState(0);
+  const [peakCombo, setPeakCombo] = useState(0);
+  const [motivationalMsg, setMotivationalMsg] = useState("");
+  const [showCombo, setShowCombo] = useState(false);
+
+  const [xpBreakdown, setXpBreakdown] = useState<{
+    base: number;
+    multiplier: number;
+    perfectBonus: number;
+  } | null>(null);
+  const [moduleComplete, setModuleComplete] = useState(false);
+  const [moduleName, setModuleName] = useState("");
+  const [showModuleComplete, setShowModuleComplete] = useState(false);
+
   useEffect(() => {
     setIsLoggedIn(localStorage.getItem("l2e_logged_in") === "true");
   }, []);
 
   const currentCard = lesson.cards[currentCardIndex];
   const progress = ((currentCardIndex) / lesson.cards.length) * 100;
-  const isQuestion = currentCard?.type === "TRUE_FALSE" || currentCard?.type === "MULTIPLE_CHOICE";
 
   const handleSelect = (choice: string) => {
     if (showFeedback) return;
@@ -64,7 +176,16 @@ export default function LessonPlayer({ lesson }: { lesson: Lesson }) {
     const correct = selectedAnswer === correctAnswer;
     setIsCorrect(correct);
     setShowFeedback(true);
-    if (!correct) {
+
+    if (correct) {
+      const newCombo = comboCount + 1;
+      setComboCount(newCombo);
+      if (newCombo > peakCombo) setPeakCombo(newCombo);
+      setMotivationalMsg(pickMotivational());
+      setShowCombo(newCombo >= 2);
+    } else {
+      setComboCount(0);
+      setShowCombo(false);
       setHearts((h) => Math.max(0, h - 1));
     }
   };
@@ -73,6 +194,7 @@ export default function LessonPlayer({ lesson }: { lesson: Lesson }) {
     setSelectedAnswer(null);
     setShowFeedback(false);
     setIsCorrect(false);
+    setMotivationalMsg("");
 
     if (currentCardIndex >= lesson.cards.length - 1) {
       handleComplete();
@@ -96,16 +218,27 @@ export default function LessonPlayer({ lesson }: { lesson: Lesson }) {
         body: JSON.stringify({ userId }),
       });
 
+      const perfectRun = hearts === initialHearts;
+
       const res = await fetch("/api/progress/complete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, lessonId: lesson.id }),
+        body: JSON.stringify({ userId, lessonId: lesson.id, comboBonus: peakCombo, perfectRun }),
       });
 
       const data = await res.json();
 
       if (res.ok) {
-        setEarnedXp(lesson.xpReward);
+        setEarnedXp(data.xpAwarded ?? lesson.xpReward);
+        setXpBreakdown({
+          base: data.baseXp ?? lesson.xpReward,
+          multiplier: data.comboMultiplier ?? 1,
+          perfectBonus: data.perfectRunBonus ?? 0,
+        });
+        if (data.moduleComplete) {
+          setModuleName(data.moduleName ?? "");
+          setModuleComplete(true);
+        }
         setCompleted(true);
       } else if (res.status === 403 && data.error === "signup_required") {
         setSignupRequired(true);
@@ -249,7 +382,7 @@ export default function LessonPlayer({ lesson }: { lesson: Lesson }) {
     );
   }
 
-  if (completed) {
+  if (completed && moduleComplete && !showModuleComplete) {
     return (
       <div className="grid-bg" style={{
         minHeight: "100vh",
@@ -258,6 +391,71 @@ export default function LessonPlayer({ lesson }: { lesson: Lesson }) {
         justifyContent: "center",
         padding: "2rem",
       }}>
+        <ConfettiCanvas />
+        <div style={{ textAlign: "center", maxWidth: "420px", width: "100%" }}>
+          <div style={{
+            fontFamily: "var(--font-mono)",
+            fontSize: "0.7rem",
+            color: "var(--accent-gold)",
+            letterSpacing: "0.2em",
+            marginBottom: "1rem",
+          }}>
+            {'>'} unit_complete
+          </div>
+          <div style={{ fontSize: "3rem", marginBottom: "0.75rem" }}>🏆</div>
+          <h1 style={{
+            fontFamily: "var(--font-display)",
+            fontSize: "2.25rem",
+            fontWeight: "700",
+            marginBottom: "0.5rem",
+            color: "var(--accent-gold)",
+            textShadow: "0 0 30px rgba(255,204,0,0.3)",
+          }}>
+            UNIT COMPLETE!
+          </h1>
+          <p style={{
+            color: "var(--text-secondary)",
+            fontSize: "1rem",
+            marginBottom: "2rem",
+            lineHeight: "1.6",
+          }}>
+            You finished every lesson in <strong style={{ color: "var(--text-primary)" }}>{moduleName}</strong>. Outstanding work!
+          </p>
+          <button
+            onClick={() => setShowModuleComplete(true)}
+            style={{
+              width: "100%",
+              padding: "1rem",
+              backgroundColor: "transparent",
+              color: "var(--accent-gold)",
+              border: "1px solid var(--accent-gold)",
+              fontWeight: "700",
+              fontSize: "1rem",
+              fontFamily: "var(--font-display)",
+              letterSpacing: "0.05em",
+              boxShadow: "var(--glow-gold)",
+              marginBottom: "0.75rem",
+            }}
+          >
+            SEE RESULTS
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (completed) {
+    const perfectRun = hearts === initialHearts;
+
+    return (
+      <div className="grid-bg" style={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "2rem",
+      }}>
+        <ConfettiCanvas />
         <div style={{ textAlign: "center", maxWidth: "420px", width: "100%" }}>
           <div style={{
             fontFamily: "var(--font-mono)",
@@ -278,6 +476,32 @@ export default function LessonPlayer({ lesson }: { lesson: Lesson }) {
           }}>
             MISSION COMPLETE
           </h1>
+
+          {perfectRun && (
+            <div style={{
+              backgroundColor: "rgba(245,183,49,0.1)",
+              border: "1px solid var(--accent-gold)",
+              borderRadius: "12px",
+              padding: "0.75rem 1.25rem",
+              marginBottom: "1rem",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "0.5rem",
+            }}>
+              <span style={{ fontSize: "1.25rem" }}>⭐</span>
+              <span style={{
+                fontFamily: "var(--font-display)",
+                fontWeight: "700",
+                color: "var(--accent-gold)",
+                fontSize: "1rem",
+                letterSpacing: "0.05em",
+              }}>
+                PERFECT RUN!
+              </span>
+            </div>
+          )}
+
           <div style={{
             backgroundColor: "var(--bg-card)",
             border: "1px solid var(--accent-gold)",
@@ -304,6 +528,23 @@ export default function LessonPlayer({ lesson }: { lesson: Lesson }) {
             }}>
               +{earnedXp} XP
             </div>
+
+            {xpBreakdown && (xpBreakdown.multiplier > 1 || xpBreakdown.perfectBonus > 0) && (
+              <div style={{
+                fontSize: "0.8rem",
+                color: "var(--text-muted)",
+                marginBottom: "0.75rem",
+                lineHeight: "1.6",
+              }}>
+                {xpBreakdown.multiplier > 1 && (
+                  <div>Base {xpBreakdown.base} XP × {xpBreakdown.multiplier} combo bonus</div>
+                )}
+                {xpBreakdown.perfectBonus > 0 && (
+                  <div>+{xpBreakdown.perfectBonus} XP perfect run bonus</div>
+                )}
+              </div>
+            )}
+
             <div style={{
               color: "var(--text-secondary)",
               fontWeight: "600",
@@ -439,7 +680,7 @@ export default function LessonPlayer({ lesson }: { lesson: Lesson }) {
           </p>
           <div style={{ display: "grid", gap: "0.75rem" }}>
             <button
-              onClick={() => { setHearts(5); setCurrentCardIndex(0); }}
+              onClick={() => { setHearts(5); setCurrentCardIndex(0); setComboCount(0); setPeakCombo(0); }}
               style={{
                 padding: "1rem",
                 backgroundColor: "transparent",
@@ -513,6 +754,29 @@ export default function LessonPlayer({ lesson }: { lesson: Lesson }) {
             boxShadow: "0 0 8px rgba(88,204,2,0.3)",
           }} />
         </div>
+
+        {showCombo && comboCount >= 2 && (
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "0.25rem",
+            backgroundColor: "rgba(245,183,49,0.15)",
+            border: "1px solid var(--accent-gold)",
+            borderRadius: "999px",
+            padding: "0.3rem 0.7rem",
+            animation: "pop-in 0.3s ease both",
+          }}>
+            <span style={{ fontSize: "0.85rem" }}>🔥</span>
+            <span style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: "0.75rem",
+              fontWeight: "700",
+              color: "var(--accent-gold)",
+            }}>
+              {comboCount} in a row!
+            </span>
+          </div>
+        )}
 
         <div style={{
           display: "flex",
@@ -733,16 +997,40 @@ export default function LessonPlayer({ lesson }: { lesson: Lesson }) {
               fontWeight: "700",
               fontSize: "1rem",
               color: isCorrect ? "var(--accent-green)" : "var(--accent-red)",
-              marginBottom: "0.35rem",
+              marginBottom: "0.25rem",
               fontFamily: "var(--font-display)",
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem",
             }}>
               {isCorrect ? "> CORRECT" : "> INCORRECT"}
+              {isCorrect && motivationalMsg && (
+                <span style={{
+                  fontSize: "0.9rem",
+                  color: "var(--accent-green)",
+                  fontWeight: "600",
+                  fontFamily: "var(--font-display)",
+                }}>
+                  — {motivationalMsg}
+                </span>
+              )}
             </div>
+            {isCorrect && comboCount >= 2 && (
+              <div style={{
+                fontSize: "0.8rem",
+                color: "var(--accent-gold)",
+                fontFamily: "var(--font-mono)",
+                marginBottom: "0.25rem",
+              }}>
+                🔥 {comboCount} in a row!{comboCount >= 5 ? " +50% XP bonus" : comboCount >= 3 ? " +25% XP bonus" : ""}
+              </div>
+            )}
             {currentCard.explain && (
               <p style={{
                 color: "var(--text-secondary)",
                 fontSize: "0.9rem",
                 lineHeight: "1.5",
+                marginTop: "0.25rem",
               }}>
                 {currentCard.explain}
               </p>

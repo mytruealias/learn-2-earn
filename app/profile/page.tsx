@@ -15,6 +15,14 @@ interface PayoutRequest {
   createdAt: string;
 }
 
+interface Badge {
+  id: string;
+  label: string;
+  icon: string;
+  description: string;
+  earned: boolean;
+}
+
 interface UserProfile {
   id: string;
   email: string | null;
@@ -35,6 +43,7 @@ interface UserProfile {
   availableBalance: number;
   totalEarnings: number;
   payoutRequests: PayoutRequest[];
+  badges?: Badge[];
 }
 
 export default function ProfilePage() {
@@ -331,6 +340,62 @@ export default function ProfilePage() {
                 </div>
               )}
             </div>
+
+            {user.badges && user.badges.length > 0 && (
+              <div style={{
+                backgroundColor: "var(--bg-card)",
+                border: "1px solid var(--border-color)",
+                borderRadius: "14px",
+                padding: "1rem 1.25rem",
+              }}>
+                <div style={{
+                  fontSize: "0.75rem",
+                  fontWeight: "700",
+                  color: "var(--accent-purple)",
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                  marginBottom: "0.75rem",
+                }}>
+                  Achievements
+                </div>
+                <div style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fill, minmax(90px, 1fr))",
+                  gap: "0.75rem",
+                }}>
+                  {user.badges.map((badge) => (
+                    <div
+                      key={badge.id}
+                      title={badge.description}
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        gap: "0.35rem",
+                        padding: "0.75rem 0.5rem",
+                        borderRadius: "12px",
+                        backgroundColor: badge.earned ? "rgba(167,139,250,0.1)" : "rgba(255,255,255,0.03)",
+                        border: `1px solid ${badge.earned ? "var(--accent-purple)" : "var(--border-color)"}`,
+                        opacity: badge.earned ? 1 : 0.45,
+                        transition: "all 0.2s",
+                      }}
+                    >
+                      <span style={{ fontSize: "1.6rem", lineHeight: 1 }}>{badge.icon}</span>
+                      <span style={{
+                        fontSize: "0.65rem",
+                        fontWeight: "700",
+                        color: badge.earned ? "var(--text-primary)" : "var(--text-muted)",
+                        textAlign: "center",
+                        lineHeight: "1.2",
+                        letterSpacing: "0.01em",
+                      }}>
+                        {badge.label}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div style={{
               backgroundColor: "var(--bg-card)",
