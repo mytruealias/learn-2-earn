@@ -7,20 +7,22 @@ export async function POST(req: Request) {
     const { userId } = body;
 
     if (!userId) {
-      return NextResponse.json({ ok: true, completedLessonIds: [] });
+      return NextResponse.json({ ok: true, completedLessonIds: [], recentProgress: [] });
     }
 
     const progress = await prisma.progress.findMany({
       where: { userId },
-      select: { lessonId: true },
+      select: { lessonId: true, completedAt: true },
+      orderBy: { completedAt: "desc" },
     });
 
     return NextResponse.json({
       ok: true,
       completedLessonIds: progress.map((p) => p.lessonId),
+      recentProgress: progress.map((p) => ({ lessonId: p.lessonId, completedAt: p.completedAt.toISOString() })),
     });
   } catch (error) {
     console.error("Progress list error:", error);
-    return NextResponse.json({ ok: true, completedLessonIds: [] });
+    return NextResponse.json({ ok: true, completedLessonIds: [], recentProgress: [] });
   }
 }

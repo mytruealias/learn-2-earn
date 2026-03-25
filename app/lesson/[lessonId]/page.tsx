@@ -19,7 +19,26 @@ export default async function LessonPage({
       },
       module: {
         include: {
-          path: true,
+          path: {
+            include: {
+              modules: {
+                where: { isActive: true },
+                orderBy: { order: "asc" },
+                include: {
+                  lessons: {
+                    where: { isActive: true },
+                    orderBy: { order: "asc" },
+                    select: { id: true, title: true, order: true },
+                  },
+                },
+              },
+            },
+          },
+          lessons: {
+            where: { isActive: true },
+            orderBy: { order: "asc" },
+            select: { id: true, title: true, order: true },
+          },
         },
       },
     },

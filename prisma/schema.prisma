@@ -85,6 +85,8 @@ model User {
   hearts        Int      @default(5)
   totalXp       Int      @default(0)
   streak        Int      @default(0)
+  streakFreezes Int      @default(1)
+  lastFreezeUsedAt DateTime?
   lastActiveAt  DateTime @default(now())
   createdAt     DateTime @default(now())
   consentGiven  Boolean  @default(false)

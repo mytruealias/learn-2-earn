@@ -40,6 +40,8 @@ interface UserProfile {
   totalXp: number;
   hearts: number;
   streak: number;
+  streakFreezes?: number;
+  lastFreezeUsedAt?: string | null;
   lessonsCompleted: number;
   availableXp: number;
   availableBalance: number;
@@ -301,6 +303,45 @@ export default function ProfilePage() {
 
         {tab === "overview" && (
           <div style={{ display: "grid", gap: "0.75rem" }}>
+            <div style={{
+              backgroundColor: "var(--bg-card)",
+              border: "1px solid var(--border-color)",
+              borderRadius: "14px",
+              padding: "1rem 1.25rem",
+              display: "flex",
+              alignItems: "center",
+              gap: "1rem",
+              flexWrap: "wrap",
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flex: 1 }}>
+                <span style={{ fontSize: "1.5rem" }}>🔥</span>
+                <div>
+                  <div style={{ fontSize: "1.25rem", fontWeight: "700", color: "var(--accent-gold)" }}>{user.streak} day streak</div>
+                  <div style={{ fontSize: "0.7rem", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Current Streak</div>
+                </div>
+              </div>
+              <div style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                backgroundColor: (user.streakFreezes ?? 1) > 0 ? "rgba(59,158,255,0.1)" : "rgba(136,146,176,0.08)",
+                border: `1px solid ${(user.streakFreezes ?? 1) > 0 ? "rgba(59,158,255,0.3)" : "rgba(136,146,176,0.2)"}`,
+                borderRadius: "8px",
+                padding: "0.5rem 0.85rem",
+                opacity: (user.streakFreezes ?? 1) > 0 ? 1 : 0.6,
+              }}>
+                <span style={{ fontSize: "1.1rem", filter: (user.streakFreezes ?? 1) > 0 ? "none" : "grayscale(1)" }}>❄️</span>
+                <div>
+                  <div style={{ fontSize: "0.8rem", fontWeight: "700", color: (user.streakFreezes ?? 1) > 0 ? "var(--accent-blue)" : "var(--text-muted)" }}>
+                    {(user.streakFreezes ?? 1) > 0 ? "Freeze Ready" : "Freeze Used"}
+                  </div>
+                  <div style={{ fontSize: "0.65rem", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.04em" }}>
+                    {(user.streakFreezes ?? 1) > 0 ? "Protects 1 missed day" : "Earns back at 7-day streak"}
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div style={{
               backgroundColor: "var(--bg-card)",
               border: "2px solid var(--accent-gold)",

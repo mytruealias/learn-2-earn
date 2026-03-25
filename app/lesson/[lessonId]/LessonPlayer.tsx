@@ -15,18 +15,43 @@ interface Card {
   order: number;
 }
 
+interface LessonSummary {
+  id: string;
+  title: string;
+  order: number;
+}
+
+interface ModuleSummary {
+  id: string;
+  title: string;
+  order: number;
+  lessons: LessonSummary[];
+}
+
 interface Lesson {
   id: string;
   title: string;
   xpReward: number;
+  order: number;
   cards: Card[];
   module: {
+    id: string;
     title: string;
+    order: number;
+    lessons: LessonSummary[];
     path: {
       slug: string;
       title: string;
+      modules: ModuleSummary[];
     };
   };
+}
+
+interface BadgeInfo {
+  id: string;
+  label: string;
+  icon: string;
+  description: string;
 }
 
 const MOTIVATIONAL_MESSAGES = [
@@ -126,6 +151,23 @@ function ConfettiCanvas() {
   );
 }
 
+function findNextLesson(lesson: Lesson, completedIds: Set<string>): { id: string; title: string; moduleTitle: string } | null {
+  const currentModuleOrder = lesson.module.order;
+  const currentLessonOrder = lesson.order;
+  const allModules = lesson.module.path.modules;
+
+  for (const mod of allModules) {
+    if (mod.order < currentModuleOrder) continue;
+    for (const l of mod.lessons) {
+      if (mod.order === currentModuleOrder && l.order <= currentLessonOrder) continue;
+      if (!completedIds.has(l.id)) {
+        return { id: l.id, title: l.title, moduleTitle: mod.title };
+      }
+    }
+  }
+  return null;
+}
+
 export default function LessonPlayer({ lesson }: { lesson: Lesson }) {
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [hearts, setHearts] = useState(5);
@@ -152,6 +194,13 @@ export default function LessonPlayer({ lesson }: { lesson: Lesson }) {
   const [moduleComplete, setModuleComplete] = useState(false);
   const [moduleName, setModuleName] = useState("");
   const [showModuleComplete, setShowModuleComplete] = useState(false);
+
+  const [newBadges, setNewBadges] = useState<BadgeInfo[]>([]);
+  const [badgeCelebrationIndex, setBadgeCelebrationIndex] = useState(0);
+  const [showBadgeCelebration, setShowBadgeCelebration] = useState(false);
+
+  const [completedIds, setCompletedIds] = useState<Set<string>>(new Set());
+  const [nextLesson, setNextLesson] = useState<{ id: string; title: string; moduleTitle: string } | null>(null);
 
   useEffect(() => {
     setIsLoggedIn(localStorage.getItem("l2e_logged_in") === "true");
@@ -220,15 +269,32 @@ export default function LessonPlayer({ lesson }: { lesson: Lesson }) {
 
       const perfectRun = hearts === initialHearts;
 
-      const res = await fetch("/api/progress/complete", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, lessonId: lesson.id, comboBonus: peakCombo, perfectRun }),
-      });
+      const [progressRes, progressListRes] = await Promise.all([
+        fetch("/api/progress/complete", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId, lessonId: lesson.id, comboBonus: peakCombo, perfectRun }),
+        }),
+        fetch("/api/progress/list", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId }),
+        }),
+      ]);
 
-      const data = await res.json();
+      const data = await progressRes.json();
+      const listData = await progressListRes.json();
 
-      if (res.ok) {
+      const fetchedCompletedIds = new Set<string>(
+        listData.ok && listData.completedLessonIds ? listData.completedLessonIds : []
+      );
+      fetchedCompletedIds.add(lesson.id);
+      setCompletedIds(fetchedCompletedIds);
+
+      const next = findNextLesson(lesson, fetchedCompletedIds);
+      setNextLesson(next);
+
+      if (progressRes.ok) {
         setEarnedXp(data.xpAwarded ?? lesson.xpReward);
         setXpBreakdown({
           base: data.baseXp ?? lesson.xpReward,
@@ -239,8 +305,14 @@ export default function LessonPlayer({ lesson }: { lesson: Lesson }) {
           setModuleName(data.moduleName ?? "");
           setModuleComplete(true);
         }
-        setCompleted(true);
-      } else if (res.status === 403 && data.error === "signup_required") {
+        if (data.newBadges && data.newBadges.length > 0) {
+          setNewBadges(data.newBadges);
+          setBadgeCelebrationIndex(0);
+          setShowBadgeCelebration(true);
+        } else {
+          setCompleted(true);
+        }
+      } else if (progressRes.status === 403 && data.error === "signup_required") {
         setSignupRequired(true);
       }
     } catch (err) {
@@ -249,6 +321,131 @@ export default function LessonPlayer({ lesson }: { lesson: Lesson }) {
       setIsSubmitting(false);
     }
   };
+
+  const handleNextBadge = () => {
+    if (badgeCelebrationIndex < newBadges.length - 1) {
+      setBadgeCelebrationIndex((i) => i + 1);
+    } else {
+      setShowBadgeCelebration(false);
+      setCompleted(true);
+    }
+  };
+
+  if (showBadgeCelebration && newBadges.length > 0) {
+    const badge = newBadges[badgeCelebrationIndex];
+    return (
+      <div className="grid-bg" style={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "2rem",
+      }}>
+        <ConfettiCanvas />
+        <div style={{ textAlign: "center", maxWidth: "420px", width: "100%" }}>
+          <div style={{
+            fontFamily: "var(--font-mono)",
+            fontSize: "0.7rem",
+            color: "var(--accent-purple)",
+            letterSpacing: "0.2em",
+            marginBottom: "1rem",
+          }}>
+            {'>'} badge_unlocked
+          </div>
+
+          <div style={{
+            fontSize: "5rem",
+            marginBottom: "1rem",
+            animation: "pop-in 0.5s ease both",
+          }}>
+            {badge.icon}
+          </div>
+
+          <h1 style={{
+            fontFamily: "var(--font-display)",
+            fontSize: "2rem",
+            fontWeight: "700",
+            marginBottom: "0.5rem",
+            color: "var(--accent-purple)",
+            textShadow: "0 0 30px rgba(167,139,250,0.4)",
+          }}>
+            {badge.label}
+          </h1>
+
+          <p style={{
+            color: "var(--text-secondary)",
+            fontSize: "1rem",
+            marginBottom: "2rem",
+            lineHeight: "1.6",
+          }}>
+            {badge.description}
+          </p>
+
+          <div style={{
+            backgroundColor: "rgba(167,139,250,0.08)",
+            border: "1px solid rgba(167,139,250,0.3)",
+            padding: "1rem 1.5rem",
+            marginBottom: "1.5rem",
+          }}>
+            <div style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: "0.65rem",
+              color: "var(--accent-purple)",
+              letterSpacing: "0.15em",
+              marginBottom: "0.25rem",
+            }}>
+              {'>'} achievement_earned
+            </div>
+            <div style={{
+              color: "var(--text-primary)",
+              fontWeight: "700",
+              fontSize: "1.05rem",
+              fontFamily: "var(--font-display)",
+            }}>
+              You earned the &quot;{badge.label}&quot; badge!
+            </div>
+          </div>
+
+          {newBadges.length > 1 && (
+            <div style={{
+              display: "flex",
+              justifyContent: "center",
+              gap: "0.4rem",
+              marginBottom: "1.25rem",
+            }}>
+              {newBadges.map((_, i) => (
+                <div key={i} style={{
+                  width: "8px",
+                  height: "8px",
+                  borderRadius: "999px",
+                  backgroundColor: i === badgeCelebrationIndex ? "var(--accent-purple)" : "var(--border-color)",
+                  transition: "background-color 0.2s",
+                }} />
+              ))}
+            </div>
+          )}
+
+          <button
+            onClick={handleNextBadge}
+            style={{
+              width: "100%",
+              padding: "1rem",
+              backgroundColor: "transparent",
+              color: "var(--accent-purple)",
+              border: "1px solid var(--accent-purple)",
+              fontWeight: "700",
+              fontSize: "1rem",
+              fontFamily: "var(--font-display)",
+              letterSpacing: "0.05em",
+              boxShadow: "0 0 20px rgba(167,139,250,0.25)",
+            }}
+          >
+            {badgeCelebrationIndex < newBadges.length - 1 ? "NEXT BADGE >" : "CONTINUE >"}
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (signupRequired) {
     return (
@@ -553,6 +750,71 @@ export default function LessonPlayer({ lesson }: { lesson: Lesson }) {
               You&apos;re building real skills. Keep going.
             </div>
           </div>
+
+          {nextLesson && (
+            <div style={{
+              backgroundColor: "var(--bg-card)",
+              border: "1px solid var(--accent-blue)",
+              padding: "1.25rem 1.5rem",
+              marginBottom: "1.5rem",
+              position: "relative",
+              overflow: "hidden",
+              textAlign: "left",
+            }}>
+              <div style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                height: "1px",
+                background: "linear-gradient(90deg, transparent, var(--accent-blue), transparent)",
+              }} />
+              <div style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "0.65rem",
+                color: "var(--accent-blue)",
+                letterSpacing: "0.15em",
+                marginBottom: "0.5rem",
+              }}>
+                {'>'} next_up
+              </div>
+              <div style={{
+                color: "var(--text-muted)",
+                fontSize: "0.75rem",
+                fontWeight: "600",
+                marginBottom: "0.25rem",
+              }}>
+                {nextLesson.moduleTitle}
+              </div>
+              <div style={{
+                color: "var(--text-primary)",
+                fontWeight: "700",
+                fontSize: "1rem",
+                fontFamily: "var(--font-display)",
+                marginBottom: "1rem",
+              }}>
+                {nextLesson.title}
+              </div>
+              <Link
+                href={`/lesson/${nextLesson.id}`}
+                style={{
+                  display: "block",
+                  padding: "0.75rem",
+                  backgroundColor: "transparent",
+                  color: "var(--accent-blue)",
+                  border: "1px solid var(--accent-blue)",
+                  fontWeight: "700",
+                  fontSize: "0.9rem",
+                  textAlign: "center",
+                  fontFamily: "var(--font-display)",
+                  letterSpacing: "0.05em",
+                  boxShadow: "var(--glow-blue)",
+                }}
+              >
+                START NEXT LESSON &gt;
+              </Link>
+            </div>
+          )}
 
           {!isLoggedIn && (
             <div style={{

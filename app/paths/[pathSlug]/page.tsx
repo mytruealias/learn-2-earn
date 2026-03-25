@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import prisma from "@/lib/prisma";
 import HelpButton from "../../components/HelpButton";
 import LessonList from "../../components/LessonList";
+import PathProgressBar from "../../components/PathProgressBar";
 import {
   ShelterIcon,
   ShieldIcon,
@@ -60,6 +61,8 @@ export default async function PathPage({ params }: { params: { pathSlug: string 
   if (!path) {
     notFound();
   }
+
+  const allLessonIds = path.modules.flatMap((m) => m.lessons.map((l) => l.id));
 
   const modulesData = path.modules.map((mod) => ({
     id: mod.id,
@@ -128,6 +131,7 @@ export default async function PathPage({ params }: { params: { pathSlug: string 
       </header>
 
       <main style={{ maxWidth: "700px", margin: "0 auto", padding: "1.5rem 1.5rem" }}>
+        <PathProgressBar allLessonIds={allLessonIds} />
         <LessonList modules={modulesData} />
       </main>
 

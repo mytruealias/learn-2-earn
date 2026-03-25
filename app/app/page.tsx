@@ -2,6 +2,7 @@ import Link from "next/link";
 import prisma from "@/lib/prisma";
 import HelpButton from "../components/HelpButton";
 import StatsBar from "../components/StatsBar";
+import ContinueLearningCard from "../components/ContinueLearningCard";
 import {
   ShelterIcon,
   ShieldIcon,
@@ -44,14 +45,34 @@ export default async function AppHome() {
     include: {
       modules: {
         where: { isActive: true },
+        orderBy: { order: "asc" },
         include: {
           lessons: {
             where: { isActive: true },
+            orderBy: { order: "asc" },
+            select: { id: true, title: true, order: true },
           },
         },
       },
     },
   });
+
+  const pathsForCard = paths.map((p) => ({
+    id: p.id,
+    slug: p.slug,
+    title: p.title,
+    icon: p.icon,
+    modules: p.modules.map((m) => ({
+      id: m.id,
+      title: m.title,
+      order: m.order,
+      lessons: m.lessons.map((l) => ({
+        id: l.id,
+        title: l.title,
+        order: l.order,
+      })),
+    })),
+  }));
 
   return (
     <div className="grid-bg" style={{ minHeight: "100vh", padding: "0 0 6rem 0" }}>
@@ -100,6 +121,8 @@ export default async function AppHome() {
       <StatsBar />
 
       <main style={{ maxWidth: "700px", margin: "0 auto", padding: "1rem 1.5rem" }}>
+        <ContinueLearningCard paths={pathsForCard} />
+
         <div style={{
           fontFamily: "var(--font-display)",
           fontSize: "0.85rem",

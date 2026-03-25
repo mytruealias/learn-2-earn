@@ -130,6 +130,8 @@ export async function POST(req: Request) {
         totalXp: user.totalXp,
         hearts: user.hearts,
         streak: user.streak,
+        streakFreezes: user.streakFreezes,
+        lastFreezeUsedAt: user.lastFreezeUsedAt,
         lessonsCompleted: user.progress.length,
         availableXp,
         availableBalance,
