@@ -14,7 +14,7 @@ const CARDS = [
   { q: "Which is a free way to start budgeting?", a: "Track spending for one week using pen and paper" },
 ];
 
-type Phase = "home" | "lesson" | "card" | "correct" | "xp" | "complete";
+type Phase = "home" | "lesson" | "card" | "correct" | "xp" | "complete" | "wallet" | "cashout";
 
 export default function AppDemo() {
   const [mounted, setMounted] = useState(false);
@@ -41,7 +41,9 @@ export default function AppDemo() {
       { phase: "card", delay: 2200, tap: [50, 72] },
       { phase: "correct", delay: 1600 },
       { phase: "xp", delay: 2000, addXp: 10 },
-      { phase: "complete", delay: 3000 },
+      { phase: "complete", delay: 2500 },
+      { phase: "wallet", delay: 2500, tap: [50, 72] },
+      { phase: "cashout", delay: 3000 },
     ];
 
     let timer: ReturnType<typeof setTimeout>;
@@ -193,8 +195,41 @@ export default function AppDemo() {
             </div>
           )}
 
+          {phase === "wallet" && (
+            <div className="demo-screen-content demo-fade-in">
+              <div className="demo-wallet-header">
+                <div className="demo-wallet-title">My Wallet</div>
+                <div className="demo-wallet-balance-label">Available Balance</div>
+                <div className="demo-wallet-balance">$0.66</div>
+                <div className="demo-wallet-subtext">{totalXp} XP earned this session</div>
+              </div>
+              <div className="demo-wallet-history">
+                <div className="demo-wallet-row">
+                  <span className="demo-wallet-row-label">Daily Routines</span>
+                  <span className="demo-wallet-row-amount">+$0.33</span>
+                </div>
+                <div className="demo-wallet-row">
+                  <span className="demo-wallet-row-label">Keeping Documents Safe</span>
+                  <span className="demo-wallet-row-amount">+$0.33</span>
+                </div>
+              </div>
+              <div className="demo-cashout-btn">Cash Out</div>
+            </div>
+          )}
+
+          {phase === "cashout" && (
+            <div className="demo-screen-content demo-fade-in">
+              <div className="demo-xp-reward">
+                <div className="demo-cashout-icon">&#x2705;</div>
+                <div className="demo-xp-message">Payout Requested!</div>
+                <div className="demo-cashout-amount">$0.66</div>
+                <div className="demo-cashout-subtext">sent to your account</div>
+              </div>
+            </div>
+          )}
+
           <div className="demo-phone-navbar">
-            <div className="demo-nav-item demo-nav-active">
+            <div className={`demo-nav-item ${phase !== "wallet" && phase !== "cashout" ? "demo-nav-active" : ""}`}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h1v7c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-7h1a1 1 0 0 0 .7-1.7l-9-9a1 1 0 0 0-1.4 0l-9 9A1 1 0 0 0 3 13z"/></svg>
               <span>Home</span>
             </div>
@@ -202,7 +237,7 @@ export default function AppDemo() {
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
               <span>Lifeline</span>
             </div>
-            <div className="demo-nav-item">
+            <div className={`demo-nav-item ${phase === "wallet" || phase === "cashout" ? "demo-nav-active" : ""}`}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
               <span>Profile</span>
             </div>
@@ -225,6 +260,8 @@ export default function AppDemo() {
           {phase === "correct" && "Instant feedback on answers"}
           {phase === "xp" && "XP and cash earned for each completion"}
           {phase === "complete" && "Progress tracked — every lesson counts"}
+          {phase === "wallet" && "Tap Cash Out to withdraw real earnings instantly"}
+          {phase === "cashout" && "Payout confirmed — money sent to their account"}
         </p>
       </div>
     </div>
