@@ -1,7 +1,7 @@
 import "./invest/invest.css";
 import "./invest/demo-phone.css";
 import AppDemo from "./components/AppDemo";
-import Link from "next/link";
+import LandingNav from "./components/LandingNav";
 import {
   TrendingUpIcon, HomeIcon, TrendingDownIcon, BarChartIcon,
   WalkingIcon, HeartPlusIcon, BriefcaseIcon,
@@ -14,40 +14,7 @@ import {
 export default function HomePage() {
   return (
     <div className="inv-page">
-      <nav className="inv-nav">
-        <Link href="/" className="inv-nav-logo">
-          <svg className="inv-nav-logo-mark" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect width="32" height="32" rx="8" fill="url(#logoGrad)"/>
-            <rect x="7" y="20" width="4" height="5" rx="1" fill="white" fillOpacity="0.9"/>
-            <rect x="14" y="14" width="4" height="11" rx="1" fill="white" fillOpacity="0.9"/>
-            <rect x="21" y="8" width="4" height="17" rx="1" fill="white" fillOpacity="0.9"/>
-            <defs>
-              <linearGradient id="logoGrad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
-                <stop offset="0%" stopColor="#059669"/>
-                <stop offset="100%" stopColor="#0ea5e9"/>
-              </linearGradient>
-            </defs>
-          </svg>
-          <span className="inv-nav-logo-text">Learn<span>2</span>Earn</span>
-        </Link>
-        <ul className="inv-nav-links">
-          <li><a href="#platform">Platform</a></li>
-          <li><a href="#impact">Impact</a></li>
-          <li><a href="#usecases">Use Cases</a></li>
-          <li><a href="#demo">Demo</a></li>
-          <li><a href="#contact">Contact</a></li>
-          <li>
-            <a href="#demo" className="inv-btn inv-btn-glass" style={{ padding: "0.45rem 1.2rem", fontSize: "0.78rem" }}>
-              Book a Demo
-            </a>
-          </li>
-          <li>
-            <a href="#contact" className="inv-btn inv-btn-primary" style={{ padding: "0.45rem 1.2rem", fontSize: "0.78rem" }}>
-              Request a Pilot Plan
-            </a>
-          </li>
-        </ul>
-      </nav>
+      <LandingNav />
 
       <section className="inv-hero">
         <div className="inv-hero-glow inv-hero-glow-1"></div>
@@ -125,7 +92,10 @@ export default function HomePage() {
           </div>
           <div className="inv-pillar-grid">
             <div className="inv-pillar-card">
-              <h3><span>&#x1F4F1;</span> Learner Experience</h3>
+              <div className="inv-pillar-icon inv-pillar-icon-blue">
+                <SmartphoneIcon size={22} stroke="#60a5fa" />
+              </div>
+              <h3>Learner Experience</h3>
               <ul className="inv-pillar-list">
                 <li>Bite-sized lessons, low reading level, trauma-informed</li>
                 <li>Works in browser, minimal friction — no app download needed</li>
@@ -133,7 +103,10 @@ export default function HomePage() {
               </ul>
             </div>
             <div className="inv-pillar-card">
-              <h3><span>&#x1F4CB;</span> Case Worker & Admin Tools</h3>
+              <div className="inv-pillar-icon inv-pillar-icon-purple">
+                <ClipboardIcon size={22} stroke="#a78bfa" />
+              </div>
+              <h3>Case Worker & Admin Tools</h3>
               <ul className="inv-pillar-list">
                 <li>Participant view, progress tracking, payout review workflow</li>
                 <li>Engagement and completion analytics for reporting</li>
@@ -141,7 +114,10 @@ export default function HomePage() {
               </ul>
             </div>
             <div className="inv-pillar-card">
-              <h3><span>&#x1F4B0;</span> Incentive System</h3>
+              <div className="inv-pillar-icon inv-pillar-icon-gold">
+                <CoinIcon size={22} stroke="#fbbf24" />
+              </div>
+              <h3>Incentive System</h3>
               <ul className="inv-pillar-list">
                 <li>Micro-incentives tied to verified completion</li>
                 <li>Configurable payout rules per program</li>
@@ -171,32 +147,24 @@ export default function HomePage() {
           </div>
           <div className="inv-stats">
             <div className="inv-stat-card">
-              <div className="inv-stat-number"><TrendingUpIcon size={36} stroke="#34d399" /></div>
+              <div className="inv-stat-icon inv-stat-icon-green"><TrendingUpIcon size={32} stroke="#34d399" /></div>
               <div className="inv-stat-label">Engagement</div>
-              <p style={{ fontSize: "0.82rem", color: "#64748b", marginTop: "0.5rem", lineHeight: 1.5 }}>
-                Incentives increase follow-through on learning and routines
-              </p>
+              <p className="inv-stat-desc">Incentives increase follow-through on learning and routines</p>
             </div>
             <div className="inv-stat-card">
-              <div className="inv-stat-number"><HomeIcon size={36} stroke="#60a5fa" /></div>
+              <div className="inv-stat-icon inv-stat-icon-blue"><HomeIcon size={32} stroke="#60a5fa" /></div>
               <div className="inv-stat-label">Stability</div>
-              <p style={{ fontSize: "0.82rem", color: "#64748b", marginTop: "0.5rem", lineHeight: 1.5 }}>
-                Skills pathways support housing, employment readiness, and recovery
-              </p>
+              <p className="inv-stat-desc">Skills pathways support housing, employment readiness, and recovery</p>
             </div>
             <div className="inv-stat-card">
-              <div className="inv-stat-number"><TrendingDownIcon size={36} stroke="#f87171" /></div>
+              <div className="inv-stat-icon inv-stat-icon-red"><TrendingDownIcon size={32} stroke="#f87171" /></div>
               <div className="inv-stat-label">Cost Reduction</div>
-              <p style={{ fontSize: "0.82rem", color: "#64748b", marginTop: "0.5rem", lineHeight: 1.5 }}>
-                Better engagement can reduce avoidable emergency utilization over time
-              </p>
+              <p className="inv-stat-desc">Better engagement can reduce avoidable emergency utilization over time</p>
             </div>
             <div className="inv-stat-card">
-              <div className="inv-stat-number"><BarChartIcon size={36} stroke="#a78bfa" /></div>
+              <div className="inv-stat-icon inv-stat-icon-purple"><BarChartIcon size={32} stroke="#a78bfa" /></div>
               <div className="inv-stat-label">Measurable Outcomes</div>
-              <p style={{ fontSize: "0.82rem", color: "#64748b", marginTop: "0.5rem", lineHeight: 1.5 }}>
-                Completions, time in program, milestones, referrals, payout activity
-              </p>
+              <p className="inv-stat-desc">Completions, time in program, milestones, referrals, payout activity</p>
             </div>
           </div>
         </div>
@@ -216,40 +184,32 @@ export default function HomePage() {
           </div>
           <div className="inv-usecase-grid">
             <div className="inv-usecase-card">
-              <div className="inv-usecase-icon" style={{ background: "rgba(59,130,246,0.1)", color: "#60a5fa" }}>
+              <div className="inv-usecase-icon inv-icon-blue">
                 <HomeIcon size={26} stroke="#60a5fa" />
               </div>
               <h3>Shelter & Navigation Centers</h3>
-              <p>
-                Deploy on shared devices or personal phones. Track participation and progress across your facility.
-              </p>
+              <p>Deploy on shared devices or personal phones. Track participation and progress across your facility.</p>
             </div>
             <div className="inv-usecase-card">
-              <div className="inv-usecase-icon" style={{ background: "rgba(88,204,2,0.1)", color: "#6ee720" }}>
+              <div className="inv-usecase-icon inv-icon-green">
                 <WalkingIcon size={26} stroke="#6ee720" />
               </div>
               <h3>Street Outreach Teams</h3>
-              <p>
-                Low barrier entry, quick lesson starts, connect to resources instantly — no signup required.
-              </p>
+              <p>Low barrier entry, quick lesson starts, connect to resources instantly — no signup required.</p>
             </div>
             <div className="inv-usecase-card">
-              <div className="inv-usecase-icon" style={{ background: "rgba(139,92,246,0.1)", color: "#a78bfa" }}>
+              <div className="inv-usecase-icon inv-icon-purple">
                 <HeartPlusIcon size={26} stroke="#a78bfa" />
               </div>
               <h3>Recovery & Re-entry Programs</h3>
-              <p>
-                Structured learning tracks, routines, relapse prevention, and incentives with oversight.
-              </p>
+              <p>Structured learning tracks, routines, relapse prevention, and incentives with oversight.</p>
             </div>
             <div className="inv-usecase-card">
-              <div className="inv-usecase-icon" style={{ background: "rgba(245,158,11,0.1)", color: "#fbbf24" }}>
+              <div className="inv-usecase-icon inv-icon-gold">
                 <BriefcaseIcon size={26} stroke="#fbbf24" />
               </div>
               <h3>Workforce Readiness</h3>
-              <p>
-                Financial literacy, document preparation, job readiness, and systems navigation.
-              </p>
+              <p>Financial literacy, document preparation, job readiness, and systems navigation.</p>
             </div>
           </div>
           <div className="inv-section-cta">
@@ -273,17 +233,13 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div style={{ marginBottom: "4rem" }}>
-            <h3 style={{ fontFamily: "var(--cy-display)", fontSize: "1.2rem", fontWeight: 700, color: "#f1f5f9", marginBottom: "1.5rem", textAlign: "center" }}>
-              The Learner Experience
-            </h3>
+          <div className="inv-demo-block">
+            <h3 className="inv-demo-sub">The Learner Experience</h3>
             <AppDemo />
           </div>
 
-          <div style={{ maxWidth: "800px", margin: "0 auto 3rem" }}>
-            <h3 style={{ fontFamily: "var(--cy-display)", fontSize: "1.2rem", fontWeight: 700, color: "#f1f5f9", marginBottom: "1.25rem", textAlign: "center" }}>
-              Watch the 2-Minute Overview
-            </h3>
+          <div className="inv-video-block">
+            <h3 className="inv-demo-sub">Watch the 2-Minute Overview</h3>
             <div className="inv-video-wrap">
               <video
                 controls
@@ -298,10 +254,8 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div style={{ marginBottom: "3rem" }}>
-            <h3 style={{ fontFamily: "var(--cy-display)", fontSize: "1.2rem", fontWeight: 700, color: "#f1f5f9", marginBottom: "1.5rem", textAlign: "center" }}>
-              Explore the Platform
-            </h3>
+          <div className="inv-demo-block">
+            <h3 className="inv-demo-sub">Explore the Platform</h3>
             <div className="inv-steps">
               <div className="inv-step">
                 <div className="inv-step-number"><SmartphoneIcon size={32} stroke="#34d399" /></div>
@@ -309,8 +263,8 @@ export default function HomePage() {
                 <p>
                   Preview the learner-facing app — bite-sized lessons, progress tracking, and earning.
                 </p>
-                <div style={{ marginTop: "1rem" }}>
-                  <a href="/app" className="inv-btn inv-btn-glass" style={{ fontSize: "0.78rem", padding: "0.5rem 1.2rem" }}>
+                <div className="inv-step-cta">
+                  <a href="/app" className="inv-btn inv-btn-glass inv-btn-sm">
                     Try It Live
                   </a>
                 </div>
@@ -321,8 +275,8 @@ export default function HomePage() {
                 <p>
                   See the case worker and admin tools — participant management, analytics, and approvals.
                 </p>
-                <div style={{ marginTop: "1rem" }}>
-                  <a href="/admin" className="inv-btn inv-btn-glass" style={{ fontSize: "0.78rem", padding: "0.5rem 1.2rem" }}>
+                <div className="inv-step-cta">
+                  <a href="/admin" className="inv-btn inv-btn-glass inv-btn-sm">
                     View Dashboard
                   </a>
                 </div>
@@ -333,8 +287,8 @@ export default function HomePage() {
                 <p>
                   Multi-step payout approval with audit trail — review, approve, and disburse with full oversight.
                 </p>
-                <div style={{ marginTop: "1rem" }}>
-                  <a href="/admin" className="inv-btn inv-btn-glass" style={{ fontSize: "0.78rem", padding: "0.5rem 1.2rem" }}>
+                <div className="inv-step-cta">
+                  <a href="/admin" className="inv-btn inv-btn-glass inv-btn-sm">
                     See Workflow
                   </a>
                 </div>
@@ -342,10 +296,8 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div>
-            <h3 style={{ fontFamily: "var(--cy-display)", fontSize: "1.2rem", fontWeight: 700, color: "#f1f5f9", marginBottom: "1.5rem", textAlign: "center" }}>
-              What a Pilot Includes
-            </h3>
+          <div className="inv-demo-block">
+            <h3 className="inv-demo-sub">What a Pilot Includes</h3>
             <div className="inv-pilot-grid">
               <div className="inv-pilot-item">
                 <div className="inv-pilot-num">01</div>
@@ -392,72 +344,56 @@ export default function HomePage() {
           </div>
           <div className="inv-curriculum-grid">
             <div className="inv-curriculum-card">
-              <div className="inv-curriculum-icon" style={{ background: "rgba(88,204,2,0.1)", color: "#6ee720" }}>
-                <HomeIcon size={22} stroke="#6ee720" />
-              </div>
+              <div className="inv-curriculum-icon inv-icon-green"><HomeIcon size={22} stroke="#6ee720" /></div>
               <div>
                 <h4>Stability Basics</h4>
                 <p>Daily routines, communication, document safety.</p>
               </div>
             </div>
             <div className="inv-curriculum-card">
-              <div className="inv-curriculum-icon" style={{ background: "rgba(59,130,246,0.1)", color: "#60a5fa" }}>
-                <ShieldIcon size={22} stroke="#60a5fa" />
-              </div>
+              <div className="inv-curriculum-icon inv-icon-blue"><ShieldIcon size={22} stroke="#60a5fa" /></div>
               <div>
                 <h4>Survival & Systems</h4>
                 <p>Housing navigation, benefits access, work readiness.</p>
               </div>
             </div>
             <div className="inv-curriculum-card">
-              <div className="inv-curriculum-icon" style={{ background: "rgba(139,92,246,0.1)", color: "#a78bfa" }}>
-                <TargetIcon size={22} stroke="#a78bfa" />
-              </div>
+              <div className="inv-curriculum-icon inv-icon-purple"><TargetIcon size={22} stroke="#a78bfa" /></div>
               <div>
                 <h4>Building Your Future</h4>
                 <p>Goal-setting, values alignment, sustainable habits.</p>
               </div>
             </div>
             <div className="inv-curriculum-card">
-              <div className="inv-curriculum-icon" style={{ background: "rgba(245,158,11,0.1)", color: "#fbbf24" }}>
-                <DollarIcon size={22} stroke="#fbbf24" />
-              </div>
+              <div className="inv-curriculum-icon inv-icon-gold"><DollarIcon size={22} stroke="#fbbf24" /></div>
               <div>
                 <h4>Financial Literacy</h4>
                 <p>Budgeting, banking basics, scam prevention.</p>
               </div>
             </div>
             <div className="inv-curriculum-card">
-              <div className="inv-curriculum-icon" style={{ background: "rgba(239,68,68,0.1)", color: "#f87171" }}>
-                <HeartIcon size={22} stroke="#f87171" />
-              </div>
+              <div className="inv-curriculum-icon inv-icon-red"><HeartIcon size={22} stroke="#f87171" /></div>
               <div>
                 <h4>Addiction & Recovery</h4>
                 <p>108 lessons from understanding addiction to sustained recovery.</p>
               </div>
             </div>
             <div className="inv-curriculum-card">
-              <div className="inv-curriculum-icon" style={{ background: "rgba(6,182,212,0.1)", color: "#22d3ee" }}>
-                <HandshakeIcon size={22} stroke="#22d3ee" />
-              </div>
+              <div className="inv-curriculum-icon inv-icon-cyan"><HandshakeIcon size={22} stroke="#22d3ee" /></div>
               <div>
                 <h4>Harm Reduction</h4>
                 <p>Naloxone training, overdose response, safety planning.</p>
               </div>
             </div>
             <div className="inv-curriculum-card">
-              <div className="inv-curriculum-icon" style={{ background: "rgba(139,92,246,0.1)", color: "#a78bfa" }}>
-                <MessageIcon size={22} stroke="#a78bfa" />
-              </div>
+              <div className="inv-curriculum-icon inv-icon-purple"><MessageIcon size={22} stroke="#a78bfa" /></div>
               <div>
                 <h4>Life & Communication</h4>
                 <p>Conflict resolution, digital skills, self-advocacy.</p>
               </div>
             </div>
             <div className="inv-curriculum-card">
-              <div className="inv-curriculum-icon" style={{ background: "rgba(88,204,2,0.1)", color: "#6ee720" }}>
-                <UsersIcon size={22} stroke="#6ee720" />
-              </div>
+              <div className="inv-curriculum-icon inv-icon-green"><UsersIcon size={22} stroke="#6ee720" /></div>
               <div>
                 <h4>Family & Supporters</h4>
                 <p>Boundary-setting, caregiver burnout, healthy support.</p>
@@ -543,20 +479,12 @@ export default function HomePage() {
               Request a Pilot Plan
             </a>
           </div>
-          <div style={{ marginTop: "2rem", display: "flex", gap: "2rem", justifyContent: "center", flexWrap: "wrap" }}>
-            <span style={{ fontSize: "0.82rem", color: "#64748b", display: "flex", alignItems: "center", gap: "0.4rem" }}>
-              <BuildingIcon size={14} stroke="#64748b" /> City & Agency Partnerships
-            </span>
-            <span style={{ fontSize: "0.82rem", color: "#64748b", display: "flex", alignItems: "center", gap: "0.4rem" }}>
-              <DollarIcon size={14} stroke="#64748b" /> Funders & Investors
-            </span>
-            <span style={{ fontSize: "0.82rem", color: "#64748b", display: "flex", alignItems: "center", gap: "0.4rem" }}>
-              <HandshakeIcon size={14} stroke="#64748b" /> Implementation Partners
-            </span>
+          <div className="inv-cta-badges">
+            <span className="inv-cta-badge"><BuildingIcon size={14} stroke="#64748b" /> City & Agency Partnerships</span>
+            <span className="inv-cta-badge"><DollarIcon size={14} stroke="#64748b" /> Funders & Investors</span>
+            <span className="inv-cta-badge"><HandshakeIcon size={14} stroke="#64748b" /> Implementation Partners</span>
           </div>
-          <p style={{ fontSize: "0.78rem", color: "#475569", marginTop: "1.5rem" }}>
-            Response within 1 business day
-          </p>
+          <p className="inv-cta-response">Response within 1 business day</p>
         </div>
       </section>
 
@@ -565,16 +493,16 @@ export default function HomePage() {
           <div className="inv-footer-logo">
             Learn<span>2</span>Earn
           </div>
-          <p style={{ marginBottom: "1.25rem", fontSize: "0.82rem" }}>
+          <p className="inv-footer-tagline">
             Measurable impact. Full transparency. Real outcomes.
           </p>
-          <p>
+          <nav className="inv-footer-links">
             <a href="/app">Learner Experience</a>
-            <span style={{ margin: "0 1rem", opacity: 0.2 }}>|</span>
+            <span className="inv-footer-sep">|</span>
             <a href="/admin">Admin Dashboard</a>
-            <span style={{ margin: "0 1rem", opacity: 0.2 }}>|</span>
+            <span className="inv-footer-sep">|</span>
             <a href="mailto:partners@learn2earn.org">partners@learn2earn.org</a>
-          </p>
+          </nav>
         </div>
       </footer>
     </div>
