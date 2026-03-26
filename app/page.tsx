@@ -1,6 +1,7 @@
 import "./invest/invest.css";
 import "./invest/demo-phone.css";
 import AppDemo from "./components/AppDemo";
+import AdminDemo from "./components/AdminDemo";
 import LandingNav from "./components/LandingNav";
 import {
   TrendingUpIcon, HomeIcon, TrendingDownIcon, BarChartIcon,
@@ -126,7 +127,7 @@ export default function HomePage() {
             </div>
           </div>
           <div className="inv-section-cta">
-            <a href="/admin" className="inv-btn inv-btn-outline inv-btn-lg">
+            <a href="#demo" className="inv-btn inv-btn-outline inv-btn-lg">
               See the Admin Dashboard Demo
             </a>
           </div>
@@ -252,6 +253,11 @@ export default function HomePage() {
                 Your browser does not support the video tag.
               </video>
             </div>
+          </div>
+
+          <div className="inv-demo-block">
+            <h3 className="inv-demo-sub">The Admin Dashboard</h3>
+            <AdminDemo />
           </div>
 
           <div className="inv-demo-block">
