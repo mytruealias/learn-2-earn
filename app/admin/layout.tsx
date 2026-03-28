@@ -101,6 +101,13 @@ function NavIcon({ name }: { name: string }) {
           <circle cx="12" cy="10" r="3" />
         </svg>
       );
+    case "finance":
+      return (
+        <svg {...iconProps}>
+          <line x1="12" y1="1" x2="12" y2="23" />
+          <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+        </svg>
+      );
     default:
       return null;
   }
@@ -176,6 +183,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { href: "/admin/payouts", label: "Payouts", icon: "payouts", badge: 0 },
     { href: "/admin/cases", label: "Cases", icon: "cases", badge: newCaseCount },
     { href: "/admin/directory", label: "Directory", icon: "directory", badge: 0 },
+    ...(["admin", "finance"].includes(admin.role)
+      ? [{ href: "/admin/finance", label: "Finance", icon: "finance", badge: 0 }]
+      : []),
     ...(admin.role === "admin"
       ? [
           { href: "/admin/audit", label: "Audit Log", icon: "audit", badge: 0 },

@@ -161,6 +161,7 @@ model AdminUser {
   assignedCases    Case[]             @relation("CaseAssignee")
   caseNotes        CaseNote[]
   resourceAllocations ResourceAllocation[]
+  poolAdjustments  PoolAdjustment[]
 }
 
 model Case {
@@ -271,4 +272,23 @@ model ConsentRecord {
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+}
+
+model PoolBalance {
+  id          String   @id @default(cuid())
+  balanceCents Int     @default(0)
+  updatedAt   DateTime @updatedAt
+  updatedById String?
+}
+
+model PoolAdjustment {
+  id          String   @id @default(cuid())
+  adminId     String
+  amountCents Int
+  reason      String
+  createdAt   DateTime @default(now())
+
+  admin       AdminUser @relation(fields: [adminId], references: [id])
+
+  @@index([createdAt])
 }
