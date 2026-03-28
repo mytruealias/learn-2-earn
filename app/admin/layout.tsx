@@ -110,6 +110,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [admin, setAdmin] = useState<AdminUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [newCaseCount, setNewCaseCount] = useState(0);
   const pathname = usePathname();
   const router = useRouter();
   const isLoginPage = pathname === "/admin/login";
@@ -129,6 +130,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       })
       .finally(() => setLoading(false));
   }, [isLoginPage, router]);
+
+  useEffect(() => {
+    if (!admin || isLoginPage) return;
+    const fetchNewCases = () => {
+      fetch("/api/admin/cases?status=new&limit=1", { credentials: "include" })
+        .then((r) => r.json())
+        .then((data) => {
+          if (data.ok) setNewCaseCount(data.pagination?.total ?? 0);
+        })
+        .catch(() => {});
+    };
+    fetchNewCases();
+    const interval = setInterval(fetchNewCases, 60000);
+    return () => clearInterval(interval);
+  }, [admin, isLoginPage]);
 
   const logout = async () => {
     await fetch("/api/admin/session", { method: "DELETE", credentials: "include" });
@@ -155,15 +171,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   if (!admin) return null;
 
   const navItems = [
-    { href: "/admin", label: "Dashboard", icon: "dashboard" },
-    { href: "/admin/users", label: "Users", icon: "users" },
-    { href: "/admin/payouts", label: "Payouts", icon: "payouts" },
-    { href: "/admin/cases", label: "Cases", icon: "cases" },
-    { href: "/admin/directory", label: "Directory", icon: "directory" },
+    { href: "/admin", label: "Dashboard", icon: "dashboard", badge: 0 },
+    { href: "/admin/users", label: "Users", icon: "users", badge: 0 },
+    { href: "/admin/payouts", label: "Payouts", icon: "payouts", badge: 0 },
+    { href: "/admin/cases", label: "Cases", icon: "cases", badge: newCaseCount },
+    { href: "/admin/directory", label: "Directory", icon: "directory", badge: 0 },
     ...(admin.role === "admin"
       ? [
-          { href: "/admin/audit", label: "Audit Log", icon: "audit" },
-          { href: "/admin/staff", label: "Staff", icon: "staff" },
+          { href: "/admin/audit", label: "Audit Log", icon: "audit", badge: 0 },
+          { href: "/admin/staff", label: "Staff", icon: "staff", badge: 0 },
         ]
       : []),
   ];
@@ -205,9 +221,31 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   href={item.href}
                   className={`${styles.navLink} ${isActive(item.href) ? styles.navLinkActive : ""}`}
                   onClick={() => setSidebarOpen(false)}
+                  style={{ justifyContent: "space-between" }}
                 >
-                  <NavIcon name={item.icon} />
-                  {item.label}
+                  <span style={{ display: "flex", alignItems: "center", gap: "0.625rem" }}>
+                    <NavIcon name={item.icon} />
+                    {item.label}
+                  </span>
+                  {item.badge > 0 && (
+                    <span style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      minWidth: "18px",
+                      height: "18px",
+                      padding: "0 4px",
+                      borderRadius: "999px",
+                      background: "#ef4444",
+                      color: "#fff",
+                      fontSize: "0.65rem",
+                      fontWeight: 700,
+                      lineHeight: 1,
+                      flexShrink: 0,
+                    }}>
+                      {item.badge > 99 ? "99+" : item.badge}
+                    </span>
+                  )}
                 </a>
               ))}
             </nav>

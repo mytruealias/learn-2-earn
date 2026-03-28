@@ -79,13 +79,22 @@ export default function LifelinePage() {
     if (!stressMessage.trim()) return;
     setSending(true);
     try {
-      await fetch("/api/stress-signal", {
+      const res = await fetch("/api/stress-signal", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({ message: stressMessage.trim(), location: stressLocation.trim() }),
       });
-      setStressStep("sent");
+      if (res.ok) {
+        setStressStep("sent");
+      } else {
+        const data = await res.json().catch(() => ({}));
+        if (res.status === 401) {
+          alert("Please create a free account or log in first so we can follow up with you. You can still call 211 for immediate help.");
+        } else {
+          alert(data.error || "Something went wrong. Please call 211 for immediate help.");
+        }
+      }
     } catch {
       alert("Something went wrong. Please call 211 for immediate help.");
     }

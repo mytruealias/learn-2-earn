@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import styles from "./directory.module.css";
 
 interface ServiceEntry {
@@ -29,6 +29,39 @@ const CATEGORY_EMOJI: Record<string, string> = {
 const EMPTY_FORM = {
   name: "", category: "Shelter", address: "", phone: "", hours: "", notes: "", website: "",
 };
+
+function CopyBtn({ value, label }: { value: string; label: string }) {
+  const [copied, setCopied] = useState(false);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const copy = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(value).then(() => {
+      setCopied(true);
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      timeoutRef.current = setTimeout(() => setCopied(false), 1500);
+    });
+  };
+  return (
+    <button
+      onClick={copy}
+      title={`Copy ${label}`}
+      style={{
+        background: "none",
+        border: "none",
+        cursor: "pointer",
+        padding: "1px 4px",
+        borderRadius: "4px",
+        fontSize: "0.7rem",
+        color: copied ? "#22c55e" : "#64748b",
+        fontFamily: "inherit",
+        transition: "color 0.15s",
+        flexShrink: 0,
+      }}
+    >
+      {copied ? "✓" : "⎘"}
+    </button>
+  );
+}
 
 export default function AdminDirectoryPage() {
   const [entries, setEntries] = useState<ServiceEntry[]>([]);
@@ -173,8 +206,18 @@ export default function AdminDirectoryPage() {
                     <div className={styles.entryMain}>
                       <div className={styles.entryName}>{entry.name}</div>
                       <div className={styles.entryMeta}>
-                        {entry.phone && <span>📞 {entry.phone}</span>}
-                        {entry.address && <span>📍 {entry.address}</span>}
+                        {entry.phone && (
+                          <span style={{ display: "inline-flex", alignItems: "center", gap: "0.2rem" }}>
+                            📞 {entry.phone}
+                            <CopyBtn value={entry.phone} label="phone number" />
+                          </span>
+                        )}
+                        {entry.address && (
+                          <span style={{ display: "inline-flex", alignItems: "center", gap: "0.2rem" }}>
+                            📍 {entry.address}
+                            <CopyBtn value={entry.address} label="address" />
+                          </span>
+                        )}
                         {entry.hours && <span>🕐 {entry.hours}</span>}
                         {entry.website && (
                           <a

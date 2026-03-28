@@ -89,6 +89,16 @@ function formatDate(dt: string): string {
   });
 }
 
+function timeElapsed(dt: string): string {
+  const diff = Date.now() - new Date(dt).getTime();
+  const mins = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
+  if (mins < 60) return `${mins}m ago`;
+  if (hours < 24) return `${hours}h ago`;
+  return `${days}d ago`;
+}
+
 export default function CaseDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
@@ -96,14 +106,16 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
   const [loading, setLoading] = useState(true);
   const [noteText, setNoteText] = useState("");
   const [submittingNote, setSubmittingNote] = useState(false);
-  const [modal, setModal] = useState<null | "dispatch" | "allocate" | "status">(null);
+  const [modal, setModal] = useState<null | "dispatch" | "allocate" | "editMeta">(null);
   const [staff, setStaff] = useState<StaffMember[]>([]);
   const [dispatchStaffId, setDispatchStaffId] = useState("");
   const [dispatchNotes, setDispatchNotes] = useState("");
   const [allocType, setAllocType] = useState("shelter");
   const [allocQty, setAllocQty] = useState("1");
   const [allocNotes, setAllocNotes] = useState("");
-  const [newStatus, setNewStatus] = useState("");
+  const [editStatus, setEditStatus] = useState("");
+  const [editPriority, setEditPriority] = useState("");
+  const [editAssigneeId, setEditAssigneeId] = useState("");
   const [saving, setSaving] = useState(false);
 
   const fetchCase = async () => {
@@ -116,12 +128,19 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
   useEffect(() => { fetchCase(); }, [id]);
 
   useEffect(() => {
-    if (modal === "dispatch" && staff.length === 0) {
-      fetch("/api/admin/staff", { credentials: "include" })
-        .then(r => r.json())
-        .then(data => { if (data.ok) setStaff(data.staff); });
-    }
-  }, [modal]);
+    if (staff.length > 0) return;
+    fetch("/api/admin/cases/staff", { credentials: "include" })
+      .then(r => r.json())
+      .then(data => { if (data.ok) setStaff(data.staff); });
+  }, []);
+
+  const openEditMeta = () => {
+    if (!c) return;
+    setEditStatus(c.status);
+    setEditPriority(c.priority);
+    setEditAssigneeId(c.assignedTo?.id || "");
+    setModal("editMeta");
+  };
 
   const submitNote = async () => {
     if (!noteText.trim()) return;
@@ -138,6 +157,25 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
       fetchCase();
     }
     setSubmittingNote(false);
+  };
+
+  const saveEditMeta = async () => {
+    setSaving(true);
+    const res = await fetch(`/api/admin/cases/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        status: editStatus,
+        priority: editPriority,
+        assignedToId: editAssigneeId || null,
+      }),
+    });
+    if (res.ok) {
+      setModal(null);
+      fetchCase();
+    }
+    setSaving(false);
   };
 
   const dispatchCase = async () => {
@@ -174,23 +212,6 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
     setSaving(false);
   };
 
-  const updateStatus = async () => {
-    if (!newStatus) return;
-    setSaving(true);
-    const res = await fetch(`/api/admin/cases/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ status: newStatus }),
-    });
-    if (res.ok) {
-      setModal(null);
-      setNewStatus("");
-      fetchCase();
-    }
-    setSaving(false);
-  };
-
   if (loading) return <div style={{ color: "#94a3b8", padding: "2rem", fontFamily: "Inter, sans-serif" }}>Loading...</div>;
   if (!c) return <div style={{ color: "#ef4444", padding: "2rem", fontFamily: "Inter, sans-serif" }}>Case not found.</div>;
 
@@ -218,6 +239,9 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
           border: `1px solid ${c.priority === "high" ? "rgba(239,68,68,0.3)" : c.priority === "medium" ? "rgba(245,158,11,0.3)" : "rgba(34,197,94,0.3)"}`,
         }}>
           {c.priority} priority
+        </span>
+        <span style={{ fontSize: "0.75rem", color: "#64748b" }} title={formatDate(c.createdAt)}>
+          {timeElapsed(c.createdAt)}
         </span>
       </div>
 
@@ -311,7 +335,11 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
             </div>
             <div className={styles.detailRow}>
               <span className={styles.detailLabel}>Phone</span>
-              <span className={styles.detailValue}>{c.user.phone || "—"}</span>
+              <span className={styles.detailValue}>
+                {c.user.phone ? (
+                  <CopyField value={c.user.phone} label="phone" />
+                ) : "—"}
+              </span>
             </div>
             <div className={styles.detailRow}>
               <span className={styles.detailLabel}>Location</span>
@@ -335,7 +363,7 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
             <div className={styles.cardTitle}>Case info</div>
             <div className={styles.detailRow}>
               <span className={styles.detailLabel}>Opened</span>
-              <span className={styles.detailValue}>{formatDate(c.createdAt)}</span>
+              <span className={styles.detailValue} title={formatDate(c.createdAt)}>{timeElapsed(c.createdAt)}</span>
             </div>
             <div className={styles.detailRow}>
               <span className={styles.detailLabel}>Updated</span>
@@ -350,8 +378,8 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
           <div className={styles.card}>
             <div className={styles.cardTitle}>Actions</div>
             <div className={styles.actionPanel}>
-              <button className={styles.actionBtn} onClick={() => { setNewStatus(c.status); setModal("status"); }}>
-                🔄 Change Status
+              <button className={styles.actionBtn} onClick={openEditMeta}>
+                🔄 Edit Status, Priority & Assignee
               </button>
               <button className={styles.actionBtn} onClick={() => setModal("dispatch")}>
                 🚀 Dispatch Staff
@@ -364,16 +392,16 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
         </div>
       </div>
 
-      {modal === "status" && (
+      {modal === "editMeta" && (
         <div className={styles.modalOverlay} onClick={() => setModal(null)}>
           <div className={styles.modal} onClick={e => e.stopPropagation()}>
-            <div className={styles.modalTitle}>Change Case Status</div>
+            <div className={styles.modalTitle}>Edit Case</div>
             <div className={styles.modalField}>
-              <label className={styles.modalLabel}>New Status</label>
+              <label className={styles.modalLabel}>Status</label>
               <select
                 className={styles.modalSelect}
-                value={newStatus}
-                onChange={e => setNewStatus(e.target.value)}
+                value={editStatus}
+                onChange={e => setEditStatus(e.target.value)}
               >
                 <option value="new">New</option>
                 <option value="open">Open</option>
@@ -382,10 +410,35 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
                 <option value="closed">Closed</option>
               </select>
             </div>
+            <div className={styles.modalField}>
+              <label className={styles.modalLabel}>Priority</label>
+              <select
+                className={styles.modalSelect}
+                value={editPriority}
+                onChange={e => setEditPriority(e.target.value)}
+              >
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+              </select>
+            </div>
+            <div className={styles.modalField}>
+              <label className={styles.modalLabel}>Assign to</label>
+              <select
+                className={styles.modalSelect}
+                value={editAssigneeId}
+                onChange={e => setEditAssigneeId(e.target.value)}
+              >
+                <option value="">Unassigned</option>
+                {staff.map(s => (
+                  <option key={s.id} value={s.id}>{s.fullName} ({s.role})</option>
+                ))}
+              </select>
+            </div>
             <div className={styles.modalActions}>
               <button className={styles.cancelBtn} onClick={() => setModal(null)}>Cancel</button>
-              <button className={styles.confirmBtn} onClick={updateStatus} disabled={saving || newStatus === c.status}>
-                {saving ? "Saving..." : "Update Status"}
+              <button className={styles.confirmBtn} onClick={saveEditMeta} disabled={saving}>
+                {saving ? "Saving..." : "Save Changes"}
               </button>
             </div>
           </div>
@@ -404,7 +457,7 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
                 onChange={e => setDispatchStaffId(e.target.value)}
               >
                 <option value="">Select staff...</option>
-                {staff.filter(s => s.role !== "finance").map(s => (
+                {staff.map(s => (
                   <option key={s.id} value={s.id}>{s.fullName} ({s.role})</option>
                 ))}
               </select>
@@ -477,5 +530,37 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
         </div>
       )}
     </div>
+  );
+}
+
+function CopyField({ value, label }: { value: string; label: string }) {
+  const [copied, setCopied] = useState(false);
+  const copy = () => {
+    navigator.clipboard.writeText(value).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    });
+  };
+  return (
+    <span style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+      {value}
+      <button
+        onClick={copy}
+        title={`Copy ${label}`}
+        style={{
+          background: "none",
+          border: "none",
+          cursor: "pointer",
+          padding: "2px 4px",
+          borderRadius: "4px",
+          fontSize: "0.7rem",
+          color: copied ? "#22c55e" : "#64748b",
+          fontFamily: "inherit",
+          transition: "color 0.15s",
+        }}
+      >
+        {copied ? "✓" : "⎘"}
+      </button>
+    </span>
   );
 }

@@ -3,6 +3,8 @@ import { getAdminFromRequest } from "@/lib/admin-auth";
 import { logAudit } from "@/lib/audit";
 import prisma from "@/lib/prisma";
 
+const PRIORITY_ORDER: Record<string, number> = { high: 0, medium: 1, low: 2 };
+
 export async function GET(req: Request) {
   try {
     const admin = await getAdminFromRequest(req);
@@ -29,7 +31,7 @@ export async function GET(req: Request) {
       ];
     }
 
-    const [cases, total] = await Promise.all([
+    const [allCases, total] = await Promise.all([
       prisma.case.findMany({
         where,
         include: {
@@ -37,12 +39,19 @@ export async function GET(req: Request) {
           assignedTo: { select: { id: true, fullName: true } },
           _count: { select: { notes: true, allocations: true } },
         },
-        orderBy: [{ priority: "asc" }, { createdAt: "desc" }],
+        orderBy: { createdAt: "desc" },
         skip,
         take: limit,
       }),
       prisma.case.count({ where }),
     ]);
+
+    const cases = allCases.sort((a, b) => {
+      const pa = PRIORITY_ORDER[a.priority] ?? 99;
+      const pb = PRIORITY_ORDER[b.priority] ?? 99;
+      if (pa !== pb) return pa - pb;
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
 
     return NextResponse.json({
       ok: true,

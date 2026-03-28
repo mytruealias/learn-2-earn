@@ -37,8 +37,15 @@ const STATUS_CLASS: Record<string, string> = {
   closed: "statusClosed",
 };
 
-function formatDate(dt: string): string {
-  return new Date(dt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+function timeElapsed(dt: string): string {
+  const now = Date.now();
+  const diff = now - new Date(dt).getTime();
+  const mins = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
+  if (mins < 60) return `${mins}m ago`;
+  if (hours < 24) return `${hours}h ago`;
+  return `${days}d ago`;
 }
 
 export default function AdminCasesPage() {
@@ -67,14 +74,14 @@ export default function AdminCasesPage() {
 
   useEffect(() => { fetchCases(); }, [fetchCases]);
 
-  const newCount = cases.filter(c => c.status === "new").length;
+  const newCount = pagination?.total ?? 0;
 
   return (
     <div className={styles.page}>
       <div className={styles.pageHeader}>
         <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
           <h1 className={styles.pageTitle}>Cases</h1>
-          {newCount > 0 && (
+          {status === "new" && newCount > 0 && (
             <span className={styles.headerBadge}>{newCount} new</span>
           )}
         </div>
@@ -137,7 +144,9 @@ export default function AdminCasesPage() {
                 <span className={`${styles.statusBadge} ${styles[STATUS_CLASS[c.status] || "statusNew"]}`}>
                   {c.status}
                 </span>
-                <span className={styles.caseDate}>{formatDate(c.createdAt)}</span>
+                <span className={styles.caseDate} title={new Date(c.createdAt).toLocaleString()}>
+                  {timeElapsed(c.createdAt)}
+                </span>
               </div>
             </Link>
           ))}
