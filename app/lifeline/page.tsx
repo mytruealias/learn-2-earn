@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import HelpButton from "../components/HelpButton";
 import {
@@ -66,7 +67,31 @@ function SparkleIcon({ size = 20 }: { size?: number }) {
   );
 }
 
+type StressStep = "idle" | "form" | "sent";
+
 export default function LifelinePage() {
+  const [stressStep, setStressStep] = useState<StressStep>("idle");
+  const [stressMessage, setStressMessage] = useState("");
+  const [stressLocation, setStressLocation] = useState("");
+  const [sending, setSending] = useState(false);
+
+  const sendStressSignal = async () => {
+    if (!stressMessage.trim()) return;
+    setSending(true);
+    try {
+      await fetch("/api/stress-signal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ message: stressMessage.trim(), location: stressLocation.trim() }),
+      });
+      setStressStep("sent");
+    } catch {
+      alert("Something went wrong. Please call 211 for immediate help.");
+    }
+    setSending(false);
+  };
+
   return (
     <div className="grid-bg" style={{ minHeight: "100vh", padding: "0 0 6rem 0" }}>
       <header style={{
@@ -102,6 +127,156 @@ export default function LifelinePage() {
       </header>
 
       <main style={{ maxWidth: "700px", margin: "0 auto", padding: "1.5rem 1.5rem" }}>
+        {stressStep === "idle" && (
+          <div style={{
+            marginBottom: "2rem",
+            padding: "1.25rem 1.5rem",
+            background: "rgba(239,68,68,0.08)",
+            border: "1px solid rgba(239,68,68,0.25)",
+            borderRadius: "14px",
+            display: "flex",
+            alignItems: "center",
+            gap: "1rem",
+            flexWrap: "wrap",
+          }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontWeight: 700, fontSize: "0.95rem", marginBottom: "0.2rem" }}>
+                🚨 Need immediate help?
+              </div>
+              <div style={{ fontSize: "0.82rem", color: "var(--text-secondary)", lineHeight: "1.4" }}>
+                Send a signal to our support team — we'll follow up as soon as possible.
+              </div>
+            </div>
+            <button
+              onClick={() => setStressStep("form")}
+              style={{
+                padding: "0.6rem 1.25rem",
+                background: "#ef4444",
+                color: "#fff",
+                border: "none",
+                borderRadius: "8px",
+                fontWeight: 700,
+                fontSize: "0.875rem",
+                cursor: "pointer",
+                whiteSpace: "nowrap",
+                fontFamily: "inherit",
+              }}
+            >
+              Send Signal
+            </button>
+          </div>
+        )}
+
+        {stressStep === "form" && (
+          <div style={{
+            marginBottom: "2rem",
+            padding: "1.5rem",
+            background: "rgba(239,68,68,0.06)",
+            border: "1px solid rgba(239,68,68,0.25)",
+            borderRadius: "14px",
+          }}>
+            <div style={{ fontWeight: 700, fontSize: "0.95rem", marginBottom: "1rem" }}>
+              🚨 Tell us what's happening
+            </div>
+            <div style={{ marginBottom: "0.75rem" }}>
+              <textarea
+                value={stressMessage}
+                onChange={e => setStressMessage(e.target.value)}
+                placeholder="Describe what's happening or what you need help with..."
+                rows={4}
+                style={{
+                  width: "100%",
+                  padding: "0.75rem 1rem",
+                  background: "var(--bg-card)",
+                  border: "1px solid var(--border-color)",
+                  borderRadius: "8px",
+                  color: "var(--text-primary)",
+                  fontSize: "0.9rem",
+                  fontFamily: "inherit",
+                  resize: "vertical",
+                  outline: "none",
+                  boxSizing: "border-box",
+                }}
+              />
+            </div>
+            <div style={{ marginBottom: "1rem" }}>
+              <input
+                type="text"
+                value={stressLocation}
+                onChange={e => setStressLocation(e.target.value)}
+                placeholder="Your location (optional — e.g. East 6th & Chicon)"
+                style={{
+                  width: "100%",
+                  padding: "0.65rem 1rem",
+                  background: "var(--bg-card)",
+                  border: "1px solid var(--border-color)",
+                  borderRadius: "8px",
+                  color: "var(--text-primary)",
+                  fontSize: "0.875rem",
+                  fontFamily: "inherit",
+                  outline: "none",
+                  boxSizing: "border-box",
+                }}
+              />
+            </div>
+            <div style={{ display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>
+              <button
+                onClick={() => setStressStep("idle")}
+                style={{
+                  padding: "0.6rem 1.1rem",
+                  background: "transparent",
+                  border: "1px solid var(--border-color)",
+                  borderRadius: "8px",
+                  color: "var(--text-secondary)",
+                  fontWeight: 600,
+                  fontSize: "0.85rem",
+                  cursor: "pointer",
+                  fontFamily: "inherit",
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={sendStressSignal}
+                disabled={sending || !stressMessage.trim()}
+                style={{
+                  padding: "0.6rem 1.25rem",
+                  background: "#ef4444",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "8px",
+                  fontWeight: 700,
+                  fontSize: "0.875rem",
+                  cursor: sending || !stressMessage.trim() ? "default" : "pointer",
+                  opacity: sending || !stressMessage.trim() ? 0.6 : 1,
+                  fontFamily: "inherit",
+                }}
+              >
+                {sending ? "Sending..." : "Send Signal"}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {stressStep === "sent" && (
+          <div style={{
+            marginBottom: "2rem",
+            padding: "1.25rem 1.5rem",
+            background: "rgba(34,197,94,0.08)",
+            border: "1px solid rgba(34,197,94,0.25)",
+            borderRadius: "14px",
+            textAlign: "center",
+          }}>
+            <div style={{ fontSize: "1.5rem", marginBottom: "0.5rem" }}>✅</div>
+            <div style={{ fontWeight: 700, fontSize: "0.95rem", marginBottom: "0.3rem" }}>
+              Signal received
+            </div>
+            <div style={{ fontSize: "0.85rem", color: "var(--text-secondary)" }}>
+              Our team has been notified and will follow up as soon as possible. If this is an emergency, please call 911 or 988 now.
+            </div>
+          </div>
+        )}
+
         <div style={{ display: "grid", gap: "2rem" }}>
           {resources.map((section) => (
             <section key={section.category}>

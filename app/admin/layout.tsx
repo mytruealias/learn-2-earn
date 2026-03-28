@@ -85,6 +85,22 @@ function NavIcon({ name }: { name: string }) {
           <line x1="12" y1="14" x2="12" y2="20" />
         </svg>
       );
+    case "cases":
+      return (
+        <svg {...iconProps}>
+          <path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z" />
+          <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
+          <line x1="12" y1="12" x2="12" y2="16" />
+          <line x1="10" y1="14" x2="14" y2="14" />
+        </svg>
+      );
+    case "directory":
+      return (
+        <svg {...iconProps}>
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+          <circle cx="12" cy="10" r="3" />
+        </svg>
+      );
     default:
       return null;
   }
@@ -142,6 +158,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { href: "/admin", label: "Dashboard", icon: "dashboard" },
     { href: "/admin/users", label: "Users", icon: "users" },
     { href: "/admin/payouts", label: "Payouts", icon: "payouts" },
+    { href: "/admin/cases", label: "Cases", icon: "cases" },
+    { href: "/admin/directory", label: "Directory", icon: "directory" },
     ...(admin.role === "admin"
       ? [
           { href: "/admin/audit", label: "Audit Log", icon: "audit" },
