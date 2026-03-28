@@ -88,10 +88,11 @@ export async function GET(req: Request) {
       }
     }
 
-    let poolBalance = await prisma.poolBalance.findFirst({ orderBy: { updatedAt: "desc" } });
-    if (!poolBalance) {
-      poolBalance = await prisma.poolBalance.create({ data: { balanceCents: 0 } });
-    }
+    const poolBalance = await prisma.poolBalance.upsert({
+      where: { id: "singleton" },
+      update: {},
+      create: { id: "singleton", balanceCents: 0 },
+    });
 
     await logAudit({
       adminId: admin.id,
