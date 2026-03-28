@@ -26,6 +26,14 @@ export async function GET(req: Request) {
       totalPayoutDollars,
       totalPaths,
       totalLessons,
+      openCasesHigh,
+      openCasesMedium,
+      openCasesLow,
+      casesThisWeek,
+      pendingLiability,
+      poolBalance,
+      activeUsersWithProgress,
+      avgProgressPerUser,
     ] = await Promise.all([
       prisma.user.count(),
       prisma.user.count({ where: { email: { not: null } } }),
@@ -42,7 +50,38 @@ export async function GET(req: Request) {
       }),
       prisma.path.count({ where: { isActive: true } }),
       prisma.lesson.count({ where: { isActive: true } }),
+      prisma.case.count({ where: { status: { notIn: ["closed", "resolved"] }, priority: "high" } }),
+      prisma.case.count({ where: { status: { notIn: ["closed", "resolved"] }, priority: "medium" } }),
+      prisma.case.count({ where: { status: { notIn: ["closed", "resolved"] }, priority: "low" } }),
+      prisma.case.count({ where: { createdAt: { gte: sevenDaysAgo } } }),
+      prisma.payoutRequest.aggregate({
+        where: { status: { in: ["pending", "reviewed"] } },
+        _sum: { dollarAmount: true },
+        _count: { id: true },
+      }),
+      prisma.poolBalance.findUnique({ where: { id: "singleton" } }),
+      prisma.progress.groupBy({
+        by: ["userId"],
+        _count: { lessonId: true },
+        where: { user: { lastActiveAt: { gte: thirtyDaysAgo } } },
+      }),
+      prisma.progress.aggregate({
+        _count: { id: true },
+        where: { user: { lastActiveAt: { gte: thirtyDaysAgo } } },
+      }),
     ]);
+
+    const activeUsersWithAtLeastOneLesson = activeUsersWithProgress.length;
+    const avgLessonsPerActiveUser =
+      activeUsersMonth > 0
+        ? Math.round((avgProgressPerUser._count.id / activeUsersMonth) * 10) / 10
+        : 0;
+    const engagementRate =
+      activeUsersMonth > 0
+        ? Math.round((activeUsersWithAtLeastOneLesson / activeUsersMonth) * 100)
+        : 0;
+
+    const openCasesTotal = openCasesHigh + openCasesMedium + openCasesLow;
 
     return NextResponse.json({
       ok: true,
@@ -59,12 +98,26 @@ export async function GET(req: Request) {
           totalLessons,
           lessonsCompleted: totalLessonsCompleted,
           totalXpDistributed: totalXpDistributed._sum.xpEarned || 0,
+          engagementRate,
+          avgLessonsPerActiveUser,
         },
         payouts: {
           pending: pendingPayouts,
           approved: approvedPayouts,
           completed: completedPayouts,
           totalDollars: totalPayoutDollars._sum.dollarAmount || 0,
+        },
+        cases: {
+          openTotal: openCasesTotal,
+          high: openCasesHigh,
+          medium: openCasesMedium,
+          low: openCasesLow,
+          newThisWeek: casesThisWeek,
+        },
+        pool: {
+          balanceCents: poolBalance?.balanceCents ?? 0,
+          pendingLiabilityCents: Math.round((pendingLiability._sum.dollarAmount ?? 0) * 100),
+          pendingCount: pendingLiability._count.id,
         },
       },
     });
