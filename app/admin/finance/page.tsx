@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation";
+import { redirect, forbidden } from "next/navigation";
 import { getAdminSession } from "@/lib/admin-auth";
 import prisma from "@/lib/prisma";
 import FinanceClient, { FinanceData } from "./FinanceClient";
@@ -148,15 +148,7 @@ export default async function AdminFinancePage() {
   }
 
   if (!["admin", "finance"].includes(admin.role)) {
-    return (
-      <div className={styles.forbiddenPage}>
-        <div className={styles.forbiddenIcon}>🔒</div>
-        <h1 className={styles.forbiddenTitle}>Access Restricted</h1>
-        <p className={styles.forbiddenText}>
-          The Finance dashboard is only available to Admin and Finance staff.
-        </p>
-      </div>
-    );
+    forbidden();
   }
 
   const data = await getFinanceData(admin.id);
