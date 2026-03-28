@@ -10,6 +10,9 @@ interface ActivityEvent {
   link?: string;
 }
 
+const FETCH_PER_SOURCE = 30;
+const RESULT_LIMIT = 15;
+
 export async function GET(req: Request) {
   try {
     const admin = await getAdminFromRequest(req);
@@ -21,12 +24,12 @@ export async function GET(req: Request) {
       await Promise.all([
         prisma.user.findMany({
           orderBy: { createdAt: "desc" },
-          take: 5,
+          take: FETCH_PER_SOURCE,
           select: { id: true, fullName: true, email: true, createdAt: true },
         }),
         prisma.payoutRequest.findMany({
           orderBy: { createdAt: "desc" },
-          take: 5,
+          take: FETCH_PER_SOURCE,
           select: {
             id: true,
             dollarAmount: true,
@@ -37,7 +40,7 @@ export async function GET(req: Request) {
         }),
         prisma.case.findMany({
           orderBy: { createdAt: "desc" },
-          take: 5,
+          take: FETCH_PER_SOURCE,
           select: {
             id: true,
             title: true,
@@ -49,7 +52,7 @@ export async function GET(req: Request) {
         prisma.auditLog.findMany({
           where: { action: "CASE_CREATE_STRESS_SIGNAL" },
           orderBy: { createdAt: "desc" },
-          take: 4,
+          take: FETCH_PER_SOURCE,
           select: {
             id: true,
             entityId: true,
@@ -59,7 +62,7 @@ export async function GET(req: Request) {
         }),
         prisma.progress.findMany({
           orderBy: { completedAt: "desc" },
-          take: 4,
+          take: FETCH_PER_SOURCE,
           select: {
             id: true,
             completedAt: true,
@@ -100,7 +103,7 @@ export async function GET(req: Request) {
         type: "case",
         label: `${c.priority === "high" ? "High-priority case" : "Case"} opened by ${name}: ${c.title}`,
         timestamp: c.createdAt.toISOString(),
-        link: `/admin/cases`,
+        link: "/admin/cases",
       });
     }
 
@@ -108,9 +111,9 @@ export async function GET(req: Request) {
       events.push({
         id: `stress-${s.id}`,
         type: "stress",
-        label: `Stress signal flagged on case`,
+        label: "Stress signal flagged on case",
         timestamp: s.createdAt.toISOString(),
-        link: s.entityId ? `/admin/cases` : "/admin/cases",
+        link: "/admin/cases",
       });
     }
 
@@ -128,7 +131,7 @@ export async function GET(req: Request) {
 
     return NextResponse.json({
       ok: true,
-      activity: events.slice(0, 15),
+      activity: events.slice(0, RESULT_LIMIT),
     });
   } catch (error) {
     console.error("Activity feed error:", error);
