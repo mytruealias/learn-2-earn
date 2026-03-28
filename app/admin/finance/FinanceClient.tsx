@@ -158,7 +158,7 @@ export default function FinanceClient({ initialData }: { initialData: FinanceDat
               {formatCents(data.stripe.balance.pending)} pending in Stripe
             </div>
           )}
-          {!stripeConnected && (
+          {!data.stripe.keyConfigured && (
             <div className={styles.poolSub}>
               Manual pool — updated {formatDateTime(data.pool.updatedAt)}
             </div>
@@ -234,7 +234,7 @@ export default function FinanceClient({ initialData }: { initialData: FinanceDat
         )}
       </div>
 
-      {!stripeConnected && isFinanceOrAdmin && (
+      {!data.stripe.keyConfigured && isFinanceOrAdmin && (
         <div className={styles.section}>
           <div className={styles.sectionTitleRow}>
             <h2 className={styles.sectionTitle}>Manage Pool Balance</h2>
