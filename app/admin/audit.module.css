@@ -140,7 +140,7 @@
   color: #64748b;
   margin-top: 0.25rem;
   word-break: break-all;
-  font-family: 'Menlo', 'Monaco', 'Consolas', monospace;
+  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
 }
 
 .logIp {

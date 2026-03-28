@@ -306,7 +306,7 @@
 }
 
 .tempPasswordValue {
-  font-family: 'Menlo', 'Monaco', 'Consolas', monospace;
+  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
   font-size: 1rem;
   color: #f1f5f9;
   word-break: break-all;
