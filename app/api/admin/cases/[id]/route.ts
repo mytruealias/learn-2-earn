@@ -26,6 +26,15 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     });
 
     if (!c) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+    await logAudit({
+      adminId: admin.id,
+      action: "CASE_VIEW",
+      entity: "Case",
+      entityId: id,
+      ipAddress: req.headers.get("x-forwarded-for") || "unknown",
+    });
+
     return NextResponse.json({ ok: true, case: c });
   } catch (error) {
     console.error("Admin case detail error:", error);

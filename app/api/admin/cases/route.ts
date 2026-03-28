@@ -51,6 +51,14 @@ export async function GET(req: Request) {
 
     const cases = sorted.slice(skip, skip + limit);
 
+    await logAudit({
+      adminId: admin.id,
+      action: "CASE_LIST_VIEW",
+      entity: "Case",
+      details: JSON.stringify({ status, priority, search, page }),
+      ipAddress: req.headers.get("x-forwarded-for") || "unknown",
+    });
+
     return NextResponse.json({
       ok: true,
       cases,

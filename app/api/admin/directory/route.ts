@@ -27,6 +27,14 @@ export async function GET(req: Request) {
       orderBy: [{ category: "asc" }, { name: "asc" }],
     });
 
+    await logAudit({
+      adminId: admin.id,
+      action: "DIRECTORY_LIST_VIEW",
+      entity: "ServiceDirectory",
+      details: JSON.stringify({ category, search }),
+      ipAddress: req.headers.get("x-forwarded-for") || "unknown",
+    });
+
     return NextResponse.json({ ok: true, entries });
   } catch (error) {
     console.error("Directory GET error:", error);
