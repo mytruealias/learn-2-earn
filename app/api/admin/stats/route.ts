@@ -26,6 +26,7 @@ export async function GET(req: Request) {
       totalPayoutDollars,
       totalPaths,
       totalLessons,
+      openCasesTotal,
       openCasesHigh,
       openCasesMedium,
       openCasesLow,
@@ -50,6 +51,7 @@ export async function GET(req: Request) {
       }),
       prisma.path.count({ where: { isActive: true } }),
       prisma.lesson.count({ where: { isActive: true } }),
+      prisma.case.count({ where: { status: { notIn: ["closed", "resolved"] } } }),
       prisma.case.count({ where: { status: { notIn: ["closed", "resolved"] }, priority: "high" } }),
       prisma.case.count({ where: { status: { notIn: ["closed", "resolved"] }, priority: "medium" } }),
       prisma.case.count({ where: { status: { notIn: ["closed", "resolved"] }, priority: "low" } }),
@@ -80,8 +82,6 @@ export async function GET(req: Request) {
       activeUsersMonth > 0
         ? Math.round((activeUsersWithAtLeastOneLesson / activeUsersMonth) * 100)
         : 0;
-
-    const openCasesTotal = openCasesHigh + openCasesMedium + openCasesLow;
 
     return NextResponse.json({
       ok: true,
