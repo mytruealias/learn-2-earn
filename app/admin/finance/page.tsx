@@ -2,7 +2,6 @@ import { redirect, forbidden } from "next/navigation";
 import { getAdminSession } from "@/lib/admin-auth";
 import prisma from "@/lib/prisma";
 import FinanceClient, { FinanceData } from "./FinanceClient";
-import styles from "./finance.module.css";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -43,7 +42,11 @@ async function getFinanceData(adminId: string): Promise<FinanceData> {
           user: { select: { fullName: true, email: true, caseNumber: true } },
         },
       }),
-      prisma.poolBalance.findFirst({ orderBy: { updatedAt: "desc" } }),
+      prisma.poolBalance.upsert({
+        where: { id: "singleton" },
+        update: {},
+        create: { id: "singleton", balanceCents: 0, updatedById: adminId },
+      }),
       prisma.poolAdjustment.findMany({
         orderBy: { createdAt: "desc" },
         take: 20,
@@ -51,10 +54,7 @@ async function getFinanceData(adminId: string): Promise<FinanceData> {
       }),
     ]);
 
-  let pool = poolRecord;
-  if (!pool) {
-    pool = await prisma.poolBalance.create({ data: { balanceCents: 0, updatedById: adminId } });
-  }
+  const pool = poolRecord;
 
   let stripeBalance: { available: number; pending: number; currency: string } | null = null;
   let stripeConnected = false;

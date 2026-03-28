@@ -5,6 +5,16 @@ import prisma from "@/lib/prisma";
 
 const ALLOWED_ROLES = ["admin", "finance"];
 
+const POOL_SINGLETON_ID = "singleton";
+
+async function ensurePool() {
+  return prisma.poolBalance.upsert({
+    where: { id: POOL_SINGLETON_ID },
+    update: {},
+    create: { id: POOL_SINGLETON_ID, balanceCents: 0 },
+  });
+}
+
 export async function GET(req: Request) {
   try {
     const admin = await getAdminFromRequest(req);
@@ -14,16 +24,14 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Forbidden — admin or finance role required" }, { status: 403 });
     }
 
-    let poolBalance = await prisma.poolBalance.findFirst({ orderBy: { updatedAt: "desc" } });
-    if (!poolBalance) {
-      poolBalance = await prisma.poolBalance.create({ data: { balanceCents: 0 } });
-    }
-
-    const adjustments = await prisma.poolAdjustment.findMany({
-      orderBy: { createdAt: "desc" },
-      take: 20,
-      include: { admin: { select: { fullName: true } } },
-    });
+    const [poolBalance, adjustments] = await Promise.all([
+      ensurePool(),
+      prisma.poolAdjustment.findMany({
+        orderBy: { createdAt: "desc" },
+        take: 20,
+        include: { admin: { select: { fullName: true } } },
+      }),
+    ]);
 
     return NextResponse.json({
       ok: true,
@@ -54,43 +62,42 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { amountCents, reason } = body;
 
-    if (typeof amountCents !== "number" || amountCents === 0) {
+    const parsedAmount = typeof amountCents === "number" ? amountCents : parseInt(amountCents, 10);
+    if (!Number.isInteger(parsedAmount) || parsedAmount === 0) {
       return NextResponse.json({ error: "amountCents must be a non-zero integer" }, { status: 400 });
     }
     if (!reason?.trim()) {
       return NextResponse.json({ error: "reason is required" }, { status: 400 });
     }
 
-    let poolBalance = await prisma.poolBalance.findFirst({ orderBy: { updatedAt: "desc" } });
-    if (!poolBalance) {
-      poolBalance = await prisma.poolBalance.create({ data: { balanceCents: 0 } });
-    }
-
-    const newBalanceCents = poolBalance.balanceCents + amountCents;
+    await ensurePool();
 
     const [updatedPool, adjustment] = await prisma.$transaction([
       prisma.poolBalance.update({
-        where: { id: poolBalance.id },
-        data: { balanceCents: newBalanceCents, updatedById: admin.id },
+        where: { id: POOL_SINGLETON_ID },
+        data: {
+          balanceCents: { increment: parsedAmount },
+          updatedById: admin.id,
+        },
       }),
       prisma.poolAdjustment.create({
-        data: { adminId: admin.id, amountCents, reason: reason.trim() },
+        data: { adminId: admin.id, amountCents: parsedAmount, reason: reason.trim() },
       }),
     ]);
 
     await logAudit({
       adminId: admin.id,
-      action: amountCents > 0 ? "POOL_DEPOSIT" : "POOL_WITHDRAWAL",
+      action: parsedAmount > 0 ? "POOL_DEPOSIT" : "POOL_WITHDRAWAL",
       entity: "PoolBalance",
       entityId: updatedPool.id,
-      details: JSON.stringify({ amountCents, reason: reason.trim(), newBalanceCents }),
+      details: JSON.stringify({ amountCents: parsedAmount, reason: reason.trim(), newBalanceCents: updatedPool.balanceCents }),
       ipAddress: req.headers.get("x-forwarded-for") || "unknown",
     });
 
     return NextResponse.json({
       ok: true,
       pool: { balanceCents: updatedPool.balanceCents, updatedAt: updatedPool.updatedAt },
-      adjustment: { id: adjustment.id, amountCents, reason: adjustment.reason, createdAt: adjustment.createdAt },
+      adjustment: { id: adjustment.id, amountCents: parsedAmount, reason: adjustment.reason, createdAt: adjustment.createdAt },
     });
   } catch (error) {
     console.error("Finance pool POST error:", error);
