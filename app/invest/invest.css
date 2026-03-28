@@ -1439,6 +1439,7 @@
    ADMIN DEMO COMPONENT
    ====================================== */
 
+/* ---- ADMIN DEMO ---- */
 .ademo-wrap {
   max-width: 860px;
   margin: 0 auto;
@@ -1454,9 +1455,9 @@
 .ademo-browser {
   border-radius: 14px;
   overflow: hidden;
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid #334155;
   box-shadow: 0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.03);
-  background: #0d1117;
+  background: #0f172a;
 }
 
 .ademo-chrome {
@@ -1464,8 +1465,8 @@
   align-items: center;
   gap: 0.75rem;
   padding: 0.65rem 1rem;
-  background: #161b22;
-  border-bottom: 1px solid rgba(255,255,255,0.07);
+  background: #1e293b;
+  border-bottom: 1px solid #334155;
 }
 
 .ademo-dots {
@@ -1487,127 +1488,176 @@
 .ademo-url {
   flex: 1;
   background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid #334155;
   border-radius: 6px;
   padding: 0.25rem 0.75rem;
   font-size: 0.72rem;
-  color: #8899a6;
+  color: #64748b;
   text-align: center;
   letter-spacing: 0.01em;
+  font-family: Inter, system-ui, sans-serif;
 }
 
 .ademo-shell {
   display: grid;
-  grid-template-columns: 180px 1fr;
-  min-height: 420px;
+  grid-template-columns: 192px 1fr;
+  min-height: 440px;
 }
 
+/* ---- SIDEBAR ---- */
 .ademo-sidebar {
-  background: #0d1117;
-  border-right: 1px solid rgba(255,255,255,0.07);
+  background: #1e293b;
+  border-right: 1px solid #334155;
   display: flex;
   flex-direction: column;
-  padding: 1.25rem 0 1rem;
 }
 
 .ademo-brand {
-  padding: 0 1rem 1.25rem;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-  margin-bottom: 0.75rem;
+  padding: 1rem 1rem 0.875rem;
+  border-bottom: 1px solid #334155;
 }
 
-.ademo-brand-tag {
-  font-size: 0.6rem;
+.ademo-brand-wordmark {
+  font-size: 0.95rem;
   font-weight: 700;
-  letter-spacing: 0.12em;
-  color: #00ff88;
-  font-family: 'Courier New', monospace;
-  margin-bottom: 0.2rem;
+  color: #e2e8f0;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  margin-bottom: 0.15rem;
+  font-family: Inter, system-ui, sans-serif;
+}
+
+.ademo-brand-wordmark span {
+  color: #3b82f6;
 }
 
 .ademo-brand-sub {
-  font-size: 0.78rem;
-  color: #8899a6;
+  font-size: 0.65rem;
+  color: #64748b;
   font-weight: 500;
+  font-family: Inter, system-ui, sans-serif;
 }
 
 .ademo-nav {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
-  padding: 0 0.5rem;
+  gap: 0;
+  padding: 0.625rem 0.625rem;
+  overflow-y: auto;
+}
+
+.ademo-nav-group-label {
+  font-size: 0.58rem;
+  font-weight: 600;
+  color: #64748b;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 0.55rem 0.625rem 0.2rem;
+  user-select: none;
+  font-family: Inter, system-ui, sans-serif;
 }
 
 .ademo-nav-item {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  border-radius: 6px;
+  padding: 0.45rem 0.625rem;
+  border-radius: 5px;
+  border-left: 2px solid transparent;
   font-size: 0.75rem;
-  color: #8899a6;
-  transition: background 0.2s, color 0.2s;
+  font-weight: 500;
+  color: #94a3b8;
+  transition: background 0.15s, color 0.15s;
   position: relative;
   cursor: default;
+  font-family: Inter, system-ui, sans-serif;
+  margin-bottom: 1px;
 }
 
 .ademo-nav-dim {
-  opacity: 0.4;
+  opacity: 0.45;
 }
 
 .ademo-nav-active {
-  background: rgba(0,255,136,0.08);
-  color: #e2e8f0;
+  background: rgba(59,130,246,0.12);
+  border-left-color: #3b82f6;
+  color: #93c5fd;
 }
 
-.ademo-nav-icon {
-  font-size: 0.7rem;
+.ademo-nav-svg {
+  width: 14px;
+  height: 14px;
   flex-shrink: 0;
+  opacity: 0.8;
+}
+
+.ademo-nav-active .ademo-nav-svg {
+  opacity: 1;
 }
 
 .ademo-badge-dot {
   margin-left: auto;
-  background: #ff6b6b;
+  background: #ef4444;
   color: white;
-  font-size: 0.6rem;
+  font-size: 0.58rem;
   font-weight: 700;
-  width: 16px;
+  min-width: 16px;
   height: 16px;
-  border-radius: 50%;
+  padding: 0 3px;
+  border-radius: 999px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .ademo-sidebar-foot {
-  padding: 1rem 1rem 0;
-  border-top: 1px solid rgba(255,255,255,0.06);
+  padding: 0.875rem 1rem;
+  border-top: 1px solid #334155;
   margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.ademo-admin-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: white;
+  flex-shrink: 0;
 }
 
 .ademo-admin-name {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   color: #e2e8f0;
   font-weight: 600;
+  line-height: 1.2;
+  font-family: Inter, system-ui, sans-serif;
 }
 
 .ademo-admin-role {
-  font-size: 0.65rem;
-  color: #8899a6;
-  font-family: 'Courier New', monospace;
-  letter-spacing: 0.06em;
-  margin-top: 0.1rem;
+  font-size: 0.62rem;
+  color: #64748b;
+  font-family: Inter, system-ui, sans-serif;
+  text-transform: capitalize;
 }
 
+/* ---- MAIN CONTENT ---- */
 .ademo-main {
-  background: #0d1117;
-  padding: 1.5rem;
+  background: #0f172a;
+  padding: 1.375rem 1.5rem;
   overflow: hidden;
 }
 
 .ademo-fade-in {
-  animation: ademo-fade 0.35s ease;
+  animation: ademo-fade 0.3s ease;
 }
 
 @keyframes ademo-fade {
@@ -1615,103 +1665,165 @@
   to   { opacity: 1; transform: translateY(0);   }
 }
 
-.ademo-page-tag {
-  font-size: 0.6rem;
-  letter-spacing: 0.14em;
-  color: #00ff88;
-  font-family: 'Courier New', monospace;
-  font-weight: 700;
-  margin-bottom: 0.35rem;
-}
-
 .ademo-page-title {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: #e2e8f0;
-  margin-bottom: 1.25rem;
-}
-
-.ademo-stat-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0.6rem;
-  margin-bottom: 1.25rem;
-}
-
-.ademo-stat-card {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.07);
-  border-radius: 8px;
-  padding: 0.75rem;
-  border-left: 3px solid;
-}
-
-.ademo-stat-green  { border-left-color: #00ff88; }
-.ademo-stat-blue   { border-left-color: #60a5fa; }
-.ademo-stat-red    { border-left-color: #ff6b6b; }
-.ademo-stat-gold   { border-left-color: #ffd700; }
-
-.ademo-stat-label {
-  font-size: 0.6rem;
-  color: #8899a6;
-  margin-bottom: 0.3rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.ademo-stat-value {
   font-size: 1.15rem;
   font-weight: 700;
   color: #e2e8f0;
+  margin-bottom: 1rem;
+  font-family: Inter, system-ui, sans-serif;
 }
 
-.ademo-chart-card {
-  background: rgba(255,255,255,0.02);
-  border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 8px;
-  padding: 0.875rem 1rem 0.6rem;
-}
-
-.ademo-chart-label {
+.ademo-section-head {
   font-size: 0.65rem;
-  color: #8899a6;
-  margin-bottom: 0.6rem;
-  letter-spacing: 0.03em;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.4rem;
+  font-family: Inter, system-ui, sans-serif;
 }
 
-.ademo-sparkline {
-  width: 100%;
-  height: 55px;
-  display: block;
+/* Stats */
+.ademo-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 1rem;
 }
 
+.ademo-stat-card {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 0.7rem 0.75rem;
+  border-left: 3px solid;
+}
+
+.ademo-stat-blue   { border-left-color: #3b82f6; }
+.ademo-stat-green  { border-left-color: #22c55e; }
+.ademo-stat-red    { border-left-color: #ef4444; }
+.ademo-stat-gold   { border-left-color: #f59e0b; }
+
+.ademo-stat-label {
+  font-size: 0.58rem;
+  color: #94a3b8;
+  margin-bottom: 0.25rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-family: Inter, system-ui, sans-serif;
+}
+
+.ademo-stat-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #e2e8f0;
+  font-family: Inter, system-ui, sans-serif;
+}
+
+/* Mini cases list in dashboard */
+.ademo-mini-cases {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.ademo-mini-case-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid #334155;
+  font-family: Inter, system-ui, sans-serif;
+}
+
+.ademo-mini-case-row:last-child {
+  border-bottom: none;
+}
+
+.ademo-priority-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.ademo-mini-case-name {
+  font-size: 0.73rem;
+  color: #e2e8f0;
+  font-weight: 600;
+  flex: 1;
+}
+
+.ademo-mini-case-type {
+  font-size: 0.68rem;
+  color: #94a3b8;
+}
+
+/* Pool health bar */
+.ademo-pool-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.ademo-pool-bar {
+  flex: 1;
+  height: 7px;
+  background: #334155;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.ademo-pool-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #22c55e);
+  border-radius: 999px;
+}
+
+.ademo-pool-pct {
+  font-size: 0.65rem;
+  color: #94a3b8;
+  white-space: nowrap;
+  font-family: Inter, system-ui, sans-serif;
+}
+
+/* Table */
 .ademo-table {
-  border: 1px solid rgba(255,255,255,0.06);
+  border: 1px solid #334155;
   border-radius: 8px;
   overflow: hidden;
 }
 
 .ademo-table-head {
   display: grid;
-  grid-template-columns: 1.4fr 1.2fr 0.8fr 0.6fr 0.8fr;
+  grid-template-columns: 28px 1.4fr 1.1fr 0.9fr;
   gap: 0.5rem;
-  padding: 0.55rem 0.875rem;
-  background: rgba(255,255,255,0.03);
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-  font-size: 0.6rem;
-  color: #8899a6;
+  padding: 0.5rem 0.875rem;
+  background: #1e293b;
+  border-bottom: 1px solid #334155;
+  font-size: 0.58rem;
+  color: #94a3b8;
   text-transform: uppercase;
   letter-spacing: 0.06em;
+  font-family: Inter, system-ui, sans-serif;
+}
+
+.ademo-table-head.ademo-users-head {
+  grid-template-columns: 1.4fr 1.1fr 0.8fr 0.8fr;
 }
 
 .ademo-table-row {
   display: grid;
-  grid-template-columns: 1.4fr 1.2fr 0.8fr 0.6fr 0.8fr;
+  grid-template-columns: 28px 1.4fr 1.1fr 0.9fr;
   gap: 0.5rem;
-  padding: 0.65rem 0.875rem;
+  padding: 0.6rem 0.875rem;
   align-items: center;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
-  transition: background 0.2s;
+  border-bottom: 1px solid #334155;
+}
+
+.ademo-table-row.ademo-users-row {
+  grid-template-columns: 1.4fr 1.1fr 0.8fr 0.8fr;
 }
 
 .ademo-table-row:last-child {
@@ -1719,53 +1831,63 @@
 }
 
 .ademo-user-name {
-  font-size: 0.75rem;
+  font-size: 0.73rem;
   color: #e2e8f0;
   font-weight: 600;
+  font-family: Inter, system-ui, sans-serif;
 }
 
 .ademo-dim {
-  font-size: 0.68rem;
-  color: #8899a6;
+  font-size: 0.67rem;
+  color: #94a3b8;
+  font-family: Inter, system-ui, sans-serif;
 }
 
 .ademo-xp-val {
-  font-size: 0.72rem;
-  color: #ffd700;
+  font-size: 0.7rem;
+  color: #f59e0b;
   font-weight: 600;
+  font-family: Inter, system-ui, sans-serif;
 }
 
+/* Pills */
 .ademo-pill {
   display: inline-flex;
   align-items: center;
-  padding: 0.2rem 0.5rem;
+  padding: 0.18rem 0.45rem;
   border-radius: 20px;
-  font-size: 0.6rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
   white-space: nowrap;
+  font-family: Inter, system-ui, sans-serif;
 }
 
-.ademo-pill-green  { background: rgba(0,255,136,0.12); color: #00ff88; }
-.ademo-pill-yellow { background: rgba(255,215,0,0.12);  color: #ffd700; }
+.ademo-pill-green  { background: rgba(34,197,94,0.12);  color: #4ade80; }
+.ademo-pill-yellow { background: rgba(245,158,11,0.12); color: #fbbf24; }
 
+.ademo-pill-status-open      { background: rgba(59,130,246,0.12); color: #60a5fa; }
+.ademo-pill-status-in_review { background: rgba(245,158,11,0.12); color: #fbbf24; }
+.ademo-pill-status-resolved  { background: rgba(34,197,94,0.12);  color: #4ade80; }
+
+/* Payouts */
 .ademo-payout-card {
-  border: 1px solid rgba(255,255,255,0.07);
+  border: 1px solid #334155;
   border-radius: 8px;
   padding: 0.875rem 1rem;
-  background: rgba(255,255,255,0.02);
-  margin-bottom: 0.6rem;
+  background: #1e293b;
+  margin-bottom: 0.5rem;
   transition: border-color 0.3s, background 0.3s;
 }
 
 .ademo-payout-hl {
-  border-color: rgba(255,215,0,0.35);
-  background: rgba(255,215,0,0.04);
+  border-color: rgba(245,158,11,0.5);
+  background: rgba(245,158,11,0.04);
 }
 
 .ademo-payout-done {
-  border-color: rgba(0,255,136,0.35);
-  background: rgba(0,255,136,0.04);
+  border-color: rgba(34,197,94,0.45);
+  background: rgba(34,197,94,0.04);
 }
 
 .ademo-payout-dim {
@@ -1783,22 +1905,25 @@
 }
 
 .ademo-payout-name {
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   color: #e2e8f0;
   font-weight: 600;
+  font-family: Inter, system-ui, sans-serif;
 }
 
 .ademo-payout-meta {
-  font-size: 0.65rem;
-  color: #8899a6;
+  font-size: 0.63rem;
+  color: #94a3b8;
   margin-top: 0.1rem;
+  font-family: Inter, system-ui, sans-serif;
 }
 
 .ademo-payout-amt {
   font-size: 1rem;
   font-weight: 700;
-  color: #00ff88;
+  color: #4ade80;
   white-space: nowrap;
+  font-family: Inter, system-ui, sans-serif;
 }
 
 .ademo-payout-method-wrap {
@@ -1806,43 +1931,46 @@
 }
 
 .ademo-payout-method {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   color: #60a5fa;
   font-weight: 600;
+  font-family: Inter, system-ui, sans-serif;
 }
 
 .ademo-approve-btn {
-  padding: 0.4rem 0.9rem;
-  background: rgba(0,255,136,0.1);
-  border: 1px solid rgba(0,255,136,0.3);
+  padding: 0.38rem 0.85rem;
+  background: rgba(59,130,246,0.12);
+  border: 1px solid rgba(59,130,246,0.35);
   border-radius: 6px;
-  font-size: 0.65rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: #00ff88;
+  font-size: 0.63rem;
+  font-weight: 600;
+  color: #60a5fa;
   white-space: nowrap;
   transition: background 0.25s;
+  font-family: Inter, system-ui, sans-serif;
 }
 
 .ademo-approve-busy {
-  background: rgba(0,255,136,0.22);
-  border-color: rgba(0,255,136,0.6);
+  background: rgba(59,130,246,0.22);
+  border-color: rgba(59,130,246,0.6);
+  color: #93c5fd;
 }
 
 .ademo-pay-link {
-  margin-top: 0.6rem;
-  padding-top: 0.6rem;
-  border-top: 1px solid rgba(255,255,255,0.06);
-  font-size: 0.7rem;
+  margin-top: 0.55rem;
+  padding-top: 0.55rem;
+  border-top: 1px solid #334155;
+  font-size: 0.68rem;
   color: #60a5fa;
   font-weight: 600;
   display: flex;
   align-items: center;
   gap: 0.4rem;
+  font-family: Inter, system-ui, sans-serif;
 }
 
 .ademo-pay-link-icon {
-  font-size: 0.85rem;
+  font-size: 0.82rem;
 }
 
 .ademo-caption {
@@ -1866,12 +1994,10 @@
   }
   .ademo-table-head,
   .ademo-table-row {
-    grid-template-columns: 1.6fr 0.9fr 0.8fr;
+    grid-template-columns: 1.4fr 1fr 0.8fr;
   }
-  .ademo-table-head span:nth-child(2),
-  .ademo-table-row span:nth-child(2),
-  .ademo-table-head span:nth-child(4),
-  .ademo-table-row span:nth-child(4) {
+  .ademo-table-head span:first-child,
+  .ademo-table-row span:first-child {
     display: none;
   }
   .ademo-payout-body {
