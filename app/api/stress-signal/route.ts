@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getUserIdFromRequest } from "@/lib/user-session";
+import { logAudit } from "@/lib/audit";
 import prisma from "@/lib/prisma";
 
 export async function POST(req: Request) {
@@ -26,6 +27,14 @@ export async function POST(req: Request) {
         status: "new",
         priority: "high",
       },
+    });
+
+    await logAudit({
+      action: "CASE_CREATE_STRESS_SIGNAL",
+      entity: "Case",
+      entityId: newCase.id,
+      details: JSON.stringify({ userId, location: location?.trim() || null }),
+      ipAddress: req.headers.get("x-forwarded-for") || "unknown",
     });
 
     return NextResponse.json({ ok: true, caseId: newCase.id });

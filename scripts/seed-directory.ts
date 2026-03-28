@@ -164,7 +164,7 @@ const services = [
   },
   {
     name: "Austin/Travis County EMS Crisis Line",
-    category: "Crisis",
+    category: "Crisis Line",
     address: "Austin, TX",
     phone: "(512) 472-4357",
     hours: "24/7",
@@ -172,7 +172,7 @@ const services = [
   },
   {
     name: "Safe Alliance Domestic Violence Hotline",
-    category: "Crisis",
+    category: "Crisis Line",
     address: "P.O. Box 1210, Austin, TX 78767",
     phone: "(512) 267-7233",
     hours: "24/7 hotline",
@@ -181,7 +181,7 @@ const services = [
   },
   {
     name: "Texas 211",
-    category: "Crisis",
+    category: "Crisis Line",
     address: "Statewide — Austin area covered",
     phone: "211",
     hours: "24/7",

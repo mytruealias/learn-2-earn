@@ -3,7 +3,7 @@ import { getAdminFromRequest } from "@/lib/admin-auth";
 import { logAudit } from "@/lib/audit";
 import prisma from "@/lib/prisma";
 
-const PRIORITY_ORDER: Record<string, number> = { high: 0, medium: 1, low: 2 };
+const PRIORITY_RANK: Record<string, number> = { high: 0, medium: 1, low: 2 };
 
 export async function GET(req: Request) {
   try {
@@ -31,27 +31,25 @@ export async function GET(req: Request) {
       ];
     }
 
-    const [allCases, total] = await Promise.all([
-      prisma.case.findMany({
-        where,
-        include: {
-          user: { select: { id: true, fullName: true, email: true, phone: true, caseNumber: true } },
-          assignedTo: { select: { id: true, fullName: true } },
-          _count: { select: { notes: true, allocations: true } },
-        },
-        orderBy: { createdAt: "desc" },
-        skip,
-        take: limit,
-      }),
-      prisma.case.count({ where }),
-    ]);
+    const total = await prisma.case.count({ where });
 
-    const cases = allCases.sort((a, b) => {
-      const pa = PRIORITY_ORDER[a.priority] ?? 99;
-      const pb = PRIORITY_ORDER[b.priority] ?? 99;
+    const allFiltered = await prisma.case.findMany({
+      where,
+      include: {
+        user: { select: { id: true, fullName: true, email: true, phone: true, caseNumber: true } },
+        assignedTo: { select: { id: true, fullName: true } },
+        _count: { select: { notes: true, allocations: true } },
+      },
+    });
+
+    const sorted = allFiltered.sort((a, b) => {
+      const pa = PRIORITY_RANK[a.priority] ?? 99;
+      const pb = PRIORITY_RANK[b.priority] ?? 99;
       if (pa !== pb) return pa - pb;
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
+
+    const cases = sorted.slice(skip, skip + limit);
 
     return NextResponse.json({
       ok: true,

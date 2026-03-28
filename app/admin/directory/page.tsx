@@ -14,7 +14,7 @@ interface ServiceEntry {
   website: string | null;
 }
 
-const CATEGORIES = ["Shelter", "Food", "Healthcare", "Legal", "Recovery", "Employment", "Crisis"];
+const CATEGORIES = ["Shelter", "Food", "Healthcare", "Legal", "Recovery", "Employment", "Crisis Line"];
 
 const CATEGORY_EMOJI: Record<string, string> = {
   Shelter: "🏠",
@@ -23,7 +23,7 @@ const CATEGORY_EMOJI: Record<string, string> = {
   Legal: "⚖️",
   Recovery: "💚",
   Employment: "💼",
-  Crisis: "🚨",
+  "Crisis Line": "🚨",
 };
 
 const EMPTY_FORM = {
