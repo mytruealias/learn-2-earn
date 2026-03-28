@@ -88,19 +88,28 @@
 }
 
 .logAction {
-  font-size: 0.72rem;
-  font-weight: 600;
-  min-width: 150px;
   flex-shrink: 0;
-  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
 }
 
-.colorGreen   { color: #4ade80; }
-.colorRed     { color: #fca5a5; }
-.colorBlue    { color: #60a5fa; }
-.colorYellow  { color: #fcd34d; }
-.colorPurple  { color: #c4b5fd; }
-.colorDefault { color: #94a3b8; }
+/* ---- ACTION CHIPS ---- */
+.actionChip {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 0.2rem 0.65rem;
+  border-radius: 20px;
+  border: 1px solid;
+  white-space: nowrap;
+  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+  letter-spacing: 0;
+}
+
+.colorGreen   { color: #86efac; border-color: rgba(34,197,94,0.4);   background-color: rgba(34,197,94,0.1);   }
+.colorRed     { color: #fca5a5; border-color: rgba(239,68,68,0.35);  background-color: rgba(239,68,68,0.1);   }
+.colorBlue    { color: #93c5fd; border-color: rgba(59,130,246,0.4);  background-color: rgba(59,130,246,0.1);  }
+.colorYellow  { color: #fcd34d; border-color: rgba(245,158,11,0.4);  background-color: rgba(245,158,11,0.1);  }
+.colorPurple  { color: #c4b5fd; border-color: rgba(167,139,250,0.4); background-color: rgba(167,139,250,0.1); }
+.colorDefault { color: #94a3b8; border-color: #475569;               background-color: rgba(71,85,105,0.2);   }
 
 .logBody {
   flex: 1;

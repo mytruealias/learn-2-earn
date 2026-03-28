@@ -94,7 +94,9 @@ export default function AdminAuditPage() {
             return (
               <div key={log.id} className={styles.logEntry}>
                 <div className={styles.logTime}>{formatDateTime(log.createdAt)}</div>
-                <div className={`${styles.logAction} ${styles[colorClass]}`}>{log.action}</div>
+                <div className={styles.logAction}>
+                  <span className={`${styles.actionChip} ${styles[colorClass]}`}>{log.action}</span>
+                </div>
                 <div className={styles.logBody}>
                   <div className={styles.logEntity}>
                     <span>{log.entity}</span>
