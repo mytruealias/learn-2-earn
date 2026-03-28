@@ -64,7 +64,24 @@
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  gap: 0;
+}
+
+.navGroup {
+  display: flex;
+  flex-direction: column;
   gap: 2px;
+  margin-bottom: 0.25rem;
+}
+
+.navGroupLabel {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--adm-dim);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 0.6rem 0.75rem 0.25rem;
+  user-select: none;
 }
 
 .navLink {

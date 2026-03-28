@@ -177,20 +177,51 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   if (!admin) return null;
 
-  const navItems = [
-    { href: "/admin", label: "Dashboard", icon: "dashboard", badge: 0 },
-    { href: "/admin/users", label: "Users", icon: "users", badge: 0 },
-    { href: "/admin/payouts", label: "Payouts", icon: "payouts", badge: 0 },
-    { href: "/admin/cases", label: "Cases", icon: "cases", badge: newCaseCount },
-    { href: "/admin/directory", label: "Directory", icon: "directory", badge: 0 },
+  type NavItem = { href: string; label: string; icon: string; badge: number };
+  type NavGroup = { label: string; items: NavItem[] };
+
+  const navGroups: NavGroup[] = [
+    {
+      label: "",
+      items: [
+        { href: "/admin", label: "Dashboard", icon: "dashboard", badge: 0 },
+      ],
+    },
+    {
+      label: "Learner Management",
+      items: [
+        { href: "/admin/users", label: "Users", icon: "users", badge: 0 },
+        { href: "/admin/payouts", label: "Payouts", icon: "payouts", badge: 0 },
+      ],
+    },
+    {
+      label: "Case Management",
+      items: [
+        { href: "/admin/cases", label: "Cases", icon: "cases", badge: newCaseCount },
+      ],
+    },
+    {
+      label: "Directory",
+      items: [
+        { href: "/admin/directory", label: "Directory", icon: "directory", badge: 0 },
+      ],
+    },
     ...(["admin", "finance"].includes(admin.role)
-      ? [{ href: "/admin/finance", label: "Finance", icon: "finance", badge: 0 }]
+      ? [{
+          label: "Finance",
+          items: [
+            { href: "/admin/finance", label: "Finance", icon: "finance", badge: 0 },
+          ],
+        }]
       : []),
     ...(admin.role === "admin"
-      ? [
-          { href: "/admin/audit", label: "Audit Log", icon: "audit", badge: 0 },
-          { href: "/admin/staff", label: "Staff", icon: "staff", badge: 0 },
-        ]
+      ? [{
+          label: "Administration",
+          items: [
+            { href: "/admin/audit", label: "Audit Log", icon: "audit", badge: 0 },
+            { href: "/admin/staff", label: "Staff", icon: "staff", badge: 0 },
+          ],
+        }]
       : []),
   ];
 
@@ -225,38 +256,45 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
 
             <nav className={styles.sidebarNav}>
-              {navItems.map((item) => (
-                <a
-                  key={item.href}
-                  href={item.href}
-                  className={`${styles.navLink} ${isActive(item.href) ? styles.navLinkActive : ""}`}
-                  onClick={() => setSidebarOpen(false)}
-                  style={{ justifyContent: "space-between" }}
-                >
-                  <span style={{ display: "flex", alignItems: "center", gap: "0.625rem" }}>
-                    <NavIcon name={item.icon} />
-                    {item.label}
-                  </span>
-                  {item.badge > 0 && (
-                    <span style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      minWidth: "18px",
-                      height: "18px",
-                      padding: "0 4px",
-                      borderRadius: "999px",
-                      background: "#ef4444",
-                      color: "#fff",
-                      fontSize: "0.65rem",
-                      fontWeight: 700,
-                      lineHeight: 1,
-                      flexShrink: 0,
-                    }}>
-                      {item.badge > 99 ? "99+" : item.badge}
-                    </span>
+              {navGroups.map((group, gi) => (
+                <div key={gi} className={styles.navGroup}>
+                  {group.label && (
+                    <div className={styles.navGroupLabel}>{group.label}</div>
                   )}
-                </a>
+                  {group.items.map((item) => (
+                    <a
+                      key={item.href}
+                      href={item.href}
+                      className={`${styles.navLink} ${isActive(item.href) ? styles.navLinkActive : ""}`}
+                      onClick={() => setSidebarOpen(false)}
+                      style={{ justifyContent: "space-between" }}
+                    >
+                      <span style={{ display: "flex", alignItems: "center", gap: "0.625rem" }}>
+                        <NavIcon name={item.icon} />
+                        {item.label}
+                      </span>
+                      {item.badge > 0 && (
+                        <span style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          minWidth: "18px",
+                          height: "18px",
+                          padding: "0 4px",
+                          borderRadius: "999px",
+                          background: "#ef4444",
+                          color: "#fff",
+                          fontSize: "0.65rem",
+                          fontWeight: 700,
+                          lineHeight: 1,
+                          flexShrink: 0,
+                        }}>
+                          {item.badge > 99 ? "99+" : item.badge}
+                        </span>
+                      )}
+                    </a>
+                  ))}
+                </div>
               ))}
             </nav>
 
