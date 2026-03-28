@@ -68,7 +68,6 @@ export default function AdminAuditPage() {
   return (
     <div className={styles.page}>
       <div className={styles.pageHeader}>
-        <div className={styles.pageTag}>SECURITY_LOG</div>
         <h1 className={styles.pageTitle}>Audit Trail</h1>
       </div>
 

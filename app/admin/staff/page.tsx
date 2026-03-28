@@ -22,6 +22,15 @@ function formatDate(d: string | null) {
   return new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
 
+function getInitials(name: string): string {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0].toUpperCase())
+    .join("");
+}
+
 export default function AdminStaffPage() {
   const { admin } = useAdmin();
   const { showToast } = useToast();
@@ -114,7 +123,6 @@ export default function AdminStaffPage() {
   return (
     <div className={styles.page}>
       <div className={styles.pageHeader}>
-        <div className={styles.pageTag}>STAFF_MANAGEMENT</div>
         <h1 className={styles.pageTitle}>Staff</h1>
       </div>
 
@@ -123,7 +131,7 @@ export default function AdminStaffPage() {
           className={styles.createBtn}
           onClick={() => { setShowCreate(true); setTempPassword(""); setCreateError(""); }}
         >
-          + CREATE ACCOUNT
+          + New account
         </button>
       </div>
 
@@ -139,7 +147,7 @@ export default function AdminStaffPage() {
 
             {tempPassword && (
               <div className={styles.tempPassword}>
-                <div className={styles.tempPasswordLabel}>TEMPORARY PASSWORD (shown once)</div>
+                <div className={styles.tempPasswordLabel}>Temporary password (shown once)</div>
                 <div className={styles.tempPasswordValue}>{tempPassword}</div>
                 <div className={styles.tempPasswordNote}>
                   Share this securely. The user should change it on first login.
@@ -182,10 +190,10 @@ export default function AdminStaffPage() {
                 </div>
                 <div className={styles.modalActions}>
                   <button type="submit" disabled={creating} className={styles.modalSaveBtn}>
-                    {creating ? "CREATING..." : "CREATE"}
+                    {creating ? "Creating..." : "Create account"}
                   </button>
                   <button type="button" className={styles.modalCancelBtn} onClick={() => setShowCreate(false)}>
-                    CANCEL
+                    Cancel
                   </button>
                 </div>
               </form>
@@ -193,7 +201,7 @@ export default function AdminStaffPage() {
 
             {tempPassword && (
               <div className={styles.modalActions}>
-                <button className={styles.modalSaveBtn} onClick={() => setShowCreate(false)}>DONE</button>
+                <button className={styles.modalSaveBtn} onClick={() => setShowCreate(false)}>Done</button>
               </div>
             )}
           </div>
@@ -206,19 +214,24 @@ export default function AdminStaffPage() {
         <div className={styles.staffList}>
           {staff.map((member) => (
             <div key={member.id} className={styles.staffRow}>
-              <div className={styles.staffInfo}>
-                <div className={styles.staffName}>{member.fullName}</div>
-                <div className={styles.staffEmail}>{member.email}</div>
+              <div className={styles.staffRowLeft}>
+                <div className={styles.staffAvatar}>
+                  {getInitials(member.fullName)}
+                </div>
+                <div className={styles.staffInfo}>
+                  <div className={styles.staffName}>{member.fullName}</div>
+                  <div className={styles.staffEmail}>{member.email}</div>
+                </div>
               </div>
               <div className={styles.staffMeta}>
                 <span className={styles.staffRole}>{member.role}</span>
                 <span className={styles.staffLastLogin}>Last login: {formatDate(member.lastLoginAt)}</span>
                 <span className={`${styles.statusBadge} ${member.isActive ? styles.statusActive : styles.statusInactive}`}>
-                  {member.isActive ? "ACTIVE" : "INACTIVE"}
+                  {member.isActive ? "Active" : "Inactive"}
                 </span>
                 {member.lockedUntil && new Date(member.lockedUntil) > new Date() && (
                   <span className={`${styles.statusBadge} ${styles.statusLocked}`}>
-                    LOCKED
+                    Locked
                   </span>
                 )}
               </div>
@@ -226,11 +239,11 @@ export default function AdminStaffPage() {
                 {member.id !== admin?.id && (
                   member.isActive ? (
                     <button className={styles.deactivateBtn} onClick={() => toggleActive(member)}>
-                      DEACTIVATE
+                      Deactivate
                     </button>
                   ) : (
                     <button className={styles.reactivateBtn} onClick={() => toggleActive(member)}>
-                      REACTIVATE
+                      Reactivate
                     </button>
                   )
                 )}

@@ -15,12 +15,12 @@ interface TrendsData {
 }
 
 const COLOR_TO_CLASS: Record<string, string> = {
-  "#00ff88": "colorGreen",
-  "#00d4ff": "colorBlue",
-  "#ffd700": "colorYellow",
-  "#a855f7": "colorPurple",
-  "#ff6b6b": "colorRed",
-  "#8899a6": "colorMuted",
+  green:  "colorGreen",
+  blue:   "colorBlue",
+  yellow: "colorYellow",
+  purple: "colorPurple",
+  red:    "colorRed",
+  muted:  "colorMuted",
 };
 
 function StatCard({ label, value, sub, color }: { label: string; value: string | number; sub?: string; color: string }) {
@@ -68,7 +68,7 @@ function SparkLine({
 
   return (
     <svg viewBox={`0 0 ${w} ${h}`} className={styles.chartArea} preserveAspectRatio="none">
-      <polygon points={areaPoints} fill={color} fillOpacity="0.08" />
+      <polygon points={areaPoints} fill={color} fillOpacity="0.1" />
       <polyline
         points={polyline}
         fill="none"
@@ -84,6 +84,22 @@ function SparkLine({
         );
       })}
     </svg>
+  );
+}
+
+function AlertBanner({ pendingCount }: { pendingCount: number }) {
+  return (
+    <div className={styles.alertBanner}>
+      <svg className={styles.alertIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+        <line x1="12" y1="9" x2="12" y2="13"/>
+        <line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+      <span className={styles.alertText}>
+        {pendingCount} payout {pendingCount === 1 ? "request" : "requests"} pending review
+      </span>
+      <a href="/admin/payouts" className={styles.alertLink}>Review payouts</a>
+    </div>
   );
 }
 
@@ -119,38 +135,41 @@ export default function AdminDashboard() {
 
   return (
     <div className={styles.page}>
+      {stats.payouts.pending > 0 && (
+        <AlertBanner pendingCount={stats.payouts.pending} />
+      )}
+
       <div className={styles.pageHeader}>
-        <div className={styles.pageTag}>SYSTEM_OVERVIEW</div>
         <h1 className={styles.pageTitle}>Dashboard</h1>
       </div>
 
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>Users</h2>
         <div className={styles.statGrid}>
-          <StatCard label="Total Users" value={stats.users.total} color="#00ff88" />
-          <StatCard label="Registered" value={stats.users.registered} sub={`${stats.users.guests} guests`} color="#00d4ff" />
-          <StatCard label="Active (7d)" value={stats.users.activeWeek} color="#ffd700" />
-          <StatCard label="Active (30d)" value={stats.users.activeMonth} color="#ffd700" />
+          <StatCard label="Total Users" value={stats.users.total} color="green" />
+          <StatCard label="Registered" value={stats.users.registered} sub={`${stats.users.guests} guests`} color="blue" />
+          <StatCard label="Active (7 days)" value={stats.users.activeWeek} color="yellow" />
+          <StatCard label="Active (30 days)" value={stats.users.activeMonth} color="yellow" />
         </div>
       </div>
 
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>Learning</h2>
         <div className={styles.statGrid}>
-          <StatCard label="Journeys" value={stats.learning.totalPaths} color="#00ff88" />
-          <StatCard label="Total Lessons" value={stats.learning.totalLessons} color="#00d4ff" />
-          <StatCard label="Lessons Completed" value={stats.learning.lessonsCompleted} color="#a855f7" />
-          <StatCard label="XP Distributed" value={stats.learning.totalXpDistributed.toLocaleString()} color="#ffd700" />
+          <StatCard label="Journeys" value={stats.learning.totalPaths} color="green" />
+          <StatCard label="Total Lessons" value={stats.learning.totalLessons} color="blue" />
+          <StatCard label="Lessons Completed" value={stats.learning.lessonsCompleted} color="purple" />
+          <StatCard label="XP Distributed" value={stats.learning.totalXpDistributed.toLocaleString()} color="yellow" />
         </div>
       </div>
 
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>Payouts</h2>
         <div className={styles.statGrid}>
-          <StatCard label="Pending Review" value={stats.payouts.pending} color={stats.payouts.pending > 0 ? "#ff6b6b" : "#8899a6"} />
-          <StatCard label="Approved" value={stats.payouts.approved} color="#ffd700" />
-          <StatCard label="Completed" value={stats.payouts.completed} color="#00ff88" />
-          <StatCard label="Total Paid" value={`$${stats.payouts.totalDollars.toFixed(2)}`} color="#00ff88" />
+          <StatCard label="Pending Review" value={stats.payouts.pending} color={stats.payouts.pending > 0 ? "red" : "muted"} />
+          <StatCard label="Approved" value={stats.payouts.approved} color="yellow" />
+          <StatCard label="Completed" value={stats.payouts.completed} color="green" />
+          <StatCard label="Total Paid" value={`$${stats.payouts.totalDollars.toFixed(2)}`} color="green" />
         </div>
       </div>
 
@@ -162,11 +181,11 @@ export default function AdminDashboard() {
           <div className={styles.chartsRow}>
             <div className={styles.chartCard}>
               <div className={styles.chartTitle}>New Registrations — Past 30 Days</div>
-              <SparkLine data={trends.userGrowth} color="#00ff88" valueKey="count" />
+              <SparkLine data={trends.userGrowth} color="#22c55e" valueKey="count" />
             </div>
             <div className={styles.chartCard}>
               <div className={styles.chartTitle}>Payout Volume (USD) — Past 12 Weeks</div>
-              <SparkLine data={trends.payoutVolume} color="#ffd700" valueKey="dollars" />
+              <SparkLine data={trends.payoutVolume} color="#f59e0b" valueKey="dollars" />
             </div>
           </div>
         ) : (

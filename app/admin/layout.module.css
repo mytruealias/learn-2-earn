@@ -1,24 +1,27 @@
 .loadingScreen {
   min-height: 100vh;
-  background-color: #0f1419;
+  background-color: var(--adm-bg);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #8899a6;
-  font-family: 'Share Tech Mono', monospace;
+  color: var(--adm-muted);
+  font-family: var(--adm-font);
+  font-size: 0.875rem;
 }
 
 .adminShell {
   min-height: 100vh;
-  background-color: #0f1419;
+  background-color: var(--adm-bg);
   display: flex;
+  font-family: var(--adm-font);
 }
 
+/* ---- SIDEBAR ---- */
 .sidebar {
   width: 240px;
-  background-color: #15202b;
-  border-right: 1px solid #253341;
-  padding: 1.5rem 0;
+  background-color: var(--adm-surface);
+  border-right: 1px solid var(--adm-border);
+  padding: 0;
   display: flex;
   flex-direction: column;
   position: fixed;
@@ -30,130 +33,169 @@
 }
 
 .sidebarBrand {
-  padding: 0 1.25rem 1.5rem;
-  border-bottom: 1px solid #253341;
-  margin-bottom: 1rem;
+  padding: 1.25rem 1.25rem 1rem;
+  border-bottom: 1px solid var(--adm-border);
 }
 
-.brandTag {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.7rem;
-  color: #00ff88;
-  letter-spacing: 0.15em;
-  margin-bottom: 0.25rem;
-}
-
-.brandTitle {
-  font-family: 'Rajdhani', sans-serif;
-  font-size: 1.25rem;
+.brandWordmark {
+  font-family: var(--adm-font);
+  font-size: 1.05rem;
   font-weight: 700;
-  color: #e1e8ed;
+  color: var(--adm-text);
+  letter-spacing: -0.02em;
+  line-height: 1;
+  margin-bottom: 0.2rem;
+}
+
+.brandWordmark span {
+  color: var(--adm-blue);
+}
+
+.brandSubtitle {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--adm-dim);
+  letter-spacing: 0.01em;
 }
 
 .sidebarNav {
   flex: 1;
-  padding: 0 0.75rem;
+  padding: 0.75rem 0.75rem;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .navLink {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem;
-  color: #8899a6;
-  background-color: transparent;
-  border-left: 2px solid transparent;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.85rem;
-  letter-spacing: 0.05em;
+  gap: 0.65rem;
+  padding: 0.55rem 0.75rem;
+  border-radius: var(--adm-radius-sm);
+  color: var(--adm-muted);
+  font-family: var(--adm-font);
+  font-size: 0.875rem;
+  font-weight: 500;
   text-decoration: none;
-  margin-bottom: 0.25rem;
   transition: color 0.15s, background-color 0.15s;
+  letter-spacing: 0;
 }
 
 .navLink:hover {
-  color: #e1e8ed;
-  background-color: rgba(255, 255, 255, 0.04);
+  color: var(--adm-text);
+  background-color: rgba(255, 255, 255, 0.05);
 }
 
 .navLinkActive {
-  color: #00ff88;
-  background-color: rgba(0, 255, 136, 0.08);
-  border-left-color: #00ff88;
+  color: var(--adm-blue-lt);
+  background-color: rgba(59, 130, 246, 0.12);
+}
+
+.navLinkActive:hover {
+  background-color: rgba(59, 130, 246, 0.16);
 }
 
 .navIcon {
-  font-size: 1rem;
+  width: 16px;
+  height: 16px;
   flex-shrink: 0;
+  opacity: 0.8;
+}
+
+.navLinkActive .navIcon {
+  opacity: 1;
 }
 
 .sidebarFooter {
   padding: 1rem 1.25rem;
-  border-top: 1px solid #253341;
+  border-top: 1px solid var(--adm-border);
+}
+
+.adminAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--adm-blue) 0%, #6366f1 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 0.5rem;
+  flex-shrink: 0;
 }
 
 .adminName {
-  font-size: 0.75rem;
-  color: #e1e8ed;
-  margin-bottom: 0.25rem;
+  font-size: 0.8rem;
+  color: var(--adm-text);
   font-weight: 600;
+  line-height: 1.2;
 }
 
 .adminRole {
-  font-size: 0.65rem;
-  color: #8899a6;
-  font-family: 'Share Tech Mono', monospace;
-  letter-spacing: 0.05em;
+  font-size: 0.7rem;
+  color: var(--adm-dim);
+  font-weight: 400;
+  text-transform: capitalize;
   margin-bottom: 0.75rem;
-  text-transform: uppercase;
 }
 
 .logoutBtn {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.7rem;
-  color: #ff6b6b;
+  font-family: var(--adm-font);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--adm-muted);
   background: none;
-  border: 1px solid rgba(255, 107, 107, 0.3);
-  padding: 0.4rem 0.75rem;
+  border: 1px solid var(--adm-border);
+  border-radius: var(--adm-radius-sm);
+  padding: 0.35rem 0.75rem;
   cursor: pointer;
-  letter-spacing: 0.1em;
-  transition: background-color 0.15s, color 0.15s;
+  transition: color 0.15s, border-color 0.15s, background-color 0.15s;
+  letter-spacing: 0;
 }
 
 .logoutBtn:hover {
-  background-color: rgba(255, 107, 107, 0.1);
+  color: var(--adm-red);
+  border-color: rgba(239, 68, 68, 0.4);
+  background-color: rgba(239, 68, 68, 0.06);
 }
 
+/* ---- MAIN CONTENT ---- */
 .mainContent {
   flex: 1;
   margin-left: 240px;
-  padding: 2rem;
+  padding: 2rem 2.5rem;
   min-width: 0;
+  color: var(--adm-text);
+  font-family: var(--adm-font);
 }
 
+/* ---- HAMBURGER (MOBILE) ---- */
 .hamburger {
   display: none;
   position: fixed;
-  top: 1rem;
-  left: 1rem;
+  top: 0.875rem;
+  left: 0.875rem;
   z-index: 200;
-  background: #15202b;
-  border: 1px solid #253341;
-  color: #e1e8ed;
-  width: 40px;
-  height: 40px;
+  background: var(--adm-surface);
+  border: 1px solid var(--adm-border);
+  border-radius: var(--adm-radius-sm);
+  color: var(--adm-text);
+  width: 36px;
+  height: 36px;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 1.1rem;
+  font-size: 1rem;
 }
 
 .sidebarOverlay {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.5);
   z-index: 99;
 }
 
@@ -172,7 +214,7 @@
 
   .mainContent {
     margin-left: 0;
-    padding: 1rem;
+    padding: 1.25rem;
     padding-top: 4rem;
   }
 

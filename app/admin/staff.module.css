@@ -1,25 +1,19 @@
 .page {
-  color: #e1e8ed;
+  color: #f1f5f9;
+  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+  max-width: 1000px;
 }
 
 .pageHeader {
   margin-bottom: 2rem;
 }
 
-.pageTag {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.65rem;
-  color: #00ff88;
-  letter-spacing: 0.15em;
-  margin-bottom: 0.25rem;
-}
-
 .pageTitle {
-  font-family: 'Rajdhani', sans-serif;
-  font-size: 1.75rem;
+  font-size: 1.5rem;
   font-weight: 700;
-  color: #e1e8ed;
+  color: #f1f5f9;
   margin: 0;
+  letter-spacing: -0.02em;
 }
 
 .toolbar {
@@ -29,98 +23,127 @@
 }
 
 .createBtn {
-  padding: 0.65rem 1.25rem;
-  background-color: #00ff88;
-  color: #0f1419;
+  padding: 0.55rem 1.125rem;
+  background-color: #3b82f6;
+  color: #fff;
   border: none;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
+  border-radius: 6px;
+  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
   cursor: pointer;
+  transition: background-color 0.15s;
 }
 
+.createBtn:hover {
+  background-color: #2563eb;
+}
+
+/* ---- STAFF LIST ---- */
 .staffList {
   display: grid;
   gap: 0.5rem;
 }
 
 .staffRow {
-  background-color: #15202b;
-  border: 1px solid #253341;
-  padding: 1rem 1.25rem;
+  background-color: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 1rem 1.125rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 1rem;
 }
 
+.staffRowLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  min-width: 0;
+}
+
+.staffAvatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
 .staffInfo {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 0.15rem;
 }
 
 .staffName {
   font-size: 0.9rem;
   font-weight: 600;
-  color: #e1e8ed;
+  color: #f1f5f9;
 }
 
 .staffEmail {
   font-size: 0.75rem;
-  color: #8899a6;
+  color: #64748b;
 }
 
 .staffMeta {
   display: flex;
-  gap: 1rem;
+  gap: 0.75rem;
   align-items: center;
   flex-wrap: wrap;
 }
 
 .staffRole {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.65rem;
-  color: #00d4ff;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: #93c5fd;
+  text-transform: capitalize;
+  background-color: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  border-radius: 20px;
+  padding: 0.15rem 0.6rem;
 }
 
 .staffLastLogin {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.65rem;
-  color: #8899a6;
+  font-size: 0.72rem;
+  color: #64748b;
 }
 
 .statusBadge {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.6rem;
-  padding: 0.2rem 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 500;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
   border: 1px solid;
-  letter-spacing: 0.1em;
 }
 
 .statusActive {
-  color: #00ff88;
-  border-color: rgba(0, 255, 136, 0.3);
+  color: #86efac;
+  border-color: rgba(34, 197, 94, 0.35);
+  background-color: rgba(34, 197, 94, 0.08);
 }
 
 .statusInactive {
-  color: #ff6b6b;
-  border-color: rgba(255, 107, 107, 0.3);
+  color: #fca5a5;
+  border-color: rgba(239, 68, 68, 0.3);
+  background-color: rgba(239, 68, 68, 0.06);
 }
 
 .statusLocked {
-  color: #ffd700;
-  border-color: rgba(255, 215, 0, 0.3);
+  color: #fcd34d;
+  border-color: rgba(245, 158, 11, 0.35);
+  background-color: rgba(245, 158, 11, 0.08);
 }
 
-.accessDenied {
-  color: #ff6b6b;
-  font-family: 'Share Tech Mono', monospace;
-}
-
+/* ---- STAFF ACTIONS ---- */
 .staffActions {
   display: flex;
   gap: 0.5rem;
@@ -128,49 +151,64 @@
 }
 
 .deactivateBtn {
-  padding: 0.4rem 0.8rem;
+  padding: 0.35rem 0.875rem;
   background-color: transparent;
-  color: #ff6b6b;
-  border: 1px solid rgba(255, 107, 107, 0.3);
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.65rem;
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 6px;
+  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 500;
   cursor: pointer;
-  letter-spacing: 0.1em;
   white-space: nowrap;
-  transition: background-color 0.15s;
+  transition: background-color 0.15s, border-color 0.15s;
 }
 
 .deactivateBtn:hover {
-  background-color: rgba(255, 107, 107, 0.1);
+  background-color: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.5);
 }
 
 .reactivateBtn {
-  padding: 0.4rem 0.8rem;
+  padding: 0.35rem 0.875rem;
   background-color: transparent;
-  color: #00ff88;
-  border: 1px solid rgba(0, 255, 136, 0.3);
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.65rem;
+  color: #86efac;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  border-radius: 6px;
+  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 500;
   cursor: pointer;
-  letter-spacing: 0.1em;
   white-space: nowrap;
-  transition: background-color 0.15s;
+  transition: background-color 0.15s, border-color 0.15s;
 }
 
 .reactivateBtn:hover {
-  background-color: rgba(0, 255, 136, 0.1);
+  background-color: rgba(34, 197, 94, 0.08);
+  border-color: rgba(34, 197, 94, 0.5);
 }
 
+/* ---- LOADING / ACCESS ---- */
 .loading {
-  color: #8899a6;
-  font-family: 'Share Tech Mono', monospace;
+  color: #94a3b8;
+  font-size: 0.875rem;
+  padding: 2rem 0;
 }
 
-/* Modal */
+.accessDenied {
+  color: #fca5a5;
+  font-size: 0.875rem;
+  padding: 1.25rem;
+  background-color: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 8px;
+}
+
+/* ---- MODAL ---- */
 .modalOverlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.65);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -179,19 +217,20 @@
 }
 
 .modal {
-  background-color: #15202b;
-  border: 1px solid #253341;
-  padding: 1.5rem;
+  background-color: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 1.75rem;
   width: 100%;
   max-width: 440px;
 }
 
 .modalTitle {
-  font-family: 'Rajdhani', sans-serif;
-  font-size: 1.25rem;
+  font-size: 1.125rem;
   font-weight: 700;
-  color: #e1e8ed;
+  color: #f1f5f9;
   margin: 0 0 1.5rem;
+  letter-spacing: -0.01em;
 }
 
 .modalField {
@@ -200,80 +239,84 @@
 
 .modalLabel {
   display: block;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.65rem;
-  color: #8899a6;
-  letter-spacing: 0.1em;
-  margin-bottom: 0.4rem;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: #94a3b8;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
+  margin-bottom: 0.4rem;
 }
 
 .modalInput {
   width: 100%;
-  padding: 0.65rem;
-  background-color: #0f1419;
-  border: 1px solid #253341;
-  color: #e1e8ed;
-  font-size: 0.85rem;
-  font-family: 'Share Tech Mono', monospace;
+  padding: 0.6rem 0.875rem;
+  background-color: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  color: #f1f5f9;
+  font-size: 0.875rem;
+  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
   outline: none;
   box-sizing: border-box;
   transition: border-color 0.15s;
 }
 
 .modalInput:focus {
-  border-color: #00ff88;
+  border-color: #3b82f6;
 }
 
 .modalSelect {
   width: 100%;
-  padding: 0.65rem;
-  background-color: #0f1419;
-  border: 1px solid #253341;
-  color: #e1e8ed;
-  font-size: 0.85rem;
-  font-family: 'Share Tech Mono', monospace;
+  padding: 0.6rem 0.875rem;
+  background-color: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  color: #f1f5f9;
+  font-size: 0.875rem;
+  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
   outline: none;
   box-sizing: border-box;
 }
 
 .modalError {
-  padding: 0.6rem;
-  background-color: rgba(255, 107, 107, 0.1);
-  border: 1px solid rgba(255, 107, 107, 0.3);
-  color: #ff6b6b;
+  padding: 0.65rem 0.875rem;
+  background-color: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: 6px;
+  color: #fca5a5;
   font-size: 0.8rem;
-  font-family: 'Share Tech Mono', monospace;
   margin-bottom: 1rem;
 }
 
 .tempPassword {
-  padding: 0.75rem;
-  background-color: rgba(0, 255, 136, 0.05);
-  border: 1px solid rgba(0, 255, 136, 0.2);
+  padding: 1rem;
+  background-color: rgba(34, 197, 94, 0.06);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  border-radius: 8px;
   margin-bottom: 1rem;
 }
 
 .tempPasswordLabel {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.6rem;
-  color: #00ff88;
-  letter-spacing: 0.1em;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #4ade80;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   margin-bottom: 0.4rem;
 }
 
 .tempPasswordValue {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.9rem;
-  color: #e1e8ed;
+  font-family: 'Menlo', 'Monaco', 'Consolas', monospace;
+  font-size: 1rem;
+  color: #f1f5f9;
   word-break: break-all;
+  font-weight: 600;
 }
 
 .tempPasswordNote {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.6rem;
-  color: #8899a6;
-  margin-top: 0.4rem;
+  font-size: 0.72rem;
+  color: #64748b;
+  margin-top: 0.5rem;
 }
 
 .modalActions {
@@ -283,32 +326,44 @@
 }
 
 .modalSaveBtn {
-  padding: 0.65rem 1.25rem;
-  background-color: #00ff88;
-  color: #0f1419;
+  padding: 0.6rem 1.25rem;
+  background-color: #3b82f6;
+  color: #fff;
   border: none;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.75rem;
-  font-weight: 700;
+  border-radius: 6px;
+  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
   cursor: pointer;
-  letter-spacing: 0.1em;
+  transition: background-color 0.15s;
+}
+
+.modalSaveBtn:hover:not(:disabled) {
+  background-color: #2563eb;
 }
 
 .modalSaveBtn:disabled {
-  background-color: #253341;
-  color: #8899a6;
+  background-color: #334155;
+  color: #64748b;
   cursor: default;
 }
 
 .modalCancelBtn {
-  padding: 0.65rem 1.25rem;
+  padding: 0.6rem 1.25rem;
   background-color: transparent;
-  color: #8899a6;
-  border: 1px solid #253341;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.75rem;
+  color: #94a3b8;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+  font-size: 0.8rem;
+  font-weight: 500;
   cursor: pointer;
-  letter-spacing: 0.1em;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.modalCancelBtn:hover {
+  border-color: #475569;
+  color: #e2e8f0;
 }
 
 @media (max-width: 600px) {

@@ -65,6 +65,16 @@ function formatDateTime(d: string) {
   return new Date(d).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
 }
 
+function getInitials(name: string | null): string {
+  if (!name) return "?";
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0].toUpperCase())
+    .join("");
+}
+
 export default function AdminUsersPage() {
   const { showToast } = useToast();
   const [users, setUsers] = useState<UserSummary[]>([]);
@@ -94,6 +104,7 @@ export default function AdminUsersPage() {
 
   useEffect(() => {
     fetchUsers();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
 
   const handleSearch = (e: React.FormEvent) => {
@@ -181,11 +192,13 @@ export default function AdminUsersPage() {
       .filter((p) => p.status !== "rejected")
       .reduce((sum, p) => sum + p.xpAmount, 0);
     const availableXp = selectedUser.totalXp - totalPayoutXp;
+    const initials = getInitials(selectedUser.fullName);
+    const isGuest = !selectedUser.fullName;
 
     return (
       <div>
         <button onClick={() => setSelectedUser(null)} className={styles.backBtn}>
-          {"<"} back_to_users
+          ← Back to users
         </button>
 
         {showEdit && (
@@ -237,10 +250,10 @@ export default function AdminUsersPage() {
                 </div>
                 <div className={styles.modalActions}>
                   <button type="submit" disabled={editSaving} className={styles.modalSaveBtn}>
-                    {editSaving ? "SAVING..." : "SAVE"}
+                    {editSaving ? "Saving..." : "Save changes"}
                   </button>
                   <button type="button" className={styles.modalCancelBtn} onClick={() => setShowEdit(false)}>
-                    CANCEL
+                    Cancel
                   </button>
                 </div>
               </form>
@@ -250,42 +263,47 @@ export default function AdminUsersPage() {
 
         <div className={styles.detailCard}>
           <div className={styles.detailHeader}>
-            <div>
-              <h1 className={styles.detailName}>{selectedUser.fullName || "Guest User"}</h1>
-              <div className={styles.detailEmail}>
-                {selectedUser.email || "No email"} {selectedUser.caseNumber && `• Case: ${selectedUser.caseNumber}`}
+            <div className={styles.detailHeaderLeft}>
+              <div className={`${styles.detailAvatar} ${isGuest ? styles.detailAvatarGuest : ""}`}>
+                {initials}
               </div>
-              <div className={styles.detailLocation}>
-                {selectedUser.city && `${selectedUser.city}, `}{selectedUser.state} {selectedUser.zipCode}
+              <div>
+                <h1 className={styles.detailName}>{selectedUser.fullName || "Guest User"}</h1>
+                <div className={styles.detailEmail}>
+                  {selectedUser.email || "No email"} {selectedUser.caseNumber && `• Case: ${selectedUser.caseNumber}`}
+                </div>
+                <div className={styles.detailLocation}>
+                  {selectedUser.city && `${selectedUser.city}, `}{selectedUser.state} {selectedUser.zipCode}
+                </div>
               </div>
             </div>
             <div className={styles.detailHeaderActions}>
               <span className={`${styles.consentBadge} ${selectedUser.consentGiven ? styles.consentYes : styles.consentNo}`}>
-                {selectedUser.consentGiven ? "CONSENT_GIVEN" : "NO_CONSENT"}
+                {selectedUser.consentGiven ? "Consent given" : "No consent"}
               </span>
-              <button className={styles.editBtn} onClick={openEdit}>EDIT</button>
+              <button className={styles.editBtn} onClick={openEdit}>Edit</button>
             </div>
           </div>
 
           <div className={styles.detailStats}>
             <div className={styles.statItem}>
-              <span className={styles.statItemLabel}>TOTAL_XP</span>
+              <span className={styles.statItemLabel}>Total XP</span>
               <span className={`${styles.statItemValue} ${styles.xpColor}`}>{selectedUser.totalXp}</span>
             </div>
             <div className={styles.statItem}>
-              <span className={styles.statItemLabel}>AVAILABLE_XP</span>
+              <span className={styles.statItemLabel}>Available XP</span>
               <span className={`${styles.statItemValue} ${styles.availColor}`}>{availableXp}</span>
             </div>
             <div className={styles.statItem}>
-              <span className={styles.statItemLabel}>LESSONS</span>
+              <span className={styles.statItemLabel}>Lessons</span>
               <span className={`${styles.statItemValue} ${styles.lessonsColor}`}>{selectedUser.progress.length}</span>
             </div>
             <div className={styles.statItem}>
-              <span className={styles.statItemLabel}>STREAK</span>
+              <span className={styles.statItemLabel}>Streak</span>
               <span className={`${styles.statItemValue} ${styles.streakColor}`}>{selectedUser.streak}</span>
             </div>
             <div className={styles.statItem}>
-              <span className={styles.statItemLabel}>JOINED</span>
+              <span className={styles.statItemLabel}>Joined</span>
               <span className={`${styles.statItemValue} ${styles.joinedValue}`}>{formatDate(selectedUser.createdAt)}</span>
             </div>
           </div>
@@ -293,7 +311,7 @@ export default function AdminUsersPage() {
 
         {selectedUser.progress.length > 0 && (
           <div className={styles.historyCard}>
-            <h2 className={styles.historyTitle}>LESSON_HISTORY</h2>
+            <h2 className={styles.historyTitle}>Lesson History</h2>
             <div className={styles.historyList}>
               {selectedUser.progress.slice(0, 20).map((p) => (
                 <div key={p.id} className={styles.historyItem}>
@@ -304,7 +322,7 @@ export default function AdminUsersPage() {
                     </span>
                   </div>
                   <div className={styles.historyMeta}>
-                    <span className={styles.xpTag}>+{p.xpEarned}xp</span>
+                    <span className={styles.xpTag}>+{p.xpEarned} XP</span>
                     <span className={styles.dateTag}>{formatDateTime(p.completedAt)}</span>
                   </div>
                 </div>
@@ -315,7 +333,7 @@ export default function AdminUsersPage() {
 
         {selectedUser.payoutRequests.length > 0 && (
           <div className={styles.historyCard}>
-            <h2 className={styles.historyTitle}>PAYOUT_HISTORY</h2>
+            <h2 className={styles.historyTitle}>Payout History</h2>
             <div className={styles.historyList}>
               {selectedUser.payoutRequests.map((p) => {
                 const statusCls = ({ pending: "statusYellow", reviewed: "statusBlue", approved: "statusGreen", completed: "statusGreen", rejected: "statusRed" } as Record<string, string>)[p.status] || "statusDefault";
@@ -339,7 +357,6 @@ export default function AdminUsersPage() {
   return (
     <div className={styles.page}>
       <div className={styles.pageHeader}>
-        <div className={styles.pageTag}>USER_MANAGEMENT</div>
         <h1 className={styles.pageTitle}>Users</h1>
       </div>
 
@@ -351,7 +368,7 @@ export default function AdminUsersPage() {
           placeholder="Search by name, email, or case number..."
           className={styles.searchInput}
         />
-        <button type="submit" className={styles.searchBtn}>SEARCH</button>
+        <button type="submit" className={styles.searchBtn}>Search</button>
       </form>
 
       {loading ? (
@@ -359,28 +376,37 @@ export default function AdminUsersPage() {
       ) : (
         <>
           <div className={styles.userList}>
-            {users.map((user) => (
-              <div
-                key={user.id}
-                onClick={() => viewUser(user.id)}
-                className={styles.userRow}
-              >
-                <div>
-                  <div className={styles.userName}>{user.fullName || "Guest User"}</div>
-                  <div className={styles.userMeta}>
-                    {user.email || "No email"} {user.caseNumber && `• Case: ${user.caseNumber}`}
+            {users.map((user) => {
+              const initials = getInitials(user.fullName);
+              const isGuest = !user.fullName;
+              return (
+                <div
+                  key={user.id}
+                  onClick={() => viewUser(user.id)}
+                  className={styles.userRow}
+                >
+                  <div className={styles.userRowLeft}>
+                    <div className={`${styles.avatar} ${isGuest ? styles.avatarGuest : ""}`}>
+                      {initials}
+                    </div>
+                    <div>
+                      <div className={styles.userName}>{user.fullName || "Guest User"}</div>
+                      <div className={styles.userMeta}>
+                        {user.email || "No email"} {user.caseNumber && `• Case: ${user.caseNumber}`}
+                      </div>
+                    </div>
+                  </div>
+                  <div className={styles.userStats}>
+                    <div className={styles.xpDisplay}>
+                      <div className={styles.xpAmount}>{user.totalXp} XP</div>
+                      <div className={styles.lessonCount}>{user._count.progress} lessons</div>
+                    </div>
+                    <div className={styles.lastActive}>{formatDate(user.lastActiveAt)}</div>
+                    <span className={styles.chevron}>›</span>
                   </div>
                 </div>
-                <div className={styles.userStats}>
-                  <div className={styles.xpDisplay}>
-                    <div className={styles.xpAmount}>{user.totalXp} XP</div>
-                    <div className={styles.lessonCount}>{user._count.progress} lessons</div>
-                  </div>
-                  <div className={styles.lastActive}>{formatDate(user.lastActiveAt)}</div>
-                  <span className={styles.chevron}>{">"}</span>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {totalPages > 1 && (
@@ -389,13 +415,13 @@ export default function AdminUsersPage() {
                 onClick={() => setPage(Math.max(1, page - 1))}
                 disabled={page <= 1}
                 className={styles.pageBtn}
-              >PREV</button>
+              >Prev</button>
               <span className={styles.pageInfo}>{page} / {totalPages}</span>
               <button
                 onClick={() => setPage(Math.min(totalPages, page + 1))}
                 disabled={page >= totalPages}
                 className={styles.pageBtn}
-              >NEXT</button>
+              >Next</button>
             </div>
           )}
         </>

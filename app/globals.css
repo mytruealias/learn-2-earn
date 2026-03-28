@@ -1,4 +1,23 @@
 :root {
+  /* ---- Admin portal design tokens ---- */
+  --adm-bg:        #0f172a;
+  --adm-surface:   #1e293b;
+  --adm-border:    #334155;
+  --adm-border-lt: #475569;
+  --adm-text:      #f1f5f9;
+  --adm-muted:     #94a3b8;
+  --adm-dim:       #64748b;
+  --adm-blue:      #3b82f6;
+  --adm-blue-lt:   #60a5fa;
+  --adm-green:     #22c55e;
+  --adm-green-lt:  #4ade80;
+  --adm-amber:     #f59e0b;
+  --adm-red:       #ef4444;
+  --adm-violet:    #a78bfa;
+  --adm-font:      var(--font-inter), 'Inter', system-ui, sans-serif;
+  --adm-radius:    8px;
+  --adm-radius-sm: 6px;
+
   --bg-primary: #0f1923;
   --bg-secondary: #141e2b;
   --bg-card: #1a2736;

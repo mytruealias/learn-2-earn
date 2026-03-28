@@ -174,7 +174,6 @@ export default function AdminPayoutsPage() {
   return (
     <div className={styles.page}>
       <div className={styles.pageHeader}>
-        <div className={styles.pageTag}>PAYOUT_MANAGEMENT</div>
         <h1 className={styles.pageTitle}>Payouts</h1>
       </div>
 
@@ -185,14 +184,16 @@ export default function AdminPayoutsPage() {
             onClick={() => setStatusFilter(s)}
             className={`${styles.filterBtn} ${styles[`filter_${s}`] || ""} ${statusFilter === s ? styles.filterBtnActive : ""}`}
           >
-            {s}
+            {s.charAt(0).toUpperCase() + s.slice(1)}
           </button>
         ))}
       </div>
 
       {activeAction && (
         <div className={styles.actionPanel}>
-          <div className={styles.actionTitle}>Confirm: {activeAction.action}</div>
+          <div className={styles.actionTitle}>
+            Confirm: {activeAction.action}
+          </div>
           <textarea
             value={decisionNote}
             onChange={(e) => setDecisionNote(e.target.value.slice(0, 500))}
@@ -206,13 +207,13 @@ export default function AdminPayoutsPage() {
               disabled={processing}
               className={`${styles.confirmBtn} ${activeAction.action === "reject" ? styles.confirmBtnReject : styles.confirmBtnApprove}`}
             >
-              {processing ? "PROCESSING..." : "CONFIRM"}
+              {processing ? "Processing..." : "Confirm"}
             </button>
             <button
               onClick={() => { setActiveAction(null); setDecisionNote(""); }}
               className={styles.cancelBtn}
             >
-              CANCEL
+              Cancel
             </button>
           </div>
         </div>
@@ -221,7 +222,7 @@ export default function AdminPayoutsPage() {
       {isCompletedFilter && selectedIds.size > 0 && (
         <div className={styles.bulkBar}>
           <span className={styles.bulkInfo}>{selectedIds.size} payout(s) selected</span>
-          <button className={styles.exportBtn} onClick={handleExport}>EXPORT CSV</button>
+          <button className={styles.exportBtn} onClick={handleExport}>Export CSV</button>
         </div>
       )}
 
@@ -265,22 +266,22 @@ export default function AdminPayoutsPage() {
                       <span className={`${styles.payoutFieldValue} ${styles.xpValue}`}>{p.xpAmount}</span>
                     </div>
                     <div className={styles.payoutField}>
-                      <span className={styles.payoutFieldLabel}>AMOUNT</span>
+                      <span className={styles.payoutFieldLabel}>Amount</span>
                       <span className={`${styles.payoutFieldValue} ${styles.amountValue}`}>${p.dollarAmount.toFixed(2)}</span>
                     </div>
                     <div className={styles.payoutField}>
-                      <span className={styles.payoutFieldLabel}>DATE</span>
+                      <span className={styles.payoutFieldLabel}>Date</span>
                       <span className={styles.payoutFieldValueSm}>{formatDate(p.createdAt)}</span>
                     </div>
                     {p.paymentMethod && (
                       <div className={styles.payoutField}>
-                        <span className={styles.payoutFieldLabel}>PAY VIA</span>
+                        <span className={styles.payoutFieldLabel}>Pay via</span>
                         <span className={`${styles.payoutFieldValueSm} ${styles.payMethodValue}`}>{p.paymentMethod}</span>
                       </div>
                     )}
                     {p.paymentHandle && (
                       <div className={styles.payoutField}>
-                        <span className={styles.payoutFieldLabel}>HANDLE</span>
+                        <span className={styles.payoutFieldLabel}>Handle</span>
                         <span className={styles.payoutFieldValueSm}>{p.paymentHandle}</span>
                       </div>
                     )}
@@ -292,11 +293,11 @@ export default function AdminPayoutsPage() {
                         <button
                           onClick={() => setActiveAction({ payoutId: p.id, action: "review" })}
                           className={`${styles.actionBtn} ${styles.actionBtnReview}`}
-                        >REVIEW</button>
+                        >Review</button>
                         <button
                           onClick={() => setActiveAction({ payoutId: p.id, action: "reject" })}
                           className={styles.actionBtnDanger}
-                        >REJECT</button>
+                        >Reject</button>
                       </>
                     )}
                     {p.status === "reviewed" && canApprove && (
@@ -304,18 +305,18 @@ export default function AdminPayoutsPage() {
                         <button
                           onClick={() => setActiveAction({ payoutId: p.id, action: "approve" })}
                           className={`${styles.actionBtn} ${styles.actionBtnApprove}`}
-                        >APPROVE</button>
+                        >Approve</button>
                         <button
                           onClick={() => setActiveAction({ payoutId: p.id, action: "reject" })}
                           className={styles.actionBtnDanger}
-                        >REJECT</button>
+                        >Reject</button>
                       </>
                     )}
                     {p.status === "approved" && canApprove && (
                       <button
                         onClick={() => setActiveAction({ payoutId: p.id, action: "complete" })}
                         className={`${styles.actionBtn} ${styles.actionBtnApprove}`}
-                      >MARK_PAID</button>
+                      >Mark paid</button>
                     )}
                   </div>
                 </div>
@@ -329,7 +330,7 @@ export default function AdminPayoutsPage() {
                     <div className={styles.payLink}>
                       {isCheck ? (
                         <div className={styles.payLinkInner}>
-                          <span className={styles.payLinkMailLabel}>MAIL CHECK TO</span>
+                          <span className={styles.payLinkMailLabel}>Mail check to</span>
                           <span className={styles.payLinkAddress}>{p.paymentHandle}</span>
                           <button
                             onClick={() => {
@@ -338,12 +339,12 @@ export default function AdminPayoutsPage() {
                               setTimeout(() => setCopiedId(null), 2000);
                             }}
                             className={`${styles.copyBtn} ${isCopied ? styles.copyBtnCopied : ""}`}
-                          >{isCopied ? "COPIED!" : "COPY ADDRESS"}</button>
+                          >{isCopied ? "Copied!" : "Copy address"}</button>
                         </div>
                       ) : payLink ? (
                         <div className={styles.payLinkInner}>
                           <a href={payLink} target="_blank" rel="noopener noreferrer" className={styles.payLinkBtn}>
-                            PAY ${p.dollarAmount.toFixed(2)} VIA {p.paymentMethod.toUpperCase()} →
+                            Pay ${p.dollarAmount.toFixed(2)} via {p.paymentMethod} →
                           </a>
                           {isVenmo && (
                             <span className={styles.payLinkHint}>Opens Venmo app on mobile</span>
@@ -360,7 +361,7 @@ export default function AdminPayoutsPage() {
                     {p.approvedBy && <span>• Approved by {p.approvedBy.fullName}</span>}
                     {p.reviewNote && <div className={styles.reviewNote}>Note: {p.reviewNote}</div>}
                     {p.decisionNote && (
-                      <div className={styles.decisionNote}>Decision Note: {p.decisionNote}</div>
+                      <div className={styles.decisionNote}>Decision note: {p.decisionNote}</div>
                     )}
                   </div>
                 )}
@@ -380,12 +381,12 @@ export default function AdminPayoutsPage() {
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1}
               className={styles.paginationBtn}
-            >← PREV</button>
+            >← Prev</button>
             <button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}
               className={styles.paginationBtn}
-            >NEXT →</button>
+            >Next →</button>
           </div>
         </div>
       )}

@@ -1,96 +1,120 @@
 .page {
   min-height: 100vh;
-  background-color: #0f1419;
+  background-color: #0f172a;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 2rem;
+  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
 }
 
 .card {
   width: 100%;
   max-width: 400px;
-  background-color: #15202b;
-  border: 1px solid #253341;
+  background-color: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 12px;
   padding: 2.5rem;
 }
 
-.brandTag {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.65rem;
-  color: #00ff88;
-  letter-spacing: 0.2em;
-  margin-bottom: 0.5rem;
+.brandWordmark {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.25rem;
+}
+
+.brandWordmark span {
+  color: #3b82f6;
+}
+
+.brandSub {
+  font-size: 0.72rem;
+  font-weight: 400;
+  color: #64748b;
+  margin-bottom: 1.75rem;
 }
 
 .title {
-  font-family: 'Rajdhani', sans-serif;
-  font-size: 1.75rem;
+  font-size: 1.375rem;
   font-weight: 700;
-  color: #e1e8ed;
-  margin-bottom: 2rem;
+  color: #f1f5f9;
+  margin-bottom: 1.75rem;
+  letter-spacing: -0.02em;
 }
 
 .errorBox {
-  padding: 0.75rem;
-  background-color: rgba(255, 107, 107, 0.1);
-  border: 1px solid rgba(255, 107, 107, 0.3);
-  color: #ff6b6b;
-  font-size: 0.85rem;
+  padding: 0.75rem 0.875rem;
+  background-color: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: 6px;
+  color: #fca5a5;
+  font-size: 0.82rem;
   margin-bottom: 1.5rem;
-  font-family: 'Share Tech Mono', monospace;
 }
 
 .field {
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.125rem;
 }
 
 .fieldLast {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.75rem;
 }
 
 .label {
   display: block;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.7rem;
-  color: #8899a6;
-  letter-spacing: 0.1em;
-  margin-bottom: 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: #94a3b8;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 0.45rem;
 }
 
 .input {
   width: 100%;
-  padding: 0.75rem;
-  background-color: #0f1419;
-  border: 1px solid #253341;
-  color: #e1e8ed;
+  padding: 0.7rem 0.875rem;
+  background-color: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  color: #f1f5f9;
   font-size: 0.9rem;
-  font-family: 'Share Tech Mono', monospace;
+  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
   outline: none;
   box-sizing: border-box;
   transition: border-color 0.15s;
 }
 
 .input:focus {
-  border-color: #00ff88;
+  border-color: #3b82f6;
+}
+
+.input::placeholder {
+  color: #475569;
 }
 
 .submitBtn {
   width: 100%;
-  padding: 0.85rem;
-  background-color: #00ff88;
-  color: #0f1419;
+  padding: 0.8rem;
+  background-color: #3b82f6;
+  color: #fff;
   border: none;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.85rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
+  border-radius: 6px;
+  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: opacity 0.15s;
+  transition: background-color 0.15s;
+  letter-spacing: 0;
+}
+
+.submitBtn:hover:not(:disabled) {
+  background-color: #2563eb;
 }
 
 .submitBtn:disabled {
-  background-color: #253341;
-  color: #8899a6;
+  background-color: #334155;
+  color: #64748b;
   cursor: default;
 }

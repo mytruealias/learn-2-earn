@@ -41,14 +41,17 @@ export default function AdminLoginPage() {
   return (
     <div className={styles.page}>
       <div className={styles.card}>
-        <div className={styles.brandTag}>LEARN_2_EARN</div>
-        <h1 className={styles.title}>Admin Login</h1>
+        <div className={styles.brandWordmark}>
+          Learn<span>2</span>Earn
+        </div>
+        <div className={styles.brandSub}>Admin Portal</div>
+        <h1 className={styles.title}>Sign in</h1>
 
         {error && <div className={styles.errorBox}>{error}</div>}
 
         <form onSubmit={handleSubmit}>
           <div className={styles.field}>
-            <label className={styles.label} htmlFor="email">EMAIL</label>
+            <label className={styles.label} htmlFor="email">Email</label>
             <input
               id="email"
               type="email"
@@ -61,7 +64,7 @@ export default function AdminLoginPage() {
           </div>
 
           <div className={`${styles.field} ${styles.fieldLast}`}>
-            <label className={styles.label} htmlFor="password">PASSWORD</label>
+            <label className={styles.label} htmlFor="password">Password</label>
             <input
               id="password"
               type="password"
@@ -78,7 +81,7 @@ export default function AdminLoginPage() {
             disabled={loading}
             className={styles.submitBtn}
           >
-            {loading ? "AUTHENTICATING..." : "LOGIN"}
+            {loading ? "Signing in..." : "Sign in"}
           </button>
         </form>
       </div>
