@@ -3,6 +3,11 @@ import type { NextRequest } from "next/server";
 
 const PROTECTED_PATHS = ["/app", "/paths", "/lesson", "/profile", "/lifeline", "/signup"];
 
+const LEARNER_PATHS = [
+  "/app", "/paths", "/lesson", "/profile",
+  "/lifeline", "/signup", "/login", "/access",
+];
+
 async function verifyToken(token: string, secret: string): Promise<boolean> {
   try {
     const parts = token.split(".");
@@ -38,9 +43,61 @@ async function verifyToken(token: string, secret: string): Promise<boolean> {
   }
 }
 
+function redirect301(url: string): NextResponse {
+  return NextResponse.redirect(url, { status: 301 });
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const search = request.nextUrl.search;
+  const rootDomain = process.env.ROOT_DOMAIN;
 
+  // ── SUBDOMAIN ROUTING ──────────────────────────────────────────────────────
+  // Only active when ROOT_DOMAIN env var is set (i.e. production with real
+  // domains). Dev / Replit preview: all routes remain accessible as normal.
+  if (rootDomain) {
+    const hostname = (request.headers.get("host") || "").split(":")[0];
+
+    // www → apex redirect
+    if (hostname === `www.${rootDomain}`) {
+      return redirect301(`https://${rootDomain}${pathname}${search}`);
+    }
+
+    const isRoot  = hostname === rootDomain;
+    const isApp   = hostname === `app.${rootDomain}`;
+    const isAdmin = hostname === `admin.${rootDomain}`;
+
+    if (isRoot || isApp || isAdmin) {
+      const isApiPath     = pathname.startsWith("/api/");
+      const isAdminPath   = pathname === "/admin" || pathname.startsWith("/admin/");
+      const isLearnerPath = LEARNER_PATHS.some(
+        (p) => pathname === p || pathname.startsWith(p + "/")
+      );
+      const isRootPath = pathname === "/";
+
+      // API routes: always pass through — no subdomain restriction
+      if (!isApiPath) {
+        if (isRoot) {
+          // Root domain only serves /
+          if (!isRootPath) {
+            if (isAdminPath)   return redirect301(`https://admin.${rootDomain}${pathname}${search}`);
+            if (isLearnerPath) return redirect301(`https://app.${rootDomain}${pathname}${search}`);
+            return redirect301(`https://${rootDomain}/`);
+          }
+        } else if (isApp) {
+          // App subdomain: learner routes only
+          if (isRootPath) return redirect301(`https://app.${rootDomain}/app`);
+          if (isAdminPath) return redirect301(`https://admin.${rootDomain}${pathname}${search}`);
+          if (!isLearnerPath) return redirect301(`https://app.${rootDomain}/app`);
+        } else if (isAdmin) {
+          // Admin subdomain: admin routes only
+          if (!isAdminPath) return redirect301(`https://admin.${rootDomain}/admin`);
+        }
+      }
+    }
+  }
+
+  // ── DEMO ACCESS GATE ───────────────────────────────────────────────────────
   const isProtected = PROTECTED_PATHS.some(
     (p) => pathname === p || pathname.startsWith(p + "/")
   );
@@ -65,12 +122,10 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
+  // Match everything except Next.js internals and static file extensions.
+  // The subdomain routing logic is a no-op when ROOT_DOMAIN is unset, so
+  // there is no performance impact in development.
   matcher: [
-    "/app/:path*",
-    "/paths/:path*",
-    "/lesson/:path*",
-    "/profile/:path*",
-    "/lifeline/:path*",
-    "/signup/:path*",
+    "/((?!_next/static|_next/image|favicon\\.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

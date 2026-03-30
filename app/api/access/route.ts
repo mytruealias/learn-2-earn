@@ -18,12 +18,16 @@ export async function POST(req: Request) {
 
     const token = createAccessToken();
     const response = NextResponse.json({ ok: true });
+    const rootDomain = process.env.ROOT_DOMAIN;
     response.cookies.set("l2e_demo_access", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       maxAge: 60 * 60 * 24 * 30,
       path: "/",
+      // Scope to learner subdomain in production so the access cookie is
+      // never sent to admin.learn2earn.org or learn2earn.org.
+      ...(rootDomain && { domain: `app.${rootDomain}` }),
     });
 
     return response;

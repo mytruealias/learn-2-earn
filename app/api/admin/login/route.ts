@@ -32,12 +32,16 @@ export async function POST(req: Request) {
     });
 
     const response = NextResponse.json({ ok: true, admin: result.admin });
+    const rootDomain = process.env.ROOT_DOMAIN;
     response.cookies.set(SESSION_COOKIE, result.token!, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       maxAge: 8 * 60 * 60,
       path: "/",
+      // Scope to admin subdomain in production so the session cookie is
+      // never sent to app.learn2earn.org or learn2earn.org.
+      ...(rootDomain && { domain: `admin.${rootDomain}` }),
     });
 
     return response;
