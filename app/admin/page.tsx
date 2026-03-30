@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import styles from "./dashboard.module.css";
 
 interface Stats {
@@ -317,9 +318,9 @@ export default function AdminDashboard() {
               <StatCard label="Low Priority" value={stats.cases.low} color="muted" />
             </div>
           </div>
-          <a href="/admin/cases" className={styles.casesLink}>
+          <Link href="/admin/cases" className={styles.casesLink}>
             View all cases →
-          </a>
+          </Link>
         </div>
       </div>
 

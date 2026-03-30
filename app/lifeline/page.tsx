@@ -153,7 +153,7 @@ export default function LifelinePage() {
                 🚨 Need immediate help?
               </div>
               <div style={{ fontSize: "0.82rem", color: "var(--text-secondary)", lineHeight: "1.4" }}>
-                Send a signal to our support team — we'll follow up as soon as possible.
+                Send a signal to our support team — we&apos;ll follow up as soon as possible.
               </div>
             </div>
             <button
@@ -185,7 +185,7 @@ export default function LifelinePage() {
             borderRadius: "14px",
           }}>
             <div style={{ fontWeight: 700, fontSize: "0.95rem", marginBottom: "1rem" }}>
-              🚨 Tell us what's happening
+              🚨 Tell us what&apos;s happening
             </div>
             <div style={{ marginBottom: "0.75rem" }}>
               <textarea
