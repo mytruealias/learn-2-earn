@@ -18,12 +18,16 @@ export async function GET() {
 export async function DELETE() {
   try {
     const response = NextResponse.json({ ok: true });
+    const rootDomain = process.env.ROOT_DOMAIN;
+    // The domain attribute on cookie deletion MUST match the one used at
+    // login time, otherwise the browser will not remove the cookie.
     response.cookies.set(SESSION_COOKIE, "", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       maxAge: 0,
       path: "/",
+      ...(rootDomain && { domain: `admin.${rootDomain}` }),
     });
     return response;
   } catch (error) {
