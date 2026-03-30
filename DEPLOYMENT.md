@@ -98,6 +98,12 @@ https://admin.learn2earn.org      → redirects to /admin (login)
 https://admin.learn2earn.org/app  → redirects to app.learn2earn.org/app
 ```
 
+> **Important — 301 redirect caching:** All cross-domain redirects use HTTP 301
+> (permanent). Browsers cache 301 redirects aggressively. During initial rollout
+> or if you need to change routing rules, test in an incognito/private window or
+> clear browser cache. Staff using the admin portal should also clear their cache
+> if they ever accessed the admin at the old URL.
+
 ---
 
 ## Cookie isolation
