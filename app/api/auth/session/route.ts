@@ -83,7 +83,7 @@ export async function POST(req: Request) {
     const totalEarnings = Math.floor((totalEarningsAgg._sum.dollarAmount ?? 0) * 100) / 100;
 
     const availableXp = user.totalXp - totalPayoutXp;
-    const availableBalance = Math.floor((availableXp / 3) * 100) / 100;
+    const availableBalance = Math.floor(availableXp * 0.05 * 100) / 100;
 
     const completedLessonIds = new Set(user.progress.map((p) => p.lessonId));
 

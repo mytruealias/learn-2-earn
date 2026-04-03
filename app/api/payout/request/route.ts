@@ -6,7 +6,9 @@ import { getUserIdFromRequest } from "@/lib/user-session";
 
 const VALID_PAYMENT_METHODS: PaymentMethod[] = ["venmo", "paypal", "cashapp", "check"];
 const MAX_HANDLE_LENGTH = 255;
-const MIN_XP = 3;
+const MIN_XP = 20;
+const XP_TO_DOLLAR = 0.05;
+const WEEKLY_XP_CAP = 100;
 
 export async function POST(req: Request) {
   try {
@@ -83,7 +85,21 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Insufficient XP balance." }, { status: 400 });
     }
 
-    const dollarAmount = Math.round((xpAmount / 3) * 100) / 100;
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    const { _sum: weeklySum } = await prisma.payoutRequest.aggregate({
+      where: { userId, status: { not: "rejected" }, createdAt: { gte: sevenDaysAgo } },
+      _sum: { xpAmount: true },
+    });
+    const weeklyXpRequested = weeklySum.xpAmount ?? 0;
+    if (weeklyXpRequested + xpAmount > WEEKLY_XP_CAP) {
+      const remaining = Math.max(0, WEEKLY_XP_CAP - weeklyXpRequested);
+      return NextResponse.json(
+        { error: `Weekly payout limit reached. You can request up to ${remaining} more XP this week.` },
+        { status: 400 }
+      );
+    }
+
+    const dollarAmount = Math.round(xpAmount * XP_TO_DOLLAR * 100) / 100;
 
     const methodLabels: Record<string, string> = {
       venmo: "Venmo",

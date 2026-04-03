@@ -163,7 +163,7 @@ export async function POST(req: Request) {
       xpAwarded = Math.round(xpAwarded * 1.25);
     }
     if (perfectRun) {
-      xpAwarded += 5;
+      xpAwarded += 1;
     }
 
     const oldCompletedLessonIds = new Set((user?.progress ?? []).map((p) => p.lessonId));
