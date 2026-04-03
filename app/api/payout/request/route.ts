@@ -8,7 +8,7 @@ const VALID_PAYMENT_METHODS: PaymentMethod[] = ["venmo", "paypal", "cashapp", "c
 const MAX_HANDLE_LENGTH = 255;
 const MIN_XP = 20;
 const XP_TO_DOLLAR = 0.05;
-const WEEKLY_XP_CAP = 100;
+const WEEKLY_XP_CAP = 500;
 
 export async function POST(req: Request) {
   try {
