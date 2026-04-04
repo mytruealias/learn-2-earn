@@ -45,12 +45,6 @@ const nextConfig: NextConfig = {
             key: "Cache-Control",
             value: "no-store, must-revalidate",
           },
-          {
-            // Remove includeSubDomains from HSTS — www.learn2earn.tech has no SSL cert
-            // which causes Chrome to block all subdomains when includeSubDomains is set
-            key: "Strict-Transport-Security",
-            value: "max-age=63072000",
-          },
         ],
       },
     ];
