@@ -87,28 +87,48 @@ export async function POST(req: Request) {
 
     const completedLessonIds = new Set(user.progress.map((p) => p.lessonId));
 
-    const earnedBadgeIds = new Set<string>();
+    // Badges previously earned and stored in the DB — these never go away
+    let storedBadgeIds: string[] = [];
+    try {
+      storedBadgeIds = JSON.parse(user.earnedBadges ?? "[]");
+    } catch {
+      storedBadgeIds = [];
+    }
+    const persistedBadgeIds = new Set<string>(storedBadgeIds);
 
-    if (completedLessonIds.size >= 1) earnedBadgeIds.add("first_lesson");
-    if (user.streak >= 3) earnedBadgeIds.add("streak_3");
-    if (user.streak >= 7) earnedBadgeIds.add("streak_7");
+    // Dynamically compute badges earned right now
+    const freshBadgeIds = new Set<string>();
+    if (completedLessonIds.size >= 1) freshBadgeIds.add("first_lesson");
+    if (user.streak >= 3) freshBadgeIds.add("streak_3");
+    if (user.streak >= 7) freshBadgeIds.add("streak_7");
 
     const checkedPaths = new Set<string>();
-    let firstPathComplete = false;
     for (const p of user.progress) {
       const path = p.lesson?.module?.path;
       if (!path || checkedPaths.has(path.id)) continue;
       checkedPaths.add(path.id);
       const allPathLessonIds = path.modules.flatMap((m) => m.lessons.map((l) => l.id));
       if (allPathLessonIds.length > 0 && allPathLessonIds.every((id) => completedLessonIds.has(id))) {
-        firstPathComplete = true;
+        freshBadgeIds.add("first_path");
         break;
       }
     }
-    if (firstPathComplete) earnedBadgeIds.add("first_path");
 
     if (user.progress.some((p) => p.crownLevel >= 2)) {
-      earnedBadgeIds.add("perfect_lesson");
+      freshBadgeIds.add("perfect_lesson");
+    }
+
+    // Merge: union of stored (permanent) + freshly earned badges
+    const earnedBadgeIds = new Set<string>([...persistedBadgeIds, ...freshBadgeIds]);
+
+    // If any new badges were just earned, persist them so they stick permanently
+    const newlyEarned = [...freshBadgeIds].filter((id) => !persistedBadgeIds.has(id));
+    if (newlyEarned.length > 0) {
+      const updatedBadges = [...earnedBadgeIds];
+      prisma.user.update({
+        where: { id: userId },
+        data: { earnedBadges: JSON.stringify(updatedBadges) },
+      }).catch(() => {});
     }
 
     const badges = BADGE_DEFS.map((b) => ({ ...b, earned: earnedBadgeIds.has(b.id) }));

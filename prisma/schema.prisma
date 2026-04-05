@@ -92,6 +92,7 @@ model User {
   createdAt     DateTime @default(now())
   consentGiven  Boolean  @default(false)
   consentAt     DateTime?
+  earnedBadges  String   @default("[]")
   progress      Progress[]
   payoutRequests PayoutRequest[]
   consents      ConsentRecord[]
