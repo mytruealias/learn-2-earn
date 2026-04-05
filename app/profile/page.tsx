@@ -489,61 +489,98 @@ export default function ProfilePage() {
               )}
             </div>
 
-            {user.badges && user.badges.length > 0 && (
-              <div style={{
-                backgroundColor: "var(--bg-card)",
-                border: "1px solid var(--border-color)",
-                borderRadius: "14px",
-                padding: "1rem 1.25rem",
-              }}>
+            {user.badges && user.badges.length > 0 && (() => {
+              const BADGE_GROUPS = [
+                { label: "Lessons", ids: ["first_lesson","lessons_5","lessons_10","lessons_25","lessons_50"] },
+                { label: "Streaks", ids: ["streak_3","streak_7","streak_14","streak_30"] },
+                { label: "Earnings", ids: ["xp_50","xp_100","xp_500","first_payout"] },
+                { label: "Paths", ids: ["first_path","paths_2","paths_3"] },
+                { label: "Perfect Play", ids: ["perfect_lesson","perfect_3","perfect_5"] },
+              ];
+              const byId = Object.fromEntries(user.badges.map((b) => [b.id, b]));
+              const earnedTotal = user.badges.filter((b) => b.earned).length;
+              return (
                 <div style={{
-                  fontSize: "0.75rem",
-                  fontWeight: "700",
-                  color: "var(--accent-purple)",
-                  letterSpacing: "0.1em",
-                  textTransform: "uppercase",
-                  marginBottom: "0.75rem",
+                  backgroundColor: "var(--bg-card)",
+                  border: "1px solid var(--border-color)",
+                  borderRadius: "14px",
+                  padding: "1rem 1.25rem",
                 }}>
-                  Achievements
-                </div>
-                <div style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fill, minmax(90px, 1fr))",
-                  gap: "0.75rem",
-                }}>
-                  {user.badges.map((badge) => (
-                    <div
-                      key={badge.id}
-                      title={badge.description}
-                      style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        gap: "0.35rem",
-                        padding: "0.75rem 0.5rem",
-                        borderRadius: "12px",
-                        backgroundColor: badge.earned ? "rgba(167,139,250,0.1)" : "rgba(255,255,255,0.03)",
-                        border: `1px solid ${badge.earned ? "var(--accent-purple)" : "var(--border-color)"}`,
-                        opacity: badge.earned ? 1 : 0.45,
-                        transition: "all 0.2s",
-                      }}
-                    >
-                      <span style={{ fontSize: "1.6rem", lineHeight: 1 }}>{badge.icon}</span>
-                      <span style={{
-                        fontSize: "0.65rem",
-                        fontWeight: "700",
-                        color: badge.earned ? "var(--text-primary)" : "var(--text-muted)",
-                        textAlign: "center",
-                        lineHeight: "1.2",
-                        letterSpacing: "0.01em",
-                      }}>
-                        {badge.label}
-                      </span>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem" }}>
+                    <div style={{
+                      fontSize: "0.75rem",
+                      fontWeight: "700",
+                      color: "var(--accent-purple)",
+                      letterSpacing: "0.1em",
+                      textTransform: "uppercase",
+                    }}>
+                      Achievements
                     </div>
-                  ))}
+                    <div style={{
+                      fontSize: "0.7rem",
+                      color: "var(--text-muted)",
+                      fontWeight: "600",
+                    }}>
+                      {earnedTotal} / {user.badges.length} earned
+                    </div>
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+                    {BADGE_GROUPS.map((group) => {
+                      const groupBadges = group.ids.map((id) => byId[id]).filter(Boolean);
+                      return (
+                        <div key={group.label}>
+                          <div style={{
+                            fontSize: "0.65rem",
+                            fontWeight: "700",
+                            color: "var(--text-muted)",
+                            letterSpacing: "0.08em",
+                            textTransform: "uppercase",
+                            marginBottom: "0.5rem",
+                          }}>
+                            {group.label}
+                          </div>
+                          <div style={{
+                            display: "grid",
+                            gridTemplateColumns: "repeat(auto-fill, minmax(80px, 1fr))",
+                            gap: "0.5rem",
+                          }}>
+                            {groupBadges.map((badge) => (
+                              <div
+                                key={badge.id}
+                                title={badge.description}
+                                style={{
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  alignItems: "center",
+                                  gap: "0.3rem",
+                                  padding: "0.65rem 0.4rem",
+                                  borderRadius: "10px",
+                                  backgroundColor: badge.earned ? "rgba(167,139,250,0.12)" : "rgba(255,255,255,0.02)",
+                                  border: `1px solid ${badge.earned ? "rgba(167,139,250,0.4)" : "var(--border-color)"}`,
+                                  opacity: badge.earned ? 1 : 0.4,
+                                  transition: "all 0.2s",
+                                }}
+                              >
+                                <span style={{ fontSize: "1.5rem", lineHeight: 1 }}>{badge.icon}</span>
+                                <span style={{
+                                  fontSize: "0.6rem",
+                                  fontWeight: "700",
+                                  color: badge.earned ? "var(--text-primary)" : "var(--text-muted)",
+                                  textAlign: "center",
+                                  lineHeight: "1.2",
+                                }}>
+                                  {badge.label}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
 
           </div>
         )}
