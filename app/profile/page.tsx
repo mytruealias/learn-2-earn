@@ -64,6 +64,10 @@ const PAYMENT_PLACEHOLDERS: Record<string, string> = {
   check: "Full name and mailing address",
 };
 
+const MIN_PAYOUT_XP = 20;
+const WEEKLY_XP_CAP = 500;
+const XP_TO_DOLLAR = 0.05;
+
 const BADGE_GROUPS = [
   { label: "Lessons",     ids: ["first_lesson","lessons_5","lessons_10","lessons_25","lessons_50"] },
   { label: "Streaks",     ids: ["streak_3","streak_7","streak_14","streak_30"] },
@@ -104,6 +108,7 @@ export default function ProfilePage() {
   const [paymentHandle, setPaymentHandle] = useState("");
   const [tab, setTab] = useState<"overview" | "earnings" | "achievements" | "info">("overview");
   const [selectedBadge, setSelectedBadge] = useState<string | null>(null);
+  const [xpToRedeem, setXpToRedeem] = useState(20);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState("");
@@ -139,6 +144,8 @@ export default function ProfilePage() {
 
       const data = await res.json();
       setUser(data.user);
+      const avail = data.user?.availableXp ?? 0;
+      setXpToRedeem(Math.min(Math.max(avail, MIN_PAYOUT_XP), WEEKLY_XP_CAP));
     } catch {
       router.push("/login");
     } finally {
@@ -187,7 +194,7 @@ export default function ProfilePage() {
   };
 
   const handlePayout = async () => {
-    if (!user || user.availableXp < 3) return;
+    if (!user || user.availableXp < MIN_PAYOUT_XP) return;
     if (!paymentMethod || !paymentHandle.trim()) return;
 
     setPayoutLoading(true);
@@ -197,7 +204,7 @@ export default function ProfilePage() {
       const res = await fetch("/api/payout/request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: user.id, xpAmount: user.availableXp, paymentMethod, paymentHandle }),
+        body: JSON.stringify({ userId: user.id, xpAmount: xpToRedeem, paymentMethod, paymentHandle }),
       });
 
       const data = await res.json();
@@ -444,7 +451,7 @@ export default function ProfilePage() {
                 gap: "0.4rem",
               }}>
                 <WalletIcon size={16} color="var(--accent-gold)" />
-                XP to Cash — $1 = 3 XP
+                XP to Cash — 1 XP = $0.05
               </div>
               <div style={{ display: "flex", alignItems: "baseline", gap: "1rem", marginBottom: "0.5rem" }}>
                 <div style={{ fontSize: "2.5rem", fontWeight: "700", color: "var(--accent-gold)" }}>
@@ -473,7 +480,7 @@ export default function ProfilePage() {
                     Fill in your info →
                   </Link>
                 </div>
-              ) : user.availableXp < 3 ? (
+              ) : user.availableXp < MIN_PAYOUT_XP ? (
                 <div style={{
                   width: "100%",
                   padding: "0.85rem",
@@ -486,10 +493,35 @@ export default function ProfilePage() {
                   fontFamily: "var(--font-display)",
                   textAlign: "center",
                 }}>
-                  You need {3 - user.availableXp} more XP to request a payout
+                  You need {MIN_PAYOUT_XP - user.availableXp} more XP to request a payout (min {MIN_PAYOUT_XP} XP = ${(MIN_PAYOUT_XP * XP_TO_DOLLAR).toFixed(2)})
                 </div>
               ) : (
                 <div style={{ display: "grid", gap: "0.75rem" }}>
+                  {/* XP amount slider */}
+                  <div>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "0.4rem" }}>
+                      <div style={{ fontSize: "0.72rem", fontWeight: "700", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                        Amount to Redeem
+                      </div>
+                      <div style={{ fontSize: "0.85rem", fontWeight: "700", color: "var(--accent-gold)" }}>
+                        {xpToRedeem} XP = ${(xpToRedeem * XP_TO_DOLLAR).toFixed(2)}
+                      </div>
+                    </div>
+                    <input
+                      type="range"
+                      min={MIN_PAYOUT_XP}
+                      max={Math.min(user.availableXp, WEEKLY_XP_CAP)}
+                      step={1}
+                      value={xpToRedeem}
+                      onChange={(e) => setXpToRedeem(Number(e.target.value))}
+                      style={{ width: "100%", accentColor: "var(--accent-gold)", cursor: "pointer" }}
+                    />
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.65rem", color: "var(--text-muted)", marginTop: "0.2rem" }}>
+                      <span>{MIN_PAYOUT_XP} XP min</span>
+                      <span>{Math.min(user.availableXp, WEEKLY_XP_CAP)} XP max</span>
+                    </div>
+                  </div>
+
                   <div>
                     <div style={{ fontSize: "0.72rem", fontWeight: "700", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "0.4rem" }}>
                       Payment Method
@@ -556,7 +588,7 @@ export default function ProfilePage() {
                       letterSpacing: "0.03em",
                     }}
                   >
-                    {payoutLoading ? "Processing..." : "Request Payout"}
+                    {payoutLoading ? "Processing..." : `Request $${(xpToRedeem * XP_TO_DOLLAR).toFixed(2)} Payout`}
                   </button>
                 </div>
               )}
@@ -572,6 +604,71 @@ export default function ProfilePage() {
                 </div>
               )}
             </div>
+
+            {/* Achievements teaser */}
+            {user.badges && user.badges.length > 0 && (() => {
+              const earned = user.badges.filter((b) => b.earned).length;
+              const total = user.badges.length;
+              const pct = Math.round((earned / total) * 100);
+              const recent = user.badges.filter((b) => b.earned).slice(-3);
+              return (
+                <button
+                  onClick={() => setTab("achievements")}
+                  style={{
+                    width: "100%",
+                    background: "none",
+                    padding: 0,
+                    border: "none",
+                    cursor: "pointer",
+                    textAlign: "left",
+                  }}
+                >
+                  <div style={{
+                    backgroundColor: "var(--bg-card)",
+                    border: "1px solid rgba(167,139,250,0.3)",
+                    borderRadius: "14px",
+                    padding: "1rem 1.25rem",
+                  }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.6rem" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                        <span style={{ fontSize: "1.1rem" }}>🏆</span>
+                        <div style={{ fontSize: "0.75rem", fontWeight: "700", color: "var(--accent-purple)", letterSpacing: "0.08em", textTransform: "uppercase" }}>
+                          Achievements
+                        </div>
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                        <div style={{ fontSize: "0.75rem", fontWeight: "700", color: "var(--text-muted)" }}>
+                          {earned}/{total}
+                        </div>
+                        <span style={{ fontSize: "0.7rem", color: "var(--accent-purple)" }}>→</span>
+                      </div>
+                    </div>
+                    <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ height: "5px", borderRadius: "3px", backgroundColor: "rgba(255,255,255,0.07)", overflow: "hidden" }}>
+                          <div style={{
+                            height: "100%",
+                            width: `${pct}%`,
+                            background: "linear-gradient(90deg, var(--accent-purple), var(--accent-blue))",
+                            borderRadius: "3px",
+                          }} />
+                        </div>
+                        <div style={{ fontSize: "0.65rem", color: "var(--text-muted)", marginTop: "0.3rem" }}>
+                          {pct}% complete — tap to see all
+                        </div>
+                      </div>
+                      {recent.length > 0 && (
+                        <div style={{ display: "flex", gap: "0.25rem" }}>
+                          {recent.map((b) => (
+                            <span key={b.id} style={{ fontSize: "1.25rem" }}>{b.icon}</span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </button>
+              );
+            })()}
 
           </div>
         )}
