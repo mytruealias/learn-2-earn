@@ -73,6 +73,13 @@ export default function ProfilePage() {
   const [paymentMethod, setPaymentMethod] = useState("");
   const [paymentHandle, setPaymentHandle] = useState("");
   const [tab, setTab] = useState<"overview" | "earnings" | "info">("overview");
+  const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveMsg, setSaveMsg] = useState("");
+  const [editForm, setEditForm] = useState({
+    fullName: "", dateOfBirth: "", phone: "", city: "",
+    state: "", zipCode: "", emergencyContactName: "", emergencyContactPhone: "",
+  });
 
   useEffect(() => {
     loadProfile();
@@ -105,6 +112,46 @@ export default function ProfilePage() {
       router.push("/login");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const startEdit = () => {
+    if (!user) return;
+    setEditForm({
+      fullName: user.fullName || "",
+      dateOfBirth: user.dateOfBirth || "",
+      phone: user.phone || "",
+      city: user.city || "",
+      state: user.state || "",
+      zipCode: user.zipCode || "",
+      emergencyContactName: user.emergencyContactName || "",
+      emergencyContactPhone: user.emergencyContactPhone || "",
+    });
+    setSaveMsg("");
+    setEditing(true);
+  };
+
+  const saveProfile = async () => {
+    const userId = localStorage.getItem("l2e_user_id");
+    if (!userId) return;
+    setSaving(true);
+    setSaveMsg("");
+    try {
+      const res = await fetch("/api/user/profile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, ...editForm }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Save failed");
+      setUser((prev) => prev ? { ...prev, ...data.user } : prev);
+      setEditing(false);
+      setSaveMsg("Saved!");
+      setTimeout(() => setSaveMsg(""), 3000);
+    } catch (err: unknown) {
+      setSaveMsg(err instanceof Error ? err.message : "Something went wrong");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -646,48 +693,154 @@ export default function ProfilePage() {
 
         {tab === "info" && (
           <div style={{ display: "grid", gap: "0.5rem" }}>
-            <div style={{ fontSize: "0.75rem", fontWeight: "700", color: "var(--accent-green)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: "0.25rem" }}>
-              Your Information
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.25rem" }}>
+              <div style={{ fontSize: "0.75rem", fontWeight: "700", color: "var(--accent-green)", letterSpacing: "0.1em", textTransform: "uppercase" }}>
+                Your Information
+              </div>
+              {!editing ? (
+                <button
+                  onClick={startEdit}
+                  style={{
+                    background: "rgba(59,158,255,0.12)",
+                    border: "1px solid rgba(59,158,255,0.3)",
+                    color: "var(--accent-blue)",
+                    borderRadius: "8px",
+                    padding: "0.3rem 0.85rem",
+                    fontSize: "0.75rem",
+                    fontWeight: "700",
+                    cursor: "pointer",
+                    letterSpacing: "0.04em",
+                  }}
+                >
+                  Edit
+                </button>
+              ) : (
+                <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+                  {saveMsg && (
+                    <span style={{ fontSize: "0.75rem", color: saveMsg === "Saved!" ? "var(--accent-green)" : "var(--accent-red)", fontWeight: "600" }}>
+                      {saveMsg}
+                    </span>
+                  )}
+                  <button
+                    onClick={() => { setEditing(false); setSaveMsg(""); }}
+                    disabled={saving}
+                    style={{
+                      background: "transparent",
+                      border: "1px solid var(--border-color)",
+                      color: "var(--text-muted)",
+                      borderRadius: "8px",
+                      padding: "0.3rem 0.75rem",
+                      fontSize: "0.75rem",
+                      fontWeight: "700",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={saveProfile}
+                    disabled={saving}
+                    style={{
+                      background: "var(--accent-green)",
+                      border: "none",
+                      color: "#000",
+                      borderRadius: "8px",
+                      padding: "0.3rem 0.85rem",
+                      fontSize: "0.75rem",
+                      fontWeight: "700",
+                      cursor: saving ? "not-allowed" : "pointer",
+                      opacity: saving ? 0.7 : 1,
+                    }}
+                  >
+                    {saving ? "Saving…" : "Save"}
+                  </button>
+                </div>
+              )}
             </div>
+
+            {/* Read-only fields */}
             {[
-              { label: "Full Name", value: user.fullName },
               { label: "Email", value: user.email },
-              { label: "Date of Birth", value: user.dateOfBirth },
-              { label: "Phone", value: user.phone },
-              { label: "City", value: user.city },
-              { label: "State", value: user.state },
-              { label: "Zip Code", value: user.zipCode },
               { label: "Case Number", value: user.caseNumber },
-              { label: "Emergency Contact", value: user.emergencyContactName },
-              { label: "Emergency Phone", value: user.emergencyContactPhone },
             ].map((field) => (
               <div key={field.label} style={{
-                backgroundColor: "var(--bg-card)",
+                backgroundColor: "rgba(255,255,255,0.02)",
                 border: "1px solid var(--border-color)",
                 borderRadius: "10px",
                 padding: "0.65rem 1rem",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
+                opacity: 0.7,
               }}>
-                <div style={{
-                  fontSize: "0.75rem",
-                  fontWeight: "600",
-                  color: "var(--text-muted)",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.05em",
-                }}>
+                <div style={{ fontSize: "0.75rem", fontWeight: "600", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
                   {field.label}
                 </div>
-                <div style={{
-                  fontSize: "0.9rem",
-                  fontWeight: "600",
-                  color: field.value ? "var(--text-primary)" : "var(--text-muted)",
-                }}>
+                <div style={{ fontSize: "0.85rem", fontWeight: "600", color: "var(--text-secondary)" }}>
                   {field.value || "—"}
                 </div>
               </div>
             ))}
+
+            {/* Editable fields */}
+            {[
+              { label: "Full Name",         key: "fullName",              placeholder: "Your full name" },
+              { label: "Date of Birth",     key: "dateOfBirth",           placeholder: "MM/DD/YYYY" },
+              { label: "Phone",             key: "phone",                 placeholder: "Your phone number" },
+              { label: "City",              key: "city",                  placeholder: "Your city" },
+              { label: "State",             key: "state",                 placeholder: "Your state" },
+              { label: "Zip Code",          key: "zipCode",               placeholder: "Your zip code" },
+              { label: "Emergency Contact", key: "emergencyContactName",  placeholder: "Contact name" },
+              { label: "Emergency Phone",   key: "emergencyContactPhone", placeholder: "Contact phone number" },
+            ].map((field) => {
+              const key = field.key as keyof typeof editForm;
+              const currentValue = user[field.key as keyof UserProfile] as string | null;
+              return (
+                <div key={field.key} style={{
+                  backgroundColor: editing ? "rgba(59,158,255,0.04)" : "var(--bg-card)",
+                  border: `1px solid ${editing ? "rgba(59,158,255,0.2)" : "var(--border-color)"}`,
+                  borderRadius: "10px",
+                  padding: "0.65rem 1rem",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: "0.75rem",
+                  transition: "all 0.2s",
+                }}>
+                  <div style={{ fontSize: "0.75rem", fontWeight: "600", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em", flexShrink: 0 }}>
+                    {field.label}
+                  </div>
+                  {editing ? (
+                    <input
+                      value={editForm[key]}
+                      onChange={(e) => setEditForm((f) => ({ ...f, [key]: e.target.value }))}
+                      placeholder={field.placeholder}
+                      style={{
+                        background: "transparent",
+                        border: "none",
+                        outline: "none",
+                        color: "var(--text-primary)",
+                        fontSize: "0.9rem",
+                        fontWeight: "600",
+                        textAlign: "right",
+                        flex: 1,
+                        fontFamily: "inherit",
+                      }}
+                    />
+                  ) : (
+                    <div style={{ fontSize: "0.9rem", fontWeight: "600", color: currentValue ? "var(--text-primary)" : "var(--text-muted)" }}>
+                      {currentValue || "—"}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+
+            {!editing && saveMsg === "Saved!" && (
+              <div style={{ textAlign: "center", color: "var(--accent-green)", fontSize: "0.8rem", fontWeight: "600", marginTop: "0.25rem" }}>
+                ✓ Changes saved
+              </div>
+            )}
           </div>
         )}
       </div>
