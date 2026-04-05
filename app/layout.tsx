@@ -34,7 +34,7 @@ export const metadata: Metadata = {
   authors: [{ name: "Learn 2 Earn" }],
   creator: "Learn 2 Earn",
   publisher: "Learn 2 Earn",
-  metadataBase: new URL("https://learn2earn.app"),
+  metadataBase: new URL("https://learn2earn-usa.com"),
   openGraph: {
     type: "website",
     siteName: "Learn 2 Earn",
