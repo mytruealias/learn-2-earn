@@ -64,6 +64,36 @@ const PAYMENT_PLACEHOLDERS: Record<string, string> = {
   check: "Full name and mailing address",
 };
 
+const BADGE_GROUPS = [
+  { label: "Lessons",     ids: ["first_lesson","lessons_5","lessons_10","lessons_25","lessons_50"] },
+  { label: "Streaks",     ids: ["streak_3","streak_7","streak_14","streak_30"] },
+  { label: "Earnings",    ids: ["xp_50","xp_100","xp_500","first_payout"] },
+  { label: "Paths",       ids: ["first_path","paths_2","paths_3"] },
+  { label: "Perfect Play",ids: ["perfect_lesson","perfect_3","perfect_5"] },
+];
+
+const BADGE_HOW_TO: Record<string, string> = {
+  first_lesson:        "Complete your very first lesson on any learning path.",
+  lessons_5:           "Finish 5 lessons total — mix any paths you like.",
+  lessons_10:          "Complete 10 lessons total across any paths.",
+  lessons_25:          "Keep going — 25 lessons completed across any paths.",
+  lessons_50:          "A true scholar. Complete 50 lessons total.",
+  streak_3:            "Log in and complete at least one lesson 3 days in a row.",
+  streak_7:            "Keep your streak alive for 7 consecutive days.",
+  streak_14:           "Two weeks of showing up — 14 days in a row.",
+  streak_30:           "A full month of daily learning — 30 days in a row.",
+  xp_50:               "Earn a total of 50 XP by completing lessons (worth $2.50).",
+  xp_100:              "Earn 100 XP total — that's $5.00 in your pocket.",
+  xp_500:              "Earn 500 XP total — the weekly cap and worth $25!",
+  first_payout:        "Request your first cash payout from the Earnings tab.",
+  first_path:          "Complete every single lesson in one full learning path.",
+  paths_2:             "Finish all lessons in 2 different learning paths.",
+  paths_3:             "Master 3 complete learning paths from start to finish.",
+  perfect_lesson:      "Complete any lesson without losing a single heart.",
+  perfect_3:           "Achieve 3 perfectly completed lessons — no hearts lost.",
+  perfect_5:           "Go flawless on 5 different lessons — no hearts lost.",
+};
+
 export default function ProfilePage() {
   const router = useRouter();
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -72,7 +102,8 @@ export default function ProfilePage() {
   const [payoutMsg, setPayoutMsg] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("");
   const [paymentHandle, setPaymentHandle] = useState("");
-  const [tab, setTab] = useState<"overview" | "earnings" | "info">("overview");
+  const [tab, setTab] = useState<"overview" | "earnings" | "achievements" | "info">("overview");
+  const [selectedBadge, setSelectedBadge] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState("");
@@ -320,32 +351,38 @@ export default function ProfilePage() {
           overflow: "hidden",
           border: "1px solid var(--border-color)",
         }}>
-          {(["overview", "earnings", "info"] as const).map((t) => (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
-              style={{
-                flex: 1,
-                padding: "0.7rem",
-                backgroundColor: tab === t ? "var(--bg-card-hover)" : "var(--bg-card)",
-                color: tab === t ? "var(--accent-green)" : "var(--text-muted)",
-                borderRight: t !== "info" ? "1px solid var(--border-color)" : "none",
-                fontSize: "0.75rem",
-                fontWeight: "700",
-                letterSpacing: "0.05em",
-                textTransform: "uppercase",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "0.4rem",
-              }}
-            >
-              {t === "overview" && <LightbulbIcon size={14} color={tab === t ? "var(--accent-green)" : "var(--text-muted)"} />}
-              {t === "earnings" && <CashIcon size={14} color={tab === t ? "var(--accent-green)" : "var(--text-muted)"} />}
-              {t === "info" && <ClipboardIcon size={14} color={tab === t ? "var(--accent-green)" : "var(--text-muted)"} />}
-              {t === "overview" ? "Overview" : t === "earnings" ? "Earnings" : "Info"}
-            </button>
-          ))}
+          {(["overview", "earnings", "achievements", "info"] as const).map((t, i, arr) => {
+            const active = tab === t;
+            const color = active ? "var(--accent-green)" : "var(--text-muted)";
+            return (
+              <button
+                key={t}
+                onClick={() => setTab(t)}
+                style={{
+                  flex: 1,
+                  padding: "0.7rem 0.25rem",
+                  backgroundColor: active ? "var(--bg-card-hover)" : "var(--bg-card)",
+                  color,
+                  borderRight: i < arr.length - 1 ? "1px solid var(--border-color)" : "none",
+                  fontSize: "0.65rem",
+                  fontWeight: "700",
+                  letterSpacing: "0.04em",
+                  textTransform: "uppercase",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "0.25rem",
+                }}
+              >
+                {t === "overview"      && <LightbulbIcon size={15} color={color} />}
+                {t === "earnings"      && <CashIcon size={15} color={color} />}
+                {t === "achievements"  && <span style={{ fontSize: "15px", lineHeight: 1 }}>🏆</span>}
+                {t === "info"          && <ClipboardIcon size={15} color={color} />}
+                {t === "overview" ? "Overview" : t === "earnings" ? "Earnings" : t === "achievements" ? "Awards" : "Info"}
+              </button>
+            );
+          })}
         </div>
 
         {tab === "overview" && (
@@ -536,99 +573,6 @@ export default function ProfilePage() {
               )}
             </div>
 
-            {user.badges && user.badges.length > 0 && (() => {
-              const BADGE_GROUPS = [
-                { label: "Lessons", ids: ["first_lesson","lessons_5","lessons_10","lessons_25","lessons_50"] },
-                { label: "Streaks", ids: ["streak_3","streak_7","streak_14","streak_30"] },
-                { label: "Earnings", ids: ["xp_50","xp_100","xp_500","first_payout"] },
-                { label: "Paths", ids: ["first_path","paths_2","paths_3"] },
-                { label: "Perfect Play", ids: ["perfect_lesson","perfect_3","perfect_5"] },
-              ];
-              const byId = Object.fromEntries(user.badges.map((b) => [b.id, b]));
-              const earnedTotal = user.badges.filter((b) => b.earned).length;
-              return (
-                <div style={{
-                  backgroundColor: "var(--bg-card)",
-                  border: "1px solid var(--border-color)",
-                  borderRadius: "14px",
-                  padding: "1rem 1.25rem",
-                }}>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem" }}>
-                    <div style={{
-                      fontSize: "0.75rem",
-                      fontWeight: "700",
-                      color: "var(--accent-purple)",
-                      letterSpacing: "0.1em",
-                      textTransform: "uppercase",
-                    }}>
-                      Achievements
-                    </div>
-                    <div style={{
-                      fontSize: "0.7rem",
-                      color: "var(--text-muted)",
-                      fontWeight: "600",
-                    }}>
-                      {earnedTotal} / {user.badges.length} earned
-                    </div>
-                  </div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-                    {BADGE_GROUPS.map((group) => {
-                      const groupBadges = group.ids.map((id) => byId[id]).filter(Boolean);
-                      return (
-                        <div key={group.label}>
-                          <div style={{
-                            fontSize: "0.65rem",
-                            fontWeight: "700",
-                            color: "var(--text-muted)",
-                            letterSpacing: "0.08em",
-                            textTransform: "uppercase",
-                            marginBottom: "0.5rem",
-                          }}>
-                            {group.label}
-                          </div>
-                          <div style={{
-                            display: "grid",
-                            gridTemplateColumns: "repeat(auto-fill, minmax(80px, 1fr))",
-                            gap: "0.5rem",
-                          }}>
-                            {groupBadges.map((badge) => (
-                              <div
-                                key={badge.id}
-                                title={badge.description}
-                                style={{
-                                  display: "flex",
-                                  flexDirection: "column",
-                                  alignItems: "center",
-                                  gap: "0.3rem",
-                                  padding: "0.65rem 0.4rem",
-                                  borderRadius: "10px",
-                                  backgroundColor: badge.earned ? "rgba(167,139,250,0.12)" : "rgba(255,255,255,0.02)",
-                                  border: `1px solid ${badge.earned ? "rgba(167,139,250,0.4)" : "var(--border-color)"}`,
-                                  opacity: badge.earned ? 1 : 0.4,
-                                  transition: "all 0.2s",
-                                }}
-                              >
-                                <span style={{ fontSize: "1.5rem", lineHeight: 1 }}>{badge.icon}</span>
-                                <span style={{
-                                  fontSize: "0.6rem",
-                                  fontWeight: "700",
-                                  color: badge.earned ? "var(--text-primary)" : "var(--text-muted)",
-                                  textAlign: "center",
-                                  lineHeight: "1.2",
-                                }}>
-                                  {badge.label}
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              );
-            })()}
-
           </div>
         )}
 
@@ -688,6 +632,201 @@ export default function ProfilePage() {
                 </div>
               ))
             )}
+          </div>
+        )}
+
+        {tab === "achievements" && (
+          <div style={{ display: "grid", gap: "0.75rem" }}>
+            {(() => {
+              const badges = user.badges ?? [];
+              const earnedCount = badges.filter((b) => b.earned).length;
+              const totalCount = badges.length;
+              const byId = Object.fromEntries(badges.map((b) => [b.id, b]));
+              return (
+                <>
+            {/* Header bar */}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <div style={{ fontSize: "0.75rem", fontWeight: "700", color: "var(--accent-purple)", letterSpacing: "0.1em", textTransform: "uppercase" }}>
+                All Achievements
+              </div>
+              <div style={{
+                fontSize: "0.75rem",
+                fontWeight: "700",
+                color: "var(--text-muted)",
+                background: "var(--bg-card)",
+                border: "1px solid var(--border-color)",
+                borderRadius: "20px",
+                padding: "0.2rem 0.75rem",
+              }}>
+                {earnedCount} / {totalCount} earned
+              </div>
+            </div>
+
+            {/* Progress bar */}
+            <div style={{ height: "6px", borderRadius: "3px", backgroundColor: "rgba(255,255,255,0.07)", overflow: "hidden" }}>
+              <div style={{
+                height: "100%",
+                width: `${totalCount > 0 ? Math.round((earnedCount / totalCount) * 100) : 0}%`,
+                background: "linear-gradient(90deg, var(--accent-purple), var(--accent-blue))",
+                borderRadius: "3px",
+                transition: "width 0.5s ease",
+              }} />
+            </div>
+
+            {/* Badge groups */}
+            {(() => {
+              return BADGE_GROUPS.map((group) => {
+                const groupBadges = group.ids.map((id) => byId[id]).filter(Boolean);
+                if (groupBadges.length === 0) return null;
+                const groupEarned = groupBadges.filter((b) => b.earned).length;
+                return (
+                  <div key={group.label} style={{
+                    backgroundColor: "var(--bg-card)",
+                    border: "1px solid var(--border-color)",
+                    borderRadius: "14px",
+                    overflow: "hidden",
+                  }}>
+                    {/* Group header */}
+                    <div style={{
+                      padding: "0.65rem 1rem",
+                      borderBottom: "1px solid var(--border-color)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      backgroundColor: "rgba(255,255,255,0.02)",
+                    }}>
+                      <div style={{ fontSize: "0.7rem", fontWeight: "700", color: "var(--accent-purple)", letterSpacing: "0.08em", textTransform: "uppercase" }}>
+                        {group.label}
+                      </div>
+                      <div style={{ fontSize: "0.65rem", color: "var(--text-muted)", fontWeight: "600" }}>
+                        {groupEarned}/{groupBadges.length}
+                      </div>
+                    </div>
+
+                    {/* Badge rows */}
+                    <div>
+                      {groupBadges.map((badge, idx) => {
+                        const isOpen = selectedBadge === badge.id;
+                        const howTo = BADGE_HOW_TO[badge.id] || badge.description;
+                        return (
+                          <div key={badge.id}>
+                            <button
+                              onClick={() => setSelectedBadge(isOpen ? null : badge.id)}
+                              style={{
+                                width: "100%",
+                                background: "transparent",
+                                border: "none",
+                                borderTop: idx > 0 ? "1px solid var(--border-color)" : "none",
+                                cursor: "pointer",
+                                padding: "0.75rem 1rem",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "0.85rem",
+                                textAlign: "left",
+                              }}
+                            >
+                              {/* Icon */}
+                              <div style={{
+                                width: "42px",
+                                height: "42px",
+                                borderRadius: "10px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                fontSize: "1.4rem",
+                                flexShrink: 0,
+                                backgroundColor: badge.earned ? "rgba(167,139,250,0.15)" : "rgba(255,255,255,0.03)",
+                                border: `1px solid ${badge.earned ? "rgba(167,139,250,0.4)" : "var(--border-color)"}`,
+                                filter: badge.earned ? "none" : "grayscale(1)",
+                                opacity: badge.earned ? 1 : 0.45,
+                              }}>
+                                {badge.icon}
+                              </div>
+
+                              {/* Name + description */}
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <div style={{
+                                  fontSize: "0.85rem",
+                                  fontWeight: "700",
+                                  color: badge.earned ? "var(--text-primary)" : "var(--text-secondary)",
+                                  marginBottom: "0.15rem",
+                                }}>
+                                  {badge.label}
+                                </div>
+                                <div style={{
+                                  fontSize: "0.7rem",
+                                  color: "var(--text-muted)",
+                                  lineHeight: "1.3",
+                                }}>
+                                  {badge.description}
+                                </div>
+                              </div>
+
+                              {/* Status pill */}
+                              <div style={{
+                                flexShrink: 0,
+                                fontSize: "0.65rem",
+                                fontWeight: "700",
+                                padding: "0.2rem 0.55rem",
+                                borderRadius: "20px",
+                                backgroundColor: badge.earned ? "rgba(52,211,153,0.15)" : "rgba(255,255,255,0.05)",
+                                color: badge.earned ? "var(--accent-green)" : "var(--text-muted)",
+                                border: `1px solid ${badge.earned ? "rgba(52,211,153,0.3)" : "var(--border-color)"}`,
+                                letterSpacing: "0.04em",
+                              }}>
+                                {badge.earned ? "✓ Earned" : "Locked"}
+                              </div>
+                            </button>
+
+                            {/* Expandable how-to panel */}
+                            {isOpen && (
+                              <div style={{
+                                margin: "0 1rem 0.75rem",
+                                padding: "0.75rem 1rem",
+                                borderRadius: "10px",
+                                backgroundColor: badge.earned
+                                  ? "rgba(52,211,153,0.08)"
+                                  : "rgba(59,158,255,0.08)",
+                                border: `1px solid ${badge.earned ? "rgba(52,211,153,0.25)" : "rgba(59,158,255,0.25)"}`,
+                              }}>
+                                {badge.earned ? (
+                                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                                    <span style={{ fontSize: "1.1rem" }}>🎉</span>
+                                    <div>
+                                      <div style={{ fontSize: "0.75rem", fontWeight: "700", color: "var(--accent-green)", marginBottom: "0.1rem" }}>
+                                        Achievement Unlocked!
+                                      </div>
+                                      <div style={{ fontSize: "0.72rem", color: "var(--text-secondary)", lineHeight: "1.4" }}>
+                                        You&apos;ve earned this badge. Keep it up!
+                                      </div>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div style={{ display: "flex", alignItems: "flex-start", gap: "0.5rem" }}>
+                                    <span style={{ fontSize: "1rem", marginTop: "0.05rem" }}>💡</span>
+                                    <div>
+                                      <div style={{ fontSize: "0.7rem", fontWeight: "700", color: "var(--accent-blue)", marginBottom: "0.2rem", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                                        How to earn
+                                      </div>
+                                      <div style={{ fontSize: "0.78rem", color: "var(--text-secondary)", lineHeight: "1.5" }}>
+                                        {howTo}
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              });
+            })()}
+                </>
+              );
+            })()}
           </div>
         )}
 
