@@ -30,20 +30,18 @@ async function upsertModule(data: { pathId: string; title: string; slug: string;
 
 async function upsertLesson(data: { moduleId: string; title: string; slug: string; order: number; xpReward: number; type?: string; lessonType?: string; estimatedMinutes?: number; learningObjectives?: string; difficulty?: string }) {
   const lessonType = data.lessonType || "learn";
+  const estimatedMinutes = data.estimatedMinutes || 5;
   const newFields = {
     type: data.type || "learn",
     lessonType,
+    estimatedMinutes,
     learningObjectives: data.learningObjectives || "[]",
     difficulty: data.difficulty || "foundational",
   };
   return prisma.lesson.upsert({
     where: { moduleId_slug: { moduleId: data.moduleId, slug: data.slug } },
     update: { ...newFields, xpReward: data.xpReward },
-    create: {
-      ...data,
-      ...newFields,
-      estimatedMinutes: data.estimatedMinutes || 5,
-    },
+    create: { ...data, ...newFields },
   });
 }
 
@@ -57,36 +55,45 @@ async function reconcileLessonMetadata() {
     },
   });
   for (const lesson of lessons) {
-    const cardCount = lesson._count.cards;
-    const estimatedMinutes = Math.max(5, cardCount * 2);
     const lessonType = lesson.lessonType || "learn";
+    // Only auto-calculate estimatedMinutes for "learn" lessons;
+    // checkpoint (15 min) and capstone (15 min) preserve their explicit values.
+    const estimatedMinutes =
+      lessonType === "learn"
+        ? Math.max(5, lesson._count.cards * 2)
+        : lesson.estimatedMinutes;
     await prisma.lesson.update({
       where: { id: lesson.id },
       data: { lessonType, estimatedMinutes },
     });
   }
 
-  // Backfill Card.subtype for INFO cards based on content signals:
-  //   "intro"   — first card in a lesson (order: 1) of type INFO → context-setting
-  //   "mission" — INFO card whose prompt contains "Mission" → action assignment
-  //   ""        — all other cards (MULTIPLE_CHOICE, TRUE_FALSE, SCENARIO retain type alone)
+  // Backfill Card.subtype for INFO cards using constrained domain values:
+  //   "INTRO"      — INFO card at order 1 (context-setting / lesson opener)
+  //   "MISSION"    — INFO card whose prompt contains "Mission" (action assignment)
+  //   "REFLECTION" — INFO card whose prompt contains "Reflect" (journaling/reflection)
+  //   ""           — all other cards; MULTIPLE_CHOICE/TRUE_FALSE/SCENARIO retain type alone
+  // Find all INFO cards that don't yet have a canonical uppercase subtype
+  const canonicalSubtypes = ["INTRO", "MISSION", "REFLECTION"];
   const infoCards = await prisma.card.findMany({
-    where: { type: "INFO", subtype: "" },
+    where: { type: "INFO", NOT: { subtype: { in: canonicalSubtypes } } },
     select: { id: true, order: true, prompt: true },
   });
   for (const card of infoCards) {
     let subtype = "";
-    if (card.order === 1) subtype = "intro";
-    else if (card.prompt.toLowerCase().includes("mission")) subtype = "mission";
-    if (subtype) {
-      await prisma.card.update({ where: { id: card.id }, data: { subtype } });
-    }
+    if (card.order === 1) subtype = "INTRO";
+    else if (/mission/i.test(card.prompt)) subtype = "MISSION";
+    else if (/reflect/i.test(card.prompt)) subtype = "REFLECTION";
+    // Reset non-canonical values and apply correct subtype (or leave "" for mid-lesson info)
+    await prisma.card.update({ where: { id: card.id }, data: { subtype } });
   }
   const updatedSubtypes = infoCards.filter(
-    (c) => c.order === 1 || c.prompt.toLowerCase().includes("mission")
+    (c) => c.order === 1 || /mission|reflect/i.test(c.prompt)
   ).length;
-  console.log(`  ↳ Reconciled metadata for ${lessons.length} lessons`);
-  console.log(`  ↳ Backfilled subtype on ${updatedSubtypes} INFO cards (intro/mission)`);
+  const learnCount = lessons.filter((l) => l.lessonType === "learn").length;
+  const specialCount = lessons.length - learnCount;
+  console.log(`  ↳ Reconciled metadata for ${lessons.length} lessons (${learnCount} learn, ${specialCount} checkpoint/capstone)`);
+  console.log(`  ↳ Backfilled subtype on ${updatedSubtypes} INFO cards (INTRO/MISSION/REFLECTION)`);
 }
 
 async function seedCards(lessonId: string, cards: any[]) {

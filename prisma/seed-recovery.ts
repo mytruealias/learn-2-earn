@@ -28,22 +28,20 @@ async function upsertModule(data: { pathId: string; title: string; slug: string;
   });
 }
 
-async function upsertLesson(data: { moduleId: string; title: string; slug: string; order: number; xpReward: number; type?: string; lessonType?: string; estimatedMinutes?: number; learningObjectives?: string; difficulty?: string }) {
+async function upsertLesson(data: { moduleId: string; title: string; slug: string; order: number; xpReward: number; type?: string; lessonType?: string; estimatedMinutes?: number; learningObjectives?: string; difficulty?: string}): Promise<{ id: string }> {
   const lessonType = data.lessonType || "learn";
+  const estimatedMinutes = data.estimatedMinutes || 5;
   const newFields = {
     type: data.type || "learn",
     lessonType,
+    estimatedMinutes,
     learningObjectives: data.learningObjectives || "[]",
     difficulty: data.difficulty || "foundational",
   };
   return prisma.lesson.upsert({
     where: { moduleId_slug: { moduleId: data.moduleId, slug: data.slug } },
     update: { ...newFields, xpReward: data.xpReward },
-    create: {
-      ...data,
-      ...newFields,
-      estimatedMinutes: data.estimatedMinutes || 5,
-    },
+    create: { ...data, ...newFields },
   });
 }
 
@@ -57,36 +55,45 @@ async function reconcileLessonMetadata() {
     },
   });
   for (const lesson of lessons) {
-    const cardCount = lesson._count.cards;
-    const estimatedMinutes = Math.max(5, cardCount * 2);
     const lessonType = lesson.lessonType || "learn";
+    // Only auto-calculate estimatedMinutes for "learn" lessons;
+    // checkpoint (15 min) and capstone (15 min) preserve their explicit values.
+    const estimatedMinutes =
+      lessonType === "learn"
+        ? Math.max(5, lesson._count.cards * 2)
+        : lesson.estimatedMinutes;
     await prisma.lesson.update({
       where: { id: lesson.id },
       data: { lessonType, estimatedMinutes },
     });
   }
 
-  // Backfill Card.subtype for INFO cards based on content signals:
-  //   "intro"   — first card in a lesson (order: 1) of type INFO → context-setting
-  //   "mission" — INFO card whose prompt contains "Mission" → action assignment
-  //   ""        — all other cards (MULTIPLE_CHOICE, TRUE_FALSE, SCENARIO retain type alone)
+  // Backfill Card.subtype for INFO cards using constrained domain values:
+  //   "INTRO"      — INFO card at order 1 (context-setting / lesson opener)
+  //   "MISSION"    — INFO card whose prompt contains "Mission" (action assignment)
+  //   "REFLECTION" — INFO card whose prompt contains "Reflect" (journaling/reflection)
+  //   ""           — all other cards; MULTIPLE_CHOICE/TRUE_FALSE/SCENARIO retain type alone
+  // Find all INFO cards that don't yet have a canonical uppercase subtype
+  const canonicalSubtypes = ["INTRO", "MISSION", "REFLECTION"];
   const infoCards = await prisma.card.findMany({
-    where: { type: "INFO", subtype: "" },
+    where: { type: "INFO", NOT: { subtype: { in: canonicalSubtypes } } },
     select: { id: true, order: true, prompt: true },
   });
   for (const card of infoCards) {
     let subtype = "";
-    if (card.order === 1) subtype = "intro";
-    else if (card.prompt.toLowerCase().includes("mission")) subtype = "mission";
-    if (subtype) {
-      await prisma.card.update({ where: { id: card.id }, data: { subtype } });
-    }
+    if (card.order === 1) subtype = "INTRO";
+    else if (/mission/i.test(card.prompt)) subtype = "MISSION";
+    else if (/reflect/i.test(card.prompt)) subtype = "REFLECTION";
+    // Reset non-canonical values and apply correct subtype (or leave "" for mid-lesson info)
+    await prisma.card.update({ where: { id: card.id }, data: { subtype } });
   }
   const updatedSubtypes = infoCards.filter(
-    (c) => c.order === 1 || c.prompt.toLowerCase().includes("mission")
+    (c) => c.order === 1 || /mission|reflect/i.test(c.prompt)
   ).length;
-  console.log(`  ↳ Reconciled metadata for ${lessons.length} lessons`);
-  console.log(`  ↳ Backfilled subtype on ${updatedSubtypes} INFO cards (intro/mission)`);
+  const learnCount = lessons.filter((l) => l.lessonType === "learn").length;
+  const specialCount = lessons.length - learnCount;
+  console.log(`  ↳ Reconciled metadata for ${lessons.length} lessons (${learnCount} learn, ${specialCount} checkpoint/capstone)`);
+  console.log(`  ↳ Backfilled subtype on ${updatedSubtypes} INFO cards (INTRO/MISSION/REFLECTION)`);
 }
 
 async function seedCards(lessonId: string, cards: any[]) {
@@ -151,6 +158,14 @@ async function main() {
     { type: "MULTIPLE_CHOICE", order: 2, prompt: "Which is a SMART goal for recovery?", choicesJson: JSON.stringify(["I'll never use again", "I'll reduce drinking to 2 nights this week instead of 5", "I'll be perfect", "I'll just try harder"]), answerJson: JSON.stringify("I'll reduce drinking to 2 nights this week instead of 5"), explain: "Specific, measurable, achievable, realistic, time-bound. 'Never again' isn't a plan. '2 nights instead of 5 this week' IS a plan." },
     { type: "INFO", order: 3, prompt: "Backup Plans Matter", body: "Every goal needs a Plan B. What happens when the goal gets hard? Having a backup plan isn't pessimism — it's preparation. 'If I feel like using, I'll call my friend instead' turns a moment of weakness into a moment of strength." },
     { type: "INFO", order: 4, prompt: "Mission: Set a 7-Day Goal", body: "Set one specific recovery goal for the next 7 days. Make it realistic. Then add a backup plan: 'If [hard thing] happens, I will [alternative action].' Write it somewhere you'll see it." },
+  ]);
+
+  const l6_1_chk = await upsertLesson({ moduleId: unit6_1.id, title: "Understanding Addiction: Checkpoint", slug: "understanding-addiction-checkpoint", order: 6, xpReward: 15, lessonType: "checkpoint", estimatedMinutes: 8 });
+  await seedCards(l6_1_chk.id, [
+    { type: "INFO", order: 1, prompt: "Unit 1 Review: Understanding What's Happening", body: "You've learned what addiction is, how cravings work, and how to set recovery goals. This checkpoint reviews the key concepts before you go deeper into self-awareness and coping tools." },
+    { type: "MULTIPLE_CHOICE", order: 2, prompt: "Why is addiction considered a brain disease?", choicesJson: JSON.stringify(["Because people choose to get addicted", "Because it changes brain chemistry and structure, making it hard to stop without help", "Because it only affects the brain, not behavior", "It isn't — it's purely a choice"]), answerJson: JSON.stringify("Because it changes brain chemistry and structure, making it hard to stop without help"), explain: "Addiction rewires the brain's reward system. Understanding this removes shame and opens the door to real treatment." },
+    { type: "TRUE_FALSE", order: 3, prompt: "A lapse doesn't have to become a full relapse if you respond quickly.", choicesJson: JSON.stringify(["True", "False"]), answerJson: JSON.stringify("True"), explain: "How you respond to a slip matters more than the slip itself. A fast response keeps a lapse from becoming a relapse." },
+    { type: "MULTIPLE_CHOICE", order: 4, prompt: "What makes a recovery goal SMART?", choicesJson: JSON.stringify(["It sounds impressive to others", "It is Specific, Measurable, Achievable, Realistic, and Time-bound", "It is very ambitious and hard to reach", "It focuses on never failing"]), answerJson: JSON.stringify("It is Specific, Measurable, Achievable, Realistic, and Time-bound"), explain: "SMART goals give you a real plan, not just an aspiration. 'Drink 2 nights instead of 5 this week' is SMART. 'Never drink again' isn't." },
   ]);
 
   // --- Unit 6.2: Self-Awareness Skills ---
@@ -328,6 +343,14 @@ async function main() {
     { type: "INFO", order: 3, prompt: "Mission: Learn It, Teach It", body: "Practice putting someone in the recovery position (use a pillow or ask a friend). Once you know it, consider teaching one other person. One skill shared could save a life." },
   ]);
 
+  const l7_1_chk = await upsertLesson({ moduleId: unit7_1.id, title: "Safety Basics: Checkpoint", slug: "safety-basics-checkpoint", order: 6, xpReward: 15, lessonType: "checkpoint", estimatedMinutes: 8 });
+  await seedCards(l7_1_chk.id, [
+    { type: "INFO", order: 1, prompt: "Unit 1 Review: Safety Basics", body: "You've covered overdose recognition, naloxone, never-use-alone strategies, and recovery position. This checkpoint reviews your lifesaving skills before you move into high-risk situations and safer living." },
+    { type: "MULTIPLE_CHOICE", order: 2, prompt: "What is the correct first step when you suspect someone is overdosing?", choicesJson: JSON.stringify(["Give them coffee to wake up", "Call 911 immediately, then administer naloxone if available", "Let them sleep it off", "Shake them vigorously"]), answerJson: JSON.stringify("Call 911 immediately, then administer naloxone if available"), explain: "911 first — always. Then naloxone. Time is critical in an overdose." },
+    { type: "TRUE_FALSE", order: 3, prompt: "Good Samaritan laws in most states protect you from arrest if you call 911 for an overdose.", choicesJson: JSON.stringify(["True", "False"]), answerJson: JSON.stringify("True"), explain: "Most states have Good Samaritan laws protecting people who call 911 for overdoses. Call without fear — you could save a life." },
+    { type: "MULTIPLE_CHOICE", order: 4, prompt: "Why is 'never use alone' an effective harm reduction strategy?", choicesJson: JSON.stringify(["It makes using more social", "Someone can call 911 and give naloxone if you stop breathing", "It is not effective", "It reduces the amount you use"]), answerJson: JSON.stringify("Someone can call 911 and give naloxone if you stop breathing"), explain: "Overdoses are often fatal because no one was there to help. Having a witness or using the Never Use Alone hotline is often the difference between life and death." },
+  ]);
+
   // --- Unit 7.2: High-Risk Moments ---
   const unit7_2 = await upsertModule({ pathId: journey7.id, title: "High-Risk Moments", slug: "high-risk-moments", order: 2 });
 
@@ -457,6 +480,14 @@ async function main() {
     { type: "INFO", order: 1, prompt: "Coaches and Case Managers Help You Navigate", body: "Recovery coaches have lived experience and help you set goals. Case managers help you access services (housing, benefits, treatment). Both are on YOUR side and can make the system less overwhelming." },
     { type: "MULTIPLE_CHOICE", order: 2, prompt: "What's the main role of a recovery coach?", choicesJson: JSON.stringify(["To diagnose and prescribe medication", "To share lived experience and help you set and reach recovery goals", "To tell you what to do", "To monitor you for violations"]), answerJson: JSON.stringify("To share lived experience and help you set and reach recovery goals"), explain: "Recovery coaches have been through it themselves. They're guides, not authority figures. They walk alongside you." },
     { type: "INFO", order: 3, prompt: "Mission: Help Request Template", body: "Save this text template on your phone: 'Hi, my name is [Name]. I'm looking for support with [substance use/recovery/housing]. Could you help me or point me to someone who can? Thank you.' Having this ready makes reaching out easier." },
+  ]);
+
+  const l8_1_chk = await upsertLesson({ moduleId: unit8_1.id, title: "Treatment Options: Checkpoint", slug: "treatment-options-checkpoint", order: 6, xpReward: 15, lessonType: "checkpoint", estimatedMinutes: 8 });
+  await seedCards(l8_1_chk.id, [
+    { type: "INFO", order: 1, prompt: "Unit 1 Review: Treatment Types & What to Expect", body: "You've learned about detox, inpatient, outpatient, MAT, and recovery coaching. This checkpoint makes sure the key concepts are solid before you move into getting through the door and staying engaged." },
+    { type: "MULTIPLE_CHOICE", order: 2, prompt: "What is Medication-Assisted Treatment (MAT)?", choicesJson: JSON.stringify(["Treatment using only meditation and mindfulness", "Using FDA-approved medication along with counseling to treat addiction", "A short-term detox program", "Treatment that replaces one addiction with another"]), answerJson: JSON.stringify("Using FDA-approved medication along with counseling to treat addiction"), explain: "MAT combines medication (to reduce cravings and withdrawal) with counseling. It is evidence-based and highly effective." },
+    { type: "TRUE_FALSE", order: 3, prompt: "Outpatient treatment allows you to continue working and living at home while receiving support.", choicesJson: JSON.stringify(["True", "False"]), answerJson: JSON.stringify("True"), explain: "Outpatient programs provide treatment services while you maintain your daily life. This makes it accessible to many who can't do residential care." },
+    { type: "MULTIPLE_CHOICE", order: 4, prompt: "A recovery coach is different from a counselor because they:", choicesJson: JSON.stringify(["Prescribe medication", "Have lived experience with addiction and help you set goals as a peer", "Diagnose mental health conditions", "Provide housing"]), answerJson: JSON.stringify("Have lived experience with addiction and help you set goals as a peer"), explain: "Recovery coaches are peers — they've been through it. Counselors are clinically trained. Both play important roles." },
   ]);
 
   // --- Unit 8.2: Getting In the Door ---
@@ -618,6 +649,14 @@ async function main() {
     { type: "INFO", order: 3, prompt: "Mission: Write Your Reset Plan", body: "Write a 'reset plan' for if/when a lapse happens: 1) Stop immediately, 2) Who will I call? 3) What triggered it? 4) What will I do differently? Having this plan means a lapse stays a lapse, not a relapse." },
   ]);
 
+  const l9_1_chk = await upsertLesson({ moduleId: unit9_1.id, title: "Relapse Process: Checkpoint", slug: "relapse-process-checkpoint", order: 6, xpReward: 15, lessonType: "checkpoint", estimatedMinutes: 8 });
+  await seedCards(l9_1_chk.id, [
+    { type: "INFO", order: 1, prompt: "Unit 1 Review: Relapse Is a Process", body: "You've learned that relapse starts long before the first use — it begins emotionally, then mentally, then behaviorally. This checkpoint tests your understanding before you move into social control and emotional resilience." },
+    { type: "MULTIPLE_CHOICE", order: 2, prompt: "At which stage does relapse prevention work best?", choicesJson: JSON.stringify(["Physical stage (when you're about to use)", "Mental stage (when you're thinking about using)", "Emotional stage (when stress is building and you haven't addressed it)", "After you've already used"]), answerJson: JSON.stringify("Emotional stage (when stress is building and you haven't addressed it)"), explain: "The emotional stage is where you have the most leverage. Catching the warning signs early — before your mind starts rationalizing — gives you the best chance of preventing relapse." },
+    { type: "TRUE_FALSE", order: 3, prompt: "A lapse is the same as a full relapse.", choicesJson: JSON.stringify(["True", "False"]), answerJson: JSON.stringify("False"), explain: "A lapse is a single slip. A relapse is a return to old patterns. Your response to a lapse determines which it becomes." },
+    { type: "MULTIPLE_CHOICE", order: 4, prompt: "What is the main purpose of a relapse prevention plan?", choicesJson: JSON.stringify(["To punish yourself if you slip", "To identify triggers and have a ready response plan before you need it", "To guarantee you'll never use again", "To show your counselor you're serious"]), answerJson: JSON.stringify("To identify triggers and have a ready response plan before you need it"), explain: "A relapse prevention plan is a decision made in advance. It removes the need to make good decisions when you're already struggling." },
+  ]);
+
   // --- Unit 9.2: Social and Environmental Control ---
   const unit9_2 = await upsertModule({ pathId: journey9.id, title: "Social & Environmental Control", slug: "social-environmental", order: 2 });
 
@@ -773,6 +812,14 @@ async function main() {
     { type: "MULTIPLE_CHOICE", order: 2, prompt: "Which is the most important long-term strategy for alcohol recovery?", choicesJson: JSON.stringify(["Willpower alone", "Consistent routines, support connections, and trigger management", "Avoiding all social situations forever", "Switching to a 'safer' substance"]), answerJson: JSON.stringify("Consistent routines, support connections, and trigger management"), explain: "Long-term recovery is built on systems, not willpower. Routines, support, and awareness work together to keep you safe." },
   ]);
 
+  const l10_1_chk = await upsertLesson({ moduleId: unit10_1.id, title: "Alcohol Safety: Checkpoint", slug: "alcohol-safety-checkpoint", order: 6, xpReward: 15, lessonType: "checkpoint", estimatedMinutes: 8 });
+  await seedCards(l10_1_chk.id, [
+    { type: "INFO", order: 1, prompt: "Unit 1 Review: Alcohol Safety & Recovery", body: "You've learned about alcohol's physical effects, withdrawal risks, safe reduction strategies, and long-term recovery planning. This checkpoint reviews the critical concepts before you move into opioid and stimulant tracks." },
+    { type: "MULTIPLE_CHOICE", order: 2, prompt: "Why can alcohol withdrawal be life-threatening?", choicesJson: JSON.stringify(["It isn't — alcohol withdrawal is mild", "Severe withdrawal can cause seizures and delirium tremens (DTs), which can be fatal", "Only psychological withdrawal occurs", "The liver fails immediately"]), answerJson: JSON.stringify("Severe withdrawal can cause seizures and delirium tremens (DTs), which can be fatal"), explain: "Alcohol withdrawal is one of the few substance withdrawals that can cause death. Always seek medical supervision for heavy, chronic use." },
+    { type: "TRUE_FALSE", order: 3, prompt: "You should never abruptly stop heavy, chronic alcohol use without medical supervision.", choicesJson: JSON.stringify(["True", "False"]), answerJson: JSON.stringify("True"), explain: "Abrupt cessation of heavy alcohol use can trigger dangerous withdrawal. Taper gradually or seek medical help." },
+    { type: "MULTIPLE_CHOICE", order: 4, prompt: "What is the most effective long-term strategy for alcohol recovery?", choicesJson: JSON.stringify(["Pure willpower", "Consistent routines, trigger management, and support connections", "Avoiding all social situations forever", "Switching to another substance"]), answerJson: JSON.stringify("Consistent routines, trigger management, and support connections"), explain: "Systems and support beat willpower alone every time. Build your environment and network to support recovery." },
+  ]);
+
   // --- Track B: Opioid Safety ---
   const unit10_2 = await upsertModule({ pathId: journey10.id, title: "Opioid Safety & Recovery", slug: "opioid-safety", order: 2 });
 
@@ -891,6 +938,14 @@ async function main() {
   await seedCards(l11_1_5.id, [
     { type: "INFO", order: 1, prompt: "Your Safety Comes First", body: "If your loved one's behavior puts you or others in danger, your safety is the priority. Have a plan: a safe place to go, someone to call, and clear lines you won't allow to be crossed. Love doesn't require you to be unsafe." },
     { type: "TRUE_FALSE", order: 2, prompt: "Supporting someone with addiction means accepting unsafe behavior.", choicesJson: JSON.stringify(["True", "False"]), answerJson: JSON.stringify("False"), explain: "You can love someone AND refuse to be put in danger. Safety boundaries are not abandonment — they're survival." },
+  ]);
+
+  const l11_1_chk = await upsertLesson({ moduleId: unit11_1.id, title: "Understanding Addiction: Supporter Checkpoint", slug: "supporter-understanding-checkpoint", order: 6, xpReward: 15, lessonType: "checkpoint", estimatedMinutes: 8 });
+  await seedCards(l11_1_chk.id, [
+    { type: "INFO", order: 1, prompt: "Unit 1 Review: Understanding & Compassion", body: "You've learned what addiction is, what helps vs harms, how to reduce shame, how to communicate without escalation, and how to stay safe. This checkpoint reviews the foundations before you move into boundary-setting and hands-on support." },
+    { type: "MULTIPLE_CHOICE", order: 2, prompt: "Why is reducing shame important when talking to someone with addiction?", choicesJson: JSON.stringify(["It isn't — they need consequences, not compassion", "Shame increases secrecy and isolation, making recovery harder; compassion creates space for honesty", "Compassion enables bad behavior", "It only matters for family members, not friends"]), answerJson: JSON.stringify("Shame increases secrecy and isolation, making recovery harder; compassion creates space for honesty"), explain: "Shame drives addiction underground. Compassion without enabling brings it into the light where healing can happen." },
+    { type: "TRUE_FALSE", order: 3, prompt: "Giving someone money when they ask is always the most supportive thing you can do.", choicesJson: JSON.stringify(["True", "False"]), answerJson: JSON.stringify("False"), explain: "Direct cash can fund continued use. Offering to pay bills directly, buy groceries, or provide specific resources is more helpful and lower risk." },
+    { type: "MULTIPLE_CHOICE", order: 4, prompt: "What is the most effective communication approach when someone in addiction is defensive?", choicesJson: JSON.stringify(["Argue until they admit they have a problem", "Use 'I feel' statements and stay calm — avoid blame and ultimatums in the heat of the moment", "Give them an ultimatum immediately", "Say nothing and wait for them to bring it up"]), answerJson: JSON.stringify("Use 'I feel' statements and stay calm — avoid blame and ultimatums in the heat of the moment"), explain: "Defensiveness goes up when people feel attacked. 'I feel scared when I don't hear from you' lands very differently than 'You always disappear.'" },
   ]);
 
   // --- Unit 11.2: Boundaries and Communication ---

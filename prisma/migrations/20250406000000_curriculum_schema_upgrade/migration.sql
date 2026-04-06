@@ -1,10 +1,11 @@
 -- Migration: curriculum_schema_upgrade
 -- Applied via prisma db push; this file serves as the migration record.
 -- All changes are additive (no data loss, no type changes).
+-- Use `prisma migrate resolve --applied` to mark as applied on fresh environments.
 
 -- Path: new metadata columns
 ALTER TABLE "Path" ADD COLUMN IF NOT EXISTS "color" TEXT NOT NULL DEFAULT '#3b9eff';
-ALTER TABLE "Path" ADD COLUMN IF NOT EXISTS "estimatedHours" INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE "Path" ADD COLUMN IF NOT EXISTS "estimatedHours" FLOAT8 NOT NULL DEFAULT 0;
 ALTER TABLE "Path" ADD COLUMN IF NOT EXISTS "targetAudience" TEXT NOT NULL DEFAULT 'All learners';
 ALTER TABLE "Path" ADD COLUMN IF NOT EXISTS "difficulty" TEXT NOT NULL DEFAULT 'foundational';
 
