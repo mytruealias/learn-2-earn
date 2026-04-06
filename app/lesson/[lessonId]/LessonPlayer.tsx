@@ -1070,14 +1070,16 @@ export default function LessonPlayer({ lesson }: { lesson: Lesson }) {
           justifyContent: "space-between",
           marginBottom: "1.5rem",
         }}>
-          <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+          <div style={{ display: "flex", gap: "6px", alignItems: "center", overflow: "hidden", maxWidth: "60vw", flexShrink: 1 }}>
             {lesson.cards.map((_, i) => (
               <div
                 key={i}
                 style={{
                   width: i === currentCardIndex ? "20px" : "8px",
+                  minWidth: i === currentCardIndex ? "20px" : "8px",
                   height: "8px",
                   borderRadius: "999px",
+                  flexShrink: 0,
                   backgroundColor: i < currentCardIndex
                     ? "var(--accent-green)"
                     : i === currentCardIndex
