@@ -2,27 +2,44 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-async function upsertPath(data: { title: string; slug: string; description: string; icon: string; order: number }) {
+async function upsertPath(data: { title: string; slug: string; description: string; icon: string; order: number; color?: string; estimatedHours?: number; targetAudience?: string; difficulty?: string }) {
   return prisma.path.upsert({
     where: { slug: data.slug },
     update: {},
-    create: data,
+    create: {
+      ...data,
+      color: data.color || "#3b9eff",
+      estimatedHours: data.estimatedHours || 0,
+      targetAudience: data.targetAudience || "All learners",
+      difficulty: data.difficulty || "foundational",
+    },
   });
 }
 
-async function upsertModule(data: { pathId: string; title: string; slug: string; order: number }) {
+async function upsertModule(data: { pathId: string; title: string; slug: string; order: number; description?: string; color?: string }) {
   return prisma.module.upsert({
     where: { pathId_slug: { pathId: data.pathId, slug: data.slug } },
     update: {},
-    create: data,
+    create: {
+      ...data,
+      description: data.description || "",
+      color: data.color || "",
+    },
   });
 }
 
-async function upsertLesson(data: { moduleId: string; title: string; slug: string; order: number; xpReward: number; type?: string }) {
+async function upsertLesson(data: { moduleId: string; title: string; slug: string; order: number; xpReward: number; type?: string; lessonType?: string; estimatedMinutes?: number; learningObjectives?: string; difficulty?: string }) {
   return prisma.lesson.upsert({
     where: { moduleId_slug: { moduleId: data.moduleId, slug: data.slug } },
     update: {},
-    create: { ...data, type: data.type || "learn" },
+    create: {
+      ...data,
+      type: data.type || "learn",
+      lessonType: data.lessonType || "learn",
+      estimatedMinutes: data.estimatedMinutes || 5,
+      learningObjectives: data.learningObjectives || "[]",
+      difficulty: data.difficulty || "foundational",
+    },
   });
 }
 

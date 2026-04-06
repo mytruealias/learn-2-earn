@@ -9,6 +9,9 @@ interface Lesson {
   title: string;
   xpReward: number;
   order: number;
+  lessonType?: string;
+  estimatedMinutes?: number;
+  difficulty?: string;
 }
 
 interface Module {

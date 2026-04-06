@@ -7,11 +7,15 @@ import { HeartIcon, CloseIcon, LightbulbIcon } from "@/app/components/icons";
 interface Card {
   id: string;
   type: string;
+  subtype: string;
   prompt: string;
   body: string | null;
   choicesJson: string | null;
   answerJson: string | null;
   explain: string | null;
+  hint: string | null;
+  tags: string;
+  difficulty: string;
   order: number;
 }
 
@@ -33,11 +37,16 @@ interface Lesson {
   title: string;
   xpReward: number;
   order: number;
+  lessonType: string;
+  estimatedMinutes: number;
+  learningObjectives: string;
+  difficulty: string;
   cards: Card[];
   module: {
     id: string;
     title: string;
     order: number;
+    description: string;
     lessons: LessonSummary[];
     path: {
       slug: string;

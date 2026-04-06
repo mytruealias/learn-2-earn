@@ -8,41 +8,51 @@ datasource db {
 }
 
 model Path {
-  id          String   @id @default(cuid())
-  title       String
-  slug        String   @unique
-  description String   @default("")
-  icon        String   @default("📘")
-  order       Int      @default(0)
-  isActive    Boolean  @default(true)
-  modules     Module[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id              String   @id @default(cuid())
+  title           String
+  slug            String   @unique
+  description     String   @default("")
+  icon            String   @default("📘")
+  order           Int      @default(0)
+  isActive        Boolean  @default(true)
+  color           String   @default("#3b9eff")
+  estimatedHours  Float    @default(0)
+  targetAudience  String   @default("All learners")
+  difficulty      String   @default("foundational")
+  modules         Module[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
 model Module {
-  id        String   @id @default(cuid())
-  pathId    String
-  title     String
-  slug      String
-  order     Int      @default(0)
-  isActive  Boolean  @default(true)
+  id          String   @id @default(cuid())
+  pathId      String
+  title       String
+  slug        String
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  description String   @default("")
+  color       String   @default("")
 
-  path      Path     @relation(fields: [pathId], references: [id], onDelete: Cascade)
-  lessons   Lesson[]
+  path        Path     @relation(fields: [pathId], references: [id], onDelete: Cascade)
+  lessons     Lesson[]
 
   @@unique([pathId, slug])
 }
 
 model Lesson {
-  id        String   @id @default(cuid())
-  moduleId  String
-  title     String
-  slug      String
-  order     Int      @default(0)
-  xpReward  Int      @default(10)
-  type      String   @default("learn")
-  isActive  Boolean  @default(true)
+  id                 String   @id @default(cuid())
+  moduleId           String
+  title              String
+  slug               String
+  order              Int      @default(0)
+  xpReward           Int      @default(10)
+  type               String   @default("learn")
+  isActive           Boolean  @default(true)
+  lessonType         String   @default("learn")
+  estimatedMinutes   Int      @default(5)
+  learningObjectives String   @default("[]")
+  difficulty         String   @default("foundational")
 
   module    Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   cards     Card[]
@@ -64,6 +74,11 @@ model Card {
   choicesJson String?
   answerJson  String?
   explain     String?
+
+  subtype     String    @default("")
+  difficulty  String    @default("foundational")
+  tags        String    @default("[]")
+  hint        String?
 
   lesson      Lesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
 }
@@ -100,12 +115,16 @@ model User {
 }
 
 model Progress {
-  id          String   @id @default(cuid())
-  userId      String
-  lessonId    String
-  completedAt DateTime @default(now())
-  xpEarned    Int      @default(0)
-  crownLevel  Int      @default(1)
+  id               String   @id @default(cuid())
+  userId           String
+  lessonId         String
+  completedAt      DateTime @default(now())
+  xpEarned         Int      @default(0)
+  crownLevel       Int      @default(1)
+  score            Int?
+  timeSpentSeconds Int      @default(0)
+  reflectionAnswer String?
+  missedCardIds    String   @default("[]")
 
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   lesson      Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
