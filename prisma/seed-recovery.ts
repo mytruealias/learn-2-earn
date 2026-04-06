@@ -41,7 +41,7 @@ async function upsertLesson(data: { moduleId: string; title: string; slug: strin
   };
   return prisma.lesson.upsert({
     where: { moduleId_slug: { moduleId: data.moduleId, slug: data.slug } },
-    update: { ...newFields, xpReward: data.xpReward },
+    update: { ...newFields, xpReward: data.xpReward, order: data.order },
     create: { ...data, ...newFields },
   });
 }
