@@ -1806,6 +1806,22 @@ async function main() {
     { type: "INFO", order: 6, prompt: "Reflect: Your Priority Pattern", body: "Think about last week. Did you tend to do the most urgent tasks first, or did easier, less important tasks get your energy? There's no judgment — this reflection helps you see your pattern so you can consciously adjust it." },
   ]);
 
+  // Unit E5: Self-Care & Wellbeing expansions
+  await expandCards(e5_1.id, [
+    { type: "SCENARIO", order: 5, prompt: "Scenario: You've been surviving on 3-4 hours of sleep for a week. You feel foggy and irritable. What's your first step?", body: "Which action addresses the root issue?", choicesJson: JSON.stringify(["Drink more coffee to compensate", "Identify what's cutting your sleep (noise, anxiety, late phone use), address one thing tonight, and aim for one earlier bedtime", "Nap all afternoon to catch up", "Ignore it — you'll adjust eventually"]), answerJson: JSON.stringify("Identify what's cutting your sleep (noise, anxiety, late phone use), address one thing tonight, and aim for one earlier bedtime"), explain: "The fix starts with identifying the cause. Even one small sleep improvement — 30 more minutes, less phone before bed — has measurable next-day impact." },
+    { type: "INFO", order: 6, prompt: "Reflect: Your Sleep Reality", body: "Be honest: how many hours of sleep did you average last week? What's the single biggest thing interfering? Name it — you can't fix what you haven't named." },
+  ]);
+
+  await expandCards(e5_2.id, [
+    { type: "MULTIPLE_CHOICE", order: 5, prompt: "Which technique can reduce your body's stress response within 60 seconds?", choicesJson: JSON.stringify(["Check social media", "Box breathing: inhale 4 counts, hold 4, exhale 4, hold 4", "Think harder about the problem", "Eat something sweet"]), answerJson: JSON.stringify("Box breathing: inhale 4 counts, hold 4, exhale 4, hold 4"), explain: "Box breathing activates the parasympathetic nervous system — your body's brake system. It works in under a minute and requires nothing but air." },
+    { type: "INFO", order: 6, prompt: "Mission: Try Box Breathing Right Now", body: "Before continuing: inhale for 4 counts, hold for 4, exhale for 4, hold for 4. Repeat 3 times. Notice how your shoulders feel before and after. That's the technique working. You can use it anywhere, anytime." },
+  ]);
+
+  await expandCards(e5_3.id, [
+    { type: "SCENARIO", order: 5, prompt: "Scenario: You've been dealing with a housing crisis alone for two weeks. You're exhausted and feel like no one understands.", body: "What's one step toward support?", choicesJson: JSON.stringify(["Continue handling it alone — asking for help is weakness", "Tell one person you trust what's happening — a case worker, peer, or friend — and ask for just one specific kind of help", "Post about it publicly online", "Wait until everything resolves itself"]), answerJson: JSON.stringify("Tell one person you trust what's happening — a case worker, peer, or friend — and ask for just one specific kind of help"), explain: "Isolation compounds crisis. One disclosure to one trusted person opens a channel for help. You don't have to share everything — just enough to not be alone in it." },
+    { type: "INFO", order: 6, prompt: "Mission: Map Your Support Network", body: "Write down 1-3 people or services you can contact when things get hard. Name, contact info, and what kind of support they can offer. If your list is empty, call 211 today — they can connect you to local peer support and mental health resources." },
+  ]);
+
   // New E4 lesson expansion
   await expandCards(e4_new1.id, [
     { type: "MULTIPLE_CHOICE", order: 5, prompt: "How often should you check an email account used for housing or job applications?", choicesJson: JSON.stringify(["Once a month", "Every day — responses can come quickly and waiting too long can cost you an opportunity", "Only when you expect something", "Never — they'll call you"]), answerJson: JSON.stringify("Every day — responses can come quickly and waiting too long can cost you an opportunity"), explain: "Opportunities can evaporate in 24-48 hours. Daily email check takes 2 minutes and ensures you never miss a time-sensitive response." },
