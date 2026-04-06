@@ -18,6 +18,7 @@ async function upsertPath(data: { title: string; slug: string; description: stri
 
 async function upsertModule(data: { pathId: string; title: string; slug: string; order: number; description?: string; color?: string }) {
   const newFields = {
+    order: data.order,
     description: data.description || "",
     color: data.color || "",
   };
