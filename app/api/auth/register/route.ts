@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import prisma from "@/lib/prisma";
 import { logAudit } from "@/lib/audit";
 import { setUserSessionCookie } from "@/lib/user-session";
+import { setDemoAccessCookie } from "@/lib/access-token";
 
 export async function POST(req: Request) {
   try {
@@ -89,6 +90,7 @@ export async function POST(req: Request) {
     });
 
     setUserSessionCookie(res, user.id);
+    setDemoAccessCookie(res);
     return res;
   } catch (error) {
     console.error("Registration error:", error);

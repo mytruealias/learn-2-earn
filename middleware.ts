@@ -109,6 +109,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Allow through if they have a valid demo access token
   const accessToken = request.cookies.get("l2e_demo_access")?.value;
   if (accessToken) {
     const secret = process.env.SESSION_SECRET || process.env.DEMO_ACCESS_CODE || "l2e-fallback-secret";
@@ -116,6 +117,14 @@ export async function middleware(request: NextRequest) {
     if (valid) {
       return NextResponse.next();
     }
+  }
+
+  // Also allow through if they have a user session cookie (logged-in users)
+  // This ensures registered users are never blocked by the demo gate.
+  // The actual session validity is enforced on every API call.
+  const userSession = request.cookies.get("l2e_user_session")?.value;
+  if (userSession && userSession.length > 10) {
+    return NextResponse.next();
   }
 
   const url = request.nextUrl.clone();
