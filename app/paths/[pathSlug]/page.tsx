@@ -39,7 +39,7 @@ function getPathIcon(emoji: string, color: string, size = 28) {
   return map[emoji] ?? <StarIcon size={size} color={color} />;
 }
 
-export default async function PathPage({ params }: { params: { pathSlug: string } }) {
+export default async function PathPage({ params }: { params: Promise<{ pathSlug: string }> }) {
   const { pathSlug } = await params;
 
   const path = await prisma.path.findUnique({
