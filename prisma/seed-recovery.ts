@@ -45,6 +45,18 @@ async function upsertLesson(data: { moduleId: string; title: string; slug: strin
   });
 }
 
+// Resolve the INFO card subtype per the blueprint's defined domain:
+//   "MISSION"    — prompt starts with "Mission:" (blueprint: "MISSION: Always starts with 'Mission:'")
+//   "REFLECTION" — prompt starts with "Reflect:" (blueprint: "REFLECTION: Always starts with 'Reflect:'")
+//   ""           — all other INFO cards (context, explanation, etc.)
+// SCENARIO is a distinct Card.type, not an INFO subtype.
+// This mapping is deterministic — it matches the blueprint's explicit naming conventions.
+function resolveInfoSubtype(prompt: string): string {
+  if (prompt.startsWith("Mission:")) return "MISSION";
+  if (prompt.startsWith("Reflect:")) return "REFLECTION";
+  return "";
+}
+
 async function reconcileLessonMetadata() {
   const lessons = await prisma.lesson.findMany({
     select: {
@@ -57,7 +69,7 @@ async function reconcileLessonMetadata() {
   for (const lesson of lessons) {
     const lessonType = lesson.lessonType || "learn";
     // Only auto-calculate estimatedMinutes for "learn" lessons;
-    // checkpoint (15 min) and capstone (15 min) preserve their explicit values.
+    // checkpoint and capstone preserve their explicitly seeded values.
     const estimatedMinutes =
       lessonType === "learn"
         ? Math.max(5, lesson._count.cards * 2)
@@ -68,37 +80,31 @@ async function reconcileLessonMetadata() {
     });
   }
 
-  // Backfill Card.subtype for INFO cards using constrained domain values:
-  //   "INTRO"      — INFO card at order 1 (context-setting / lesson opener)
-  //   "MISSION"    — INFO card whose prompt contains "Mission" (action assignment)
-  //   "REFLECTION" — INFO card whose prompt contains "Reflect" (journaling/reflection)
-  //   ""           — all other cards; MULTIPLE_CHOICE/TRUE_FALSE/SCENARIO retain type alone
-  // Find all INFO cards that don't yet have a canonical uppercase subtype
-  const canonicalSubtypes = ["INTRO", "MISSION", "REFLECTION"];
+  // Reconcile Card.subtype for all INFO cards — runs on every seed (idempotent).
+  // Applies the deterministic prompt-prefix mapping defined in resolveInfoSubtype().
   const infoCards = await prisma.card.findMany({
-    where: { type: "INFO", NOT: { subtype: { in: canonicalSubtypes } } },
-    select: { id: true, order: true, prompt: true },
+    where: { type: "INFO" },
+    select: { id: true, prompt: true, subtype: true },
   });
+  let updated = 0;
   for (const card of infoCards) {
-    let subtype = "";
-    if (card.order === 1) subtype = "INTRO";
-    else if (/mission/i.test(card.prompt)) subtype = "MISSION";
-    else if (/reflect/i.test(card.prompt)) subtype = "REFLECTION";
-    // Reset non-canonical values and apply correct subtype (or leave "" for mid-lesson info)
-    await prisma.card.update({ where: { id: card.id }, data: { subtype } });
+    const subtype = resolveInfoSubtype(card.prompt);
+    if (card.subtype !== subtype) {
+      await prisma.card.update({ where: { id: card.id }, data: { subtype } });
+      updated++;
+    }
   }
-  const updatedSubtypes = infoCards.filter(
-    (c) => c.order === 1 || /mission|reflect/i.test(c.prompt)
-  ).length;
   const learnCount = lessons.filter((l) => l.lessonType === "learn").length;
   const specialCount = lessons.length - learnCount;
   console.log(`  ↳ Reconciled metadata for ${lessons.length} lessons (${learnCount} learn, ${specialCount} checkpoint/capstone)`);
-  console.log(`  ↳ Backfilled subtype on ${updatedSubtypes} INFO cards (INTRO/MISSION/REFLECTION)`);
+  console.log(`  ↳ Reconciled subtype on ${updated} INFO cards (MISSION/REFLECTION)`);
 }
 
-async function seedCards(lessonId: string, cards: any[]) {
+async function seedCards(lessonId: string, cards: Array<{ type: string; order: number; prompt: string; body?: string; choicesJson?: string; answerJson?: string; explain?: string; subtype?: string }>) {
   const count = await prisma.card.count({ where: { lessonId } });
   if (count === 0) {
+    // First-time seed: create all cards with explicit subtypes where provided.
+    // INFO cards without explicit subtype will be reconciled by reconcileLessonMetadata().
     await prisma.card.createMany({ data: cards.map((c) => ({ lessonId, ...c })) });
   }
 }
