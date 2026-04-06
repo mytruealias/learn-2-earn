@@ -1822,6 +1822,13 @@ async function main() {
     { type: "INFO", order: 6, prompt: "Mission: Map Your Support Network", body: "Write down 1-3 people or services you can contact when things get hard. Name, contact info, and what kind of support they can offer. If your list is empty, call 211 today — they can connect you to local peer support and mental health resources." },
   ]);
 
+  // e5_chk needs 8 cards (currently 5)
+  await expandCards(e5_chk.id, [
+    { type: "MULTIPLE_CHOICE", order: 6, prompt: "Which is the best free stress reduction tool available anywhere?", choicesJson: JSON.stringify(["A gym membership", "Box breathing — inhale 4, hold 4, exhale 4, hold 4 — repeated 3-4 times", "Expensive supplements", "Total isolation from stressors"]), answerJson: JSON.stringify("Box breathing — inhale 4, hold 4, exhale 4, hold 4 — repeated 3-4 times"), explain: "Box breathing directly activates your body's calm response (parasympathetic nervous system) within 60 seconds. It's available anywhere, anytime, at no cost." },
+    { type: "SCENARIO", order: 7, prompt: "Scenario: You feel overwhelmed by everything — housing, money, health. You can't sleep, you're irritable, and you can't focus.", body: "Which response is the most effective starting point?", choicesJson: JSON.stringify(["Push through and try to solve everything at once", "Pick the single most urgent item, do one box breathing cycle, then take one action on that one thing", "Give up until circumstances improve on their own", "Vent to everyone about how bad things are"]), answerJson: JSON.stringify("Pick the single most urgent item, do one box breathing cycle, then take one action on that one thing"), explain: "Triage + regulate + act. This breaks the overwhelm cycle into manageable steps. You can't do everything at once — but you can do one thing." },
+    { type: "INFO", order: 8, prompt: "Reflect: Your Self-Care Inventory", body: "Name one self-care habit you already have (sleep, walk, prayer, journaling, music — anything that genuinely helps). Now name one you want to add this week. Two small anchors are the foundation of sustainable wellbeing." },
+  ]);
+
   // New E4 lesson expansion
   await expandCards(e4_new1.id, [
     { type: "MULTIPLE_CHOICE", order: 5, prompt: "How often should you check an email account used for housing or job applications?", choicesJson: JSON.stringify(["Once a month", "Every day — responses can come quickly and waiting too long can cost you an opportunity", "Only when you expect something", "Never — they'll call you"]), answerJson: JSON.stringify("Every day — responses can come quickly and waiting too long can cost you an opportunity"), explain: "Opportunities can evaporate in 24-48 hours. Daily email check takes 2 minutes and ensures you never miss a time-sensitive response." },
@@ -1849,7 +1856,7 @@ async function main() {
     "survival-systems": ["crisis-to-plan", "housing-pathway", "work-readiness", "social-services-navigation", "benefits-access", "problem-solving-pressure", "survival-systems-capstone"],
     "building-future": ["identity-self-belief", "mindset-growth", "decision-making", "long-term-thinking", "confidence-action", "building-future-capstone"],
     "financial-literacy": ["money-mindset-basics", "banking-basics", "budgeting-systems", "credit-debt", "saving-emergency", "scams-safety", "financial-literacy-capstone"],
-    "life-skills": ["time-organization", "professional-communication", "emotional-intelligence", "digital-life-skills", "life-skills-capstone"],
+    "life-skills": ["time-organization", "professional-communication", "emotional-intelligence", "digital-life-skills", "self-care-wellbeing", "life-skills-capstone"],
   };
   for (const [pathSlug, moduleSlugs] of Object.entries(canonicalModules)) {
     const path = await prisma.path.findUnique({ where: { slug: pathSlug } });
