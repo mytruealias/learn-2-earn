@@ -65,7 +65,28 @@ async function reconcileLessonMetadata() {
       data: { lessonType, estimatedMinutes },
     });
   }
+
+  // Backfill Card.subtype for INFO cards based on content signals:
+  //   "intro"   — first card in a lesson (order: 1) of type INFO → context-setting
+  //   "mission" — INFO card whose prompt contains "Mission" → action assignment
+  //   ""        — all other cards (MULTIPLE_CHOICE, TRUE_FALSE, SCENARIO retain type alone)
+  const infoCards = await prisma.card.findMany({
+    where: { type: "INFO", subtype: "" },
+    select: { id: true, order: true, prompt: true },
+  });
+  for (const card of infoCards) {
+    let subtype = "";
+    if (card.order === 1) subtype = "intro";
+    else if (card.prompt.toLowerCase().includes("mission")) subtype = "mission";
+    if (subtype) {
+      await prisma.card.update({ where: { id: card.id }, data: { subtype } });
+    }
+  }
+  const updatedSubtypes = infoCards.filter(
+    (c) => c.order === 1 || c.prompt.toLowerCase().includes("mission")
+  ).length;
   console.log(`  ↳ Reconciled metadata for ${lessons.length} lessons`);
+  console.log(`  ↳ Backfilled subtype on ${updatedSubtypes} INFO cards (intro/mission)`);
 }
 
 async function seedCards(lessonId: string, cards: any[]) {
