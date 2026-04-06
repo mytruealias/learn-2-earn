@@ -1704,12 +1704,12 @@ async function main() {
     { type: "INFO", order: 5, prompt: "Mission: Design Your Daily Anchor", body: "Choose one thing you'll do at the same time every morning this week. It could be as simple as drinking water before anything else, or reviewing your plan for the day. Consistency is the point." },
     { type: "TRUE_FALSE", order: 6, prompt: "A daily anchor routine helps maintain stability even during chaotic or uncertain periods.", choicesJson: JSON.stringify(["True", "False"]), answerJson: JSON.stringify("True"), explain: "When everything else is uncertain, a personal anchor creates a small point of control. That control reduces stress and helps you think more clearly." },
   ]);
-  if (e1_2) await expandCards(e1_2.id, [
+  await expandCards(e1_2.id, [
     { type: "SCENARIO", order: 4, prompt: "Scenario: You have 3 appointments this week but no phone or planner. How do you track them?", body: "Which low-tech approach is most reliable?", choicesJson: JSON.stringify(["Just try to remember them", "Write each appointment on a small card you keep in your pocket: date, time, location, what to bring", "Ask someone else to remember for you", "Skip them if you can't track them"]), answerJson: JSON.stringify("Write each appointment on a small card you keep in your pocket: date, time, location, what to bring"), explain: "A pocket card travels with you everywhere. It costs nothing and survives without a phone. Simple and effective." },
     { type: "INFO", order: 5, prompt: "Mission: Create One Low-Tech System", body: "Pick one organizing challenge: appointments, to-do items, important contacts, or phone numbers. Create a paper or simple card-based solution for it this week." },
     { type: "TRUE_FALSE", order: 6, prompt: "Paper-based organization systems can be just as effective as phone-based ones for tracking appointments and tasks.", choicesJson: JSON.stringify(["True", "False"]), answerJson: JSON.stringify("True"), explain: "A paper doesn't need charging, doesn't get stolen as frequently, and works everywhere. Low-tech solutions are often the most reliable." },
   ]);
-  if (e1_3) await expandCards(e1_3.id, [
+  await expandCards(e1_3.id, [
     { type: "SCENARIO", order: 4, prompt: "Scenario: You realize the night before that you have an important appointment tomorrow but need bus fare you don't have.", body: "What do you do?", choicesJson: JSON.stringify(["Skip the appointment", "Problem-solve now: call 211 for emergency transit help, ask your caseworker, ask a trusted contact, look for a ride-share program", "Panic and do nothing", "Show up late and hope for the best"]), answerJson: JSON.stringify("Problem-solve now: call 211 for emergency transit help, ask your caseworker, ask a trusted contact, look for a ride-share program"), explain: "Problems solved in advance have more options than problems discovered the day of. Even at night, you can text caseworkers or call 211 for next-day transportation help." },
     { type: "INFO", order: 5, prompt: "Mission: Plan Your Next Appointment", body: "Look at your next scheduled appointment. Write: the date and time, how you'll get there, what you need to bring, and what time you'll leave to arrive 10 minutes early." },
     { type: "TRUE_FALSE", order: 6, prompt: "Canceling an appointment with advance notice is always better than simply not showing up.", choicesJson: JSON.stringify(["True", "False"]), answerJson: JSON.stringify("True"), explain: "A no-call no-show damages relationships with service providers. Even a same-day cancellation by call or text preserves the relationship and may let you reschedule." },
@@ -1742,20 +1742,15 @@ async function main() {
     { type: "INFO", order: 5, prompt: "Mission: Write One Boundary Script", body: "Think of one boundary you've had difficulty holding. Write the script: 'When [thing happens], I feel [impact]. I need [what you need]. If that continues, I will [consequence].' Practice it out loud." },
     { type: "SCENARIO", order: 6, prompt: "Scenario: Someone at a shelter keeps asking to borrow money you don't have.", body: "What's a clear boundary script?", choicesJson: JSON.stringify(["Give them some money to avoid conflict", "Angrily tell them to leave you alone", "Calmly say: 'I'm not in a position to lend money. That's a firm boundary for me. I respect you and hope we can keep things friendly.'", "Avoid them entirely without explanation"]), answerJson: JSON.stringify("Calmly say: 'I'm not in a position to lend money. That's a firm boundary for me. I respect you and hope we can keep things friendly.'"), explain: "This script is clear, respectful, and doesn't require justification. You don't owe anyone an explanation for protecting your limited resources." },
   ]);
-  // e2_chk: Professional Communication checkpoint in Life Skills has same slug issue — find by moduleId
-  // unitE2 already in scope above
-  if (unitE2) {
-    const e2_chk_lesson = await prisma.lesson.findFirst({ where: { moduleId: unitE2.id, lessonType: "checkpoint" } });
-    if (e2_chk_lesson) await expandCards(e2_chk_lesson.id, [
-      { type: "SCENARIO", order: 5, prompt: "Scenario: You need housing help but don't know who to ask or what to say.", body: "What's the clearest first communication?", choicesJson: JSON.stringify(["Wait for someone to offer help", "Walk into a resource center and say: 'I need help finding stable housing. I'm a single adult and available to start immediately. Who is the right person to talk to?'", "Send a vague message and hope they figure it out", "Don't ask — it feels too vulnerable"]), answerJson: JSON.stringify("Walk into a resource center and say: 'I need help finding stable housing. I'm a single adult and available to start immediately. Who is the right person to talk to?'"), explain: "Specific, clear, and proactive. You've told them what you need, your situation, and asked the right question. This is the foundation of effective advocacy for yourself." },
-      { type: "TRUE_FALSE", order: 6, prompt: "Following up after a request or application — once, professionally — is acceptable and often expected.", choicesJson: JSON.stringify(["True", "False"]), answerJson: JSON.stringify("True"), explain: "One professional follow-up after 5-7 business days is standard. It signals you're serious without being pushy." },
-      { type: "MULTIPLE_CHOICE", order: 7, prompt: "What does a 'green flag' in a relationship look like?", choicesJson: JSON.stringify(["They get angry when you say no", "They keep their word, respect your boundaries, and listen without always interrupting", "They need you to be available 24/7", "They make you feel guilty for having needs"]), answerJson: JSON.stringify("They keep their word, respect your boundaries, and listen without always interrupting"), explain: "Green flags show up in patterns: consistency, respect, genuine listening. These are the relationships worth investing in." },
-      { type: "INFO", order: 8, prompt: "Reflect: Your Communication Wins", body: "Think of one time in the last month when you communicated clearly and got what you needed — even a small thing. That's your evidence that you can do this." },
-    ]);
-  }
+  // e2_chk already in scope from upsertLesson above
+  await expandCards(e2_chk.id, [
+    { type: "SCENARIO", order: 5, prompt: "Scenario: You need housing help but don't know who to ask or what to say.", body: "What's the clearest first communication?", choicesJson: JSON.stringify(["Wait for someone to offer help", "Walk into a resource center and say: 'I need help finding stable housing. I'm a single adult and available to start immediately. Who is the right person to talk to?'", "Send a vague message and hope they figure it out", "Don't ask — it feels too vulnerable"]), answerJson: JSON.stringify("Walk into a resource center and say: 'I need help finding stable housing. I'm a single adult and available to start immediately. Who is the right person to talk to?'"), explain: "Specific, clear, and proactive. You've told them what you need, your situation, and asked the right question. This is the foundation of effective advocacy for yourself." },
+    { type: "TRUE_FALSE", order: 6, prompt: "Following up after a request or application — once, professionally — is acceptable and often expected.", choicesJson: JSON.stringify(["True", "False"]), answerJson: JSON.stringify("True"), explain: "One professional follow-up after 5-7 business days is standard. It signals you're serious without being pushy." },
+    { type: "MULTIPLE_CHOICE", order: 7, prompt: "What does a 'green flag' in a relationship look like?", choicesJson: JSON.stringify(["They get angry when you say no", "They keep their word, respect your boundaries, and listen without always interrupting", "They need you to be available 24/7", "They make you feel guilty for having needs"]), answerJson: JSON.stringify("They keep their word, respect your boundaries, and listen without always interrupting"), explain: "Green flags show up in patterns: consistency, respect, genuine listening. These are the relationships worth investing in." },
+    { type: "INFO", order: 8, prompt: "Reflect: Your Communication Wins", body: "Think of one time in the last month when you communicated clearly and got what you needed — even a small thing. That's your evidence that you can do this." },
+  ]);
 
-  // Unit E3: Emotional Intelligence — e3_1..e3_3 already in scope above
-  const unitE3_exp = await prisma.module.findFirst({ where: { slug: "emotional-intelligence" } });
+  // Unit E3: Emotional Intelligence — e3_1..e3_3, e3_chk already in scope above
   await expandCards(e3_1.id, [
     { type: "SCENARIO", order: 4, prompt: "Scenario: You feel a strong negative emotion but can't identify exactly what it is. What helps?", body: "Which approach gives you the most clarity?", choicesJson: JSON.stringify(["Push it down and ignore it", "Ask yourself: Is this fear? Anger? Sadness? Shame? Disappointment? Naming it reduces its intensity.", "Express it loudly without thinking", "Assume it'll pass without any reflection"]), answerJson: JSON.stringify("Ask yourself: Is this fear? Anger? Sadness? Shame? Disappointment? Naming it reduces its intensity."), explain: "Research shows that naming an emotion activates the rational part of the brain and reduces the intensity of the emotion. It's called 'name it to tame it.'" },
     { type: "INFO", order: 5, prompt: "Mission: Emotion Journal for 3 Days", body: "For the next 3 days, write down one emotion you notice each day and what triggered it. No judgment — just observation. This builds the emotional vocabulary that makes you more effective in every area of life." },
@@ -1771,15 +1766,13 @@ async function main() {
     { type: "INFO", order: 5, prompt: "Mission: Identify Your Empathy Limit", body: "Think about someone in your life you care about who needs help. How much can you realistically give this week without depleting yourself? Name the limit. That's your boundary — and it's healthy." },
     { type: "TRUE_FALSE", order: 6, prompt: "Setting limits on how much support you give to others is compatible with genuinely caring about them.", choicesJson: JSON.stringify(["True", "False"]), answerJson: JSON.stringify("True"), explain: "Sustainable support requires limits. Unlimited support without boundaries leads to burnout — and then you can't help anyone at all." },
   ]);
-  if (unitE3_exp) {
-    const e3_chk = await prisma.lesson.findFirst({ where: { moduleId: unitE3_exp.id, lessonType: "checkpoint" } });
-    if (e3_chk) await expandCards(e3_chk.id, [
-      { type: "SCENARIO", order: 5, prompt: "Scenario: You feel overwhelming anger after a situation at a resource center. What's your constructive response?", body: "Which is most effective?", choicesJson: JSON.stringify(["Express it loudly immediately", "Suppress it entirely", "Pause, name the emotion ('I'm feeling angry and disrespected'), then decide your next move calmly", "Leave and never return"]), answerJson: JSON.stringify("Pause, name the emotion ('I'm feeling angry and disrespected'), then decide your next move calmly"), explain: "Name → pause → decide. This sequence gives you control over your response and protects your reputation and access to services." },
-      { type: "TRUE_FALSE", order: 6, prompt: "Empathy without boundaries leads to burnout and reduces your ability to help others long-term.", choicesJson: JSON.stringify(["True", "False"]), answerJson: JSON.stringify("True"), explain: "Boundaries aren't selfish — they're sustainable. You can't sustain help without protecting your own wellbeing." },
-      { type: "MULTIPLE_CHOICE", order: 7, prompt: "Which of these best describes healthy emotional intelligence?", choicesJson: JSON.stringify(["Never feeling strong emotions", "Being able to name, understand, and regulate your emotions — and understand others' feelings too", "Always staying calm no matter what", "Not letting emotions affect you at all"]), answerJson: JSON.stringify("Being able to name, understand, and regulate your emotions — and understand others' feelings too"), explain: "EI isn't about not feeling — it's about working skillfully with emotions. The goal is awareness and regulation, not suppression." },
-      { type: "INFO", order: 8, prompt: "Reflect: Emotional Intelligence in Action", body: "Think of a recent moment when you handled a difficult emotion well — even slightly better than you would have before. That's emotional intelligence growing." },
-    ]);
-  }
+  // e3_chk already in scope from upsertLesson above
+  await expandCards(e3_chk.id, [
+    { type: "SCENARIO", order: 5, prompt: "Scenario: You feel overwhelming anger after a situation at a resource center. What's your constructive response?", body: "Which is most effective?", choicesJson: JSON.stringify(["Express it loudly immediately", "Suppress it entirely", "Pause, name the emotion ('I'm feeling angry and disrespected'), then decide your next move calmly", "Leave and never return"]), answerJson: JSON.stringify("Pause, name the emotion ('I'm feeling angry and disrespected'), then decide your next move calmly"), explain: "Name → pause → decide. This sequence gives you control over your response and protects your reputation and access to services." },
+    { type: "TRUE_FALSE", order: 6, prompt: "Empathy without boundaries leads to burnout and reduces your ability to help others long-term.", choicesJson: JSON.stringify(["True", "False"]), answerJson: JSON.stringify("True"), explain: "Boundaries aren't selfish — they're sustainable. You can't sustain help without protecting your own wellbeing." },
+    { type: "MULTIPLE_CHOICE", order: 7, prompt: "Which of these best describes healthy emotional intelligence?", choicesJson: JSON.stringify(["Never feeling strong emotions", "Being able to name, understand, and regulate your emotions — and understand others' feelings too", "Always staying calm no matter what", "Not letting emotions affect you at all"]), answerJson: JSON.stringify("Being able to name, understand, and regulate your emotions — and understand others' feelings too"), explain: "EI isn't about not feeling — it's about working skillfully with emotions. The goal is awareness and regulation, not suppression." },
+    { type: "INFO", order: 8, prompt: "Reflect: Emotional Intelligence in Action", body: "Think of a recent moment when you handled a difficult emotion well — even slightly better than you would have before. That's emotional intelligence growing." },
+  ]);
 
   // Unit E4: Digital Life Skills — e4_1..e4_3 already in scope above
   await expandCards(e4_1.id, [
@@ -1850,22 +1843,6 @@ async function main() {
     { type: "INFO", order: 10, prompt: "Reflect: Life Skills Growth", body: "Name one life skill from this path that you've already applied in real life. Even once counts. Evidence of application means it's becoming part of who you are — not just something you learned." },
     { type: "INFO", order: 11, prompt: "Mission: Your Life Skills Portfolio", body: "You've completed Life Skills! Write down 3 communication wins, 2 boundary moments you're proud of, and 1 digital habit you've changed. These aren't just lessons — they're your life." },
   ]);
-
-  const canonicalModules: Record<string, string[]> = {
-    "stability-basics": ["daily-stability", "communication-access", "documents-identity", "transportation-getting-around", "building-stable-week", "stability-basics-capstone"],
-    "survival-systems": ["crisis-to-plan", "housing-pathway", "work-readiness", "social-services-navigation", "benefits-access", "problem-solving-pressure", "survival-systems-capstone"],
-    "building-future": ["identity-self-belief", "mindset-growth", "decision-making", "long-term-thinking", "confidence-action", "building-future-capstone"],
-    "financial-literacy": ["money-mindset-basics", "banking-basics", "budgeting-systems", "credit-debt", "saving-emergency", "scams-safety", "financial-literacy-capstone"],
-    "life-skills": ["time-organization", "professional-communication", "emotional-intelligence", "digital-life-skills", "self-care-wellbeing", "life-skills-capstone"],
-  };
-  for (const [pathSlug, moduleSlugs] of Object.entries(canonicalModules)) {
-    const path = await prisma.path.findUnique({ where: { slug: pathSlug } });
-    if (!path) continue;
-    const deleted = await prisma.module.deleteMany({
-      where: { pathId: path.id, slug: { notIn: moduleSlugs } },
-    });
-    if (deleted.count > 0) console.log(`  ↳ Pruned ${deleted.count} orphaned module(s) from ${pathSlug}`);
-  }
 
   await reconcileLessonMetadata();
   console.log("✅ All 5 Journeys seeded successfully!");
