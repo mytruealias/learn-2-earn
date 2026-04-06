@@ -3,44 +3,69 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 async function upsertPath(data: { title: string; slug: string; description: string; icon: string; order: number; color?: string; estimatedHours?: number; targetAudience?: string; difficulty?: string }) {
+  const newFields = {
+    color: data.color || "#3b9eff",
+    estimatedHours: data.estimatedHours || 0,
+    targetAudience: data.targetAudience || "All learners",
+    difficulty: data.difficulty || "foundational",
+  };
   return prisma.path.upsert({
     where: { slug: data.slug },
-    update: {},
-    create: {
-      ...data,
-      color: data.color || "#3b9eff",
-      estimatedHours: data.estimatedHours || 0,
-      targetAudience: data.targetAudience || "All learners",
-      difficulty: data.difficulty || "foundational",
-    },
+    update: newFields,
+    create: { ...data, ...newFields },
   });
 }
 
 async function upsertModule(data: { pathId: string; title: string; slug: string; order: number; description?: string; color?: string }) {
+  const newFields = {
+    description: data.description || "",
+    color: data.color || "",
+  };
   return prisma.module.upsert({
     where: { pathId_slug: { pathId: data.pathId, slug: data.slug } },
-    update: {},
-    create: {
-      ...data,
-      description: data.description || "",
-      color: data.color || "",
-    },
+    update: newFields,
+    create: { ...data, ...newFields },
   });
 }
 
 async function upsertLesson(data: { moduleId: string; title: string; slug: string; order: number; xpReward: number; type?: string; lessonType?: string; estimatedMinutes?: number; learningObjectives?: string; difficulty?: string }) {
+  const lessonType = data.lessonType || "learn";
+  const newFields = {
+    type: data.type || "learn",
+    lessonType,
+    learningObjectives: data.learningObjectives || "[]",
+    difficulty: data.difficulty || "foundational",
+  };
   return prisma.lesson.upsert({
     where: { moduleId_slug: { moduleId: data.moduleId, slug: data.slug } },
-    update: {},
+    update: { ...newFields, xpReward: data.xpReward },
     create: {
       ...data,
-      type: data.type || "learn",
-      lessonType: data.lessonType || "learn",
+      ...newFields,
       estimatedMinutes: data.estimatedMinutes || 5,
-      learningObjectives: data.learningObjectives || "[]",
-      difficulty: data.difficulty || "foundational",
     },
   });
+}
+
+async function reconcileLessonMetadata() {
+  const lessons = await prisma.lesson.findMany({
+    select: {
+      id: true,
+      lessonType: true,
+      estimatedMinutes: true,
+      _count: { select: { cards: true } },
+    },
+  });
+  for (const lesson of lessons) {
+    const cardCount = lesson._count.cards;
+    const estimatedMinutes = Math.max(5, cardCount * 2);
+    const lessonType = lesson.lessonType || "learn";
+    await prisma.lesson.update({
+      where: { id: lesson.id },
+      data: { lessonType, estimatedMinutes },
+    });
+  }
+  console.log(`  ↳ Reconciled metadata for ${lessons.length} lessons`);
 }
 
 async function seedCards(lessonId: string, cards: any[]) {
@@ -336,6 +361,7 @@ async function main() {
     { type: "MULTIPLE_CHOICE", order: 2, prompt: "Which is the strongest password?", choicesJson: JSON.stringify(["password123", "MyDog2024", "I-walk-3-miles-to-the-library-daily!", "123456789"]), answerJson: JSON.stringify("I-walk-3-miles-to-the-library-daily!"), explain: "Long, unique passphrases are much harder to crack than short passwords. Make it personal and memorable." },
   ]);
 
+  await reconcileLessonMetadata();
   console.log("✅ All 5 Journeys seeded successfully!");
 }
 
