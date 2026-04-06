@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { getUserIdFromRequest } from "@/lib/user-session";
 
 interface BadgeDefinition {
   id: string;
@@ -37,8 +38,18 @@ const BADGE_DEFS: BadgeDefinition[] = [
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const { userId } = body;
+    // Try to get userId from the request body first; fall back to the signed session cookie.
+    let userId: string | null = null;
+    try {
+      const body = await req.json();
+      userId = body?.userId ?? null;
+    } catch {
+      // body was empty or not JSON — that's fine, we'll try the cookie below
+    }
+
+    if (!userId) {
+      userId = getUserIdFromRequest(req);
+    }
 
     if (!userId) {
       return NextResponse.json({ error: "Missing userId" }, { status: 400 });
