@@ -137,76 +137,106 @@ export default async function AppHome() {
           Choose Your Path
         </div>
 
-        <div style={{ display: "grid", gap: "0.75rem" }}>
+        <div style={{ display: "grid", gap: "0.85rem" }}>
           {paths.map((path, idx) => {
             const lessonCount = path.modules.reduce((s, m) => s + m.lessons.length, 0);
             const moduleCount = path.modules.length;
-            const colors = ["var(--accent-green)", "var(--accent-blue)", "var(--accent-purple)", "var(--accent-gold)", "var(--accent-red)"];
-            const bgColors = ["rgba(88,204,2,0.12)", "rgba(59,158,255,0.12)", "rgba(167,139,250,0.12)", "rgba(245,183,49,0.12)", "rgba(245,80,80,0.12)"];
-            const color = colors[idx % colors.length];
-            const bgColor = bgColors[idx % bgColors.length];
+
+            const palette = [
+              { color: "#58cc02", rgb: "88,204,2" },
+              { color: "#3b9eff", rgb: "59,158,255" },
+              { color: "#a78bfa", rgb: "167,139,250" },
+              { color: "#f5b731", rgb: "245,183,49" },
+              { color: "#f55050", rgb: "245,80,80" },
+            ];
+            const { color, rgb } = palette[idx % palette.length];
 
             return (
               <Link key={path.id} href={`/paths/${path.slug}`}>
-                <div className="cyber-card" style={{ padding: "1.25rem 1.5rem" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "1.25rem" }}>
+                <div style={{
+                  backgroundColor: "#1e2d3d",
+                  borderRadius: "14px",
+                  border: `1px solid rgba(${rgb},0.35)`,
+                  borderLeft: `5px solid ${color}`,
+                  padding: "1.1rem 1.25rem 1.1rem 1.15rem",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "1.1rem",
+                  boxShadow: `0 2px 16px rgba(${rgb},0.12), inset 0 0 0 1px rgba(${rgb},0.07)`,
+                  transition: "box-shadow 0.2s, transform 0.2s",
+                }}>
+                  {/* Icon bubble */}
+                  <div style={{
+                    width: "52px",
+                    height: "52px",
+                    borderRadius: "13px",
+                    flexShrink: 0,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    backgroundColor: `rgba(${rgb},0.18)`,
+                    border: `1.5px solid rgba(${rgb},0.5)`,
+                  }}>
+                    {getPathIcon(path.icon, color, 26)}
+                  </div>
+
+                  {/* Text */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{
-                      width: "56px",
-                      height: "56px",
-                      borderRadius: "16px",
-                      border: `2px solid ${color}`,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      flexShrink: 0,
-                      background: bgColor,
+                      fontSize: "1.05rem",
+                      fontWeight: "700",
+                      color: "#ffffff",
+                      letterSpacing: "0.01em",
+                      marginBottom: "0.25rem",
+                      lineHeight: "1.2",
                     }}>
-                      {getPathIcon(path.icon, color, 26)}
+                      {path.title}
                     </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.3rem" }}>
-                        <h3 style={{
-                          fontSize: "1.2rem",
-                          fontWeight: "700",
-                          letterSpacing: "0.02em",
-                          color: "var(--text-primary)",
-                        }}>{path.title}</h3>
-                      </div>
+                    {path.description && (
                       <p style={{
-                        color: "var(--text-secondary)",
-                        fontSize: "0.85rem",
-                        lineHeight: "1.5",
+                        color: "#9ab0c4",
+                        fontSize: "0.8rem",
+                        lineHeight: "1.45",
                         marginBottom: "0.5rem",
+                        overflow: "hidden",
+                        display: "-webkit-box",
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: "vertical",
                       }}>
                         {path.description}
                       </p>
-                      <div style={{
-                        display: "flex",
-                        gap: "0.75rem",
-                        fontSize: "0.7rem",
-                        fontWeight: "600",
+                    )}
+                    <div style={{ display: "flex", gap: "0.5rem" }}>
+                      <span style={{
+                        fontSize: "0.68rem",
+                        fontWeight: "700",
+                        color,
+                        backgroundColor: `rgba(${rgb},0.15)`,
+                        border: `1px solid rgba(${rgb},0.3)`,
+                        padding: "0.15rem 0.55rem",
+                        borderRadius: "999px",
+                        letterSpacing: "0.03em",
                       }}>
-                        <span style={{
-                          color,
-                          background: bgColor,
-                          padding: "0.2rem 0.6rem",
-                          borderRadius: "999px",
-                        }}>{moduleCount} units</span>
-                        <span style={{
-                          color: "var(--text-muted)",
-                          background: "rgba(136,146,176,0.1)",
-                          padding: "0.2rem 0.6rem",
-                          borderRadius: "999px",
-                        }}>{lessonCount} lessons</span>
-                      </div>
+                        {moduleCount} units
+                      </span>
+                      <span style={{
+                        fontSize: "0.68rem",
+                        fontWeight: "700",
+                        color: "#8fa3b8",
+                        backgroundColor: "rgba(136,146,176,0.1)",
+                        border: "1px solid rgba(136,146,176,0.2)",
+                        padding: "0.15rem 0.55rem",
+                        borderRadius: "999px",
+                        letterSpacing: "0.03em",
+                      }}>
+                        {lessonCount} lessons
+                      </span>
                     </div>
-                    <div style={{
-                      color,
-                      alignSelf: "center",
-                      flexShrink: 0,
-                    }}>
-                      <ChevronRightIcon size={20} color={color} />
-                    </div>
+                  </div>
+
+                  {/* Arrow */}
+                  <div style={{ flexShrink: 0 }}>
+                    <ChevronRightIcon size={22} color={color} />
                   </div>
                 </div>
               </Link>
