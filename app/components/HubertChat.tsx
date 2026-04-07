@@ -40,8 +40,13 @@ export default function HubertChat({ onClose }: { onClose: () => void }) {
       });
   }, []);
 
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
   const scrollToBottom = useCallback(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    const el = scrollContainerRef.current;
+    if (el) {
+      el.scrollTop = el.scrollHeight;
+    }
   }, []);
 
   useEffect(() => {
@@ -158,6 +163,8 @@ export default function HubertChat({ onClose }: { onClose: () => void }) {
         backgroundColor: "var(--bg-primary)",
         borderLeft: "1px solid var(--border-color)",
         borderRight: "1px solid var(--border-color)",
+        overflow: "hidden",
+        minHeight: 0,
       }}>
         <div style={{
           padding: "0.75rem 1rem",
@@ -258,13 +265,16 @@ export default function HubertChat({ onClose }: { onClose: () => void }) {
           </div>
         ) : (
         <>
-        <div style={{
+        <div
+          ref={scrollContainerRef}
+          style={{
           flex: 1,
           overflowY: "auto",
           padding: "1rem",
           display: "flex",
           flexDirection: "column",
           gap: "0.75rem",
+          minHeight: 0,
         }}>
           {messages.map((msg, i) => (
             <div
@@ -322,7 +332,7 @@ export default function HubertChat({ onClose }: { onClose: () => void }) {
             </div>
           )}
 
-          <div ref={messagesEndRef} />
+          <div ref={messagesEndRef} style={{ flexShrink: 0, height: 1 }} />
         </div>
 
         <div style={{
