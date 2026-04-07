@@ -57,6 +57,14 @@ export default function HubertChat({ onClose }: { onClose: () => void }) {
     inputRef.current?.focus();
   }, []);
 
+  useEffect(() => {
+    const original = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = original;
+    };
+  }, []);
+
   const sendMessage = async () => {
     const text = input.trim();
     if (!text || streaming) return;
@@ -145,13 +153,22 @@ export default function HubertChat({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <div style={{
+    <div
+      onWheel={(e) => e.stopPropagation()}
+      onTouchMove={(e) => {
+        const scrollEl = scrollContainerRef.current;
+        if (!scrollEl || !scrollEl.contains(e.target as Node)) {
+          e.preventDefault();
+        }
+      }}
+      style={{
       position: "fixed",
       inset: 0,
       zIndex: 3000,
       display: "flex",
       flexDirection: "column",
       backgroundColor: "rgba(0,0,0,0.8)",
+      touchAction: "none",
     }}>
       <div style={{
         flex: 1,
@@ -275,7 +292,9 @@ export default function HubertChat({ onClose }: { onClose: () => void }) {
           flexDirection: "column",
           gap: "0.75rem",
           minHeight: 0,
-        }}>
+          touchAction: "pan-y",
+          WebkitOverflowScrolling: "touch",
+        } as React.CSSProperties}>
           {messages.map((msg, i) => (
             <div
               key={i}
