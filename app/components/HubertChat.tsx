@@ -24,7 +24,12 @@ export default function HubertChat({ onClose }: { onClose: () => void }) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    fetch("/api/auth/session", { credentials: "include" })
+    fetch("/api/auth/session", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: "{}",
+    })
       .then((res) => {
         setIsLoggedIn(res.ok);
         setAuthChecked(true);
