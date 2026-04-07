@@ -3,12 +3,13 @@
 import { useState } from "react";
 import Link from "next/link";
 import HelpButton from "../components/HelpButton";
+import HubertChat from "../components/HubertChat";
 import {
   MedicalIcon, PhoneIcon, HeartPulseIcon, AlertIcon,
   ShieldIcon, SirenIcon, StrengthIcon, ChatIcon, DeviceIcon,
   ShelterIcon, HousePlusIcon, KeyIcon, MedalIcon,
   SproutIcon, CompassIcon, CoffeeIcon, HandsIcon, TargetIcon,
-  LifelineIcon,
+  LifelineIcon, HubertIcon,
 } from "../components/icons";
 
 const resources = [
@@ -74,6 +75,7 @@ export default function LifelinePage() {
   const [stressMessage, setStressMessage] = useState("");
   const [stressLocation, setStressLocation] = useState("");
   const [sending, setSending] = useState(false);
+  const [hubertOpen, setHubertOpen] = useState(false);
 
   const sendStressSignal = async () => {
     if (!stressMessage.trim()) return;
@@ -286,6 +288,58 @@ export default function LifelinePage() {
           </div>
         )}
 
+        <button
+          onClick={() => setHubertOpen(true)}
+          style={{
+            width: "100%",
+            marginBottom: "2rem",
+            padding: "1.25rem 1.5rem",
+            background: "linear-gradient(135deg, rgba(88,204,2,0.08), rgba(59,158,255,0.08))",
+            border: "1px solid rgba(88,204,2,0.25)",
+            borderRadius: "14px",
+            display: "flex",
+            alignItems: "center",
+            gap: "1rem",
+            cursor: "pointer",
+            textAlign: "left",
+            fontFamily: "inherit",
+            color: "inherit",
+          }}
+        >
+          <div style={{
+            width: 44,
+            height: 44,
+            borderRadius: "50%",
+            background: "linear-gradient(135deg, #58cc02, #3b9eff)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+          }}>
+            <HubertIcon size={24} color="#fff" />
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontWeight: 700, fontSize: "1rem", marginBottom: "0.15rem" }}>
+              Talk to Hubert
+            </div>
+            <div style={{ fontSize: "0.82rem", color: "var(--text-secondary)", lineHeight: "1.4" }}>
+              AI support companion — someone to listen, anytime
+            </div>
+          </div>
+          <div style={{
+            fontSize: "0.7rem",
+            fontWeight: 700,
+            color: "var(--accent-green)",
+            flexShrink: 0,
+            padding: "0.3rem 0.75rem",
+            borderRadius: "999px",
+            border: "1px solid rgba(88,204,2,0.3)",
+            background: "rgba(88,204,2,0.1)",
+          }}>
+            CHAT
+          </div>
+        </button>
+
         <div style={{ display: "grid", gap: "2rem" }}>
           {resources.map((section) => (
             <section key={section.category}>
@@ -362,6 +416,7 @@ export default function LifelinePage() {
       </main>
 
       <HelpButton />
+      {hubertOpen && <HubertChat onClose={() => setHubertOpen(false)} />}
     </div>
   );
 }

@@ -1,10 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { SOSIcon, PhoneIcon, HomeIcon, ChatIcon, HandshakeIcon, HeartPulseIcon } from "./icons";
+import { SOSIcon, PhoneIcon, HomeIcon, ChatIcon, HandshakeIcon, HeartPulseIcon, HubertIcon } from "./icons";
+import HubertChat from "./HubertChat";
 
 export default function HelpButton() {
   const [open, setOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
+
+  const openHubert = () => {
+    setOpen(false);
+    setChatOpen(true);
+  };
 
   return (
     <>
@@ -79,6 +86,51 @@ export default function HelpButton() {
               Free help is available right now. Tap to call or text.
             </p>
             <div style={{ display: "grid", gap: "0.5rem" }}>
+              <button
+                onClick={openHubert}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.75rem",
+                  padding: "0.85rem 1rem",
+                  backgroundColor: "var(--bg-card)",
+                  border: "1px solid rgba(88,204,2,0.35)",
+                  borderRadius: "12px",
+                  color: "var(--text-primary)",
+                  fontWeight: "600",
+                  fontSize: "0.9rem",
+                  fontFamily: "var(--font-display)",
+                  transition: "all 0.2s",
+                  cursor: "pointer",
+                  width: "100%",
+                  textAlign: "left",
+                  background: "linear-gradient(135deg, rgba(88,204,2,0.08), rgba(59,158,255,0.08))",
+                }}
+              >
+                <div style={{
+                  width: 28,
+                  height: 28,
+                  borderRadius: "50%",
+                  background: "linear-gradient(135deg, #58cc02, #3b9eff)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                }}>
+                  <HubertIcon size={15} color="#fff" />
+                </div>
+                Talk to Hubert
+                <span style={{
+                  marginLeft: "auto",
+                  fontSize: "0.65rem",
+                  color: "var(--accent-green)",
+                  fontWeight: 700,
+                  padding: "0.2rem 0.5rem",
+                  borderRadius: "999px",
+                  border: "1px solid rgba(88,204,2,0.3)",
+                  background: "rgba(88,204,2,0.1)",
+                }}>AI</span>
+              </button>
               {[
                 { href: "tel:988", label: "988 Suicide & Crisis Lifeline", color: "var(--accent-red)", icon: <PhoneIcon size={20} color="var(--accent-red)" /> },
                 { href: "tel:211", label: "211 — Food, Shelter, & Services", color: "var(--accent-blue)", icon: <HomeIcon size={20} color="var(--accent-blue)" /> },
@@ -128,6 +180,8 @@ export default function HelpButton() {
           </div>
         </div>
       )}
+
+      {chatOpen && <HubertChat onClose={() => setChatOpen(false)} />}
     </>
   );
 }

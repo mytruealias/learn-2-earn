@@ -421,6 +421,19 @@ export function HandsIcon({ size = 20, color = "currentColor" }: IconProps) {
   );
 }
 
+export function HubertIcon({ size = 20, color = "currentColor" }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="3" y="4" width="18" height="14" rx="3" stroke={color} strokeWidth="2" />
+      <circle cx="9" cy="11" r="1.5" fill={color} />
+      <circle cx="15" cy="11" r="1.5" fill={color} />
+      <path d="M10 14.5C10.5 15.5 11.2 16 12 16C12.8 16 13.5 15.5 14 14.5" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M8 4V2M16 4V2" stroke={color} strokeWidth="2" strokeLinecap="round" />
+      <path d="M12 18V20M9 20H15" stroke={color} strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export function HeartPulseIcon({ size = 20, color = "currentColor" }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

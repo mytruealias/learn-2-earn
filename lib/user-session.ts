@@ -5,7 +5,11 @@ const COOKIE_NAME = "l2e_user_session";
 const THIRTY_DAYS_SECONDS = 30 * 24 * 60 * 60;
 
 function getSecret(): string {
-  return process.env.SESSION_SECRET || process.env.DEMO_ACCESS_CODE || "l2e-fallback-secret";
+  const secret = process.env.SESSION_SECRET || process.env.DEMO_ACCESS_CODE;
+  if (!secret) {
+    throw new Error("SESSION_SECRET or DEMO_ACCESS_CODE must be set");
+  }
+  return secret;
 }
 
 function signUserId(userId: string): string {
