@@ -18,8 +18,22 @@ export default function HubertChat({ onClose }: { onClose: () => void }) {
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [authChecked, setAuthChecked] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    fetch("/api/auth/session", { credentials: "include" })
+      .then((res) => {
+        setIsLoggedIn(res.ok);
+        setAuthChecked(true);
+      })
+      .catch(() => {
+        setIsLoggedIn(false);
+        setAuthChecked(true);
+      });
+  }, []);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -192,6 +206,53 @@ export default function HubertChat({ onClose }: { onClose: () => void }) {
           </button>
         </div>
 
+        {authChecked && !isLoggedIn ? (
+          <div style={{
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "2rem",
+            gap: "1rem",
+            textAlign: "center",
+          }}>
+            <div style={{
+              width: 56,
+              height: 56,
+              borderRadius: "50%",
+              background: "linear-gradient(135deg, #58cc02, #3b9eff)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}>
+              <HubertIcon size={28} color="#fff" />
+            </div>
+            <div style={{ fontSize: "1.1rem", fontWeight: 700 }}>
+              Log in to chat with Hubert
+            </div>
+            <div style={{ fontSize: "0.85rem", color: "var(--text-secondary)", maxWidth: 280 }}>
+              Create a free account or sign in to start talking with your AI support companion.
+            </div>
+            <a
+              href="/login"
+              style={{
+                display: "inline-block",
+                marginTop: "0.5rem",
+                padding: "0.7rem 2rem",
+                backgroundColor: "var(--accent-green)",
+                color: "#fff",
+                borderRadius: "10px",
+                fontWeight: 700,
+                fontSize: "0.9rem",
+                textDecoration: "none",
+              }}
+            >
+              Log In
+            </a>
+          </div>
+        ) : (
+        <>
         <div style={{
           flex: 1,
           overflowY: "auto",
@@ -322,6 +383,8 @@ export default function HubertChat({ onClose }: { onClose: () => void }) {
             </button>
           </div>
         </div>
+        </>
+        )}
       </div>
     </div>
   );
