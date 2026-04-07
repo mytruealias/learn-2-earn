@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 5000 -H 0.0.0.0",
-    "build": "prisma generate && npx tsx prisma/pre-deploy.ts && prisma migrate deploy && next build && npx tsx prisma/seed.ts && npx tsx prisma/seed-recovery.ts",
+    "build": "prisma generate && (prisma migrate resolve --applied 20260214235843_init_postgresql 2>/dev/null || true) && prisma migrate deploy && next build && npx tsx prisma/seed.ts && npx tsx prisma/seed-recovery.ts",
     "start": "next start -p 5000 -H 0.0.0.0",
     "lint": "eslint"
   },
