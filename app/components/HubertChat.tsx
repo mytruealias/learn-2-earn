@@ -57,11 +57,57 @@ export default function HubertChat({ onClose }: { onClose: () => void }) {
     inputRef.current?.focus();
   }, []);
 
+  const overlayRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
-    const original = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    const html = document.documentElement;
+    const body = document.body;
+    const origHtmlOverflow = html.style.overflow;
+    const origBodyOverflow = body.style.overflow;
+    const origHtmlPosition = html.style.position;
+    const origBodyPosition = body.style.position;
+    const scrollY = window.scrollY;
+
+    html.style.overflow = "hidden";
+    body.style.overflow = "hidden";
+    body.style.position = "fixed";
+    body.style.top = `-${scrollY}px`;
+    body.style.left = "0";
+    body.style.right = "0";
+
     return () => {
-      document.body.style.overflow = original;
+      html.style.overflow = origHtmlOverflow;
+      body.style.overflow = origBodyOverflow;
+      body.style.position = origBodyPosition;
+      body.style.top = "";
+      body.style.left = "";
+      body.style.right = "";
+      window.scrollTo(0, scrollY);
+    };
+  }, []);
+
+  useEffect(() => {
+    const overlay = overlayRef.current;
+    if (!overlay) return;
+
+    const scrollEl = scrollContainerRef.current;
+
+    const blockWheel = (e: WheelEvent) => {
+      if (scrollEl && scrollEl.contains(e.target as Node)) return;
+      e.preventDefault();
+    };
+
+    const blockTouch = (e: TouchEvent) => {
+      if (scrollEl && scrollEl.contains(e.target as Node)) return;
+      e.preventDefault();
+    };
+
+    overlay.addEventListener("wheel", blockWheel, { passive: false });
+    overlay.addEventListener("touchmove", blockTouch, { passive: false });
+
+    return () => {
+      overlay.removeEventListener("wheel", blockWheel);
+      overlay.removeEventListener("touchmove", blockTouch);
     };
   }, []);
 
@@ -154,13 +200,7 @@ export default function HubertChat({ onClose }: { onClose: () => void }) {
 
   return (
     <div
-      onWheel={(e) => e.stopPropagation()}
-      onTouchMove={(e) => {
-        const scrollEl = scrollContainerRef.current;
-        if (!scrollEl || !scrollEl.contains(e.target as Node)) {
-          e.preventDefault();
-        }
-      }}
+      ref={overlayRef}
       style={{
       position: "fixed",
       inset: 0,
