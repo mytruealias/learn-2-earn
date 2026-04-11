@@ -40,6 +40,8 @@ function buildPayLink(method: string, handle: string, amount: number): string | 
   const clean = handle.trim();
   const amt = amount.toFixed(2);
   switch (method.toLowerCase()) {
+    case "zelle":
+      return null;
     case "paypal":
       return `https://paypal.me/${clean.replace(/^@+/, "")}/${amt}`;
     case "venmo":
@@ -324,11 +326,26 @@ export default function AdminPayoutsPage() {
                 {p.status === "approved" && p.paymentMethod && p.paymentHandle && (() => {
                   const payLink = buildPayLink(p.paymentMethod, p.paymentHandle, p.dollarAmount);
                   const isCheck = p.paymentMethod.toLowerCase() === "check";
+                  const isZelle = p.paymentMethod.toLowerCase() === "zelle";
                   const isVenmo = p.paymentMethod.toLowerCase() === "venmo";
                   const isCopied = copiedId === p.id;
                   return (
                     <div className={styles.payLink}>
-                      {isCheck ? (
+                      {isZelle ? (
+                        <div className={styles.payLinkInner}>
+                          <span className={styles.payLinkMailLabel}>Send via Zelle</span>
+                          <span className={styles.payLinkAddress}>{p.paymentHandle}</span>
+                          <span className={styles.payLinkHint}>Amount: ${p.dollarAmount.toFixed(2)} · Memo: Learn2Earn Payout</span>
+                          <button
+                            onClick={() => {
+                              navigator.clipboard.writeText(p.paymentHandle!);
+                              setCopiedId(p.id);
+                              setTimeout(() => setCopiedId(null), 2000);
+                            }}
+                            className={`${styles.copyBtn} ${isCopied ? styles.copyBtnCopied : ""}`}
+                          >{isCopied ? "Copied!" : "Copy Zelle contact"}</button>
+                        </div>
+                      ) : isCheck ? (
                         <div className={styles.payLinkInner}>
                           <span className={styles.payLinkMailLabel}>Mail check to</span>
                           <span className={styles.payLinkAddress}>{p.paymentHandle}</span>

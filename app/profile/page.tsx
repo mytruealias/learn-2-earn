@@ -51,6 +51,7 @@ interface UserProfile {
 }
 
 const PAYMENT_METHODS = [
+  { value: "zelle", label: "Zelle" },
   { value: "venmo", label: "Venmo" },
   { value: "paypal", label: "PayPal" },
   { value: "cashapp", label: "Cash App" },
@@ -58,6 +59,7 @@ const PAYMENT_METHODS = [
 ];
 
 const PAYMENT_PLACEHOLDERS: Record<string, string> = {
+  zelle: "Email or phone number linked to Zelle",
   venmo: "@your-venmo-handle",
   paypal: "your@email.com or PayPal handle",
   cashapp: "$your-cashtag",

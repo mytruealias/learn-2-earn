@@ -133,6 +133,7 @@ model Progress {
 }
 
 enum PaymentMethod {
+  zelle
   venmo
   paypal
   cashapp
