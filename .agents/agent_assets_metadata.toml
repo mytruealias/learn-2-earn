@@ -11,3 +11,9 @@ id = "Wv8JNwHY4NvjDeks-YbUJ"
 uri = "file://curriculum-full.md"
 type = "text"
 title = "Learn 2 Earn — Full Curriculum (All 342 Cards)"
+
+[[outputs]]
+id = "hULw9R4xTOzuxW7tNQP7j"
+uri = "file://exports/learn2earn-logo.png"
+type = "image"
+title = "Learn2Earn Logo (512x512 PNG)"
