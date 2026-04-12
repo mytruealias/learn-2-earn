@@ -10,6 +10,7 @@ import {
   ShieldIcon, TargetIcon, DollarIcon, HeartIcon, HandshakeIcon,
   MessageIcon, UsersIcon, LockIcon, UserIcon, FileTextIcon,
   CheckCircleIcon, GlobeIcon, BuildingIcon,
+  BotIcon, MapPinAlertIcon, RadioIcon,
 } from "./components/LandingIcons";
 
 export default function HomePage() {
@@ -140,7 +141,88 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="inv-section inv-section-alt" id="impact">
+      <section className="inv-section inv-section-alt" id="safety">
+        <div className="inv-container">
+          <div className="inv-section-header">
+            <div className="inv-section-label">Built-In Safety Net</div>
+            <h2 className="inv-section-title">
+              Support That Goes Beyond<br />the Classroom
+            </h2>
+            <p className="inv-section-subtitle">
+              Learning matters — but so does knowing someone has your back.
+              Learn to Earn has two built-in tools that bridge the gap between
+              education and real-world help.
+            </p>
+          </div>
+
+          <div className="inv-safety-grid">
+            <div className="inv-safety-card inv-safety-hubert">
+              <div className="inv-safety-icon-wrap">
+                <div className="inv-safety-icon inv-safety-icon-green">
+                  <BotIcon size={32} stroke="#34d399" />
+                </div>
+                <span className="inv-safety-badge">AI-Powered</span>
+              </div>
+              <h3>Meet Hubert</h3>
+              <p className="inv-safety-tagline">
+                Your AI emotional support companion — available 24/7, right inside the app.
+              </p>
+              <ul className="inv-pillar-list">
+                <li>Warm, trauma-informed conversations at a 6th-grade reading level</li>
+                <li>Knows when to listen and when to connect you with real help</li>
+                <li>Immediate crisis escalation — surfaces 988, 911, and Crisis Text Line when needed</li>
+                <li>No data stored — every conversation is private and ephemeral</li>
+                <li>Accessible from the Lifeline page or the SOS help button on any screen</li>
+              </ul>
+              <div className="inv-safety-footer">
+                <span className="inv-safety-note">
+                  Hubert is not a therapist — he&apos;s a supportive friend who&apos;s always there.
+                </span>
+              </div>
+            </div>
+
+            <div className="inv-safety-card inv-safety-signal">
+              <div className="inv-safety-icon-wrap">
+                <div className="inv-safety-icon inv-safety-icon-red">
+                  <MapPinAlertIcon size={32} stroke="#f87171" />
+                </div>
+                <span className="inv-safety-badge inv-safety-badge-red">Dispatch</span>
+              </div>
+              <h3>Help Request & Ground Response</h3>
+              <p className="inv-safety-tagline">
+                When a learner is in trouble, their team can know — and act.
+              </p>
+              <ul className="inv-pillar-list">
+                <li>Learners can send an urgent help request directly from the app</li>
+                <li>Message and optional location are included so teams know where to go</li>
+                <li>Creates a high-priority case in the admin dashboard instantly</li>
+                <li>Case workers can dispatch resources, coordinate services, and track follow-up</li>
+                <li>Full integration with the admin casework hub and services directory</li>
+              </ul>
+              <div className="inv-safety-footer">
+                <div className="inv-safety-flow">
+                  <div className="inv-safety-flow-step">
+                    <RadioIcon size={16} stroke="#f87171" />
+                    <span>Learner sends signal</span>
+                  </div>
+                  <div className="inv-safety-flow-arrow">&rarr;</div>
+                  <div className="inv-safety-flow-step">
+                    <ClipboardIcon size={16} stroke="#60a5fa" />
+                    <span>Case created</span>
+                  </div>
+                  <div className="inv-safety-flow-arrow">&rarr;</div>
+                  <div className="inv-safety-flow-step">
+                    <MapPinAlertIcon size={16} stroke="#34d399" />
+                    <span>Resources dispatched</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="inv-section" id="impact">
         <div className="inv-container">
           <div className="inv-section-header">
             <div className="inv-section-label">Impact</div>

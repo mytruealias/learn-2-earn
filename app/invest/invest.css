@@ -2005,3 +2005,159 @@
     gap: 0.5rem;
   }
 }
+
+.inv-safety-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-top: 1rem;
+}
+
+.inv-safety-card {
+  background: var(--cy-bg-card);
+  border: 1px solid var(--cy-border);
+  border-radius: 16px;
+  padding: 2.5rem 2rem 2rem;
+  position: relative;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.inv-safety-card:hover {
+  border-color: var(--cy-border-hover);
+  box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+}
+
+.inv-safety-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 1.5rem;
+  right: 1.5rem;
+  height: 2px;
+  border-radius: 1px;
+}
+
+.inv-safety-hubert::before {
+  background: linear-gradient(90deg, #059669, #0ea5e9);
+}
+
+.inv-safety-signal::before {
+  background: linear-gradient(90deg, #dc2626, #f59e0b);
+}
+
+.inv-safety-icon-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.inv-safety-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.inv-safety-icon-green {
+  background: rgba(5,150,105,0.12);
+  border: 1px solid rgba(5,150,105,0.2);
+}
+
+.inv-safety-icon-red {
+  background: rgba(220,38,38,0.12);
+  border: 1px solid rgba(220,38,38,0.2);
+}
+
+.inv-safety-badge {
+  font-family: var(--cy-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(5,150,105,0.1);
+  color: #34d399;
+  border: 1px solid rgba(5,150,105,0.25);
+  font-weight: 600;
+}
+
+.inv-safety-badge-red {
+  background: rgba(220,38,38,0.1);
+  color: #f87171;
+  border-color: rgba(220,38,38,0.25);
+}
+
+.inv-safety-card h3 {
+  font-family: var(--cy-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--cy-text-bright);
+  margin: 0 0 0.5rem;
+}
+
+.inv-safety-tagline {
+  color: var(--cy-text);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin: 0 0 1.25rem;
+}
+
+.inv-safety-card .inv-pillar-list {
+  margin-bottom: 1.5rem;
+}
+
+.inv-safety-footer {
+  border-top: 1px solid var(--cy-border);
+  padding-top: 1rem;
+  margin-top: auto;
+}
+
+.inv-safety-note {
+  font-size: 0.8rem;
+  color: var(--cy-text-dim);
+  font-style: italic;
+}
+
+.inv-safety-flow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.inv-safety-flow-step {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  color: var(--cy-text);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--cy-border);
+  padding: 0.35rem 0.7rem;
+  border-radius: 8px;
+}
+
+.inv-safety-flow-arrow {
+  color: var(--cy-text-dim);
+  font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+  .inv-safety-grid {
+    grid-template-columns: 1fr;
+  }
+  .inv-safety-card {
+    padding: 2rem 1.25rem 1.5rem;
+  }
+  .inv-safety-flow {
+    gap: 0.35rem;
+  }
+  .inv-safety-flow-step {
+    font-size: 0.72rem;
+    padding: 0.25rem 0.5rem;
+  }
+}
