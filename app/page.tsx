@@ -51,7 +51,7 @@ export default function HomePage() {
         <div className="inv-trust-bar">
           <div className="inv-trust-item">
             <div className="inv-trust-check">&#x2713;</div>
-            139 micro-lessons across 11 pathways
+            248 micro-lessons across 11 pathways
           </div>
           <div className="inv-trust-item">
             <div className="inv-trust-check">&#x2713;</div>
@@ -63,7 +63,11 @@ export default function HomePage() {
           </div>
           <div className="inv-trust-item">
             <div className="inv-trust-check">&#x2713;</div>
-            24/7 crisis resources built in
+            AI emotional support companion (Hubert)
+          </div>
+          <div className="inv-trust-item">
+            <div className="inv-trust-check">&#x2713;</div>
+            24/7 crisis resources + Zelle disbursements
           </div>
           <div className="inv-trust-item">
             <div className="inv-trust-check">&#x2713;</div>
@@ -99,6 +103,7 @@ export default function HomePage() {
               <h3>Learner Experience</h3>
               <ul className="inv-pillar-list">
                 <li>Bite-sized lessons, low reading level, trauma-informed</li>
+                <li>Hubert — AI emotional support companion, available 24/7</li>
                 <li>Works in browser, minimal friction — no app download needed</li>
                 <li>Built-in safety net (988, 211, SAMHSA, DV hotline, text line)</li>
               </ul>
@@ -121,6 +126,7 @@ export default function HomePage() {
               <h3>Incentive System</h3>
               <ul className="inv-pillar-list">
                 <li>Micro-incentives tied to verified completion</li>
+                <li>Disbursements via Zelle, Venmo, PayPal, Cash App, or check</li>
                 <li>Configurable payout rules per program</li>
                 <li>Built for oversight, not automatic cash</li>
               </ul>
@@ -341,7 +347,7 @@ export default function HomePage() {
           <div className="inv-section-header">
             <div className="inv-section-label">Curriculum</div>
             <h2 className="inv-section-title">
-              139 Lessons Across<br />11 Structured Paths
+              248 Lessons Across<br />11 Structured Paths
             </h2>
             <p className="inv-section-subtitle">
               Evidence-based, trauma-informed content covering the skills
