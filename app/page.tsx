@@ -3,6 +3,7 @@ import "./invest/demo-phone.css";
 import AppDemo from "./components/AppDemo";
 import AdminDemo from "./components/AdminDemo";
 import LandingNav from "./components/LandingNav";
+import FounderModal from "./components/FounderModal";
 import {
   TrendingUpIcon, HomeIcon, TrendingDownIcon, BarChartIcon,
   WalkingIcon, HeartPlusIcon, BriefcaseIcon,
@@ -582,47 +583,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="inv-section" id="about">
-        <div className="inv-container">
-          <div className="inv-section-header">
-            <div className="inv-section-label">Our Story</div>
-            <h2 className="inv-section-title">About the Founder</h2>
-          </div>
-          <div className="inv-founder">
-            <div className="inv-founder-photo-wrap">
-              <img
-                src="/images/founder-headshot.jpeg"
-                alt="Anthony Cognet, Founder of Learn2Earn"
-                className="inv-founder-photo"
-                width={220}
-                height={220}
-                loading="lazy"
-                decoding="async"
-              />
-            </div>
-            <div className="inv-founder-story">
-              <h3 className="inv-founder-name">Anthony Cognet</h3>
-              <p className="inv-founder-role">Founder</p>
-              <p className="inv-founder-text">
-                Anthony grew up in Los Angeles, raised by young parents who were caught
-                up in the cycle of negative influences and substance abuse. What started
-                as instability at home eventually led his family into homelessness &mdash;
-                an experience that shaped how he sees the world and the people in it.
-              </p>
-              <p className="inv-founder-text">
-                That firsthand understanding of what it means to feel invisible, to wonder
-                where the next meal is coming from, and to fight for a future that nobody
-                expects you to have &mdash; that&apos;s the heart of Learn to Earn. Anthony
-                built this platform because he knows that people experiencing homelessness
-                aren&apos;t lacking ability. They&apos;re lacking opportunity. Learn to Earn
-                exists to close that gap: real education, real incentives, and real support
-                for people ready to take the next step.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
       <footer className="inv-footer">
         <div className="inv-container">
           <div className="inv-footer-logo">
@@ -637,6 +597,8 @@ export default function HomePage() {
             <a href="/admin">Admin Dashboard</a>
             <span className="inv-footer-sep">|</span>
             <a href="mailto:partners@learn2earn.org">partners@learn2earn.org</a>
+            <span className="inv-footer-sep">|</span>
+            <FounderModal />
           </nav>
         </div>
       </footer>
