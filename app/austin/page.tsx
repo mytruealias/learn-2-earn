@@ -1,7 +1,4 @@
-import "../invest/invest.css";
 import "./austin.css";
-import LandingNav from "../components/LandingNav";
-import FounderModal from "../components/FounderModal";
 import {
   UsersIcon, ClipboardIcon, CoinIcon, ShieldIcon, BarChartIcon,
   CheckCircleIcon, SmartphoneIcon, BriefcaseIcon, TargetIcon,
@@ -10,52 +7,81 @@ import {
 
 export default function AustinPage() {
   return (
-    <div className="inv-page">
-      <LandingNav />
+    <div className="atx-page">
+      <nav className="atx-nav">
+        <a href="/" className="atx-nav-logo">
+          <svg viewBox="0 0 32 32" fill="none"><rect x="4" y="18" width="6" height="10" rx="1" fill="#00467F" opacity="0.5"/><rect x="13" y="12" width="6" height="16" rx="1" fill="#00467F" opacity="0.7"/><rect x="22" y="6" width="6" height="22" rx="1" fill="#00467F"/></svg>
+          Learn2Earn
+        </a>
+        <div className="atx-nav-links">
+          <a href="#problem">Challenge</a>
+          <a href="#solution">Solution</a>
+          <a href="#how-it-works">Process</a>
+          <a href="#scope">Scope</a>
+          <a href="#funding">Funding</a>
+          <a href="#timeline">Timeline</a>
+          <a href="#contact" className="atx-nav-cta">Request Pilot Plan</a>
+        </div>
+      </nav>
 
-      <section className="inv-hero atx-hero">
-        <div className="inv-hero-glow inv-hero-glow-1" />
-        <div className="inv-hero-glow inv-hero-glow-2" />
-        <div className="inv-hero-glow inv-hero-glow-3" />
-
-        <div className="inv-hero-badge">City of Austin &middot; 90-Day Pilot</div>
+      <section className="atx-hero">
+        <div className="atx-hero-badge">City of Austin &middot; 90-Day Pilot Proposal</div>
         <h1>
-          A Low-Barrier Pilot for Workforce Readiness and <em>Stability in Austin</em>
+          Workforce Readiness &amp; Stability
+          <em>Through Incentive-Based Learning</em>
         </h1>
-        <p>
-          Deploy Learn to Earn as a 90-day pilot to drive engagement, build life
-          skills, and create measurable progress for residents facing instability.
+        <p className="atx-hero-sub">
+          A structured, measurable pilot to drive engagement, build life skills, and
+          create real progress for Austin residents facing instability.
         </p>
-        <div className="inv-hero-actions">
-          <a href="#contact" className="inv-btn inv-btn-primary inv-btn-lg">Request Pilot Plan</a>
-          <a href="#contact" className="inv-btn inv-btn-outline inv-btn-lg">Schedule Demo</a>
+        <div className="atx-hero-actions">
+          <a href="#contact" className="atx-btn-primary">Request Pilot Plan</a>
+          <a href="#contact" className="atx-btn-outline">Schedule Demo</a>
         </div>
       </section>
 
-      <section className="inv-section inv-section-alt" id="problem">
-        <div className="inv-container">
-          <div className="inv-section-header">
-            <div className="inv-section-label">The Challenge</div>
-            <h2 className="inv-section-title">Why Austin Needs a New Approach</h2>
-            <p className="inv-section-subtitle">
+      <div className="atx-stat-highlight">
+        <div className="atx-stat-grid">
+          <div className="atx-stat-item">
+            <div className="atx-stat-value">4,400+</div>
+            <div className="atx-stat-label">Austinites Experiencing Homelessness</div>
+          </div>
+          <div className="atx-stat-item">
+            <div className="atx-stat-value">72%</div>
+            <div className="atx-stat-label">Want Workforce Skills but Lack Access</div>
+          </div>
+          <div className="atx-stat-item">
+            <div className="atx-stat-value">$0</div>
+            <div className="atx-stat-label">Participant Cost to Join</div>
+          </div>
+        </div>
+      </div>
+
+      <section className="atx-section" id="problem">
+        <div className="atx-container">
+          <div className="atx-section-header">
+            <div className="atx-slide-number">01 &mdash; The Challenge</div>
+            <div className="atx-section-label">Why This Matters</div>
+            <h2 className="atx-section-title">Austin Needs a <em>New Approach</em></h2>
+            <p className="atx-section-subtitle">
               Thousands of Austin residents are caught in survival mode &mdash; focused on
               making it through each day, not building toward tomorrow.
             </p>
           </div>
           <div className="atx-problem-grid">
-            <div className="inv-glass-card">
-              <div className="atx-problem-icon">
-                <TrendingUpIcon size={28} stroke="#f87171" />
+            <div className="atx-problem-card">
+              <div className="atx-problem-icon atx-pi-red">
+                <TrendingUpIcon size={28} stroke="#E53935" />
               </div>
               <h3>Survival Over Progress</h3>
               <p>
                 Many residents lack the stability and structure to focus on skill-building
-                or workforce readiness. Without consistent engagement tools, progress stalls.
+                or workforce readiness. Without consistent engagement, progress stalls.
               </p>
             </div>
-            <div className="inv-glass-card">
-              <div className="atx-problem-icon">
-                <TargetIcon size={28} stroke="#fbbf24" />
+            <div className="atx-problem-card">
+              <div className="atx-problem-icon atx-pi-amber">
+                <TargetIcon size={28} stroke="#F9A825" />
               </div>
               <h3>Low Follow-Through</h3>
               <p>
@@ -63,186 +89,197 @@ export default function AustinPage() {
                 incentives or structured milestones, learners disengage.
               </p>
             </div>
-            <div className="inv-glass-card">
-              <div className="atx-problem-icon">
-                <BarChartIcon size={28} stroke="#60a5fa" />
+            <div className="atx-problem-card">
+              <div className="atx-problem-icon atx-pi-blue">
+                <BarChartIcon size={28} stroke="#0288D1" />
               </div>
               <h3>Hard to Measure</h3>
               <p>
                 Programs often lack real-time visibility into engagement and outcomes,
-                making it difficult to demonstrate impact to funders and stakeholders.
+                making it difficult to demonstrate impact to stakeholders.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="inv-section" id="solution">
-        <div className="inv-container">
-          <div className="inv-section-header">
-            <div className="inv-section-label">The Solution</div>
-            <h2 className="inv-section-title">Structured Learning, Real Incentives</h2>
-            <p className="inv-section-subtitle">
-              Learn to Earn is a structured, incentive-based learning platform designed for
-              people experiencing homelessness and instability.
+      <hr className="atx-divider" />
+
+      <section className="atx-section atx-section-alt" id="solution">
+        <div className="atx-container">
+          <div className="atx-section-header">
+            <div className="atx-slide-number">02 &mdash; The Solution</div>
+            <div className="atx-section-label">Learn to Earn</div>
+            <h2 className="atx-section-title">Structured Learning, <em>Real Incentives</em></h2>
+            <p className="atx-section-subtitle">
+              A mobile-first platform that rewards progress with trackable incentives &mdash;
+              designed for people experiencing homelessness and instability.
             </p>
           </div>
           <div className="atx-solution-grid">
             <div className="atx-solution-item">
               <div className="atx-solution-icon">
-                <SmartphoneIcon size={24} stroke="#34d399" />
+                <SmartphoneIcon size={24} stroke="#00467F" />
               </div>
               <div>
-                <h4>Practical Content</h4>
-                <p>Guides participants through life skills and job-readiness lessons built for real-world use.</p>
+                <h4>Mobile-First Micro-Learning</h4>
+                <p>Short, practical lessons in life skills and job readiness &mdash; accessible from any device, anywhere.</p>
               </div>
             </div>
             <div className="atx-solution-item">
               <div className="atx-solution-icon">
-                <CoinIcon size={24} stroke="#34d399" />
+                <CoinIcon size={24} stroke="#00467F" />
               </div>
               <div>
                 <h4>Trackable Incentives</h4>
-                <p>Rewards progress with controlled, trackable incentives tied to verified milestone completion.</p>
+                <p>Rewards tied to verified milestone completion with full admin approval controls and audit trail.</p>
               </div>
             </div>
             <div className="atx-solution-item">
               <div className="atx-solution-icon">
-                <BarChartIcon size={24} stroke="#34d399" />
+                <BarChartIcon size={24} stroke="#00467F" />
               </div>
               <div>
-                <h4>Real-Time Visibility</h4>
-                <p>Provides real-time reporting into engagement, completion rates, and measurable outcomes.</p>
+                <h4>Real-Time Reporting</h4>
+                <p>Live dashboards showing enrollment, engagement, completion rates, and outcomes &mdash; exportable for compliance.</p>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="inv-section inv-section-alt" id="how-it-works">
-        <div className="inv-container">
-          <div className="inv-section-header">
-            <div className="inv-section-label">How It Works</div>
-            <h2 className="inv-section-title">Five Steps to Measurable Impact</h2>
-            <p className="inv-section-subtitle">
+      <section className="atx-section" id="how-it-works">
+        <div className="atx-container">
+          <div className="atx-section-header">
+            <div className="atx-slide-number">03 &mdash; Process</div>
+            <div className="atx-section-label">How It Works</div>
+            <h2 className="atx-section-title">Five Steps to <em>Measurable Impact</em></h2>
+            <p className="atx-section-subtitle">
               From enrollment to outcome tracking &mdash; a clear, repeatable process.
             </p>
           </div>
           <div className="atx-steps">
             <div className="atx-step">
               <div className="atx-step-num">1</div>
-              <div className="atx-step-icon"><UsersIcon size={24} stroke="#34d399" /></div>
+              <div className="atx-step-icon"><UsersIcon size={24} stroke="#2E7D32" /></div>
               <h4>Enroll</h4>
               <p>Participants enroll through partner organizations</p>
             </div>
             <div className="atx-step">
               <div className="atx-step-num">2</div>
-              <div className="atx-step-icon"><ClipboardIcon size={24} stroke="#60a5fa" /></div>
+              <div className="atx-step-icon"><ClipboardIcon size={24} stroke="#00467F" /></div>
               <h4>Learn</h4>
               <p>Complete short lessons and milestones at their own pace</p>
             </div>
             <div className="atx-step">
               <div className="atx-step-num">3</div>
-              <div className="atx-step-icon"><CoinIcon size={24} stroke="#fbbf24" /></div>
+              <div className="atx-step-icon"><CoinIcon size={24} stroke="#F9A825" /></div>
               <h4>Earn</h4>
               <p>Earn rewards based on verified progress and completion</p>
             </div>
             <div className="atx-step">
               <div className="atx-step-num">4</div>
-              <div className="atx-step-icon"><CheckCircleIcon size={24} stroke="#a78bfa" /></div>
+              <div className="atx-step-icon"><CheckCircleIcon size={24} stroke="#0288D1" /></div>
               <h4>Approve</h4>
               <p>Admin team reviews and approves incentive payouts</p>
             </div>
             <div className="atx-step">
               <div className="atx-step-num">5</div>
-              <div className="atx-step-icon"><BarChartIcon size={24} stroke="#f472b6" /></div>
+              <div className="atx-step-icon"><BarChartIcon size={24} stroke="#E53935" /></div>
               <h4>Track</h4>
               <p>City tracks engagement and outcomes in real time</p>
             </div>
           </div>
           <p className="atx-steps-note">
-            No need for re-enrollment when expanding. New learning paths can be added instantly.
+            No re-enrollment needed when expanding. New learning paths added instantly.
           </p>
         </div>
       </section>
 
-      <section className="inv-section" id="scope">
-        <div className="inv-container">
-          <div className="inv-section-header">
-            <div className="inv-section-label">Pilot Scope</div>
-            <h2 className="inv-section-title">Defined, Manageable, Measurable</h2>
+      <hr className="atx-divider" />
+
+      <section className="atx-section atx-section-alt" id="scope">
+        <div className="atx-container">
+          <div className="atx-section-header">
+            <div className="atx-slide-number">04 &mdash; Pilot Scope</div>
+            <div className="atx-section-label">Scope</div>
+            <h2 className="atx-section-title">Defined, Manageable, <em>Measurable</em></h2>
           </div>
           <div className="atx-scope-grid">
             <div className="atx-scope-card">
-              <CalendarIcon size={32} stroke="#60a5fa" />
+              <div className="atx-scope-icon"><CalendarIcon size={32} stroke="#00467F" /></div>
               <div className="atx-scope-value">90 Days</div>
               <div className="atx-scope-label">Duration</div>
             </div>
             <div className="atx-scope-card">
-              <UsersIcon size={32} stroke="#34d399" />
+              <div className="atx-scope-icon"><UsersIcon size={32} stroke="#2E7D32" /></div>
               <div className="atx-scope-value">Up to 500</div>
               <div className="atx-scope-label">Participants</div>
             </div>
             <div className="atx-scope-card">
-              <BriefcaseIcon size={32} stroke="#fbbf24" />
+              <div className="atx-scope-icon"><BriefcaseIcon size={32} stroke="#F9A825" /></div>
               <div className="atx-scope-value">1 Pathway</div>
               <div className="atx-scope-label">Workforce Readiness or Life Stability</div>
             </div>
             <div className="atx-scope-card">
-              <CheckCircleIcon size={32} stroke="#a78bfa" />
+              <div className="atx-scope-icon"><CheckCircleIcon size={32} stroke="#0288D1" /></div>
               <div className="atx-scope-value">Full Support</div>
-              <div className="atx-scope-label">Onboarding, Admin Setup &amp; Reporting</div>
+              <div className="atx-scope-label">Onboarding, Admin &amp; Reporting</div>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="inv-section inv-section-alt" id="deliverables">
-        <div className="inv-container">
-          <div className="inv-section-header">
-            <div className="inv-section-label">What You Get</div>
-            <h2 className="inv-section-title">What the City Receives</h2>
+      <section className="atx-section" id="deliverables">
+        <div className="atx-container">
+          <div className="atx-section-header">
+            <div className="atx-slide-number">05 &mdash; Deliverables</div>
+            <div className="atx-section-label">What You Receive</div>
+            <h2 className="atx-section-title">Everything Included in the <em>Pilot</em></h2>
           </div>
           <div className="atx-deliver-grid">
             <div className="atx-deliver-item">
-              <CheckCircleIcon size={20} stroke="#34d399" />
+              <CheckCircleIcon size={20} stroke="#2E7D32" />
               <span>Full platform access for all pilot participants</span>
             </div>
             <div className="atx-deliver-item">
-              <CheckCircleIcon size={20} stroke="#34d399" />
+              <CheckCircleIcon size={20} stroke="#2E7D32" />
               <span>Admin dashboard with oversight and approval controls</span>
             </div>
             <div className="atx-deliver-item">
-              <CheckCircleIcon size={20} stroke="#34d399" />
+              <CheckCircleIcon size={20} stroke="#2E7D32" />
               <span>Incentive approval workflows with audit trail</span>
             </div>
             <div className="atx-deliver-item">
-              <CheckCircleIcon size={20} stroke="#34d399" />
+              <CheckCircleIcon size={20} stroke="#2E7D32" />
               <span>Real-time reporting and exportable data</span>
             </div>
             <div className="atx-deliver-item">
-              <CheckCircleIcon size={20} stroke="#34d399" />
+              <CheckCircleIcon size={20} stroke="#2E7D32" />
               <span>Staff onboarding and training</span>
             </div>
             <div className="atx-deliver-item">
-              <CheckCircleIcon size={20} stroke="#34d399" />
+              <CheckCircleIcon size={20} stroke="#2E7D32" />
               <span>Ongoing support and updates during the pilot</span>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="inv-section" id="funding">
-        <div className="inv-container">
-          <div className="inv-section-header">
-            <div className="inv-section-label">Funding</div>
-            <h2 className="inv-section-title">Simple, Transparent Funding Structure</h2>
-            <p className="inv-section-subtitle">
+      <hr className="atx-divider" />
+
+      <section className="atx-section atx-section-alt" id="funding">
+        <div className="atx-container">
+          <div className="atx-section-header">
+            <div className="atx-slide-number">06 &mdash; Investment</div>
+            <div className="atx-section-label">Funding</div>
+            <h2 className="atx-section-title">Simple, <em>Transparent</em> Funding</h2>
+            <p className="atx-section-subtitle">
               Two separate, clearly defined budgets &mdash; no hidden costs.
             </p>
           </div>
           <div className="atx-funding-grid">
-            <div className="inv-glass-card atx-funding-card">
+            <div className="atx-funding-card">
               <div className="atx-funding-badge atx-funding-badge-blue">Budget 1</div>
               <h3>Platform &amp; Support</h3>
               <p className="atx-funding-desc">Fixed monthly fee covering:</p>
@@ -253,13 +290,13 @@ export default function AustinPage() {
                 <li>Ongoing technical support</li>
               </ul>
             </div>
-            <div className="inv-glass-card atx-funding-card">
+            <div className="atx-funding-card">
               <div className="atx-funding-badge atx-funding-badge-green">Budget 2</div>
               <h3>Participant Incentive Pool</h3>
               <p className="atx-funding-desc">Funded and controlled by the city or partner:</p>
               <ul className="atx-funding-list">
                 <li>Distributed based on milestone completion</li>
-                <li>Fully trackable and governed by approval rules</li>
+                <li>Fully trackable with approval rules</li>
                 <li>City retains full control over disbursement</li>
                 <li>Transparent audit trail for every payout</li>
               </ul>
@@ -268,82 +305,86 @@ export default function AustinPage() {
         </div>
       </section>
 
-      <section className="inv-section inv-section-alt" id="reporting">
-        <div className="inv-container">
-          <div className="inv-section-header">
-            <div className="inv-section-label">Outcomes</div>
-            <h2 className="inv-section-title">Reporting &amp; Measurable Outcomes</h2>
-            <p className="inv-section-subtitle">
-              Data is available in real time and exportable for grant or compliance reporting.
+      <section className="atx-section" id="reporting">
+        <div className="atx-container">
+          <div className="atx-section-header">
+            <div className="atx-slide-number">07 &mdash; Outcomes</div>
+            <div className="atx-section-label">Reporting</div>
+            <h2 className="atx-section-title">Measurable <em>Outcomes</em></h2>
+            <p className="atx-section-subtitle">
+              Data available in real time and exportable for grant or compliance reporting.
             </p>
           </div>
           <div className="atx-metrics-grid">
             <div className="atx-metric">
-              <UsersIcon size={22} stroke="#34d399" />
+              <UsersIcon size={22} stroke="#2E7D32" />
               <span>Total participants enrolled</span>
             </div>
             <div className="atx-metric">
-              <TrendingUpIcon size={22} stroke="#60a5fa" />
+              <TrendingUpIcon size={22} stroke="#00467F" />
               <span>Active users</span>
             </div>
             <div className="atx-metric">
-              <ClipboardIcon size={22} stroke="#fbbf24" />
+              <ClipboardIcon size={22} stroke="#F9A825" />
               <span>Lessons completed</span>
             </div>
             <div className="atx-metric">
-              <TargetIcon size={22} stroke="#a78bfa" />
+              <TargetIcon size={22} stroke="#0288D1" />
               <span>Milestones achieved</span>
             </div>
             <div className="atx-metric">
-              <DollarIcon size={22} stroke="#34d399" />
-              <span>Incentives earned and approved</span>
+              <DollarIcon size={22} stroke="#2E7D32" />
+              <span>Incentives earned &amp; approved</span>
             </div>
             <div className="atx-metric">
-              <BarChartIcon size={22} stroke="#60a5fa" />
+              <BarChartIcon size={22} stroke="#00467F" />
               <span>Engagement over time</span>
             </div>
             <div className="atx-metric">
-              <TrendingUpIcon size={22} stroke="#f87171" style={{ transform: "scaleY(-1)" }} />
-              <span>Drop-off points</span>
+              <TrendingUpIcon size={22} stroke="#E53935" style={{ transform: "scaleY(-1)" }} />
+              <span>Drop-off analysis</span>
             </div>
             <div className="atx-metric">
-              <FileTextIcon size={22} stroke="#fbbf24" />
-              <span>Exportable reports for internal and external use</span>
+              <FileTextIcon size={22} stroke="#F9A825" />
+              <span>Exportable compliance reports</span>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="inv-section" id="security">
-        <div className="inv-container">
-          <div className="inv-section-header">
-            <div className="inv-section-label">Security</div>
-            <h2 className="inv-section-title">Security &amp; Oversight</h2>
+      <hr className="atx-divider" />
+
+      <section className="atx-section atx-section-alt" id="security">
+        <div className="atx-container">
+          <div className="atx-section-header">
+            <div className="atx-slide-number">08 &mdash; Compliance</div>
+            <div className="atx-section-label">Security</div>
+            <h2 className="atx-section-title">Security &amp; <em>Oversight</em></h2>
           </div>
           <div className="atx-security-grid">
             <div className="atx-security-item">
-              <LockIcon size={24} stroke="#34d399" />
+              <LockIcon size={24} stroke="#00467F" />
               <div>
                 <h4>Encryption</h4>
                 <p>Data encrypted in transit and at rest</p>
               </div>
             </div>
             <div className="atx-security-item">
-              <ShieldIcon size={24} stroke="#60a5fa" />
+              <ShieldIcon size={24} stroke="#2E7D32" />
               <div>
                 <h4>Role-Based Access</h4>
                 <p>Staff access controlled by role and permissions</p>
               </div>
             </div>
             <div className="atx-security-item">
-              <CheckCircleIcon size={24} stroke="#fbbf24" />
+              <CheckCircleIcon size={24} stroke="#F9A825" />
               <div>
                 <h4>Approval Required</h4>
                 <p>All incentive payouts require admin approval</p>
               </div>
             </div>
             <div className="atx-security-item">
-              <FileTextIcon size={24} stroke="#a78bfa" />
+              <FileTextIcon size={24} stroke="#0288D1" />
               <div>
                 <h4>Full Audit Trail</h4>
                 <p>Complete log of participant activity and payouts</p>
@@ -353,11 +394,12 @@ export default function AustinPage() {
         </div>
       </section>
 
-      <section className="inv-section inv-section-alt" id="timeline">
-        <div className="inv-container">
-          <div className="inv-section-header">
-            <div className="inv-section-label">Timeline</div>
-            <h2 className="inv-section-title">Pilot Timeline</h2>
+      <section className="atx-section" id="timeline">
+        <div className="atx-container">
+          <div className="atx-section-header">
+            <div className="atx-slide-number">09 &mdash; Timeline</div>
+            <div className="atx-section-label">Timeline</div>
+            <h2 className="atx-section-title">Pilot <em>Timeline</em></h2>
           </div>
           <div className="atx-timeline">
             <div className="atx-timeline-item">
@@ -396,12 +438,15 @@ export default function AustinPage() {
         </div>
       </section>
 
-      <section className="inv-section" id="expansion">
-        <div className="inv-container">
-          <div className="inv-section-header">
-            <div className="inv-section-label">Growth</div>
-            <h2 className="inv-section-title">Built to Scale</h2>
-            <p className="inv-section-subtitle">
+      <hr className="atx-divider" />
+
+      <section className="atx-section atx-section-alt" id="expansion">
+        <div className="atx-container">
+          <div className="atx-section-header">
+            <div className="atx-slide-number">10 &mdash; Growth</div>
+            <div className="atx-section-label">Expansion</div>
+            <h2 className="atx-section-title">Built to <em>Scale</em></h2>
+            <p className="atx-section-subtitle">
               Start focused, then expand as outcomes prove out.
             </p>
           </div>
@@ -430,38 +475,30 @@ export default function AustinPage() {
         </div>
       </section>
 
-      <section className="inv-section inv-section-dark" id="contact">
-        <div className="inv-container">
-          <div className="inv-section-header" style={{ marginBottom: "2.5rem" }}>
-            <h2 className="inv-section-title">
-              Bring Learn to Earn<br />to Austin
-            </h2>
-            <p className="inv-section-subtitle">
-              Ready to explore a 90-day pilot? Let&apos;s connect.
-            </p>
-          </div>
-          <div className="inv-hero-actions">
-            <a href="mailto:partners@learn2earn.org?subject=Austin%20Pilot%20Plan%20Request" className="inv-btn inv-btn-primary inv-btn-lg">Request Pilot Plan</a>
-            <a href="mailto:partners@learn2earn.org?subject=Schedule%20Austin%20Demo" className="inv-btn inv-btn-outline inv-btn-lg">Schedule Demo</a>
+      <section className="atx-cta-section" id="contact">
+        <div className="atx-container">
+          <h2>Bring Learn to Earn<br />to Austin</h2>
+          <p>Ready to explore a 90-day pilot? Let&apos;s connect.</p>
+          <div className="atx-cta-actions">
+            <a href="mailto:partners@learn2earn.org?subject=Austin%20Pilot%20Plan%20Request" className="atx-btn-primary">Request Pilot Plan</a>
+            <a href="mailto:partners@learn2earn.org?subject=Schedule%20Austin%20Demo" className="atx-btn-outline">Schedule Demo</a>
           </div>
           <p className="atx-cta-note">Response within 1 business day</p>
         </div>
       </section>
 
-      <footer className="inv-footer">
-        <div className="inv-container">
-          <div className="inv-footer-logo">
+      <footer className="atx-footer">
+        <div className="atx-container">
+          <div className="atx-footer-logo">
             Learn<span>2</span>Earn
           </div>
-          <p className="inv-footer-tagline">
+          <p className="atx-footer-tagline">
             Measurable impact. Full transparency. Real outcomes.
           </p>
-          <nav className="inv-footer-links">
+          <nav className="atx-footer-links">
             <a href="/">Home</a>
-            <span className="inv-footer-sep">|</span>
+            <span className="atx-footer-sep">|</span>
             <a href="mailto:partners@learn2earn.org">partners@learn2earn.org</a>
-            <span className="inv-footer-sep">|</span>
-            <FounderModal />
           </nav>
         </div>
       </footer>
