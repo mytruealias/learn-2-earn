@@ -108,6 +108,14 @@ function NavIcon({ name }: { name: string }) {
           <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
         </svg>
       );
+    case "reports":
+      return (
+        <svg {...iconProps}>
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="7 10 12 15 17 10" />
+          <line x1="12" y1="15" x2="12" y2="3" />
+        </svg>
+      );
     default:
       return null;
   }
@@ -204,6 +212,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       label: "Directory",
       items: [
         { href: "/admin/directory", label: "Directory", icon: "directory", badge: 0 },
+      ],
+    },
+    {
+      label: "Reporting",
+      items: [
+        { href: "/admin/reports", label: "Reports", icon: "reports", badge: 0 },
       ],
     },
     ...(["admin", "finance"].includes(admin.role)
