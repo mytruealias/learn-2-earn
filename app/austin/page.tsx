@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./austin.css";
+import AustinNav from "./AustinNav";
 import {
   UsersIcon, ClipboardIcon, CoinIcon, ShieldIcon, BarChartIcon,
   CheckCircleIcon, SmartphoneIcon, BriefcaseIcon, TargetIcon,
@@ -32,22 +33,7 @@ export const metadata: Metadata = {
 export default function AustinPage() {
   return (
     <div className="atx-page">
-      <nav className="atx-nav">
-        <a href="/" className="atx-nav-logo">
-          <svg viewBox="0 0 32 32" fill="none"><rect x="4" y="18" width="6" height="10" rx="1" fill="#00467F" opacity="0.5"/><rect x="13" y="12" width="6" height="16" rx="1" fill="#00467F" opacity="0.7"/><rect x="22" y="6" width="6" height="22" rx="1" fill="#00467F"/></svg>
-          Learn2Earn
-        </a>
-        <div className="atx-nav-links">
-          <a href="#problem">Challenge</a>
-          <a href="#solution">Solution</a>
-          <a href="#how-it-works">Process</a>
-          <a href="#scope">Scope</a>
-          <a href="#funding">Funding</a>
-          <a href="#learning-paths">Paths</a>
-          <a href="#timeline">Timeline</a>
-          <a href="#contact" className="atx-nav-cta">Request Pilot Plan</a>
-        </div>
-      </nav>
+      <AustinNav />
 
       <section className="atx-hero">
         <div className="atx-hero-badge">City of Austin &middot; 90-Day Pilot Proposal</div>
