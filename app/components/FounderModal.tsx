@@ -58,19 +58,18 @@ export default function FounderModal() {
                 <p className="inv-founder-role">Founder</p>
 
                 <p className="inv-founder-text">
-                  Anthony grew up in Los Angeles, raised by young parents who were caught
-                  up in the cycle of negative influences and substance abuse. What started
-                  as instability at home eventually led his family into homelessness &mdash;
-                  an experience that shaped how he sees the world and the people in it.
+                  I grew up in Los Angeles. My parents were young, caught up in substance
+                  abuse and the cycle that comes with it. That instability at home eventually
+                  put my family on the streets. I know what it feels like to wonder where
+                  the next meal is coming from and to fight for a future nobody expects
+                  you to have.
                 </p>
                 <p className="inv-founder-text">
-                  That firsthand understanding of what it means to feel invisible, to wonder
-                  where the next meal is coming from, and to fight for a future that nobody
-                  expects you to have &mdash; that&apos;s the heart of Learn to Earn. Anthony
-                  built this platform because he knows that people experiencing homelessness
-                  aren&apos;t lacking ability. They&apos;re lacking opportunity. Learn to Earn
-                  exists to close that gap: real education, real incentives, and real support
-                  for people ready to take the next step.
+                  That experience is why I built Learn to Earn. I&apos;ve seen firsthand
+                  that people experiencing homelessness aren&apos;t lacking ability. They&apos;re
+                  lacking opportunity. This platform exists to close that gap. Real education,
+                  real incentives, and real support for people who are ready to take the
+                  next step.
                 </p>
 
                 <div className="inv-founder-edu">
