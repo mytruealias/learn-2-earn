@@ -43,6 +43,7 @@ export default function AustinPage() {
           <a href="#how-it-works">Process</a>
           <a href="#scope">Scope</a>
           <a href="#funding">Funding</a>
+          <a href="#learning-paths">Paths</a>
           <a href="#timeline">Timeline</a>
           <a href="#contact" className="atx-nav-cta">Request Pilot Plan</a>
         </div>
