@@ -43,6 +43,17 @@ interface AdjustmentRecord {
   adminName: string;
 }
 
+interface PayoutConfigRecord {
+  id: string;
+  programSlug: string;
+  programName: string;
+  xpToDollar: number;
+  minimumXp: number;
+  weeklyXpCap: number;
+  isActive: boolean;
+  updatedAt: string;
+}
+
 export interface FinanceData {
   disbursement: {
     days7: DisbursementWindow;
@@ -54,6 +65,7 @@ export interface FinanceData {
   stripe: StripeInfo;
   pool: PoolInfo;
   adjustments: AdjustmentRecord[];
+  payoutConfigs: PayoutConfigRecord[];
 }
 
 function formatDollars(n: number) {
@@ -82,16 +94,27 @@ export default function FinanceClient({ initialData }: { initialData: FinanceDat
   const [adjustSubmitting, setAdjustSubmitting] = useState(false);
   const [showAdjustForm, setShowAdjustForm] = useState(false);
 
+  const [showConfigForm, setShowConfigForm] = useState(false);
+  const [editingConfig, setEditingConfig] = useState<PayoutConfigRecord | null>(null);
+  const [cfgSlug, setCfgSlug] = useState("");
+  const [cfgName, setCfgName] = useState("");
+  const [cfgRate, setCfgRate] = useState("0.05");
+  const [cfgMin, setCfgMin] = useState("20");
+  const [cfgCap, setCfgCap] = useState("500");
+  const [cfgSubmitting, setCfgSubmitting] = useState(false);
+
   const refreshData = useCallback(async () => {
-    const [finRes, poolRes] = await Promise.all([
+    const [finRes, poolRes, cfgRes] = await Promise.all([
       fetch("/api/admin/finance", { credentials: "include", cache: "no-store" }),
       fetch("/api/admin/finance/pool", { credentials: "include", cache: "no-store" }),
+      fetch("/api/admin/finance/payout-config", { credentials: "include", cache: "no-store" }),
     ]);
-    const [finData, poolData] = await Promise.all([finRes.json(), poolRes.json()]);
+    const [finData, poolData, cfgData] = await Promise.all([finRes.json(), poolRes.json(), cfgRes.json()]);
     if (finData.ok) {
       setData((prev) => ({
         ...finData,
         adjustments: poolData.ok ? poolData.adjustments : prev.adjustments,
+        payoutConfigs: cfgData.ok ? cfgData.configs : prev.payoutConfigs,
       }));
     }
   }, []);
@@ -129,6 +152,86 @@ export default function FinanceClient({ initialData }: { initialData: FinanceDat
       showToast("Connection error", "error");
     } finally {
       setAdjustSubmitting(false);
+    }
+  };
+
+  const openNewConfigForm = () => {
+    setEditingConfig(null);
+    setCfgSlug("");
+    setCfgName("");
+    setCfgRate("0.05");
+    setCfgMin("20");
+    setCfgCap("500");
+    setShowConfigForm(true);
+  };
+
+  const openEditConfigForm = (c: PayoutConfigRecord) => {
+    setEditingConfig(c);
+    setCfgSlug(c.programSlug);
+    setCfgName(c.programName);
+    setCfgRate(String(c.xpToDollar));
+    setCfgMin(String(c.minimumXp));
+    setCfgCap(String(c.weeklyXpCap));
+    setShowConfigForm(true);
+  };
+
+  const handleConfigSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const rate = parseFloat(cfgRate);
+    const min = parseInt(cfgMin, 10);
+    const cap = parseInt(cfgCap, 10);
+
+    if (!cfgName.trim()) { showToast("Program name is required", "error"); return; }
+    if (isNaN(rate) || rate <= 0) { showToast("Rate must be a positive number", "error"); return; }
+    if (isNaN(min) || min < 1) { showToast("Minimum XP must be at least 1", "error"); return; }
+    if (isNaN(cap) || cap < 1) { showToast("Weekly cap must be at least 1", "error"); return; }
+
+    setCfgSubmitting(true);
+    try {
+      const isEdit = !!editingConfig;
+      const res = await fetch("/api/admin/finance/payout-config", {
+        method: isEdit ? "PUT" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(
+          isEdit
+            ? { id: editingConfig!.id, programName: cfgName.trim(), xpToDollar: rate, minimumXp: min, weeklyXpCap: cap }
+            : { programSlug: cfgSlug.trim(), programName: cfgName.trim(), xpToDollar: rate, minimumXp: min, weeklyXpCap: cap }
+        ),
+        credentials: "include",
+      });
+      const result = await res.json();
+      if (result.ok) {
+        showToast(isEdit ? "Config updated" : "Config created", "success");
+        setShowConfigForm(false);
+        setEditingConfig(null);
+        await refreshData();
+      } else {
+        showToast(result.error || "Failed to save config", "error");
+      }
+    } catch {
+      showToast("Connection error", "error");
+    } finally {
+      setCfgSubmitting(false);
+    }
+  };
+
+  const handleToggleConfig = async (c: PayoutConfigRecord) => {
+    try {
+      const res = await fetch("/api/admin/finance/payout-config", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: c.id, isActive: !c.isActive }),
+        credentials: "include",
+      });
+      const result = await res.json();
+      if (result.ok) {
+        showToast(c.isActive ? "Config deactivated" : "Config activated", "success");
+        await refreshData();
+      } else {
+        showToast(result.error || "Failed to toggle config", "error");
+      }
+    } catch {
+      showToast("Connection error", "error");
     }
   };
 
@@ -301,6 +404,139 @@ export default function FinanceClient({ initialData }: { initialData: FinanceDat
                   </span>
                   <span className={styles.adjReason}>{a.reason}</span>
                   <span className={styles.adjAdmin}>{a.adminName}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {isFinanceOrAdmin && (
+        <div className={styles.section}>
+          <div className={styles.sectionTitleRow}>
+            <h2 className={styles.sectionTitle}>Payout Rules by Program</h2>
+            <button className={styles.addAdjBtn} onClick={() => showConfigForm ? setShowConfigForm(false) : openNewConfigForm()}>
+              {showConfigForm ? "Cancel" : "+ Add program"}
+            </button>
+          </div>
+
+          {!data.payoutConfigs.length && !showConfigForm && (
+            <div className={styles.cfgDefaults}>
+              No program-specific rules configured. All payouts use system defaults: $0.05/XP, min 20 XP, 500 XP weekly cap.
+            </div>
+          )}
+
+          {showConfigForm && (
+            <form onSubmit={handleConfigSubmit} className={styles.adjustForm}>
+              <div className={styles.adjustFormRow}>
+                {!editingConfig && (
+                  <div className={styles.adjustFormGroup}>
+                    <label className={styles.adjustLabel}>Program slug</label>
+                    <input
+                      type="text"
+                      value={cfgSlug}
+                      onChange={(e) => setCfgSlug(e.target.value.slice(0, 50))}
+                      placeholder="e.g. austin, denver, default"
+                      className={styles.adjustInput}
+                      required
+                    />
+                    <div className={styles.adjustHint}>Matches user city field or &quot;default&quot; for fallback</div>
+                  </div>
+                )}
+                <div className={styles.adjustFormGroup}>
+                  <label className={styles.adjustLabel}>Program name</label>
+                  <input
+                    type="text"
+                    value={cfgName}
+                    onChange={(e) => setCfgName(e.target.value.slice(0, 100))}
+                    placeholder="e.g. Austin Pilot"
+                    className={styles.adjustInput}
+                    required
+                  />
+                </div>
+              </div>
+              <div className={styles.adjustFormRow}>
+                <div className={styles.adjustFormGroup}>
+                  <label className={styles.adjustLabel}>XP-to-dollar rate</label>
+                  <div className={styles.adjustAmountWrap}>
+                    <span className={styles.adjustCurrencySign}>$</span>
+                    <input
+                      type="number"
+                      step="0.001"
+                      min="0.001"
+                      value={cfgRate}
+                      onChange={(e) => setCfgRate(e.target.value)}
+                      className={styles.adjustInput}
+                      required
+                    />
+                  </div>
+                  <div className={styles.adjustHint}>Dollars per 1 XP</div>
+                </div>
+                <div className={styles.adjustFormGroup}>
+                  <label className={styles.adjustLabel}>Minimum XP</label>
+                  <input
+                    type="number"
+                    min="1"
+                    step="1"
+                    value={cfgMin}
+                    onChange={(e) => setCfgMin(e.target.value)}
+                    className={styles.adjustInput}
+                    required
+                  />
+                  <div className={styles.adjustHint}>Minimum XP to request a payout</div>
+                </div>
+                <div className={styles.adjustFormGroup}>
+                  <label className={styles.adjustLabel}>Weekly XP cap</label>
+                  <input
+                    type="number"
+                    min="1"
+                    step="1"
+                    value={cfgCap}
+                    onChange={(e) => setCfgCap(e.target.value)}
+                    className={styles.adjustInput}
+                    required
+                  />
+                  <div className={styles.adjustHint}>Max XP redeemable per 7-day window</div>
+                </div>
+              </div>
+              <div className={styles.adjustFormActions}>
+                <button type="submit" disabled={cfgSubmitting} className={styles.adjustSubmitBtn}>
+                  {cfgSubmitting ? "Saving..." : editingConfig ? "Update config" : "Create config"}
+                </button>
+              </div>
+            </form>
+          )}
+
+          {data.payoutConfigs.length > 0 && (
+            <div className={styles.cfgTable}>
+              <div className={styles.cfgTableHeader}>
+                <span>Program</span>
+                <span>Rate</span>
+                <span>Min XP</span>
+                <span>Weekly cap</span>
+                <span>Status</span>
+                <span>Actions</span>
+              </div>
+              {data.payoutConfigs.map((c) => (
+                <div key={c.id} className={styles.cfgTableRow}>
+                  <span className={styles.cfgProgram}>
+                    <span className={styles.cfgProgramName}>{c.programName}</span>
+                    <span className={styles.cfgProgramSlug}>{c.programSlug}</span>
+                  </span>
+                  <span className={styles.cfgValue}>${c.xpToDollar}/XP</span>
+                  <span className={styles.cfgValue}>{c.minimumXp} XP</span>
+                  <span className={styles.cfgValue}>{c.weeklyXpCap} XP</span>
+                  <span>
+                    <span className={`${styles.cfgStatus} ${c.isActive ? styles.cfgActive : styles.cfgInactive}`}>
+                      {c.isActive ? "Active" : "Inactive"}
+                    </span>
+                  </span>
+                  <span className={styles.cfgActions}>
+                    <button className={styles.cfgEditBtn} onClick={() => openEditConfigForm(c)}>Edit</button>
+                    <button className={styles.cfgToggleBtn} onClick={() => handleToggleConfig(c)}>
+                      {c.isActive ? "Deactivate" : "Activate"}
+                    </button>
+                  </span>
                 </div>
               ))}
             </div>

@@ -295,6 +295,18 @@ model ConsentRecord {
   @@index([userId])
 }
 
+model PayoutConfig {
+  id            String   @id @default(cuid())
+  programSlug   String   @unique
+  programName   String
+  xpToDollar    Float    @default(0.05)
+  minimumXp     Int      @default(20)
+  weeklyXpCap   Int      @default(500)
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
 model PoolBalance {
   id          String   @id @default(cuid())
   balanceCents Int     @default(0)

@@ -6,9 +6,43 @@ import { getUserIdFromRequest } from "@/lib/user-session";
 
 const VALID_PAYMENT_METHODS: PaymentMethod[] = ["venmo", "paypal", "cashapp", "check"];
 const MAX_HANDLE_LENGTH = 255;
-const MIN_XP = 20;
-const XP_TO_DOLLAR = 0.05;
-const WEEKLY_XP_CAP = 500;
+
+const DEFAULT_MIN_XP = 20;
+const DEFAULT_XP_TO_DOLLAR = 0.05;
+const DEFAULT_WEEKLY_XP_CAP = 500;
+
+async function getPayoutRules(userCity: string | null) {
+  if (userCity) {
+    const slug = userCity.trim().toLowerCase().replace(/[^a-z0-9-]/g, "-");
+    const config = await prisma.payoutConfig.findFirst({
+      where: { programSlug: slug, isActive: true },
+    });
+    if (config) {
+      return {
+        minXp: config.minimumXp,
+        xpToDollar: config.xpToDollar,
+        weeklyXpCap: config.weeklyXpCap,
+      };
+    }
+  }
+
+  const defaultConfig = await prisma.payoutConfig.findFirst({
+    where: { programSlug: "default", isActive: true },
+  });
+  if (defaultConfig) {
+    return {
+      minXp: defaultConfig.minimumXp,
+      xpToDollar: defaultConfig.xpToDollar,
+      weeklyXpCap: defaultConfig.weeklyXpCap,
+    };
+  }
+
+  return {
+    minXp: DEFAULT_MIN_XP,
+    xpToDollar: DEFAULT_XP_TO_DOLLAR,
+    weeklyXpCap: DEFAULT_WEEKLY_XP_CAP,
+  };
+}
 
 export async function POST(req: Request) {
   try {
@@ -27,9 +61,17 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Not authorized." }, { status: 403 });
     }
 
-    if (!Number.isInteger(xpAmount) || xpAmount < MIN_XP) {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+
+    if (!user) {
+      return NextResponse.json({ error: "User not found." }, { status: 404 });
+    }
+
+    const { minXp, xpToDollar, weeklyXpCap } = await getPayoutRules(user.city);
+
+    if (!Number.isInteger(xpAmount) || xpAmount < minXp) {
       return NextResponse.json(
-        { error: `You need at least ${MIN_XP} XP to request a payout` },
+        { error: `You need at least ${minXp} XP to request a payout` },
         { status: 400 }
       );
     }
@@ -52,12 +94,6 @@ export async function POST(req: Request) {
       );
     }
 
-    const user = await prisma.user.findUnique({ where: { id: userId } });
-
-    if (!user) {
-      return NextResponse.json({ error: "User not found." }, { status: 404 });
-    }
-
     if (!user.email || !user.fullName) {
       return NextResponse.json(
         { error: "Please complete your profile before requesting a payout." },
@@ -73,8 +109,8 @@ export async function POST(req: Request) {
     const totalPayoutXp = _sum.xpAmount ?? 0;
     const availableXp = user.totalXp - totalPayoutXp;
 
-    if (availableXp < MIN_XP) {
-      const needed = MIN_XP - availableXp;
+    if (availableXp < minXp) {
+      const needed = minXp - availableXp;
       return NextResponse.json(
         { error: `You need ${needed} more XP to request a payout.` },
         { status: 400 }
@@ -91,15 +127,15 @@ export async function POST(req: Request) {
       _sum: { xpAmount: true },
     });
     const weeklyXpRequested = weeklySum.xpAmount ?? 0;
-    if (weeklyXpRequested + xpAmount > WEEKLY_XP_CAP) {
-      const remaining = Math.max(0, WEEKLY_XP_CAP - weeklyXpRequested);
+    if (weeklyXpRequested + xpAmount > weeklyXpCap) {
+      const remaining = Math.max(0, weeklyXpCap - weeklyXpRequested);
       return NextResponse.json(
         { error: `Weekly payout limit reached. You can request up to ${remaining} more XP this week.` },
         { status: 400 }
       );
     }
 
-    const dollarAmount = Math.round(xpAmount * XP_TO_DOLLAR * 100) / 100;
+    const dollarAmount = Math.round(xpAmount * xpToDollar * 100) / 100;
 
     const methodLabels: Record<string, string> = {
       venmo: "Venmo",
@@ -130,7 +166,7 @@ export async function POST(req: Request) {
       action: "PAYOUT_REQUESTED",
       entity: "PayoutRequest",
       entityId: payout.id,
-      details: JSON.stringify({ userId, xpAmount, dollarAmount, paymentMethod }),
+      details: JSON.stringify({ userId, xpAmount, dollarAmount, paymentMethod, xpToDollar, weeklyXpCap, minXp }),
       ipAddress: req.headers.get("x-forwarded-for") ?? "unknown",
     });
 

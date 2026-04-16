@@ -12,7 +12,7 @@ async function getFinanceData(adminId: string): Promise<FinanceData> {
   const days30 = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
   const days90 = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
 
-  const [payouts7, payouts30, payouts90, pendingLiability, recentPayouts, poolRecord, adjustmentRecords] =
+  const [payouts7, payouts30, payouts90, pendingLiability, recentPayouts, poolRecord, adjustmentRecords, payoutConfigs] =
     await Promise.all([
       prisma.payoutRequest.aggregate({
         where: { status: { in: ["completed", "approved"] }, updatedAt: { gte: days7 } },
@@ -51,6 +51,9 @@ async function getFinanceData(adminId: string): Promise<FinanceData> {
         orderBy: { createdAt: "desc" },
         take: 20,
         include: { admin: { select: { fullName: true } } },
+      }),
+      prisma.payoutConfig.findMany({
+        orderBy: { programName: "asc" },
       }),
     ]);
 
@@ -136,6 +139,16 @@ async function getFinanceData(adminId: string): Promise<FinanceData> {
       reason: a.reason,
       createdAt: a.createdAt.toISOString(),
       adminName: a.admin.fullName,
+    })),
+    payoutConfigs: payoutConfigs.map((c) => ({
+      id: c.id,
+      programSlug: c.programSlug,
+      programName: c.programName,
+      xpToDollar: c.xpToDollar,
+      minimumXp: c.minimumXp,
+      weeklyXpCap: c.weeklyXpCap,
+      isActive: c.isActive,
+      updatedAt: c.updatedAt.toISOString(),
     })),
   };
 }
