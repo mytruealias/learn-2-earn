@@ -8,7 +8,11 @@ const LEARNER_PATHS = [
   "/lifeline", "/signup", "/login", "/access",
 ];
 
-async function verifyToken(token: string, secret: string): Promise<boolean> {
+async function verifyHmacToken(
+  token: string,
+  secret: string,
+  prefix: string,
+): Promise<boolean> {
   try {
     const parts = token.split(".");
     if (parts.length !== 2) return false;
@@ -16,7 +20,7 @@ async function verifyToken(token: string, secret: string): Promise<boolean> {
     const [encodedPayload, signature] = parts;
     const payload = atob(encodedPayload);
 
-    if (!payload.startsWith("demo-access:")) return false;
+    if (!payload.startsWith(prefix)) return false;
 
     const encoder = new TextEncoder();
     const key = await crypto.subtle.importKey(
@@ -33,7 +37,8 @@ async function verifyToken(token: string, secret: string): Promise<boolean> {
 
     if (signature !== expectedSig) return false;
 
-    const timestamp = parseInt(payload.split(":")[1], 10);
+    const timestamp = parseInt(payload.slice(prefix.length), 10);
+    if (!Number.isFinite(timestamp)) return false;
     const thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
     if (Date.now() - timestamp > thirtyDaysMs) return false;
 
@@ -41,6 +46,14 @@ async function verifyToken(token: string, secret: string): Promise<boolean> {
   } catch {
     return false;
   }
+}
+
+async function verifyToken(token: string, secret: string): Promise<boolean> {
+  return verifyHmacToken(token, secret, "demo-access:");
+}
+
+async function verifyAustinToken(token: string, secret: string): Promise<boolean> {
+  return verifyHmacToken(token, secret, "austin-access:");
 }
 
 function redirect301(url: string): NextResponse {
@@ -98,6 +111,35 @@ export async function middleware(request: NextRequest) {
         }
       }
     }
+  }
+
+  // ── AUSTIN PIN GATE ────────────────────────────────────────────────────────
+  // The /austin pitch deck is sensitive and requires a PIN. Independent from
+  // the learner demo gate: separate cookie, separate token prefix, separate
+  // unlock page. /austin/unlock itself must stay reachable.
+  const isAustinPath =
+    (pathname === "/austin" || pathname.startsWith("/austin/")) &&
+    pathname !== "/austin/unlock" &&
+    !pathname.startsWith("/austin/unlock/");
+
+  if (isAustinPath) {
+    const austinToken = request.cookies.get("l2e_austin_access")?.value;
+    let austinOk = false;
+    if (austinToken) {
+      const austinSecret =
+        process.env.SESSION_SECRET ||
+        process.env.AUSTIN_ACCESS_PIN ||
+        "l2e-austin-fallback-secret";
+      austinOk = await verifyAustinToken(austinToken, austinSecret);
+    }
+    if (!austinOk) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/austin/unlock";
+      url.search = "";
+      url.searchParams.set("next", pathname);
+      return NextResponse.redirect(url);
+    }
+    return NextResponse.next();
   }
 
   // ── DEMO ACCESS GATE ───────────────────────────────────────────────────────
