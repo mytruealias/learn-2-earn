@@ -71,6 +71,14 @@ export default function FounderModal() {
                   real incentives, and real support for people who are ready to take the
                   next step.
                 </p>
+                <p className="inv-founder-text">
+                  I know what rock bottom looks like. I know what it&apos;s like when
+                  you can&apos;t even afford a bottle of water. That&apos;s why Learn to Earn
+                  pays people to learn instead of charging them. This was never about
+                  building a business. It&apos;s about building something bigger than me.
+                  A movement that meets people where they are and gives them a real shot
+                  at moving forward. Impact comes first. Everything else follows.
+                </p>
 
                 <div className="inv-founder-edu">
                   <span className="inv-founder-edu-label">Education</span>
