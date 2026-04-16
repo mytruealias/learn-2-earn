@@ -440,10 +440,133 @@ export default function AustinPage() {
 
       <hr className="atx-divider" />
 
-      <section className="atx-section atx-section-alt" id="expansion">
+      <section className="atx-section atx-section-alt" id="learning-paths">
         <div className="atx-container">
           <div className="atx-section-header">
-            <div className="atx-slide-number">10 &mdash; Growth</div>
+            <div className="atx-slide-number">10 &mdash; Content Library</div>
+            <div className="atx-section-label">Learning Paths</div>
+            <h2 className="atx-section-title">11 Paths Ready to <em>Deploy</em></h2>
+            <p className="atx-section-subtitle">
+              Start with one pathway during the pilot &mdash; then layer in additional tracks
+              as outcomes grow. No re-enrollment required.
+            </p>
+          </div>
+
+          <div className="atx-paths-group">
+            <h3 className="atx-paths-group-title">Foundational</h3>
+            <div className="atx-paths-grid">
+              <div className="atx-path-card">
+                <span className="atx-path-emoji">🏠</span>
+                <div>
+                  <h4>Stability Basics</h4>
+                  <p>Daily routines, communication, documents, health access, and boundaries</p>
+                </div>
+              </div>
+              <div className="atx-path-card">
+                <span className="atx-path-emoji">🛡️</span>
+                <div>
+                  <h4>Survival &amp; Systems</h4>
+                  <p>Navigate housing, benefits, crisis moments, and work readiness</p>
+                </div>
+              </div>
+              <div className="atx-path-card">
+                <span className="atx-path-emoji">🚀</span>
+                <div>
+                  <h4>Building Your Future</h4>
+                  <p>Goals, identity, education, habits, and long-term growth</p>
+                </div>
+              </div>
+              <div className="atx-path-card">
+                <span className="atx-path-emoji">💰</span>
+                <div>
+                  <h4>Financial Literacy</h4>
+                  <p>Budgeting, banking, credit, and protecting yourself from scams</p>
+                </div>
+              </div>
+              <div className="atx-path-card">
+                <span className="atx-path-emoji">🌱</span>
+                <div>
+                  <h4>Life Skills</h4>
+                  <p>Communication, relationships, digital literacy, and community connection</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="atx-paths-group">
+            <h3 className="atx-paths-group-title">Recovery &amp; Support</h3>
+            <div className="atx-paths-grid">
+              <div className="atx-path-card">
+                <span className="atx-path-emoji">🧠</span>
+                <div>
+                  <h4>Addiction &amp; Recovery Foundations</h4>
+                  <p>Self-awareness, craving tools, and personal recovery planning</p>
+                </div>
+              </div>
+              <div className="atx-path-card">
+                <span className="atx-path-emoji">🛟</span>
+                <div>
+                  <h4>Harm Reduction &amp; Safety</h4>
+                  <p>Stay safer, prevent overdose, and connect to help</p>
+                </div>
+              </div>
+              <div className="atx-path-card">
+                <span className="atx-path-emoji">🏥</span>
+                <div>
+                  <h4>Treatment &amp; Recovery Navigation</h4>
+                  <p>Access care, stay engaged, and navigate the treatment system</p>
+                </div>
+              </div>
+              <div className="atx-path-card">
+                <span className="atx-path-emoji">🔒</span>
+                <div>
+                  <h4>Relapse Prevention Mastery</h4>
+                  <p>Warning signs, boundaries, emotional resilience, and maintenance</p>
+                </div>
+              </div>
+              <div className="atx-path-card">
+                <span className="atx-path-emoji">⚠️</span>
+                <div>
+                  <h4>Substance-Specific Safety</h4>
+                  <p>Targeted safety for alcohol, opioids, and stimulants</p>
+                </div>
+              </div>
+              <div className="atx-path-card">
+                <span className="atx-path-emoji">💛</span>
+                <div>
+                  <h4>Supporter &amp; Family Skills</h4>
+                  <p>Help a loved one without enabling &mdash; protect your own wellbeing</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="atx-custom-paths">
+            <div className="atx-custom-paths-badge">+ Custom</div>
+            <h3>Custom Paths for Austin</h3>
+            <p>
+              We build city-specific learning paths tailored to your priorities.
+              Examples for Austin:
+            </p>
+            <div className="atx-custom-examples">
+              <span>Local Workforce Programs</span>
+              <span>Public Transit Navigation</span>
+              <span>City Resource Directory</span>
+              <span>Cultural Orientation</span>
+              <span>Tenant Rights &amp; Housing</span>
+              <span>Digital Access &amp; Connectivity</span>
+            </div>
+            <p className="atx-custom-note">
+              Custom paths are built collaboratively with city staff and deployed without additional enrollment.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="atx-section" id="expansion">
+        <div className="atx-container">
+          <div className="atx-section-header">
+            <div className="atx-slide-number">11 &mdash; Growth</div>
             <div className="atx-section-label">Expansion</div>
             <h2 className="atx-section-title">Built to <em>Scale</em></h2>
             <p className="atx-section-subtitle">
