@@ -43,8 +43,8 @@ function UnlockForm() {
   return (
     <div className="atx-unlock-card">
       <div className="atx-unlock-header">
-        <div className="atx-hero-badge" style={{ color: "rgba(255,255,255,0.9)" }}>
-          City of Austin &middot; Partnership Deck
+        <div className="atx-hero-badge">
+          City of Austin &middot; Invitation-Only Partnership Deck
         </div>
         <h1 className="atx-unlock-title">
           Enter Access PIN
