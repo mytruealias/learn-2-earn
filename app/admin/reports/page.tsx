@@ -52,6 +52,20 @@ interface ReportsData {
 
 type Range = "30" | "60" | "90";
 
+function groupByWeek(data: EngagementPoint[]): EngagementPoint[] {
+  const weeks = new Map<string, number>();
+  for (const d of data) {
+    const date = new Date(d.date);
+    const weekStart = new Date(date);
+    weekStart.setDate(date.getDate() - date.getDay());
+    const key = weekStart.toISOString().slice(0, 10);
+    weeks.set(key, (weeks.get(key) || 0) + d.count);
+  }
+  return Array.from(weeks.entries())
+    .map(([date, count]) => ({ date, count }))
+    .sort((a, b) => a.date.localeCompare(b.date));
+}
+
 function EngagementChart({ data, range }: { data: EngagementPoint[]; range: Range }) {
   const days = parseInt(range);
   const now = new Date();
@@ -62,7 +76,8 @@ function EngagementChart({ data, range }: { data: EngagementPoint[]; range: Rang
     return <div className={styles.noData}>No engagement data for this period</div>;
   }
 
-  const values = filtered.map((d) => d.count);
+  const chartData = days > 30 ? groupByWeek(filtered) : filtered;
+  const values = chartData.map((d) => d.count);
   const max = Math.max(...values, 1);
   const min = 0;
   const range_ = max - min || 1;
@@ -95,7 +110,7 @@ function EngagementChart({ data, range }: { data: EngagementPoint[]; range: Rang
         return (
           <g key={i}>
             <circle cx={px} cy={py} r="3" fill="#22c55e" />
-            <title>{filtered[i].date}: {v} lessons</title>
+            <title>{chartData[i].date}: {v} lessons</title>
           </g>
         );
       })}
@@ -241,7 +256,9 @@ export default function ReportsPage() {
       <div className={styles.section}>
         <div className={styles.chartCard}>
           <div className={styles.chartHeader}>
-            <span className={styles.chartTitle}>Lessons Completed Per Day</span>
+            <span className={styles.chartTitle}>
+              Lessons Completed {range === "30" ? "Per Day" : "Per Week"}
+            </span>
             <div className={styles.rangePicker}>
               {(["30", "60", "90"] as Range[]).map((r) => (
                 <button
