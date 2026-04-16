@@ -86,13 +86,14 @@ export async function middleware(request: NextRequest) {
       const isLearnerPath = LEARNER_PATHS.some(
         (p) => pathname === p || pathname.startsWith(p + "/")
       );
+      const isAustinPagePath = pathname === "/austin" || pathname.startsWith("/austin/");
       const isRootPath = pathname === "/";
 
       // API routes always pass through — no subdomain restriction on the API layer
       if (!isApiPath) {
         if (isRoot) {
-          // Root domain only serves /
-          if (!isRootPath) {
+          // Root domain serves / and /austin (city-partnership deck with its own PIN gate)
+          if (!isRootPath && !isAustinPagePath) {
             if (isAdminPath)   return redirect301(`https://admin.${rootDomain}${pathname}${search}`);
             if (isLearnerPath) return redirect301(`https://app.${rootDomain}${pathname}${search}`);
             return redirect301(`https://${rootDomain}/`);
@@ -101,12 +102,14 @@ export async function middleware(request: NextRequest) {
           // App subdomain: learner routes only
           if (isRootPath)  return redirect301(`https://app.${rootDomain}/app`);
           if (isAdminPath) return redirect301(`https://admin.${rootDomain}${pathname}${search}`);
+          if (isAustinPagePath) return redirect301(`https://${rootDomain}${pathname}${search}`);
           if (!isLearnerPath) return redirect301(`https://app.${rootDomain}/app`);
         } else if (isAdmin) {
           // Admin subdomain: admin routes only
           // Learner paths → route to the app subdomain (not trapped on admin)
           if (isRootPath)     return redirect301(`https://admin.${rootDomain}/admin`);
           if (isLearnerPath)  return redirect301(`https://app.${rootDomain}${pathname}${search}`);
+          if (isAustinPagePath) return redirect301(`https://${rootDomain}${pathname}${search}`);
           if (!isAdminPath)   return redirect301(`https://admin.${rootDomain}/admin`);
         }
       }
