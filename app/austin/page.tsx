@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import "./austin.css";
 import {
   UsersIcon, ClipboardIcon, CoinIcon, ShieldIcon, BarChartIcon,
@@ -7,6 +8,26 @@ import {
   StethoscopeIcon, AlertTriangleIcon, HeartHandIcon, BotIcon,
   HeartPlusIcon, RadioIcon, LayersIcon, MessageIcon, GlobeIcon,
 } from "../components/LandingIcons";
+
+export const metadata: Metadata = {
+  title: "Austin Pilot – Workforce Readiness & Stability",
+  description:
+    "A 90-day Learn2Earn pilot for Austin — incentive-based learning to drive workforce readiness and stability for residents facing homelessness.",
+  openGraph: {
+    title: "Learn2Earn Austin Pilot – Workforce Readiness & Stability",
+    description:
+      "A structured, measurable 90-day pilot to drive engagement, build life skills, and create real progress for Austin residents facing instability.",
+    url: "/austin",
+    type: "website",
+    siteName: "Learn 2 Earn",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Learn2Earn Austin Pilot – Workforce Readiness & Stability",
+    description:
+      "A structured, measurable 90-day pilot to drive engagement, build life skills, and create real progress for Austin residents facing instability.",
+  },
+};
 
 export default function AustinPage() {
   return (

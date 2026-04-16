@@ -1,7 +1,28 @@
+import type { Metadata } from "next";
 import CityPilotPage, { CityPilotConfig } from "../components/CityPilotPage";
 import {
   TrendingUpIcon, TargetIcon, BarChartIcon,
 } from "../components/LandingIcons";
+
+export const metadata: Metadata = {
+  title: "Dallas Pilot – Workforce Readiness & Stability",
+  description:
+    "A 90-day Learn2Earn pilot for Dallas — incentive-based learning to drive workforce readiness and stability for residents facing instability.",
+  openGraph: {
+    title: "Learn2Earn Dallas Pilot – Workforce Readiness & Stability",
+    description:
+      "Deploy Learn to Earn as a 90-day pilot to drive engagement, build life skills, and create measurable progress for Dallas residents facing instability.",
+    url: "/dallas",
+    type: "website",
+    siteName: "Learn 2 Earn",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Learn2Earn Dallas Pilot – Workforce Readiness & Stability",
+    description:
+      "Deploy Learn to Earn as a 90-day pilot to drive engagement, build life skills, and create measurable progress for Dallas residents facing instability.",
+  },
+};
 
 const dallasConfig: CityPilotConfig = {
   cityName: "Dallas",
