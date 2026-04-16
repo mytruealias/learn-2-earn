@@ -166,7 +166,7 @@ function exportReportCSV(data: ReportsData) {
   lines.push("");
 
   lines.push("DROP-OFF ANALYSIS BY PATH");
-  lines.push("Path,Total Lessons,Starters,Completers,Completion Rate");
+  lines.push("Path,Total Lessons,Starters,Completers,Starter Completion Rate");
   for (const p of data.dropoff) {
     lines.push(`${csvEscape(p.pathTitle)},${p.totalLessons},${p.uniqueStarters},${p.uniqueCompleters},${p.completionRate}%`);
     for (const m of p.modules) {
@@ -267,7 +267,7 @@ export default function ReportsPage() {
               <th>Lessons</th>
               <th>Starters</th>
               <th>Completers</th>
-              <th>Completion Rate</th>
+              <th>Starter Completion Rate</th>
             </tr>
           </thead>
           <tbody>

@@ -82,7 +82,6 @@ export async function GET(req: Request) {
       count: Number(row.count),
     }));
 
-    const allUsersWithProgress = new Set<string>();
     const dropoff: {
       pathTitle: string;
       modules: {
@@ -107,8 +106,6 @@ export async function GET(req: Request) {
       let pathTotalLessons = 0;
       const moduleStats: typeof dropoff[0]["modules"] = [];
 
-      const userLessonCompletionsByModule: Map<string, Map<string, Set<string>>> = new Map();
-
       for (const mod of path.modules) {
         const modStarters = new Set<string>();
         const modLessonCount = mod.lessons.length;
@@ -120,7 +117,6 @@ export async function GET(req: Request) {
           for (const p of lesson.progress) {
             modStarters.add(p.userId);
             pathStarters.add(p.userId);
-            allUsersWithProgress.add(p.userId);
             userCompletedLessons.set(p.userId, (userCompletedLessons.get(p.userId) || 0) + 1);
           }
         }
@@ -132,10 +128,6 @@ export async function GET(req: Request) {
           }
         }
         totalModuleCompletions += modCompleters.size;
-
-        if (!userLessonCompletionsByModule.has(path.id)) {
-          userLessonCompletionsByModule.set(path.id, new Map());
-        }
 
         moduleStats.push({
           title: mod.title,
