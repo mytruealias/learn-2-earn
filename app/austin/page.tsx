@@ -3,6 +3,8 @@ import {
   UsersIcon, ClipboardIcon, CoinIcon, ShieldIcon, BarChartIcon,
   CheckCircleIcon, SmartphoneIcon, BriefcaseIcon, TargetIcon,
   DollarIcon, FileTextIcon, LockIcon, TrendingUpIcon, CalendarIcon,
+  HomeIcon, RocketIcon, SproutIcon, BrainIcon, LifebuoyIcon,
+  StethoscopeIcon, AlertTriangleIcon, HeartHandIcon,
 } from "../components/LandingIcons";
 
 export default function AustinPage() {
@@ -456,35 +458,45 @@ export default function AustinPage() {
             <h3 className="atx-paths-group-title">Foundational</h3>
             <div className="atx-paths-grid">
               <div className="atx-path-card">
-                <span className="atx-path-emoji">🏠</span>
+                <div className="atx-path-icon atx-path-icon-navy">
+                  <HomeIcon size={20} stroke="#00467F" />
+                </div>
                 <div>
                   <h4>Stability Basics</h4>
                   <p>Daily routines, communication, documents, health access, and boundaries</p>
                 </div>
               </div>
               <div className="atx-path-card">
-                <span className="atx-path-emoji">🛡️</span>
+                <div className="atx-path-icon atx-path-icon-green">
+                  <ShieldIcon size={20} stroke="#2E7D32" />
+                </div>
                 <div>
                   <h4>Survival &amp; Systems</h4>
                   <p>Navigate housing, benefits, crisis moments, and work readiness</p>
                 </div>
               </div>
               <div className="atx-path-card">
-                <span className="atx-path-emoji">🚀</span>
+                <div className="atx-path-icon atx-path-icon-sky">
+                  <RocketIcon size={20} stroke="#0288D1" />
+                </div>
                 <div>
                   <h4>Building Your Future</h4>
                   <p>Goals, identity, education, habits, and long-term growth</p>
                 </div>
               </div>
               <div className="atx-path-card">
-                <span className="atx-path-emoji">💰</span>
+                <div className="atx-path-icon atx-path-icon-gold">
+                  <DollarIcon size={20} stroke="#F9A825" />
+                </div>
                 <div>
                   <h4>Financial Literacy</h4>
                   <p>Budgeting, banking, credit, and protecting yourself from scams</p>
                 </div>
               </div>
               <div className="atx-path-card">
-                <span className="atx-path-emoji">🌱</span>
+                <div className="atx-path-icon atx-path-icon-green">
+                  <SproutIcon size={20} stroke="#2E7D32" />
+                </div>
                 <div>
                   <h4>Life Skills</h4>
                   <p>Communication, relationships, digital literacy, and community connection</p>
@@ -497,42 +509,54 @@ export default function AustinPage() {
             <h3 className="atx-paths-group-title">Recovery &amp; Support</h3>
             <div className="atx-paths-grid">
               <div className="atx-path-card">
-                <span className="atx-path-emoji">🧠</span>
+                <div className="atx-path-icon atx-path-icon-navy">
+                  <BrainIcon size={20} stroke="#00467F" />
+                </div>
                 <div>
                   <h4>Addiction &amp; Recovery Foundations</h4>
                   <p>Self-awareness, craving tools, and personal recovery planning</p>
                 </div>
               </div>
               <div className="atx-path-card">
-                <span className="atx-path-emoji">🛟</span>
+                <div className="atx-path-icon atx-path-icon-sky">
+                  <LifebuoyIcon size={20} stroke="#0288D1" />
+                </div>
                 <div>
                   <h4>Harm Reduction &amp; Safety</h4>
                   <p>Stay safer, prevent overdose, and connect to help</p>
                 </div>
               </div>
               <div className="atx-path-card">
-                <span className="atx-path-emoji">🏥</span>
+                <div className="atx-path-icon atx-path-icon-green">
+                  <StethoscopeIcon size={20} stroke="#2E7D32" />
+                </div>
                 <div>
                   <h4>Treatment &amp; Recovery Navigation</h4>
                   <p>Access care, stay engaged, and navigate the treatment system</p>
                 </div>
               </div>
               <div className="atx-path-card">
-                <span className="atx-path-emoji">🔒</span>
+                <div className="atx-path-icon atx-path-icon-navy">
+                  <LockIcon size={20} stroke="#00467F" />
+                </div>
                 <div>
                   <h4>Relapse Prevention Mastery</h4>
                   <p>Warning signs, boundaries, emotional resilience, and maintenance</p>
                 </div>
               </div>
               <div className="atx-path-card">
-                <span className="atx-path-emoji">⚠️</span>
+                <div className="atx-path-icon atx-path-icon-gold">
+                  <AlertTriangleIcon size={20} stroke="#F9A825" />
+                </div>
                 <div>
                   <h4>Substance-Specific Safety</h4>
                   <p>Targeted safety for alcohol, opioids, and stimulants</p>
                 </div>
               </div>
               <div className="atx-path-card">
-                <span className="atx-path-emoji">💛</span>
+                <div className="atx-path-icon atx-path-icon-green">
+                  <HeartHandIcon size={20} stroke="#2E7D32" />
+                </div>
                 <div>
                   <h4>Supporter &amp; Family Skills</h4>
                   <p>Help a loved one without enabling &mdash; protect your own wellbeing</p>

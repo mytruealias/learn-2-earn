@@ -290,6 +290,84 @@ export function ClockIcon({ size = 28, stroke = "currentColor", style, className
   );
 }
 
+export function RocketIcon({ size = 28, stroke = "currentColor", style, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" style={style} className={className}>
+      <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" />
+      <path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" />
+      <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" />
+      <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" />
+    </svg>
+  );
+}
+
+export function SproutIcon({ size = 28, stroke = "currentColor", style, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" style={style} className={className}>
+      <path d="M7 20h10" />
+      <path d="M12 20v-8" />
+      <path d="M12 12c-3.5 0-6-2.5-6-6 3.5 0 6 2.5 6 6z" />
+      <path d="M12 8c3.5 0 6-2.5 6-6-3.5 0-6 2.5-6 6z" />
+    </svg>
+  );
+}
+
+export function BrainIcon({ size = 28, stroke = "currentColor", style, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" style={style} className={className}>
+      <path d="M12 2a4 4 0 0 0-4 4v1a3 3 0 0 0-3 3 3 3 0 0 0 1 2.24A3.5 3.5 0 0 0 5 15.5a3.5 3.5 0 0 0 2.64 3.39A3 3 0 0 0 10 21h2" />
+      <path d="M12 2a4 4 0 0 1 4 4v1a3 3 0 0 1 3 3 3 3 0 0 1-1 2.24A3.5 3.5 0 0 1 19 15.5a3.5 3.5 0 0 1-2.64 3.39A3 3 0 0 1 14 21h-2" />
+      <path d="M12 2v19" />
+      <path d="M8 8h.01" />
+      <path d="M16 8h.01" />
+    </svg>
+  );
+}
+
+export function LifebuoyIcon({ size = 28, stroke = "currentColor", style, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" style={style} className={className}>
+      <circle cx="12" cy="12" r="10" />
+      <circle cx="12" cy="12" r="4" />
+      <line x1="4.93" y1="4.93" x2="9.17" y2="9.17" />
+      <line x1="14.83" y1="14.83" x2="19.07" y2="19.07" />
+      <line x1="14.83" y1="9.17" x2="19.07" y2="4.93" />
+      <line x1="4.93" y1="19.07" x2="9.17" y2="14.83" />
+    </svg>
+  );
+}
+
+export function StethoscopeIcon({ size = 28, stroke = "currentColor", style, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" style={style} className={className}>
+      <path d="M4 4v6a6 6 0 0 0 12 0V4" />
+      <path d="M2 4h4" />
+      <path d="M14 4h4" />
+      <circle cx="20" cy="10" r="2" />
+      <path d="M20 12v2a6 6 0 0 1-6 6h-2a6 6 0 0 1-6-6" />
+    </svg>
+  );
+}
+
+export function AlertTriangleIcon({ size = 28, stroke = "currentColor", style, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" style={style} className={className}>
+      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+      <line x1="12" y1="9" x2="12" y2="13" />
+      <line x1="12" y1="17" x2="12.01" y2="17" />
+    </svg>
+  );
+}
+
+export function HeartHandIcon({ size = 28, stroke = "currentColor", style, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" style={style} className={className}>
+      <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7z" />
+      <path d="M12 5l0 14" />
+    </svg>
+  );
+}
+
 export function RadioIcon({ size = 28, stroke = "currentColor", style, className }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" style={style} className={className}>
