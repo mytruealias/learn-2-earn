@@ -959,6 +959,75 @@
   opacity: 0.15;
 }
 
+.atx-platform-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.atx-platform-card {
+  padding: 2rem 1.75rem;
+  background: var(--atx-card-bg);
+  border: 1px solid var(--atx-card-border);
+  border-radius: 16px;
+  box-shadow: var(--atx-card-shadow);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.atx-platform-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 32px rgba(0,70,127,0.1);
+}
+
+.atx-platform-card-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+}
+
+.atx-pci-navy {
+  background: rgba(0,70,127,0.07);
+  border: 1px solid rgba(0,70,127,0.12);
+}
+
+.atx-pci-red {
+  background: rgba(229,57,53,0.07);
+  border: 1px solid rgba(229,57,53,0.12);
+}
+
+.atx-pci-gold {
+  background: rgba(249,168,37,0.07);
+  border: 1px solid rgba(249,168,37,0.12);
+}
+
+.atx-pci-green {
+  background: rgba(46,125,50,0.07);
+  border: 1px solid rgba(46,125,50,0.12);
+}
+
+.atx-pci-sky {
+  background: rgba(2,136,209,0.07);
+  border: 1px solid rgba(2,136,209,0.12);
+}
+
+.atx-platform-card h4 {
+  font-family: var(--cy-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--atx-text);
+  margin-bottom: 0.5rem;
+}
+
+.atx-platform-card p {
+  font-size: 0.88rem;
+  line-height: 1.65;
+  color: var(--atx-text-light);
+}
+
 .atx-paths-group {
   margin-bottom: 2.5rem;
 }
@@ -1135,6 +1204,9 @@
   .atx-paths-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+  .atx-platform-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media (max-width: 768px) {
@@ -1172,6 +1244,9 @@
     grid-template-columns: 1fr;
   }
   .atx-paths-grid {
+    grid-template-columns: 1fr;
+  }
+  .atx-platform-grid {
     grid-template-columns: 1fr;
   }
   .atx-stat-grid {

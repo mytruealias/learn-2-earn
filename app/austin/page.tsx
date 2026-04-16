@@ -4,7 +4,8 @@ import {
   CheckCircleIcon, SmartphoneIcon, BriefcaseIcon, TargetIcon,
   DollarIcon, FileTextIcon, LockIcon, TrendingUpIcon, CalendarIcon,
   HomeIcon, RocketIcon, SproutIcon, BrainIcon, LifebuoyIcon,
-  StethoscopeIcon, AlertTriangleIcon, HeartHandIcon,
+  StethoscopeIcon, AlertTriangleIcon, HeartHandIcon, BotIcon,
+  HeartPlusIcon, RadioIcon, LayersIcon, MessageIcon, GlobeIcon,
 } from "../components/LandingIcons";
 
 export default function AustinPage() {
@@ -124,8 +125,8 @@ export default function AustinPage() {
                 <SmartphoneIcon size={24} stroke="#00467F" />
               </div>
               <div>
-                <h4>Mobile-First Micro-Learning</h4>
-                <p>Short, practical lessons in life skills and job readiness &mdash; accessible from any device, anywhere.</p>
+                <h4>Phone-First Micro-Learning</h4>
+                <p>248+ bite-sized lessons at a 6th-grade reading level &mdash; no app download needed. Works in any browser, on any device.</p>
               </div>
             </div>
             <div className="atx-solution-item">
@@ -133,8 +134,17 @@ export default function AustinPage() {
                 <CoinIcon size={24} stroke="#00467F" />
               </div>
               <div>
-                <h4>Trackable Incentives</h4>
-                <p>Rewards tied to verified milestone completion with full admin approval controls and audit trail.</p>
+                <h4>Flexible Cash Incentives</h4>
+                <p>Participants earn XP for completing lessons and redeem via Zelle, Venmo, PayPal, Cash App, or check &mdash; with multi-stage admin approval.</p>
+              </div>
+            </div>
+            <div className="atx-solution-item">
+              <div className="atx-solution-icon">
+                <BotIcon size={24} stroke="#00467F" />
+              </div>
+              <div>
+                <h4>AI Support Companion</h4>
+                <p>Hubert &mdash; a 24/7 AI companion providing trauma-informed emotional support, goal coaching, and automatic crisis escalation.</p>
               </div>
             </div>
             <div className="atx-solution-item">
@@ -143,17 +153,83 @@ export default function AustinPage() {
               </div>
               <div>
                 <h4>Real-Time Reporting</h4>
-                <p>Live dashboards showing enrollment, engagement, completion rates, and outcomes &mdash; exportable for compliance.</p>
+                <p>Live dashboards showing enrollment, engagement, completion rates, and outcomes &mdash; exportable for grant and compliance reporting.</p>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="atx-section" id="how-it-works">
+      <section className="atx-section" id="platform">
         <div className="atx-container">
           <div className="atx-section-header">
-            <div className="atx-slide-number">03 &mdash; Process</div>
+            <div className="atx-slide-number">03 &mdash; Platform</div>
+            <div className="atx-section-label">What&apos;s Built</div>
+            <h2 className="atx-section-title">A Complete System, <em>Ready to Deploy</em></h2>
+            <p className="atx-section-subtitle">
+              Not a concept &mdash; a working platform with 248+ lessons, an AI companion,
+              built-in safety tools, and a full admin layer.
+            </p>
+          </div>
+
+          <div className="atx-platform-grid">
+            <div className="atx-platform-card">
+              <div className="atx-platform-card-icon atx-pci-navy">
+                <BotIcon size={24} stroke="#00467F" />
+              </div>
+              <h4>Hubert AI Companion</h4>
+              <p>24/7 emotional support at a 6th-grade reading level. Trauma-informed conversations, goal coaching, and automatic crisis detection that surfaces 988 and emergency resources instantly.</p>
+            </div>
+
+            <div className="atx-platform-card">
+              <div className="atx-platform-card-icon atx-pci-red">
+                <HeartPlusIcon size={24} stroke="#E53935" />
+              </div>
+              <h4>Safety Net &amp; Lifeline</h4>
+              <p>One-tap access to 988 Suicide &amp; Crisis Lifeline, 211, SAMHSA, and domestic violence hotlines. A &ldquo;Stress Signal&rdquo; button lets learners send urgent help requests directly to caseworkers.</p>
+            </div>
+
+            <div className="atx-platform-card">
+              <div className="atx-platform-card-icon atx-pci-gold">
+                <RadioIcon size={24} stroke="#F9A825" />
+              </div>
+              <h4>Gamification Engine</h4>
+              <p>Streaks, hearts, badges, and streak freezes drive daily engagement &mdash; modeled on the same mechanics that keep users coming back to top learning apps.</p>
+            </div>
+
+            <div className="atx-platform-card">
+              <div className="atx-platform-card-icon atx-pci-green">
+                <LayersIcon size={24} stroke="#2E7D32" />
+              </div>
+              <h4>Structured Content</h4>
+              <p>11 learning paths &rarr; modules &rarr; 248+ lessons &rarr; interactive cards (learn, quiz, reflection). All trauma-informed and written at a 6th-grade reading level.</p>
+            </div>
+
+            <div className="atx-platform-card">
+              <div className="atx-platform-card-icon atx-pci-sky">
+                <DollarIcon size={24} stroke="#0288D1" />
+              </div>
+              <h4>Managed Payouts</h4>
+              <p>Three-stage approval workflow: caseworker review &rarr; finance approval &rarr; disbursement via Zelle, Venmo, PayPal, Cash App, or check. Full audit trail on every transaction.</p>
+            </div>
+
+            <div className="atx-platform-card">
+              <div className="atx-platform-card-icon atx-pci-navy">
+                <MessageIcon size={24} stroke="#00467F" />
+              </div>
+              <h4>Casework Hub</h4>
+              <p>Staff dashboard for managing stress signals, assigning cases, adding notes, and tracking participant progress &mdash; with role-based access and compliance logging.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <hr className="atx-divider" />
+
+      <section className="atx-section atx-section-alt" id="how-it-works">
+        <div className="atx-container">
+          <div className="atx-section-header">
+            <div className="atx-slide-number">04 &mdash; Process</div>
             <div className="atx-section-label">How It Works</div>
             <h2 className="atx-section-title">Five Steps to <em>Measurable Impact</em></h2>
             <p className="atx-section-subtitle">
@@ -203,7 +279,7 @@ export default function AustinPage() {
       <section className="atx-section atx-section-alt" id="scope">
         <div className="atx-container">
           <div className="atx-section-header">
-            <div className="atx-slide-number">04 &mdash; Pilot Scope</div>
+            <div className="atx-slide-number">05 &mdash; Pilot Scope</div>
             <div className="atx-section-label">Scope</div>
             <h2 className="atx-section-title">Defined, Manageable, <em>Measurable</em></h2>
           </div>
@@ -235,7 +311,7 @@ export default function AustinPage() {
       <section className="atx-section" id="deliverables">
         <div className="atx-container">
           <div className="atx-section-header">
-            <div className="atx-slide-number">05 &mdash; Deliverables</div>
+            <div className="atx-slide-number">06 &mdash; Deliverables</div>
             <div className="atx-section-label">What You Receive</div>
             <h2 className="atx-section-title">Everything Included in the <em>Pilot</em></h2>
           </div>
@@ -246,23 +322,35 @@ export default function AustinPage() {
             </div>
             <div className="atx-deliver-item">
               <CheckCircleIcon size={20} stroke="#2E7D32" />
+              <span>Hubert AI companion with 24/7 crisis detection</span>
+            </div>
+            <div className="atx-deliver-item">
+              <CheckCircleIcon size={20} stroke="#2E7D32" />
               <span>Admin dashboard with oversight and approval controls</span>
             </div>
             <div className="atx-deliver-item">
               <CheckCircleIcon size={20} stroke="#2E7D32" />
-              <span>Incentive approval workflows with audit trail</span>
+              <span>Casework hub with stress signal dispatch</span>
             </div>
             <div className="atx-deliver-item">
               <CheckCircleIcon size={20} stroke="#2E7D32" />
-              <span>Real-time reporting and exportable data</span>
+              <span>Three-stage payout approval workflow with audit trail</span>
             </div>
             <div className="atx-deliver-item">
               <CheckCircleIcon size={20} stroke="#2E7D32" />
-              <span>Staff onboarding and training</span>
+              <span>Real-time reporting and exportable compliance data</span>
             </div>
             <div className="atx-deliver-item">
               <CheckCircleIcon size={20} stroke="#2E7D32" />
-              <span>Ongoing support and updates during the pilot</span>
+              <span>Built-in lifeline resources (988, 211, SAMHSA)</span>
+            </div>
+            <div className="atx-deliver-item">
+              <CheckCircleIcon size={20} stroke="#2E7D32" />
+              <span>Gamification engine (streaks, hearts, badges)</span>
+            </div>
+            <div className="atx-deliver-item">
+              <CheckCircleIcon size={20} stroke="#2E7D32" />
+              <span>Staff onboarding, training, and ongoing support</span>
             </div>
           </div>
         </div>
@@ -273,7 +361,7 @@ export default function AustinPage() {
       <section className="atx-section atx-section-alt" id="funding">
         <div className="atx-container">
           <div className="atx-section-header">
-            <div className="atx-slide-number">06 &mdash; Investment</div>
+            <div className="atx-slide-number">07 &mdash; Investment</div>
             <div className="atx-section-label">Funding</div>
             <h2 className="atx-section-title">Simple, <em>Transparent</em> Funding</h2>
             <p className="atx-section-subtitle">
@@ -310,7 +398,7 @@ export default function AustinPage() {
       <section className="atx-section" id="reporting">
         <div className="atx-container">
           <div className="atx-section-header">
-            <div className="atx-slide-number">07 &mdash; Outcomes</div>
+            <div className="atx-slide-number">08 &mdash; Outcomes</div>
             <div className="atx-section-label">Reporting</div>
             <h2 className="atx-section-title">Measurable <em>Outcomes</em></h2>
             <p className="atx-section-subtitle">
@@ -359,7 +447,7 @@ export default function AustinPage() {
       <section className="atx-section atx-section-alt" id="security">
         <div className="atx-container">
           <div className="atx-section-header">
-            <div className="atx-slide-number">08 &mdash; Compliance</div>
+            <div className="atx-slide-number">09 &mdash; Compliance</div>
             <div className="atx-section-label">Security</div>
             <h2 className="atx-section-title">Security &amp; <em>Oversight</em></h2>
           </div>
@@ -399,7 +487,7 @@ export default function AustinPage() {
       <section className="atx-section" id="timeline">
         <div className="atx-container">
           <div className="atx-section-header">
-            <div className="atx-slide-number">09 &mdash; Timeline</div>
+            <div className="atx-slide-number">10 &mdash; Timeline</div>
             <div className="atx-section-label">Timeline</div>
             <h2 className="atx-section-title">Pilot <em>Timeline</em></h2>
           </div>
@@ -445,7 +533,7 @@ export default function AustinPage() {
       <section className="atx-section atx-section-alt" id="learning-paths">
         <div className="atx-container">
           <div className="atx-section-header">
-            <div className="atx-slide-number">10 &mdash; Content Library</div>
+            <div className="atx-slide-number">11 &mdash; Content Library</div>
             <div className="atx-section-label">Learning Paths</div>
             <h2 className="atx-section-title">11 Paths Ready to <em>Deploy</em></h2>
             <p className="atx-section-subtitle">
@@ -590,7 +678,7 @@ export default function AustinPage() {
       <section className="atx-section" id="expansion">
         <div className="atx-container">
           <div className="atx-section-header">
-            <div className="atx-slide-number">11 &mdash; Growth</div>
+            <div className="atx-slide-number">12 &mdash; Growth</div>
             <div className="atx-section-label">Expansion</div>
             <h2 className="atx-section-title">Built to <em>Scale</em></h2>
             <p className="atx-section-subtitle">
