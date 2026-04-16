@@ -565,113 +565,113 @@ export default function AustinPage() {
 
           <div className="atx-paths-group">
             <h3 className="atx-paths-group-title">Foundational</h3>
-            <div className="atx-paths-grid">
-              <div className="atx-path-card">
-                <div className="atx-path-icon atx-path-icon-navy">
+            <ul className="atx-paths-grid">
+              <li className="atx-path-card">
+                <div className="atx-path-icon atx-path-icon-navy" aria-hidden="true">
                   <HomeIcon size={20} stroke="#00467F" />
                 </div>
                 <div>
                   <h4>Stability Basics</h4>
                   <p>Daily routines, communication, documents, health access, and boundaries</p>
                 </div>
-              </div>
-              <div className="atx-path-card">
-                <div className="atx-path-icon atx-path-icon-green">
+              </li>
+              <li className="atx-path-card">
+                <div className="atx-path-icon atx-path-icon-green" aria-hidden="true">
                   <ShieldIcon size={20} stroke="#2E7D32" />
                 </div>
                 <div>
                   <h4>Survival &amp; Systems</h4>
                   <p>Navigate housing, benefits, crisis moments, and work readiness</p>
                 </div>
-              </div>
-              <div className="atx-path-card">
-                <div className="atx-path-icon atx-path-icon-sky">
+              </li>
+              <li className="atx-path-card">
+                <div className="atx-path-icon atx-path-icon-sky" aria-hidden="true">
                   <RocketIcon size={20} stroke="#0288D1" />
                 </div>
                 <div>
                   <h4>Building Your Future</h4>
                   <p>Goals, identity, education, habits, and long-term growth</p>
                 </div>
-              </div>
-              <div className="atx-path-card">
-                <div className="atx-path-icon atx-path-icon-gold">
+              </li>
+              <li className="atx-path-card">
+                <div className="atx-path-icon atx-path-icon-gold" aria-hidden="true">
                   <DollarIcon size={20} stroke="#F9A825" />
                 </div>
                 <div>
                   <h4>Financial Literacy</h4>
                   <p>Budgeting, banking, credit, and protecting yourself from scams</p>
                 </div>
-              </div>
-              <div className="atx-path-card">
-                <div className="atx-path-icon atx-path-icon-green">
+              </li>
+              <li className="atx-path-card">
+                <div className="atx-path-icon atx-path-icon-green" aria-hidden="true">
                   <SproutIcon size={20} stroke="#2E7D32" />
                 </div>
                 <div>
                   <h4>Life Skills</h4>
                   <p>Communication, relationships, digital literacy, and community connection</p>
                 </div>
-              </div>
-            </div>
+              </li>
+            </ul>
           </div>
 
           <div className="atx-paths-group">
             <h3 className="atx-paths-group-title">Recovery &amp; Support</h3>
-            <div className="atx-paths-grid">
-              <div className="atx-path-card">
-                <div className="atx-path-icon atx-path-icon-navy">
+            <ul className="atx-paths-grid">
+              <li className="atx-path-card">
+                <div className="atx-path-icon atx-path-icon-navy" aria-hidden="true">
                   <BrainIcon size={20} stroke="#00467F" />
                 </div>
                 <div>
                   <h4>Addiction &amp; Recovery Foundations</h4>
                   <p>Self-awareness, craving tools, and personal recovery planning</p>
                 </div>
-              </div>
-              <div className="atx-path-card">
-                <div className="atx-path-icon atx-path-icon-sky">
+              </li>
+              <li className="atx-path-card">
+                <div className="atx-path-icon atx-path-icon-sky" aria-hidden="true">
                   <LifebuoyIcon size={20} stroke="#0288D1" />
                 </div>
                 <div>
                   <h4>Harm Reduction &amp; Safety</h4>
                   <p>Stay safer, prevent overdose, and connect to help</p>
                 </div>
-              </div>
-              <div className="atx-path-card">
-                <div className="atx-path-icon atx-path-icon-green">
+              </li>
+              <li className="atx-path-card">
+                <div className="atx-path-icon atx-path-icon-green" aria-hidden="true">
                   <StethoscopeIcon size={20} stroke="#2E7D32" />
                 </div>
                 <div>
                   <h4>Treatment &amp; Recovery Navigation</h4>
                   <p>Access care, stay engaged, and navigate the treatment system</p>
                 </div>
-              </div>
-              <div className="atx-path-card">
-                <div className="atx-path-icon atx-path-icon-navy">
+              </li>
+              <li className="atx-path-card">
+                <div className="atx-path-icon atx-path-icon-navy" aria-hidden="true">
                   <LockIcon size={20} stroke="#00467F" />
                 </div>
                 <div>
                   <h4>Relapse Prevention Mastery</h4>
                   <p>Warning signs, boundaries, emotional resilience, and maintenance</p>
                 </div>
-              </div>
-              <div className="atx-path-card">
-                <div className="atx-path-icon atx-path-icon-gold">
+              </li>
+              <li className="atx-path-card">
+                <div className="atx-path-icon atx-path-icon-gold" aria-hidden="true">
                   <AlertTriangleIcon size={20} stroke="#F9A825" />
                 </div>
                 <div>
                   <h4>Substance-Specific Safety</h4>
                   <p>Targeted safety for alcohol, opioids, and stimulants</p>
                 </div>
-              </div>
-              <div className="atx-path-card">
-                <div className="atx-path-icon atx-path-icon-green">
+              </li>
+              <li className="atx-path-card">
+                <div className="atx-path-icon atx-path-icon-green" aria-hidden="true">
                   <HeartHandIcon size={20} stroke="#2E7D32" />
                 </div>
                 <div>
                   <h4>Supporter &amp; Family Skills</h4>
                   <p>Help a loved one without enabling &mdash; protect your own wellbeing</p>
                 </div>
-              </div>
-            </div>
+              </li>
+            </ul>
           </div>
 
           <div className="atx-custom-paths">
