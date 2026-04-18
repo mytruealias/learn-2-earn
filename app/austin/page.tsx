@@ -758,7 +758,7 @@ export default function AustinPage() {
               <span className="atx-sources-num">2.</span>
               <span className="atx-sources-text">
                 <strong>Up to 60% are employed but can&apos;t afford housing</strong> &mdash;{" "}
-                U.S. Interagency Council on Homelessness; corroborated by University of Chicago (2021), which found 53% of sheltered and 40% of unsheltered adults experiencing homelessness were employed.{" "}
+                U.S. Interagency Council on Homelessness (
                 <a
                   href="https://www.usich.gov/"
                   target="_blank"
@@ -766,6 +766,16 @@ export default function AustinPage() {
                 >
                   usich.gov
                 </a>
+                ). Corroborated by Meyer, Wyse, et al., University of Chicago (2021),{" "}
+                <em>&ldquo;Learning About Homelessness Using Linked Survey and Administrative Data&rdquo;</em> &mdash; 53% of sheltered and 40% of unsheltered adults experiencing homelessness were employed (
+                <a
+                  href="https://bfi.uchicago.edu/working-paper/2021-65/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  bfi.uchicago.edu/working-paper/2021-65
+                </a>
+                ).
               </span>
             </li>
           </ol>
