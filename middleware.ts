@@ -65,7 +65,7 @@ const CITY_GATES: CityGate[] = [
   { slug: "austin", basePath: "/austin", unlockPath: "/austin/unlock",
     cookie: "l2e_austin_access", prefix: "austin-access:", pinEnv: "AUSTIN_ACCESS_PIN" },
   { slug: "los-angeles", basePath: "/los-angeles", unlockPath: "/los-angeles/unlock",
-    cookie: "l2e_los_angeles_access", prefix: "los-angeles-access:", pinEnv: "CITY_ACCESS_PIN" },
+    cookie: "l2e_los-angeles_access", prefix: "los-angeles-access:", pinEnv: "CITY_ACCESS_PIN" },
   { slug: "dallas", basePath: "/dallas", unlockPath: "/dallas/unlock",
     cookie: "l2e_dallas_access", prefix: "dallas-access:", pinEnv: "CITY_ACCESS_PIN" },
   { slug: "denver", basePath: "/denver", unlockPath: "/denver/unlock",
@@ -154,11 +154,9 @@ export async function middleware(request: NextRequest) {
 
     const cityToken = request.cookies.get(gate.cookie)?.value;
     let cityOk = false;
-    if (cityToken) {
-      const citySecret =
-        process.env.SESSION_SECRET ||
-        process.env[gate.pinEnv] ||
-        "l2e-city-fallback-secret";
+    const citySecret =
+      process.env.SESSION_SECRET || process.env[gate.pinEnv];
+    if (cityToken && citySecret) {
       cityOk = await verifyHmacToken(cityToken, citySecret, gate.prefix);
     }
     if (!cityOk) {

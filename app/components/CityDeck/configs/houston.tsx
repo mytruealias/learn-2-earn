@@ -30,7 +30,7 @@ export const houstonConfig: CityDeckConfig = {
   stats: {
     homeless: {
       value: "3,280",
-      label: "Houston/Harris County Residents Experiencing Homelessness on a Single Night",
+      label: "Harris/Fort Bend/Montgomery County Residents Experiencing Homelessness on a Single Night",
       cite: 1,
     },
     employed: {
@@ -41,9 +41,9 @@ export const houstonConfig: CityDeckConfig = {
   },
   sources: [
     <>
-      <strong>3,280 Houston/Harris County residents experiencing homelessness</strong> —{" "}
-      Coalition for the Homeless of Houston/Harris County 2024 Point-in-Time Count
-      (single-night snapshot, conducted January 2024).{" "}
+      <strong>3,280 residents across Harris, Fort Bend, and Montgomery Counties experiencing homelessness</strong> —{" "}
+      Coalition for the Homeless of Houston/Harris County 2024 Point-in-Time Count,
+      covering Harris, Fort Bend, and Montgomery Counties (single-night snapshot conducted January 2024).{" "}
       <a href="https://www.homelesshouston.org/pit-count" target="_blank" rel="noopener noreferrer">
         homelesshouston.org/pit-count
       </a>

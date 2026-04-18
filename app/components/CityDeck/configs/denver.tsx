@@ -3,7 +3,7 @@ import type { CityDeckConfig } from "../types";
 export const denverConfig: CityDeckConfig = {
   slug: "denver",
   cityName: "Denver",
-  partnerLine: "City of Denver · 90-Day Pilot Proposal",
+  partnerLine: "City & County of Denver · 90-Day Pilot Proposal",
   heroSub:
     "A structured, measurable pilot to drive engagement, build life skills, and create real progress for Denver residents facing instability.",
   problemIntro:
@@ -25,12 +25,12 @@ export const denverConfig: CityDeckConfig = {
   ctaSub: "Ready to explore a 90-day pilot? Let's connect.",
   emailSubjectPilotPlan: "Denver Pilot Plan Request",
   emailSubjectDemo: "Schedule Denver Demo",
-  unlockBadge: "City of Denver · Invitation-Only Partnership Deck",
+  unlockBadge: "City & County of Denver · Invitation-Only Partnership Deck",
   unlockSub: "This pitch deck is shared with invited Denver partners. Please enter your PIN to continue.",
   stats: {
     homeless: {
       value: "6,539",
-      label: "Metro Denver Residents Experiencing Homelessness on a Single Night",
+      label: "City & County of Denver Residents Experiencing Homelessness on a Single Night",
       cite: 1,
     },
     employed: {
@@ -41,9 +41,9 @@ export const denverConfig: CityDeckConfig = {
   },
   sources: [
     <>
-      <strong>6,539 metro Denver residents experiencing homelessness</strong> —{" "}
-      Metro Denver Homeless Initiative (MDHI) 2024 Point-in-Time Count
-      (seven-county metro region, single-night snapshot conducted January 2024).{" "}
+      <strong>6,539 City &amp; County of Denver residents experiencing homelessness</strong> —{" "}
+      Metro Denver Homeless Initiative (MDHI) 2024 Point-in-Time Count,
+      City &amp; County of Denver jurisdiction (single-night snapshot conducted January 2024).{" "}
       <a href="https://www.mdhi.org/pit" target="_blank" rel="noopener noreferrer">
         mdhi.org/pit
       </a>

@@ -18,7 +18,7 @@ const CITY_ACCESS: Record<CitySlug, CityAccessSpec> = {
     pinEnvVar: "AUSTIN_ACCESS_PIN",
   },
   "los-angeles": {
-    cookieName: "l2e_los_angeles_access",
+    cookieName: "l2e_los-angeles_access",
     tokenPrefix: "los-angeles-access:",
     pinEnvVar: "CITY_ACCESS_PIN",
   },
