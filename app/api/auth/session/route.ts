@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getUserIdFromRequest } from "@/lib/user-session";
+import { getPayoutRules } from "@/lib/payout-rules";
 
 interface BadgeDefinition {
   id: string;
@@ -112,8 +113,10 @@ export async function POST(req: Request) {
     const totalPayoutXp = totalPayoutXpAgg._sum.xpAmount ?? 0;
     const totalEarnings = Math.floor((totalEarningsAgg._sum.dollarAmount ?? 0) * 100) / 100;
 
+    const payoutRules = await getPayoutRules(user.city);
+
     const availableXp = user.totalXp - totalPayoutXp;
-    const availableBalance = Math.floor(availableXp * 0.05 * 100) / 100;
+    const availableBalance = Math.floor(availableXp * payoutRules.xpToDollar * 100) / 100;
 
     const completedLessonIds = new Set(user.progress.map((p) => p.lessonId));
 
@@ -213,6 +216,7 @@ export async function POST(req: Request) {
         totalEarnings,
         payoutRequests: user.payoutRequests,
         badges,
+        payoutRules,
       },
     });
   } catch (error) {

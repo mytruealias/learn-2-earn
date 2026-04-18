@@ -25,6 +25,15 @@ interface Badge {
   earned: boolean;
 }
 
+interface PayoutRules {
+  minXp: number;
+  xpToDollar: number;
+  weeklyXpCap: number;
+  programSlug: string | null;
+  programName: string | null;
+  source: "program" | "default" | "fallback";
+}
+
 interface UserProfile {
   id: string;
   email: string | null;
@@ -48,6 +57,7 @@ interface UserProfile {
   totalEarnings: number;
   payoutRequests: PayoutRequest[];
   badges?: Badge[];
+  payoutRules?: PayoutRules;
 }
 
 const PAYMENT_METHODS = [
@@ -147,7 +157,9 @@ export default function ProfilePage() {
       const data = await res.json();
       setUser(data.user);
       const avail = data.user?.availableXp ?? 0;
-      setXpToRedeem(Math.min(Math.max(avail, MIN_PAYOUT_XP), WEEKLY_XP_CAP));
+      const minXp = data.user?.payoutRules?.minXp ?? MIN_PAYOUT_XP;
+      const cap = data.user?.payoutRules?.weeklyXpCap ?? WEEKLY_XP_CAP;
+      setXpToRedeem(Math.min(Math.max(avail, minXp), cap));
     } catch {
       router.push("/login");
     } finally {
@@ -196,7 +208,8 @@ export default function ProfilePage() {
   };
 
   const handlePayout = async () => {
-    if (!user || user.availableXp < MIN_PAYOUT_XP) return;
+    const rulesMinXp = user?.payoutRules?.minXp ?? MIN_PAYOUT_XP;
+    if (!user || user.availableXp < rulesMinXp) return;
     if (!paymentMethod || !paymentHandle.trim()) return;
 
     setPayoutLoading(true);
@@ -242,6 +255,12 @@ export default function ProfilePage() {
   }
 
   if (!user) return null;
+
+  const rules = user.payoutRules;
+  const minXp = rules?.minXp ?? MIN_PAYOUT_XP;
+  const weeklyCap = rules?.weeklyXpCap ?? WEEKLY_XP_CAP;
+  const xpToDollar = rules?.xpToDollar ?? XP_TO_DOLLAR;
+  const programLabel = rules?.source === "program" ? rules.programName : null;
 
   const statusColors: Record<string, string> = {
     pending: "var(--accent-gold)",
@@ -453,7 +472,7 @@ export default function ProfilePage() {
                 gap: "0.4rem",
               }}>
                 <WalletIcon size={16} color="var(--accent-gold)" />
-                XP to Cash — 1 XP = $0.05
+                XP to Cash — 1 XP = ${xpToDollar.toFixed(2)}
               </div>
               <div style={{ display: "flex", alignItems: "baseline", gap: "1rem", marginBottom: "0.5rem" }}>
                 <div style={{ fontSize: "2.5rem", fontWeight: "700", color: "var(--accent-gold)" }}>
@@ -482,7 +501,7 @@ export default function ProfilePage() {
                     Fill in your info →
                   </Link>
                 </div>
-              ) : user.availableXp < MIN_PAYOUT_XP ? (
+              ) : user.availableXp < minXp ? (
                 <div style={{
                   width: "100%",
                   padding: "0.85rem",
@@ -495,7 +514,7 @@ export default function ProfilePage() {
                   fontFamily: "var(--font-display)",
                   textAlign: "center",
                 }}>
-                  You need {MIN_PAYOUT_XP - user.availableXp} more XP to request a payout (min {MIN_PAYOUT_XP} XP = ${(MIN_PAYOUT_XP * XP_TO_DOLLAR).toFixed(2)})
+                  You need {minXp - user.availableXp} more XP to request a payout (min {minXp} XP = ${(minXp * xpToDollar).toFixed(2)})
                 </div>
               ) : (
                 <div style={{ display: "grid", gap: "0.75rem" }}>
@@ -506,21 +525,21 @@ export default function ProfilePage() {
                         Amount to Redeem
                       </div>
                       <div style={{ fontSize: "0.85rem", fontWeight: "700", color: "var(--accent-gold)" }}>
-                        {xpToRedeem} XP = ${(xpToRedeem * XP_TO_DOLLAR).toFixed(2)}
+                        {xpToRedeem} XP = ${(xpToRedeem * xpToDollar).toFixed(2)}
                       </div>
                     </div>
                     <input
                       type="range"
-                      min={MIN_PAYOUT_XP}
-                      max={Math.min(user.availableXp, WEEKLY_XP_CAP)}
+                      min={minXp}
+                      max={Math.min(user.availableXp, weeklyCap)}
                       step={1}
                       value={xpToRedeem}
                       onChange={(e) => setXpToRedeem(Number(e.target.value))}
                       style={{ width: "100%", accentColor: "var(--accent-gold)", cursor: "pointer" }}
                     />
                     <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.65rem", color: "var(--text-muted)", marginTop: "0.2rem" }}>
-                      <span>{MIN_PAYOUT_XP} XP min</span>
-                      <span>{Math.min(user.availableXp, WEEKLY_XP_CAP)} XP max</span>
+                      <span>{minXp} XP min</span>
+                      <span>{Math.min(user.availableXp, weeklyCap)} XP max</span>
                     </div>
                   </div>
 
@@ -590,7 +609,7 @@ export default function ProfilePage() {
                       letterSpacing: "0.03em",
                     }}
                   >
-                    {payoutLoading ? "Processing..." : `Request $${(xpToRedeem * XP_TO_DOLLAR).toFixed(2)} Payout`}
+                    {payoutLoading ? "Processing..." : `Request $${(xpToRedeem * xpToDollar).toFixed(2)} Payout`}
                   </button>
                 </div>
               )}
@@ -676,8 +695,74 @@ export default function ProfilePage() {
         )}
 
         {tab === "earnings" && (
-          <div style={{ display: "grid", gap: "0.5rem" }}>
-            <div style={{ fontSize: "0.75rem", fontWeight: "700", color: "var(--accent-green)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: "0.25rem" }}>
+          <div style={{ display: "grid", gap: "0.75rem" }}>
+            <div style={{
+              backgroundColor: "var(--bg-card)",
+              border: "1px solid rgba(52,211,153,0.25)",
+              borderRadius: "14px",
+              padding: "1rem 1.25rem",
+            }}>
+              <div style={{
+                fontSize: "0.7rem",
+                fontWeight: "700",
+                color: "var(--accent-green)",
+                letterSpacing: "0.1em",
+                textTransform: "uppercase",
+                marginBottom: "0.6rem",
+                display: "flex",
+                alignItems: "center",
+                gap: "0.4rem",
+                flexWrap: "wrap",
+              }}>
+                <CashIcon size={14} color="var(--accent-green)" />
+                Your Payout Rates
+                {programLabel && (
+                  <span style={{
+                    fontSize: "0.6rem",
+                    color: "var(--accent-blue)",
+                    backgroundColor: "rgba(59,158,255,0.1)",
+                    border: "1px solid rgba(59,158,255,0.3)",
+                    borderRadius: "999px",
+                    padding: "0.1rem 0.5rem",
+                    letterSpacing: "0.04em",
+                  }}>
+                    {programLabel}
+                  </span>
+                )}
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "0.5rem" }}>
+                {[
+                  { label: "Rate", value: `$${xpToDollar.toFixed(2)}`, sub: "per XP" },
+                  { label: "Min Payout", value: `${minXp} XP`, sub: `$${(minXp * xpToDollar).toFixed(2)}` },
+                  { label: "Weekly Cap", value: `${weeklyCap} XP`, sub: `$${(weeklyCap * xpToDollar).toFixed(2)}` },
+                ].map((s) => (
+                  <div key={s.label} style={{
+                    backgroundColor: "var(--bg-card-hover)",
+                    border: "1px solid var(--border-color)",
+                    borderRadius: "10px",
+                    padding: "0.6rem 0.5rem",
+                    textAlign: "center",
+                  }}>
+                    <div style={{ fontSize: "0.6rem", fontWeight: "700", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "0.2rem" }}>
+                      {s.label}
+                    </div>
+                    <div style={{ fontSize: "1rem", fontWeight: "700", color: "var(--accent-green)" }}>
+                      {s.value}
+                    </div>
+                    <div style={{ fontSize: "0.65rem", color: "var(--text-muted)", marginTop: "0.1rem" }}>
+                      {s.sub}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div style={{ fontSize: "0.7rem", color: "var(--text-muted)", marginTop: "0.65rem", lineHeight: "1.4" }}>
+                {rules?.source === "program"
+                  ? `These rates are set for the ${programLabel} program based on your city.`
+                  : "These are the standard payout rates. Your city's program may have specific rates once configured."}
+              </div>
+            </div>
+
+            <div style={{ fontSize: "0.75rem", fontWeight: "700", color: "var(--accent-green)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: "0.25rem", marginTop: "0.25rem" }}>
               Payout History
             </div>
             {user.payoutRequests.length === 0 ? (

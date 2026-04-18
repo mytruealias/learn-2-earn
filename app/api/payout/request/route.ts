@@ -3,46 +3,10 @@ import { PaymentMethod } from "@prisma/client";
 import prisma from "@/lib/prisma";
 import { logAudit } from "@/lib/audit";
 import { getUserIdFromRequest } from "@/lib/user-session";
+import { getPayoutRules } from "@/lib/payout-rules";
 
 const VALID_PAYMENT_METHODS: PaymentMethod[] = ["venmo", "paypal", "cashapp", "check"];
 const MAX_HANDLE_LENGTH = 255;
-
-const DEFAULT_MIN_XP = 20;
-const DEFAULT_XP_TO_DOLLAR = 0.05;
-const DEFAULT_WEEKLY_XP_CAP = 500;
-
-async function getPayoutRules(userCity: string | null) {
-  if (userCity) {
-    const slug = userCity.trim().toLowerCase().replace(/[^a-z0-9-]/g, "-");
-    const config = await prisma.payoutConfig.findFirst({
-      where: { programSlug: slug, isActive: true },
-    });
-    if (config) {
-      return {
-        minXp: config.minimumXp,
-        xpToDollar: config.xpToDollar,
-        weeklyXpCap: config.weeklyXpCap,
-      };
-    }
-  }
-
-  const defaultConfig = await prisma.payoutConfig.findFirst({
-    where: { programSlug: "default", isActive: true },
-  });
-  if (defaultConfig) {
-    return {
-      minXp: defaultConfig.minimumXp,
-      xpToDollar: defaultConfig.xpToDollar,
-      weeklyXpCap: defaultConfig.weeklyXpCap,
-    };
-  }
-
-  return {
-    minXp: DEFAULT_MIN_XP,
-    xpToDollar: DEFAULT_XP_TO_DOLLAR,
-    weeklyXpCap: DEFAULT_WEEKLY_XP_CAP,
-  };
-}
 
 export async function POST(req: Request) {
   try {
