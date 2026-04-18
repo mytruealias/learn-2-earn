@@ -1,13 +1,11 @@
-import { NextResponse } from "next/server";
 import { getAdminFromRequest } from "@/lib/admin-auth";
 import prisma from "@/lib/prisma";
+import { apiError, apiOk, apiServerError } from "@/lib/api-helpers";
 
 export async function GET(req: Request) {
   try {
     const admin = await getAdminFromRequest(req);
-    if (!admin) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    if (!admin) return apiError("unauthorized", "Not signed in", 401);
 
     const now = new Date();
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
@@ -83,8 +81,7 @@ export async function GET(req: Request) {
         ? Math.round((activeUsersWithAtLeastOneLesson / activeUsersMonth) * 100)
         : 0;
 
-    return NextResponse.json({
-      ok: true,
+    return apiOk({
       stats: {
         users: {
           total: totalUsers,
@@ -122,7 +119,6 @@ export async function GET(req: Request) {
       },
     });
   } catch (error) {
-    console.error("Admin stats error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return apiServerError("admin/stats", error);
   }
 }

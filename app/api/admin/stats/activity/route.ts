@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
 import { getAdminFromRequest } from "@/lib/admin-auth";
 import prisma from "@/lib/prisma";
+import { apiError, apiOk, apiServerError } from "@/lib/api-helpers";
 
 interface ActivityEvent {
   id: string;
@@ -16,9 +16,7 @@ const RESULT_LIMIT = 15;
 export async function GET(req: Request) {
   try {
     const admin = await getAdminFromRequest(req);
-    if (!admin) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    if (!admin) return apiError("unauthorized", "Not signed in", 401);
 
     const [recentUsers, recentPayouts, recentCases, stressSignals, recentProgress] =
       await Promise.all([
@@ -53,12 +51,7 @@ export async function GET(req: Request) {
           where: { action: "CASE_CREATE_STRESS_SIGNAL" },
           orderBy: { createdAt: "desc" },
           take: FETCH_PER_SOURCE,
-          select: {
-            id: true,
-            entityId: true,
-            details: true,
-            createdAt: true,
-          },
+          select: { id: true, entityId: true, details: true, createdAt: true },
         }),
         prisma.progress.findMany({
           orderBy: { completedAt: "desc" },
@@ -129,12 +122,8 @@ export async function GET(req: Request) {
 
     events.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
-    return NextResponse.json({
-      ok: true,
-      activity: events.slice(0, RESULT_LIMIT),
-    });
+    return apiOk({ activity: events.slice(0, RESULT_LIMIT) });
   } catch (error) {
-    console.error("Activity feed error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return apiServerError("admin/stats/activity", error);
   }
 }

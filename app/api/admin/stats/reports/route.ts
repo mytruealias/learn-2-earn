@@ -1,13 +1,11 @@
-import { NextResponse } from "next/server";
 import { getAdminFromRequest } from "@/lib/admin-auth";
 import prisma from "@/lib/prisma";
+import { apiError, apiOk, apiServerError } from "@/lib/api-helpers";
 
 export async function GET(req: Request) {
   try {
     const admin = await getAdminFromRequest(req);
-    if (!admin) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    if (!admin) return apiError("unauthorized", "Not signed in", 401);
 
     const now = new Date();
     const ninetyDaysAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
@@ -31,7 +29,6 @@ export async function GET(req: Request) {
         GROUP BY DATE("completedAt")
         ORDER BY day ASC
       `,
-
       prisma.path.findMany({
         where: { isActive: true },
         select: {
@@ -44,17 +41,13 @@ export async function GET(req: Request) {
               title: true,
               lessons: {
                 where: { isActive: true },
-                select: {
-                  id: true,
-                  progress: { select: { userId: true } },
-                },
+                select: { id: true, progress: { select: { userId: true } } },
               },
             },
           },
         },
         orderBy: { order: "asc" },
       }),
-
       prisma.user.count(),
       prisma.user.count({ where: { email: { not: null } } }),
       prisma.user.count({
@@ -167,8 +160,7 @@ export async function GET(req: Request) {
       });
     }
 
-    return NextResponse.json({
-      ok: true,
+    return apiOk({
       reports: {
         engagement,
         dropoff,
@@ -195,7 +187,6 @@ export async function GET(req: Request) {
       },
     });
   } catch (error) {
-    console.error("Reports API error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return apiServerError("admin/stats/reports", error);
   }
 }

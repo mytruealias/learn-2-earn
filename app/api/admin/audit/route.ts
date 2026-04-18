@@ -1,18 +1,27 @@
-import { NextResponse } from "next/server";
+import { z } from "zod";
 import { getAdminFromRequest, requireRole } from "@/lib/admin-auth";
 import prisma from "@/lib/prisma";
+import { apiError, apiOk, apiServerError, parseQuery } from "@/lib/api-helpers";
+
+const QuerySchema = z.object({
+  page: z.coerce.number().int().min(1).max(1000).default(1),
+  entity: z.string().max(120).optional().default(""),
+  action: z.string().max(120).optional().default(""),
+});
 
 export async function GET(req: Request) {
   try {
     const admin = await getAdminFromRequest(req);
-    if (!admin || !requireRole(admin.role, ["admin"])) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!admin) return apiError("unauthorized", "Not signed in", 401);
+    if (!requireRole(admin.role, ["admin"])) {
+      return apiError("forbidden", "Admin role required", 403);
     }
 
     const url = new URL(req.url);
-    const page = parseInt(url.searchParams.get("page") || "1");
-    const entity = url.searchParams.get("entity") || "";
-    const action = url.searchParams.get("action") || "";
+    const parsed = parseQuery(Object.fromEntries(url.searchParams), QuerySchema);
+    if (!parsed.ok) return parsed.response;
+    const { page, entity, action } = parsed.data;
+
     const limit = 50;
     const skip = (page - 1) * limit;
 
@@ -23,9 +32,7 @@ export async function GET(req: Request) {
     const [logs, total] = await Promise.all([
       prisma.auditLog.findMany({
         where,
-        include: {
-          admin: { select: { fullName: true, email: true, role: true } },
-        },
+        include: { admin: { select: { fullName: true, email: true, role: true } } },
         orderBy: { createdAt: "desc" },
         skip,
         take: limit,
@@ -33,13 +40,11 @@ export async function GET(req: Request) {
       prisma.auditLog.count({ where }),
     ]);
 
-    return NextResponse.json({
-      ok: true,
+    return apiOk({
       logs,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error) {
-    console.error("Admin audit error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return apiServerError("admin/audit", error);
   }
 }

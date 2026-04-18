@@ -88,7 +88,7 @@ export default function AdminStaffPage() {
         setForm({ email: "", fullName: "", role: "caseworker" });
         showToast("Staff member created successfully", "success");
       } else {
-        setCreateError(data.error || "Failed to create staff member");
+        setCreateError(data.error?.message || "Failed to create staff member");
       }
     } catch {
       setCreateError("Connection error");
@@ -113,7 +113,7 @@ export default function AdminStaffPage() {
           !member.isActive ? "success" : "info"
         );
       } else {
-        showToast(data.error || "Action failed", "error");
+        showToast(data.error?.message || "Action failed", "error");
       }
     } catch {
       showToast("Connection error", "error");

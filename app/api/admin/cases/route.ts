@@ -1,22 +1,35 @@
-import { NextResponse } from "next/server";
+import { z } from "zod";
 import { getAdminFromRequest } from "@/lib/admin-auth";
 import { logAudit } from "@/lib/audit";
 import prisma from "@/lib/prisma";
+import { apiError, apiOk, apiServerError, parseJson, parseQuery, getClientIp } from "@/lib/api-helpers";
 
 const PRIORITY_RANK: Record<string, number> = { high: 0, medium: 1, low: 2 };
+
+const QuerySchema = z.object({
+  status: z.string().max(40).optional().default(""),
+  priority: z.string().max(40).optional().default(""),
+  search: z.string().max(200).optional().default(""),
+  page: z.coerce.number().int().min(1).max(10000).default(1),
+});
+
+const PostSchema = z.object({
+  userId: z.string().min(1).max(120),
+  title: z.string().trim().min(1).max(200),
+  message: z.string().trim().min(1).max(5000),
+  priority: z.enum(["high", "medium", "low"]).optional().default("medium"),
+});
 
 export async function GET(req: Request) {
   try {
     const admin = await getAdminFromRequest(req);
-    if (!admin) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    if (!admin) return apiError("unauthorized", "Not signed in", 401);
 
     const url = new URL(req.url);
-    const status = url.searchParams.get("status") || "";
-    const priority = url.searchParams.get("priority") || "";
-    const search = url.searchParams.get("search") || "";
-    const page = parseInt(url.searchParams.get("page") || "1");
+    const parsed = parseQuery(Object.fromEntries(url.searchParams), QuerySchema);
+    if (!parsed.ok) return parsed.response;
+    const { status, priority, search, page } = parsed.data;
+
     const limit = 20;
     const skip = (page - 1) * limit;
 
@@ -56,39 +69,30 @@ export async function GET(req: Request) {
       action: "CASE_LIST_VIEW",
       entity: "Case",
       details: JSON.stringify({ status, priority, search, page }),
-      ipAddress: req.headers.get("x-forwarded-for") || "unknown",
+      ipAddress: getClientIp(req),
     });
 
-    return NextResponse.json({
-      ok: true,
+    return apiOk({
       cases,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error) {
-    console.error("Admin cases error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return apiServerError("admin/cases", error);
   }
 }
 
 export async function POST(req: Request) {
   try {
     const admin = await getAdminFromRequest(req);
-    if (!admin) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    if (!admin) return apiError("unauthorized", "Not signed in", 401);
 
-    const body = await req.json();
-    const { userId, title, message, priority = "medium" } = body;
-
-    if (!userId || !title || !message) {
-      return NextResponse.json({ error: "userId, title, and message are required" }, { status: 400 });
-    }
+    const parsed = await parseJson(req, PostSchema);
+    if (!parsed.ok) return parsed.response;
+    const { userId, title, message, priority } = parsed.data;
 
     const newCase = await prisma.case.create({
       data: { userId, title, message, priority, status: "new" },
-      include: {
-        user: { select: { id: true, fullName: true, email: true } },
-      },
+      include: { user: { select: { id: true, fullName: true, email: true } } },
     });
 
     await logAudit({
@@ -97,12 +101,11 @@ export async function POST(req: Request) {
       entity: "Case",
       entityId: newCase.id,
       details: JSON.stringify({ title, userId }),
-      ipAddress: req.headers.get("x-forwarded-for") || "unknown",
+      ipAddress: getClientIp(req),
     });
 
-    return NextResponse.json({ ok: true, case: newCase });
+    return apiOk({ case: newCase });
   } catch (error) {
-    console.error("Admin case create error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return apiServerError("admin/cases/create", error);
   }
 }

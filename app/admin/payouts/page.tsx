@@ -144,7 +144,7 @@ export default function AdminPayoutsPage() {
         setDecisionNote("");
         fetchPayouts();
       } else {
-        showToast(data.error || "Action failed", "error");
+        showToast(data.error?.message || "Action failed", "error");
       }
     } catch {
       showToast("Connection error", "error");

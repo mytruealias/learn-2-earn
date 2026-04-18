@@ -1,10 +1,10 @@
-import { NextResponse } from "next/server";
+import { z } from "zod";
 import { getAdminFromRequest, requireRole } from "@/lib/admin-auth";
 import { logAudit } from "@/lib/audit";
 import prisma from "@/lib/prisma";
+import { apiError, apiOk, apiServerError, parseJson, getClientIp } from "@/lib/api-helpers";
 
 const ALLOWED_ROLES = ["admin", "finance"];
-
 const POOL_SINGLETON_ID = "singleton";
 
 async function ensurePool() {
@@ -15,13 +15,17 @@ async function ensurePool() {
   });
 }
 
+const PostSchema = z.object({
+  amountCents: z.coerce.number().int().refine((n) => n !== 0, "amountCents must be a non-zero integer"),
+  reason: z.string().trim().min(1, "reason is required").max(500),
+});
+
 export async function GET(req: Request) {
   try {
     const admin = await getAdminFromRequest(req);
-    if (!admin) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
+    if (!admin) return apiError("unauthorized", "Not signed in", 401);
     if (!requireRole(admin.role, ALLOWED_ROLES)) {
-      return NextResponse.json({ error: "Forbidden — admin or finance role required" }, { status: 403 });
+      return apiError("forbidden", "Admin or finance role required", 403);
     }
 
     const [poolBalance, adjustments] = await Promise.all([
@@ -33,8 +37,7 @@ export async function GET(req: Request) {
       }),
     ]);
 
-    return NextResponse.json({
-      ok: true,
+    return apiOk({
       pool: { balanceCents: poolBalance.balanceCents, updatedAt: poolBalance.updatedAt },
       adjustments: adjustments.map((a) => ({
         id: a.id,
@@ -45,62 +48,48 @@ export async function GET(req: Request) {
       })),
     });
   } catch (error) {
-    console.error("Finance pool GET error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return apiServerError("admin/finance/pool/get", error);
   }
 }
 
 export async function POST(req: Request) {
   try {
     const admin = await getAdminFromRequest(req);
-    if (!admin) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
+    if (!admin) return apiError("unauthorized", "Not signed in", 401);
     if (!requireRole(admin.role, ALLOWED_ROLES)) {
-      return NextResponse.json({ error: "Forbidden — admin or finance role required" }, { status: 403 });
+      return apiError("forbidden", "Admin or finance role required", 403);
     }
 
-    const body = await req.json();
-    const { amountCents, reason } = body;
-
-    const parsedAmount = typeof amountCents === "number" ? amountCents : parseInt(amountCents, 10);
-    if (!Number.isInteger(parsedAmount) || parsedAmount === 0) {
-      return NextResponse.json({ error: "amountCents must be a non-zero integer" }, { status: 400 });
-    }
-    if (!reason?.trim()) {
-      return NextResponse.json({ error: "reason is required" }, { status: 400 });
-    }
+    const parsed = await parseJson(req, PostSchema);
+    if (!parsed.ok) return parsed.response;
+    const { amountCents, reason } = parsed.data;
 
     await ensurePool();
 
     const [updatedPool, adjustment] = await prisma.$transaction([
       prisma.poolBalance.update({
         where: { id: POOL_SINGLETON_ID },
-        data: {
-          balanceCents: { increment: parsedAmount },
-          updatedById: admin.id,
-        },
+        data: { balanceCents: { increment: amountCents }, updatedById: admin.id },
       }),
       prisma.poolAdjustment.create({
-        data: { adminId: admin.id, amountCents: parsedAmount, reason: reason.trim() },
+        data: { adminId: admin.id, amountCents, reason },
       }),
     ]);
 
     await logAudit({
       adminId: admin.id,
-      action: parsedAmount > 0 ? "POOL_DEPOSIT" : "POOL_WITHDRAWAL",
+      action: amountCents > 0 ? "POOL_DEPOSIT" : "POOL_WITHDRAWAL",
       entity: "PoolBalance",
       entityId: updatedPool.id,
-      details: JSON.stringify({ amountCents: parsedAmount, reason: reason.trim(), newBalanceCents: updatedPool.balanceCents }),
-      ipAddress: req.headers.get("x-forwarded-for") || "unknown",
+      details: JSON.stringify({ amountCents, reason, newBalanceCents: updatedPool.balanceCents }),
+      ipAddress: getClientIp(req),
     });
 
-    return NextResponse.json({
-      ok: true,
+    return apiOk({
       pool: { balanceCents: updatedPool.balanceCents, updatedAt: updatedPool.updatedAt },
-      adjustment: { id: adjustment.id, amountCents: parsedAmount, reason: adjustment.reason, createdAt: adjustment.createdAt },
+      adjustment: { id: adjustment.id, amountCents, reason: adjustment.reason, createdAt: adjustment.createdAt },
     });
   } catch (error) {
-    console.error("Finance pool POST error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return apiServerError("admin/finance/pool/post", error);
   }
 }

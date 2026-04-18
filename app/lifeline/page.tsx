@@ -94,7 +94,7 @@ export default function LifelinePage() {
         if (res.status === 401) {
           alert("Please create a free account or log in first so we can follow up with you. You can still call 211 for immediate help.");
         } else {
-          alert(data.error || "Something went wrong. Please call 211 for immediate help.");
+          alert(data.error?.message || "Something went wrong. Please call 211 for immediate help.");
         }
       }
     } catch {

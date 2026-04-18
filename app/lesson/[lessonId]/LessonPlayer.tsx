@@ -321,7 +321,7 @@ export default function LessonPlayer({ lesson }: { lesson: Lesson }) {
         } else {
           setCompleted(true);
         }
-      } else if (progressRes.status === 403 && data.error === "signup_required") {
+      } else if (progressRes.status === 403 && data.error?.code === "signup_required") {
         setSignupRequired(true);
       }
     } catch (err) {

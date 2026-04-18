@@ -1,23 +1,27 @@
-import { NextResponse } from "next/server";
+import { z } from "zod";
 import { getAdminFromRequest } from "@/lib/admin-auth";
 import { logAudit } from "@/lib/audit";
 import prisma from "@/lib/prisma";
+import { apiError, apiOk, apiServerError, parseJson, getClientIp } from "@/lib/api-helpers";
+
+const Schema = z.object({
+  resourceType: z.string().min(1, "resourceType is required").max(60),
+  quantity: z.coerce.number().int().min(1).max(1000).optional().default(1),
+  notes: z.string().max(2000).optional(),
+});
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const admin = await getAdminFromRequest(req);
-    if (!admin) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!admin) return apiError("unauthorized", "Not signed in", 401);
 
     const { id } = await params;
-    const body = await req.json();
-    const { resourceType, quantity = 1, notes } = body;
-
-    if (!resourceType) {
-      return NextResponse.json({ error: "resourceType is required" }, { status: 400 });
-    }
+    const parsed = await parseJson(req, Schema);
+    if (!parsed.ok) return parsed.response;
+    const { resourceType, quantity, notes } = parsed.data;
 
     const existing = await prisma.case.findUnique({ where: { id } });
-    if (!existing) return NextResponse.json({ error: "Case not found" }, { status: 404 });
+    if (!existing) return apiError("not_found", "Case not found", 404);
 
     const resourceLabels: Record<string, string> = {
       shelter: "Shelter referral",
@@ -33,7 +37,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
 
     const [allocation] = await Promise.all([
       prisma.resourceAllocation.create({
-        data: { caseId: id, adminId: admin.id, resourceType, quantity: Number(quantity), notes: notes || null },
+        data: { caseId: id, adminId: admin.id, resourceType, quantity, notes: notes ?? null },
         include: { admin: { select: { id: true, fullName: true } } },
       }),
       prisma.caseNote.create({
@@ -47,12 +51,11 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       entity: "Case",
       entityId: id,
       details: JSON.stringify({ resourceType, quantity, notes }),
-      ipAddress: req.headers.get("x-forwarded-for") || "unknown",
+      ipAddress: getClientIp(req),
     });
 
-    return NextResponse.json({ ok: true, allocation });
+    return apiOk({ allocation });
   } catch (error) {
-    console.error("Case allocate error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return apiServerError("admin/cases/allocate", error);
   }
 }

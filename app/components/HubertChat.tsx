@@ -133,7 +133,7 @@ export default function HubertChat({ onClose }: { onClose: () => void }) {
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        setError(data.error || "Something went wrong. Please try again.");
+        setError(data.error?.message || "Something went wrong. Please try again.");
         setStreaming(false);
         return;
       }

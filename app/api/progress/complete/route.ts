@@ -1,5 +1,7 @@
-import { NextResponse } from "next/server";
+import { z } from "zod";
 import prisma from "@/lib/prisma";
+import { getUserIdFromRequest } from "@/lib/user-session";
+import { apiError, apiOk, apiServerError, parseJson } from "@/lib/api-helpers";
 
 interface BadgeDefinition {
   id: string;
@@ -45,26 +47,32 @@ function computeStreakWithFreeze(
 
   if (diffDays === 0) return { newStreak: currentStreak, freezeConsumed: false };
   if (diffDays === 1) return { newStreak: currentStreak + 1, freezeConsumed: false };
-
   if (diffDays === 2 && streakFreezes >= 1) {
     return { newStreak: currentStreak + 1, freezeConsumed: true };
   }
-
   return { newStreak: 1, freezeConsumed: false };
 }
 
+const Schema = z.object({
+  userId: z.string().min(1).max(120),
+  lessonId: z.string().min(1).max(120),
+  comboBonus: z.number().int().min(0).max(1000).optional(),
+  perfectRun: z.boolean().optional(),
+});
+
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const { userId, lessonId, comboBonus, perfectRun } = body as {
-      userId: string;
-      lessonId: string;
-      comboBonus?: number;
-      perfectRun?: boolean;
-    };
+    const sessionUserId = getUserIdFromRequest(req);
+    if (!sessionUserId) {
+      return apiError("unauthorized", "Please sign in before completing lessons.", 401);
+    }
 
-    if (!userId || !lessonId) {
-      return NextResponse.json({ error: "Missing userId or lessonId" }, { status: 400 });
+    const parsed = await parseJson(req, Schema);
+    if (!parsed.ok) return parsed.response;
+    const { userId, lessonId, comboBonus, perfectRun } = parsed.data;
+
+    if (userId !== sessionUserId) {
+      return apiError("forbidden", "You can only record progress for yourself.", 403);
     }
 
     const lesson = await prisma.lesson.findUnique({
@@ -77,26 +85,18 @@ export async function POST(req: Request) {
                 modules: {
                   where: { isActive: true },
                   include: {
-                    lessons: {
-                      where: { isActive: true },
-                      select: { id: true },
-                    },
+                    lessons: { where: { isActive: true }, select: { id: true } },
                   },
                 },
               },
             },
-            lessons: {
-              where: { isActive: true },
-              select: { id: true },
-            },
+            lessons: { where: { isActive: true }, select: { id: true } },
           },
         },
       },
     });
 
-    if (!lesson) {
-      return NextResponse.json({ error: "Lesson not found" }, { status: 404 });
-    }
+    if (!lesson) return apiError("not_found", "Lesson not found", 404);
 
     const existing = await prisma.progress.findUnique({
       where: { userId_lessonId: { userId, lessonId } },
@@ -111,7 +111,7 @@ export async function POST(req: Request) {
       const completedModuleLessonIds = new Set(moduleCompletedProgress.map((p) => p.lessonId));
       const moduleComplete = allLessonIds.every((id) => completedModuleLessonIds.has(id));
 
-      return NextResponse.json({ ok: true, progress: existing, alreadyCompleted: true, moduleComplete, newBadges: [] });
+      return apiOk({ progress: existing, alreadyCompleted: true, moduleComplete, newBadges: [] });
     }
 
     const user = await prisma.user.findUnique({
@@ -129,10 +129,7 @@ export async function POST(req: Request) {
                         modules: {
                           where: { isActive: true },
                           include: {
-                            lessons: {
-                              where: { isActive: true },
-                              select: { id: true },
-                            },
+                            lessons: { where: { isActive: true }, select: { id: true } },
                           },
                         },
                       },
@@ -150,21 +147,17 @@ export async function POST(req: Request) {
     const completedCount = user?._count?.progress ?? 0;
 
     if (isGuest && completedCount >= 1) {
-      return NextResponse.json({
-        error: "signup_required",
-        message: "Create an account to continue earning XP. Your first lesson is saved.",
-      }, { status: 403 });
+      return apiError(
+        "signup_required",
+        "Create an account to continue earning XP. Your first lesson is saved.",
+        403,
+      );
     }
 
     let xpAwarded = lesson.xpReward;
-    if (comboBonus && comboBonus >= 5) {
-      xpAwarded = Math.round(xpAwarded * 1.5);
-    } else if (comboBonus && comboBonus >= 3) {
-      xpAwarded = Math.round(xpAwarded * 1.25);
-    }
-    if (perfectRun) {
-      xpAwarded += 1;
-    }
+    if (comboBonus && comboBonus >= 5) xpAwarded = Math.round(xpAwarded * 1.5);
+    else if (comboBonus && comboBonus >= 3) xpAwarded = Math.round(xpAwarded * 1.25);
+    if (perfectRun) xpAwarded += 1;
 
     const oldCompletedLessonIds = new Set((user?.progress ?? []).map((p) => p.lessonId));
     const oldHasPerfectLesson = (user?.progress ?? []).some((p) => p.crownLevel >= 2);
@@ -229,8 +222,7 @@ export async function POST(req: Request) {
     const completedModuleLessonIds = new Set(moduleCompletedProgress.map((p) => p.lessonId));
     const moduleComplete = allLessonIds.every((id) => completedModuleLessonIds.has(id));
 
-    return NextResponse.json({
-      ok: true,
+    return apiOk({
       progress,
       xpAwarded,
       baseXp: lesson.xpReward,
@@ -244,7 +236,6 @@ export async function POST(req: Request) {
       freezeConsumed,
     });
   } catch (error) {
-    console.error("Progress completion error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return apiServerError("progress/complete", error);
   }
 }

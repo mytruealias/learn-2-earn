@@ -1,40 +1,67 @@
-import { NextResponse } from "next/server";
+import { z } from "zod";
 import bcrypt from "bcryptjs";
 import prisma from "@/lib/prisma";
 import { logAudit } from "@/lib/audit";
 import { setUserSessionCookie } from "@/lib/user-session";
 import { setDemoAccessCookie } from "@/lib/access-token";
+import {
+  apiError,
+  apiOk,
+  apiServerError,
+  parseJson,
+  getClientIp,
+  createRateLimiter,
+  rateLimitResponse,
+} from "@/lib/api-helpers";
+
+// 10 failed login attempts per IP per 10 minutes.
+const loginLimiter = createRateLimiter({ max: 10, windowMs: 10 * 60 * 1000 });
+
+const Schema = z.object({
+  email: z.string().trim().toLowerCase().email("Enter a valid email address.").max(255),
+  password: z.string().min(1, "Password is required").max(200),
+});
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const { email, password } = body;
-
-    if (!email || !password) {
-      return NextResponse.json({ error: "Email and password are required" }, { status: 400 });
+    const ip = getClientIp(req);
+    const gate = loginLimiter.check(`login:${ip}`);
+    if (!gate.allowed) {
+      return rateLimitResponse(
+        gate.retryAfterSec,
+        "Too many login attempts. Please wait a few minutes and try again.",
+      );
     }
+
+    const parsed = await parseJson(req, Schema);
+    if (!parsed.ok) return parsed.response;
+    const { email, password } = parsed.data;
 
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user || !user.passwordHash) {
-      return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
+      loginLimiter.record(`login:${ip}`);
+      return apiError("unauthorized", "Invalid email or password", 401);
     }
 
     const valid = await bcrypt.compare(password, user.passwordHash);
     if (!valid) {
+      loginLimiter.record(`login:${ip}`);
       await logAudit({
         action: "USER_LOGIN_FAILED",
         entity: "User",
         details: JSON.stringify({ email }),
-        ipAddress: req.headers.get("x-forwarded-for") || "unknown",
+        ipAddress: ip,
       });
-      return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
+      return apiError("unauthorized", "Invalid email or password", 401);
     }
+
+    loginLimiter.reset(`login:${ip}`);
 
     await logAudit({
       action: "USER_LOGIN_SUCCESS",
       entity: "User",
       entityId: user.id,
-      ipAddress: req.headers.get("x-forwarded-for") || "unknown",
+      ipAddress: ip,
     });
 
     await prisma.user.update({
@@ -42,8 +69,7 @@ export async function POST(req: Request) {
       data: { lastActiveAt: new Date() },
     });
 
-    const res = NextResponse.json({
-      ok: true,
+    const res = apiOk({
       user: {
         id: user.id,
         email: user.email,
@@ -58,7 +84,6 @@ export async function POST(req: Request) {
     setDemoAccessCookie(res);
     return res;
   } catch (error) {
-    console.error("Login error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return apiServerError("auth/login", error);
   }
 }

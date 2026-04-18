@@ -1,28 +1,31 @@
-import { NextResponse } from "next/server";
+import { z } from "zod";
 import { getAdminFromRequest } from "@/lib/admin-auth";
 import { logAudit } from "@/lib/audit";
 import prisma from "@/lib/prisma";
+import { apiError, apiOk, apiServerError, parseJson, getClientIp } from "@/lib/api-helpers";
+
+const Schema = z.object({
+  staffId: z.string().min(1, "staffId is required").max(120),
+  notes: z.string().max(2000).optional(),
+});
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const admin = await getAdminFromRequest(req);
-    if (!admin) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!admin) return apiError("unauthorized", "Not signed in", 401);
 
     const { id } = await params;
-    const body = await req.json();
-    const { staffId, notes } = body;
-
-    if (!staffId) {
-      return NextResponse.json({ error: "staffId is required" }, { status: 400 });
-    }
+    const parsed = await parseJson(req, Schema);
+    if (!parsed.ok) return parsed.response;
+    const { staffId, notes } = parsed.data;
 
     const [existing, staff] = await Promise.all([
       prisma.case.findUnique({ where: { id } }),
       prisma.adminUser.findUnique({ where: { id: staffId } }),
     ]);
 
-    if (!existing) return NextResponse.json({ error: "Case not found" }, { status: 404 });
-    if (!staff) return NextResponse.json({ error: "Staff member not found" }, { status: 404 });
+    if (!existing) return apiError("not_found", "Case not found", 404);
+    if (!staff) return apiError("not_found", "Staff member not found", 404);
 
     const [updatedCase] = await Promise.all([
       prisma.case.update({
@@ -45,12 +48,11 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       entity: "Case",
       entityId: id,
       details: JSON.stringify({ staffId, staffName: staff.fullName, notes }),
-      ipAddress: req.headers.get("x-forwarded-for") || "unknown",
+      ipAddress: getClientIp(req),
     });
 
-    return NextResponse.json({ ok: true, case: updatedCase });
+    return apiOk({ case: updatedCase });
   } catch (error) {
-    console.error("Case dispatch error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return apiServerError("admin/cases/dispatch", error);
   }
 }

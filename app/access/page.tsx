@@ -28,7 +28,7 @@ function AccessForm() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || "Invalid access code");
+        setError(data.error?.message || "Invalid access code");
         setLoading(false);
         return;
       }

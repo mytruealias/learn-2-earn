@@ -146,7 +146,7 @@ export default function FinanceClient({ initialData }: { initialData: FinanceDat
         setShowAdjustForm(false);
         await refreshData();
       } else {
-        showToast(result.error || "Failed to record adjustment", "error");
+        showToast(result.error?.message || "Failed to record adjustment", "error");
       }
     } catch {
       showToast("Connection error", "error");
@@ -206,7 +206,7 @@ export default function FinanceClient({ initialData }: { initialData: FinanceDat
         setEditingConfig(null);
         await refreshData();
       } else {
-        showToast(result.error || "Failed to save config", "error");
+        showToast(result.error?.message || "Failed to save config", "error");
       }
     } catch {
       showToast("Connection error", "error");
@@ -228,7 +228,7 @@ export default function FinanceClient({ initialData }: { initialData: FinanceDat
         showToast(c.isActive ? "Config deactivated" : "Config activated", "success");
         await refreshData();
       } else {
-        showToast(result.error || "Failed to toggle config", "error");
+        showToast(result.error?.message || "Failed to toggle config", "error");
       }
     } catch {
       showToast("Connection error", "error");

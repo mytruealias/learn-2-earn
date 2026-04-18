@@ -195,7 +195,7 @@ export default function ProfilePage() {
         body: JSON.stringify({ userId, ...editForm }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Save failed");
+      if (!res.ok) throw new Error(data.error?.message || "Save failed");
       setUser((prev) => prev ? { ...prev, ...data.user } : prev);
       setEditing(false);
       setSaveMsg("Saved!");
@@ -230,7 +230,7 @@ export default function ProfilePage() {
         setPaymentHandle("");
         loadProfile();
       } else {
-        setPayoutMsg(data.error || "Failed to submit request");
+        setPayoutMsg(data.error?.message || "Failed to submit request");
       }
     } catch {
       setPayoutMsg("Connection error. Please try again.");

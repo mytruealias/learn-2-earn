@@ -174,7 +174,7 @@ export default function AdminUsersPage() {
         setShowEdit(false);
         showToast("User updated successfully", "success");
       } else {
-        setEditError(data.error || "Failed to update user");
+        setEditError(data.error?.message || "Failed to update user");
       }
     } catch {
       setEditError("Connection error");

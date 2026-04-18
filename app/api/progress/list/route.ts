@@ -1,13 +1,28 @@
-import { NextResponse } from "next/server";
+import { z } from "zod";
 import prisma from "@/lib/prisma";
+import { getUserIdFromRequest } from "@/lib/user-session";
+import { apiError, apiOk, apiServerError, parseJson } from "@/lib/api-helpers";
+
+const Schema = z.object({
+  userId: z.string().min(1).max(120).optional(),
+});
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const { userId } = body;
+    const sessionUserId = getUserIdFromRequest(req);
 
+    const parsed = await parseJson(req, Schema);
+    if (!parsed.ok) return parsed.response;
+    const bodyUserId = parsed.data.userId;
+
+    const userId = sessionUserId ?? bodyUserId;
     if (!userId) {
-      return NextResponse.json({ ok: true, completedLessonIds: [], recentProgress: [] });
+      // No session yet (brand-new visitor) — return empty list rather than 401
+      return apiOk({ completedLessonIds: [], recentProgress: [] });
+    }
+
+    if (sessionUserId && bodyUserId && sessionUserId !== bodyUserId) {
+      return apiError("forbidden", "Cannot read another user's progress.", 403);
     }
 
     const progress = await prisma.progress.findMany({
@@ -16,13 +31,14 @@ export async function POST(req: Request) {
       orderBy: { completedAt: "desc" },
     });
 
-    return NextResponse.json({
-      ok: true,
+    return apiOk({
       completedLessonIds: progress.map((p) => p.lessonId),
-      recentProgress: progress.map((p) => ({ lessonId: p.lessonId, completedAt: p.completedAt.toISOString() })),
+      recentProgress: progress.map((p) => ({
+        lessonId: p.lessonId,
+        completedAt: p.completedAt.toISOString(),
+      })),
     });
   } catch (error) {
-    console.error("Progress list error:", error);
-    return NextResponse.json({ ok: true, completedLessonIds: [], recentProgress: [] });
+    return apiServerError("progress/list", error);
   }
 }

@@ -37,7 +37,7 @@ function UnlockForm({ slug, basePath, badge, sub }: Omit<Props, "theme">) {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || "Invalid PIN");
+        setError(data.error?.message || "Invalid PIN");
         setLoading(false);
         return;
       }

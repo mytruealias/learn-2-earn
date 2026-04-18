@@ -1,17 +1,16 @@
-import { NextResponse } from "next/server";
 import { getAdminFromRequest, requireRole } from "@/lib/admin-auth";
 import { logAudit } from "@/lib/audit";
 import prisma from "@/lib/prisma";
+import { apiError, apiOk, apiServerError, getClientIp } from "@/lib/api-helpers";
 
 const ALLOWED_ROLES = ["admin", "finance"];
 
 export async function GET(req: Request) {
   try {
     const admin = await getAdminFromRequest(req);
-    if (!admin) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
+    if (!admin) return apiError("unauthorized", "Not signed in", 401);
     if (!requireRole(admin.role, ALLOWED_ROLES)) {
-      return NextResponse.json({ error: "Forbidden — admin or finance role required" }, { status: 403 });
+      return apiError("forbidden", "Admin or finance role required", 403);
     }
 
     const now = new Date();
@@ -19,13 +18,7 @@ export async function GET(req: Request) {
     const days30 = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
     const days90 = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
 
-    const [
-      payouts7,
-      payouts30,
-      payouts90,
-      pendingLiability,
-      recentPayouts,
-    ] = await Promise.all([
+    const [payouts7, payouts30, payouts90, pendingLiability, recentPayouts] = await Promise.all([
       prisma.payoutRequest.aggregate({
         where: { status: { in: ["completed", "approved"] }, updatedAt: { gte: days7 } },
         _sum: { dollarAmount: true, xpAmount: true },
@@ -50,9 +43,7 @@ export async function GET(req: Request) {
         where: { status: { in: ["completed", "approved"] } },
         orderBy: { updatedAt: "desc" },
         take: 10,
-        include: {
-          user: { select: { fullName: true, email: true, caseNumber: true } },
-        },
+        include: { user: { select: { fullName: true, email: true, caseNumber: true } } },
       }),
     ]);
 
@@ -63,7 +54,6 @@ export async function GET(req: Request) {
 
     if (process.env.STRIPE_SECRET_KEY) {
       try {
-        // Dynamically import stripe — package must be installed for Stripe integration to work
         // eslint-disable-next-line @typescript-eslint/no-require-imports
         const Stripe = require("stripe");
         const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2024-06-20" });
@@ -98,27 +88,14 @@ export async function GET(req: Request) {
       adminId: admin.id,
       action: "FINANCE_DASHBOARD_VIEW",
       entity: "Finance",
-      ipAddress: req.headers.get("x-forwarded-for") || "unknown",
+      ipAddress: getClientIp(req),
     });
 
-    return NextResponse.json({
-      ok: true,
+    return apiOk({
       disbursement: {
-        days7: {
-          dollars: payouts7._sum.dollarAmount ?? 0,
-          xp: payouts7._sum.xpAmount ?? 0,
-          count: payouts7._count.id,
-        },
-        days30: {
-          dollars: payouts30._sum.dollarAmount ?? 0,
-          xp: payouts30._sum.xpAmount ?? 0,
-          count: payouts30._count.id,
-        },
-        days90: {
-          dollars: payouts90._sum.dollarAmount ?? 0,
-          xp: payouts90._sum.xpAmount ?? 0,
-          count: payouts90._count.id,
-        },
+        days7: { dollars: payouts7._sum.dollarAmount ?? 0, xp: payouts7._sum.xpAmount ?? 0, count: payouts7._count.id },
+        days30: { dollars: payouts30._sum.dollarAmount ?? 0, xp: payouts30._sum.xpAmount ?? 0, count: payouts30._count.id },
+        days90: { dollars: payouts90._sum.dollarAmount ?? 0, xp: payouts90._sum.xpAmount ?? 0, count: payouts90._count.id },
       },
       pendingLiability: {
         dollars: pendingLiability._sum.dollarAmount ?? 0,
@@ -141,13 +118,9 @@ export async function GET(req: Request) {
         error: stripeError,
         keyConfigured: !!process.env.STRIPE_SECRET_KEY,
       },
-      pool: {
-        balanceCents: poolBalance.balanceCents,
-        updatedAt: poolBalance.updatedAt,
-      },
+      pool: { balanceCents: poolBalance.balanceCents, updatedAt: poolBalance.updatedAt },
     });
   } catch (error) {
-    console.error("Finance dashboard error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return apiServerError("admin/finance", error);
   }
 }

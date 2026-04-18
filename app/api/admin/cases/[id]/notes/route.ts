@@ -1,26 +1,29 @@
-import { NextResponse } from "next/server";
+import { z } from "zod";
 import { getAdminFromRequest } from "@/lib/admin-auth";
 import { logAudit } from "@/lib/audit";
 import prisma from "@/lib/prisma";
+import { apiError, apiOk, apiServerError, parseJson, getClientIp } from "@/lib/api-helpers";
+
+const Schema = z.object({
+  text: z.string().trim().min(1, "Note text is required").max(5000),
+  type: z.string().max(40).optional().default("note"),
+});
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const admin = await getAdminFromRequest(req);
-    if (!admin) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!admin) return apiError("unauthorized", "Not signed in", 401);
 
     const { id } = await params;
-    const body = await req.json();
-    const { text, type = "note" } = body;
-
-    if (!text?.trim()) {
-      return NextResponse.json({ error: "Note text is required" }, { status: 400 });
-    }
+    const parsed = await parseJson(req, Schema);
+    if (!parsed.ok) return parsed.response;
+    const { text, type } = parsed.data;
 
     const existing = await prisma.case.findUnique({ where: { id } });
-    if (!existing) return NextResponse.json({ error: "Case not found" }, { status: 404 });
+    if (!existing) return apiError("not_found", "Case not found", 404);
 
     const note = await prisma.caseNote.create({
-      data: { caseId: id, adminId: admin.id, text: text.trim(), type },
+      data: { caseId: id, adminId: admin.id, text, type },
       include: { admin: { select: { id: true, fullName: true, role: true } } },
     });
 
@@ -30,12 +33,11 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       entity: "Case",
       entityId: id,
       details: JSON.stringify({ noteType: type, noteLength: text.length }),
-      ipAddress: req.headers.get("x-forwarded-for") || "unknown",
+      ipAddress: getClientIp(req),
     });
 
-    return NextResponse.json({ ok: true, note });
+    return apiOk({ note });
   } catch (error) {
-    console.error("Case note error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return apiServerError("admin/cases/notes", error);
   }
 }

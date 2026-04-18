@@ -27,7 +27,7 @@ export default function AdminLoginPage() {
         window.location.href = "/admin";
         return;
       } else {
-        setError(data.error || "Login failed");
+        setError(data.error?.message || "Login failed");
       }
     } catch {
       setError("Connection error");

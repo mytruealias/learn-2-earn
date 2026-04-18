@@ -1,29 +1,31 @@
-import { NextResponse } from "next/server";
+import { z } from "zod";
 import { getUserIdFromRequest } from "@/lib/user-session";
 import { logAudit } from "@/lib/audit";
 import prisma from "@/lib/prisma";
+import { apiError, apiOk, apiServerError, parseJson, getClientIp } from "@/lib/api-helpers";
+
+const Schema = z.object({
+  message: z.string().trim().min(1, "message is required").max(2000),
+  location: z.string().trim().max(500).optional().or(z.literal("").transform(() => undefined)),
+});
 
 export async function POST(req: Request) {
   try {
     const userId = getUserIdFromRequest(req);
-
     if (!userId) {
-      return NextResponse.json({ error: "Unauthorized — please log in to send a signal" }, { status: 401 });
+      return apiError("unauthorized", "Please log in to send a signal", 401);
     }
 
-    const body = await req.json();
-    const { message, location } = body;
-
-    if (!message?.trim()) {
-      return NextResponse.json({ error: "message is required" }, { status: 400 });
-    }
+    const parsed = await parseJson(req, Schema);
+    if (!parsed.ok) return parsed.response;
+    const { message, location } = parsed.data;
 
     const newCase = await prisma.case.create({
       data: {
         userId,
         title: "Stress signal from learner",
-        message: message.trim(),
-        location: location?.trim() || null,
+        message,
+        location: location ?? null,
         status: "new",
         priority: "high",
       },
@@ -33,13 +35,12 @@ export async function POST(req: Request) {
       action: "CASE_CREATE_STRESS_SIGNAL",
       entity: "Case",
       entityId: newCase.id,
-      details: JSON.stringify({ userId, location: location?.trim() || null }),
-      ipAddress: req.headers.get("x-forwarded-for") || "unknown",
+      details: JSON.stringify({ userId, location: location ?? null }),
+      ipAddress: getClientIp(req),
     });
 
-    return NextResponse.json({ ok: true, caseId: newCase.id });
+    return apiOk({ caseId: newCase.id });
   } catch (error) {
-    console.error("Stress signal error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return apiServerError("stress-signal", error);
   }
 }

@@ -1,13 +1,11 @@
-import { NextResponse } from "next/server";
 import { getAdminFromRequest } from "@/lib/admin-auth";
 import prisma from "@/lib/prisma";
+import { apiError, apiOk, apiServerError } from "@/lib/api-helpers";
 
 export async function GET(req: Request) {
   try {
     const admin = await getAdminFromRequest(req);
-    if (!admin) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    if (!admin) return apiError("unauthorized", "Not signed in", 401);
 
     const now = new Date();
 
@@ -26,10 +24,7 @@ export async function GET(req: Request) {
         orderBy: { createdAt: "asc" },
       }),
       prisma.payoutRequest.findMany({
-        where: {
-          status: { in: ["completed"] },
-          updatedAt: { gte: twelveWeeksAgo },
-        },
+        where: { status: { in: ["completed"] }, updatedAt: { gte: twelveWeeksAgo } },
         select: { dollarAmount: true, updatedAt: true },
         orderBy: { updatedAt: "asc" },
       }),
@@ -39,8 +34,7 @@ export async function GET(req: Request) {
     for (let i = 0; i < 30; i++) {
       const d = new Date(thirtyDaysAgo);
       d.setDate(d.getDate() + i);
-      const key = d.toISOString().slice(0, 10);
-      userGrowthMap[key] = 0;
+      userGrowthMap[d.toISOString().slice(0, 10)] = 0;
     }
     for (const u of recentUsers) {
       const key = u.createdAt.toISOString().slice(0, 10);
@@ -52,13 +46,11 @@ export async function GET(req: Request) {
     for (let i = 0; i < 12; i++) {
       const weekStart = new Date(twelveWeeksAgo);
       weekStart.setDate(weekStart.getDate() + i * 7);
-      const key = weekStart.toISOString().slice(0, 10);
-      payoutVolumeMap[key] = 0;
+      payoutVolumeMap[weekStart.toISOString().slice(0, 10)] = 0;
     }
     for (const p of recentPayouts) {
       const d = new Date(p.updatedAt);
-      const weekStart = new Date(twelveWeeksAgo);
-      let assignedWeek = weekStart.toISOString().slice(0, 10);
+      let assignedWeek = twelveWeeksAgo.toISOString().slice(0, 10);
       for (let i = 0; i < 12; i++) {
         const ws = new Date(twelveWeeksAgo);
         ws.setDate(ws.getDate() + i * 7);
@@ -78,12 +70,8 @@ export async function GET(req: Request) {
       dollars: Math.round(dollars * 100) / 100,
     }));
 
-    return NextResponse.json({
-      ok: true,
-      trends: { userGrowth, payoutVolume },
-    });
+    return apiOk({ trends: { userGrowth, payoutVolume } });
   } catch (error) {
-    console.error("Admin trends error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return apiServerError("admin/stats/trends", error);
   }
 }

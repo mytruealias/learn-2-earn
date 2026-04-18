@@ -1,7 +1,8 @@
-import { NextResponse } from "next/server";
+import { z } from "zod";
 import prisma from "@/lib/prisma";
 import { getUserIdFromRequest } from "@/lib/user-session";
 import { getPayoutRules } from "@/lib/payout-rules";
+import { apiError, apiOk, apiServerError, parseJson } from "@/lib/api-helpers";
 
 interface BadgeDefinition {
   id: string;
@@ -37,23 +38,34 @@ const BADGE_DEFS: BadgeDefinition[] = [
   { id: "perfect_5",    label: "Untouchable",     icon: "👑", description: "Completed 5 lessons without losing any hearts" },
 ];
 
+const Schema = z.object({ userId: z.string().min(1).max(120).optional() });
+
 export async function POST(req: Request) {
   try {
-    // Try to get userId from the request body first; fall back to the signed session cookie.
-    let userId: string | null = null;
+    // Allow either the signed session cookie or a body userId, but if both
+    // are present they MUST match — otherwise a logged-in user could read
+    // any other user's session by guessing a guest userId.
+    const sessionUserId = getUserIdFromRequest(req);
+
+    // Body is optional. If present, validate it; if not, that's fine.
+    let bodyUserId: string | undefined;
     try {
-      const body = await req.json();
-      userId = body?.userId ?? null;
+      const raw = await req.text();
+      if (raw && raw.trim()) {
+        const parsed = Schema.safeParse(JSON.parse(raw));
+        if (parsed.success) bodyUserId = parsed.data.userId;
+      }
     } catch {
-      // body was empty or not JSON — that's fine, we'll try the cookie below
+      // ignore — body was missing or malformed
     }
 
-    if (!userId) {
-      userId = getUserIdFromRequest(req);
+    if (sessionUserId && bodyUserId && sessionUserId !== bodyUserId) {
+      return apiError("forbidden", "Session does not match requested user.", 403);
     }
 
+    const userId = sessionUserId ?? bodyUserId;
     if (!userId) {
-      return NextResponse.json({ error: "Missing userId" }, { status: 400 });
+      return apiError("unauthorized", "Not signed in.", 401);
     }
 
     const user = await prisma.user.findUnique({
@@ -70,33 +82,24 @@ export async function POST(req: Request) {
                         modules: {
                           where: { isActive: true },
                           include: {
-                            lessons: {
-                              where: { isActive: true },
-                              select: { id: true },
-                            },
+                            lessons: { where: { isActive: true }, select: { id: true } },
                           },
                         },
                       },
                     },
-                    lessons: {
-                      where: { isActive: true },
-                      select: { id: true },
-                    },
+                    lessons: { where: { isActive: true }, select: { id: true } },
                   },
                 },
               },
             },
           },
         },
-        payoutRequests: {
-          orderBy: { createdAt: "desc" },
-          take: 10,
-        },
+        payoutRequests: { orderBy: { createdAt: "desc" }, take: 10 },
       },
     });
 
     if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+      return apiError("not_found", "User not found", 404);
     }
 
     const [totalPayoutXpAgg, totalEarningsAgg] = await Promise.all([
@@ -120,7 +123,6 @@ export async function POST(req: Request) {
 
     const completedLessonIds = new Set(user.progress.map((p) => p.lessonId));
 
-    // Badges previously earned and stored in the DB — these never go away
     let storedBadgeIds: string[] = [];
     try {
       storedBadgeIds = JSON.parse(user.earnedBadges ?? "[]");
@@ -128,11 +130,8 @@ export async function POST(req: Request) {
       storedBadgeIds = [];
     }
     const persistedBadgeIds = new Set<string>(storedBadgeIds);
-
-    // Dynamically compute badges earned right now
     const freshBadgeIds = new Set<string>();
 
-    // Lesson milestones
     const lessonCount = completedLessonIds.size;
     if (lessonCount >= 1)  freshBadgeIds.add("first_lesson");
     if (lessonCount >= 5)  freshBadgeIds.add("lessons_5");
@@ -140,21 +139,17 @@ export async function POST(req: Request) {
     if (lessonCount >= 25) freshBadgeIds.add("lessons_25");
     if (lessonCount >= 50) freshBadgeIds.add("lessons_50");
 
-    // Streak milestones
     if (user.streak >= 3)  freshBadgeIds.add("streak_3");
     if (user.streak >= 7)  freshBadgeIds.add("streak_7");
     if (user.streak >= 14) freshBadgeIds.add("streak_14");
     if (user.streak >= 30) freshBadgeIds.add("streak_30");
 
-    // XP milestones (total ever earned)
     if (user.totalXp >= 50)  freshBadgeIds.add("xp_50");
     if (user.totalXp >= 100) freshBadgeIds.add("xp_100");
     if (user.totalXp >= 500) freshBadgeIds.add("xp_500");
 
-    // Payout requested at least once
     if (user.payoutRequests.length > 0) freshBadgeIds.add("first_payout");
 
-    // Path completion — count how many paths the user has fully completed
     const checkedPaths = new Set<string>();
     let completedPathCount = 0;
     for (const p of user.progress) {
@@ -170,16 +165,12 @@ export async function POST(req: Request) {
     if (completedPathCount >= 2) freshBadgeIds.add("paths_2");
     if (completedPathCount >= 3) freshBadgeIds.add("paths_3");
 
-    // Perfect play milestones
     const perfectCount = user.progress.filter((p) => p.crownLevel >= 2).length;
     if (perfectCount >= 1) freshBadgeIds.add("perfect_lesson");
     if (perfectCount >= 3) freshBadgeIds.add("perfect_3");
     if (perfectCount >= 5) freshBadgeIds.add("perfect_5");
 
-    // Merge: union of stored (permanent) + freshly earned badges
     const earnedBadgeIds = new Set<string>([...persistedBadgeIds, ...freshBadgeIds]);
-
-    // If any new badges were just earned, persist them so they stick permanently
     const newlyEarned = [...freshBadgeIds].filter((id) => !persistedBadgeIds.has(id));
     if (newlyEarned.length > 0) {
       const updatedBadges = [...earnedBadgeIds];
@@ -191,8 +182,7 @@ export async function POST(req: Request) {
 
     const badges = BADGE_DEFS.map((b) => ({ ...b, earned: earnedBadgeIds.has(b.id) }));
 
-    return NextResponse.json({
-      ok: true,
+    return apiOk({
       user: {
         id: user.id,
         email: user.email,
@@ -220,7 +210,6 @@ export async function POST(req: Request) {
       },
     });
   } catch (error) {
-    console.error("Session error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return apiServerError("auth/session", error);
   }
 }

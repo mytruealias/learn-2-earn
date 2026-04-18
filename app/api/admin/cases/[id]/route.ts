@@ -1,18 +1,35 @@
-import { NextResponse } from "next/server";
+import { z } from "zod";
 import { getAdminFromRequest } from "@/lib/admin-auth";
 import { logAudit } from "@/lib/audit";
 import prisma from "@/lib/prisma";
+import { apiError, apiOk, apiServerError, parseJson, getClientIp } from "@/lib/api-helpers";
+
+const PatchSchema = z.object({
+  status: z.string().max(40).optional(),
+  priority: z.enum(["high", "medium", "low"]).optional(),
+  assignedToId: z.string().max(120).nullable().optional(),
+});
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const admin = await getAdminFromRequest(req);
-    if (!admin) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!admin) return apiError("unauthorized", "Not signed in", 401);
 
     const { id } = await params;
     const c = await prisma.case.findUnique({
       where: { id },
       include: {
-        user: { select: { id: true, fullName: true, email: true, phone: true, caseNumber: true, city: true, state: true } },
+        user: {
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+            phone: true,
+            caseNumber: true,
+            city: true,
+            state: true,
+          },
+        },
         assignedTo: { select: { id: true, fullName: true, role: true } },
         notes: {
           include: { admin: { select: { id: true, fullName: true, role: true } } },
@@ -25,34 +42,34 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       },
     });
 
-    if (!c) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    if (!c) return apiError("not_found", "Not found", 404);
 
     await logAudit({
       adminId: admin.id,
       action: "CASE_VIEW",
       entity: "Case",
       entityId: id,
-      ipAddress: req.headers.get("x-forwarded-for") || "unknown",
+      ipAddress: getClientIp(req),
     });
 
-    return NextResponse.json({ ok: true, case: c });
+    return apiOk({ case: c });
   } catch (error) {
-    console.error("Admin case detail error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return apiServerError("admin/cases/get", error);
   }
 }
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const admin = await getAdminFromRequest(req);
-    if (!admin) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!admin) return apiError("unauthorized", "Not signed in", 401);
 
     const { id } = await params;
-    const body = await req.json();
-    const { status, priority, assignedToId } = body;
+    const parsed = await parseJson(req, PatchSchema);
+    if (!parsed.ok) return parsed.response;
+    const { status, priority, assignedToId } = parsed.data;
 
     const existing = await prisma.case.findUnique({ where: { id } });
-    if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    if (!existing) return apiError("not_found", "Not found", 404);
 
     const updated = await prisma.case.update({
       where: { id },
@@ -69,12 +86,11 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       entity: "Case",
       entityId: id,
       details: JSON.stringify({ status, priority, assignedToId }),
-      ipAddress: req.headers.get("x-forwarded-for") || "unknown",
+      ipAddress: getClientIp(req),
     });
 
-    return NextResponse.json({ ok: true, case: updated });
+    return apiOk({ case: updated });
   } catch (error) {
-    console.error("Admin case update error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return apiServerError("admin/cases/patch", error);
   }
 }
