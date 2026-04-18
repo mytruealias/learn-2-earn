@@ -101,25 +101,36 @@ export default function LoginPage() {
           Log in to continue your learning journey and check your earnings.
         </p>
 
-        {error && (
-          <div style={{
-            backgroundColor: "rgba(255,51,85,0.08)",
-            border: "1px solid var(--accent-red)",
-            padding: "0.75rem 1rem",
-            marginBottom: "1.25rem",
-            color: "var(--accent-red)",
-            fontSize: "0.85rem",
-            fontFamily: "var(--font-display)",
-          }}>
-            {error}
-          </div>
-        )}
+        <div role="alert" aria-live="assertive" style={{ minHeight: error ? undefined : 0 }}>
+          {error && (
+            <div style={{
+              backgroundColor: "rgba(255,51,85,0.08)",
+              border: "1px solid var(--accent-red)",
+              padding: "0.75rem 1rem",
+              marginBottom: "1.25rem",
+              color: "var(--accent-red)",
+              fontSize: "0.85rem",
+              fontFamily: "var(--font-display)",
+            }}>
+              {error}
+            </div>
+          )}
+        </div>
 
-        <div style={{ display: "grid", gap: "1rem" }}>
+        <form
+          onSubmit={(e) => { e.preventDefault(); handleLogin(); }}
+          noValidate
+          style={{ display: "grid", gap: "1rem" }}
+        >
           <div>
-            <label style={labelStyle}>email</label>
+            <label htmlFor="login-email" style={labelStyle}>email</label>
             <input
+              id="login-email"
               type="email"
+              autoComplete="email"
+              required
+              aria-required="true"
+              aria-invalid={!!error}
               placeholder="your@email.com"
               value={email}
               onChange={(e) => { setEmail(e.target.value); setError(""); }}
@@ -127,37 +138,42 @@ export default function LoginPage() {
             />
           </div>
           <div>
-            <label style={labelStyle}>password</label>
+            <label htmlFor="login-password" style={labelStyle}>password</label>
             <input
+              id="login-password"
               type="password"
+              autoComplete="current-password"
+              required
+              aria-required="true"
+              aria-invalid={!!error}
               placeholder="Your password"
               value={password}
               onChange={(e) => { setPassword(e.target.value); setError(""); }}
-              onKeyDown={(e) => { if (e.key === "Enter") handleLogin(); }}
               style={inputStyle}
             />
           </div>
-        </div>
 
-        <button
-          onClick={handleLogin}
-          disabled={loading}
-          style={{
-            width: "100%",
-            padding: "0.85rem",
-            marginTop: "1.5rem",
-            backgroundColor: "transparent",
-            color: loading ? "var(--text-muted)" : "var(--accent-green)",
-            border: `1px solid ${loading ? "var(--border-color)" : "var(--accent-green)"}`,
-            fontWeight: "700",
-            fontSize: "0.95rem",
-            fontFamily: "var(--font-display)",
-            letterSpacing: "0.05em",
-            boxShadow: loading ? "none" : "var(--glow-green)",
-          }}
-        >
-          {loading ? "AUTHENTICATING..." : "LOG IN"}
-        </button>
+          <button
+            type="submit"
+            disabled={loading}
+            aria-busy={loading}
+            style={{
+              width: "100%",
+              padding: "0.85rem",
+              marginTop: "0.5rem",
+              backgroundColor: "transparent",
+              color: loading ? "var(--text-muted)" : "var(--accent-green)",
+              border: `1px solid ${loading ? "var(--border-color)" : "var(--accent-green)"}`,
+              fontWeight: "700",
+              fontSize: "0.95rem",
+              fontFamily: "var(--font-display)",
+              letterSpacing: "0.05em",
+              boxShadow: loading ? "none" : "var(--glow-green)",
+            }}
+          >
+            {loading ? "AUTHENTICATING..." : "LOG IN"}
+          </button>
+        </form>
 
         <div style={{ textAlign: "center", marginTop: "1.5rem" }}>
           <span style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>Need an account? </span>

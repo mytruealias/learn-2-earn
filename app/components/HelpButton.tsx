@@ -1,12 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { SOSIcon, PhoneIcon, HomeIcon, ChatIcon, HandshakeIcon, HeartPulseIcon, HubertIcon } from "./icons";
 import HubertChat from "./HubertChat";
+import { useModalA11y } from "@/lib/use-modal-a11y";
 
 export default function HelpButton() {
   const [open, setOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const close = useCallback(() => setOpen(false), []);
+  useModalA11y(open, dialogRef, close);
 
   const openHubert = () => {
     setOpen(false);
@@ -17,6 +21,8 @@ export default function HelpButton() {
     <>
       <button
         onClick={() => setOpen(true)}
+        aria-label="Open emergency help and crisis resources"
+        aria-haspopup="dialog"
         style={{
           position: "fixed",
           bottom: "5rem",
@@ -54,6 +60,11 @@ export default function HelpButton() {
           onClick={() => setOpen(false)}
         >
           <div
+            ref={dialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="help-modal-title"
+            tabIndex={-1}
             onClick={(e) => e.stopPropagation()}
             style={{
               backgroundColor: "var(--bg-secondary)",
@@ -69,7 +80,7 @@ export default function HelpButton() {
             <div style={{ marginBottom: "0.5rem" }}>
               <HeartPulseIcon size={32} color="var(--accent-gold)" />
             </div>
-            <h2 style={{
+            <h2 id="help-modal-title" style={{
               fontFamily: "var(--font-display)",
               fontSize: "1.5rem",
               fontWeight: "700",

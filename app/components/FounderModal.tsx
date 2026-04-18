@@ -1,34 +1,29 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import Image from "next/image";
+import { useModalA11y } from "@/lib/use-modal-a11y";
 
 export default function FounderModal() {
   const [open, setOpen] = useState(false);
-
+  const dialogRef = useRef<HTMLDivElement>(null);
   const close = useCallback(() => setOpen(false), []);
-
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") close();
-    };
-    document.addEventListener("keydown", onKey);
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = "";
-    };
-  }, [open, close]);
+  useModalA11y(open, dialogRef, close);
 
   return (
     <>
-      <button className="inv-footer-about-btn" onClick={() => setOpen(true)}>
+      <button
+        className="inv-footer-about-btn"
+        onClick={() => setOpen(true)}
+        aria-haspopup="dialog"
+      >
         About Us
       </button>
 
       {open && (
         <div className="inv-founder-overlay" onClick={close}>
           <div
+            ref={dialogRef}
+            tabIndex={-1}
             className="inv-founder-modal"
             onClick={(e) => e.stopPropagation()}
             role="dialog"

@@ -30,15 +30,33 @@ export default function SignupPage() {
     setError("");
   };
 
-  const handleSubmit = async () => {
+  const validateStep1 = () => {
     if (!form.fullName || !form.email || !form.password) {
-      setError("Name, email, and password are required");
-      return;
+      setError("Please fill in name, email, and password");
+      return false;
     }
     if (form.password.length < 6) {
       setError("Password must be at least 6 characters");
+      return false;
+    }
+    return true;
+  };
+
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (step === 1) {
+      if (validateStep1()) setStep(2);
       return;
     }
+    if (step === 2) {
+      setStep(3);
+      return;
+    }
+    await handleSubmit();
+  };
+
+  const handleSubmit = async () => {
+    if (!validateStep1()) return;
 
     setLoading(true);
     setError("");
@@ -152,42 +170,48 @@ export default function SignupPage() {
           {step === 3 && "Optional: Who should we contact in an emergency?"}
         </p>
 
-        {error && (
-          <div style={{
-            backgroundColor: "rgba(255,75,75,0.1)",
-            border: "1px solid var(--accent-red)",
-            borderRadius: "10px",
-            padding: "0.75rem 1rem",
-            marginBottom: "1.25rem",
-            color: "var(--accent-red)",
-            fontSize: "0.85rem",
-            fontFamily: "var(--font-display)",
-          }}>
-            {error}
-          </div>
-        )}
+        <form onSubmit={handleFormSubmit} noValidate>
+        <div role="alert" aria-live="assertive">
+          {error && (
+            <div style={{
+              backgroundColor: "rgba(255,75,75,0.1)",
+              border: "1px solid var(--accent-red)",
+              borderRadius: "10px",
+              padding: "0.75rem 1rem",
+              marginBottom: "1.25rem",
+              color: "var(--accent-red)",
+              fontSize: "0.85rem",
+              fontFamily: "var(--font-display)",
+            }}>
+              {error}
+            </div>
+          )}
+        </div>
 
         {step === 1 && (
           <div style={{ display: "grid", gap: "1rem" }}>
             <div>
-              <label style={labelStyle}>Full Name *</label>
-              <input type="text" placeholder="Your full legal name" value={form.fullName} onChange={(e) => update("fullName", e.target.value)} style={inputStyle} />
+              <label htmlFor="su-fullName" style={labelStyle}>Full Name *</label>
+              <input id="su-fullName" type="text" autoComplete="name" required aria-required="true" placeholder="Your full legal name" value={form.fullName} onChange={(e) => update("fullName", e.target.value)} style={inputStyle} />
             </div>
             <div>
-              <label style={labelStyle}>Email *</label>
-              <input type="email" placeholder="your@email.com" value={form.email} onChange={(e) => update("email", e.target.value)} style={inputStyle} />
+              <label htmlFor="su-email" style={labelStyle}>Email *</label>
+              <input id="su-email" type="email" autoComplete="email" required aria-required="true" placeholder="your@email.com" value={form.email} onChange={(e) => update("email", e.target.value)} style={inputStyle} />
             </div>
             <div>
-              <label style={labelStyle}>Password *</label>
-              <input type="password" placeholder="At least 6 characters" value={form.password} onChange={(e) => update("password", e.target.value)} style={inputStyle} />
+              <label htmlFor="su-password" style={labelStyle}>Password *</label>
+              <input id="su-password" type="password" autoComplete="new-password" required aria-required="true" minLength={6} aria-describedby="su-password-help" placeholder="At least 6 characters" value={form.password} onChange={(e) => update("password", e.target.value)} style={inputStyle} />
+              <div id="su-password-help" style={{ fontSize: "0.7rem", color: "var(--text-muted)", marginTop: "0.3rem" }}>
+                Must be at least 6 characters
+              </div>
             </div>
             <div>
-              <label style={labelStyle}>Date of Birth</label>
-              <input type="date" value={form.dateOfBirth} onChange={(e) => update("dateOfBirth", e.target.value)} style={inputStyle} />
+              <label htmlFor="su-dob" style={labelStyle}>Date of Birth</label>
+              <input id="su-dob" type="date" autoComplete="bday" value={form.dateOfBirth} onChange={(e) => update("dateOfBirth", e.target.value)} style={inputStyle} />
             </div>
             <div>
-              <label style={labelStyle}>Phone</label>
-              <input type="tel" placeholder="(555) 123-4567" value={form.phone} onChange={(e) => update("phone", e.target.value)} style={inputStyle} />
+              <label htmlFor="su-phone" style={labelStyle}>Phone</label>
+              <input id="su-phone" type="tel" autoComplete="tel" placeholder="(555) 123-4567" value={form.phone} onChange={(e) => update("phone", e.target.value)} style={inputStyle} />
             </div>
           </div>
         )}
@@ -195,21 +219,21 @@ export default function SignupPage() {
         {step === 2 && (
           <div style={{ display: "grid", gap: "1rem" }}>
             <div>
-              <label style={labelStyle}>City</label>
-              <input type="text" placeholder="Your city" value={form.city} onChange={(e) => update("city", e.target.value)} style={inputStyle} />
+              <label htmlFor="su-city" style={labelStyle}>City</label>
+              <input id="su-city" type="text" autoComplete="address-level2" placeholder="Your city" value={form.city} onChange={(e) => update("city", e.target.value)} style={inputStyle} />
             </div>
             <div>
-              <label style={labelStyle}>State</label>
-              <input type="text" placeholder="Your state" value={form.state} onChange={(e) => update("state", e.target.value)} style={inputStyle} />
+              <label htmlFor="su-state" style={labelStyle}>State</label>
+              <input id="su-state" type="text" autoComplete="address-level1" placeholder="Your state" value={form.state} onChange={(e) => update("state", e.target.value)} style={inputStyle} />
             </div>
             <div>
-              <label style={labelStyle}>Zip Code</label>
-              <input type="text" placeholder="ZIP code" value={form.zipCode} onChange={(e) => update("zipCode", e.target.value)} style={inputStyle} />
+              <label htmlFor="su-zip" style={labelStyle}>Zip Code</label>
+              <input id="su-zip" type="text" autoComplete="postal-code" inputMode="numeric" placeholder="ZIP code" value={form.zipCode} onChange={(e) => update("zipCode", e.target.value)} style={inputStyle} />
             </div>
             <div>
-              <label style={labelStyle}>Case Number</label>
-              <input type="text" placeholder="Government case or ID number (if any)" value={form.caseNumber} onChange={(e) => update("caseNumber", e.target.value)} style={inputStyle} />
-              <div style={{ fontSize: "0.7rem", color: "var(--text-muted)", marginTop: "0.3rem" }}>
+              <label htmlFor="su-case" style={labelStyle}>Case Number</label>
+              <input id="su-case" type="text" aria-describedby="su-case-help" placeholder="Government case or ID number (if any)" value={form.caseNumber} onChange={(e) => update("caseNumber", e.target.value)} style={inputStyle} />
+              <div id="su-case-help" style={{ fontSize: "0.7rem", color: "var(--text-muted)", marginTop: "0.3rem" }}>
                 Assigned by your caseworker or social services
               </div>
             </div>
@@ -219,12 +243,12 @@ export default function SignupPage() {
         {step === 3 && (
           <div style={{ display: "grid", gap: "1rem" }}>
             <div>
-              <label style={labelStyle}>Emergency Contact Name</label>
-              <input type="text" placeholder="Name of someone who can be reached" value={form.emergencyContactName} onChange={(e) => update("emergencyContactName", e.target.value)} style={inputStyle} />
+              <label htmlFor="su-ec-name" style={labelStyle}>Emergency Contact Name</label>
+              <input id="su-ec-name" type="text" autoComplete="off" placeholder="Name of someone who can be reached" value={form.emergencyContactName} onChange={(e) => update("emergencyContactName", e.target.value)} style={inputStyle} />
             </div>
             <div>
-              <label style={labelStyle}>Emergency Contact Phone</label>
-              <input type="tel" placeholder="Their phone number" value={form.emergencyContactPhone} onChange={(e) => update("emergencyContactPhone", e.target.value)} style={inputStyle} />
+              <label htmlFor="su-ec-phone" style={labelStyle}>Emergency Contact Phone</label>
+              <input id="su-ec-phone" type="tel" autoComplete="off" placeholder="Their phone number" value={form.emergencyContactPhone} onChange={(e) => update("emergencyContactPhone", e.target.value)} style={inputStyle} />
             </div>
           </div>
         )}
@@ -232,6 +256,7 @@ export default function SignupPage() {
         <div style={{ display: "flex", gap: "0.75rem", marginTop: "2rem" }}>
           {step > 1 && (
             <button
+              type="button"
               onClick={() => setStep((s) => s - 1)}
               style={{
                 flex: 1,
@@ -248,55 +273,27 @@ export default function SignupPage() {
               Back
             </button>
           )}
-          {step < 3 ? (
-            <button
-              onClick={() => {
-                if (step === 1 && (!form.fullName || !form.email || !form.password)) {
-                  setError("Please fill in name, email, and password");
-                  return;
-                }
-                if (step === 1 && form.password.length < 6) {
-                  setError("Password must be at least 6 characters");
-                  return;
-                }
-                setStep((s) => s + 1);
-              }}
-              style={{
-                flex: 1,
-                padding: "0.85rem",
-                backgroundColor: "var(--accent-green)",
-                color: "#0f1923",
-                border: "none",
-                borderRadius: "12px",
-                fontWeight: "700",
-                fontSize: "0.95rem",
-                fontFamily: "var(--font-display)",
-                letterSpacing: "0.03em",
-              }}
-            >
-              Next →
-            </button>
-          ) : (
-            <button
-              onClick={handleSubmit}
-              disabled={loading}
-              style={{
-                flex: 1,
-                padding: "0.85rem",
-                backgroundColor: loading ? "var(--bg-card)" : "var(--accent-green)",
-                color: loading ? "var(--text-muted)" : "#0f1923",
-                border: "none",
-                borderRadius: "12px",
-                fontWeight: "700",
-                fontSize: "0.95rem",
-                fontFamily: "var(--font-display)",
-                letterSpacing: "0.03em",
-              }}
-            >
-              {loading ? "Creating..." : "Create Account"}
-            </button>
-          )}
+          <button
+            type="submit"
+            disabled={loading}
+            aria-busy={loading}
+            style={{
+              flex: 1,
+              padding: "0.85rem",
+              backgroundColor: loading ? "var(--bg-card)" : "var(--accent-green)",
+              color: loading ? "var(--text-muted)" : "#0f1923",
+              border: "none",
+              borderRadius: "12px",
+              fontWeight: "700",
+              fontSize: "0.95rem",
+              fontFamily: "var(--font-display)",
+              letterSpacing: "0.03em",
+            }}
+          >
+            {step < 3 ? "Next →" : (loading ? "Creating..." : "Create Account")}
+          </button>
         </div>
+        </form>
 
         <div style={{ textAlign: "center", marginTop: "1.5rem" }}>
           <span style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>Already have an account? </span>

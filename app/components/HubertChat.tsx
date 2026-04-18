@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { HubertIcon, CloseIcon } from "./icons";
+import { useModalA11y } from "@/lib/use-modal-a11y";
 
 interface Message {
   role: "user" | "assistant";
@@ -58,26 +59,23 @@ export default function HubertChat({ onClose }: { onClose: () => void }) {
   }, []);
 
   const overlayRef = useRef<HTMLDivElement>(null);
+  useModalA11y(true, overlayRef, onClose);
 
   useEffect(() => {
     const html = document.documentElement;
     const body = document.body;
-    const origHtmlOverflow = html.style.overflow;
-    const origBodyOverflow = body.style.overflow;
-    const origBodyPosition = body.style.position;
+    const origHtmlPosition = body.style.position;
     const scrollY = window.scrollY;
 
     html.style.overflow = "hidden";
-    body.style.overflow = "hidden";
     body.style.position = "fixed";
     body.style.top = `-${scrollY}px`;
     body.style.left = "0";
     body.style.right = "0";
 
     return () => {
-      html.style.overflow = origHtmlOverflow;
-      body.style.overflow = origBodyOverflow;
-      body.style.position = origBodyPosition;
+      html.style.overflow = "";
+      body.style.position = origHtmlPosition;
       body.style.top = "";
       body.style.left = "";
       body.style.right = "";
@@ -200,6 +198,10 @@ export default function HubertChat({ onClose }: { onClose: () => void }) {
   return (
     <div
       ref={overlayRef}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="hubert-chat-title"
+      tabIndex={-1}
       style={{
       position: "fixed",
       inset: 0,
@@ -244,7 +246,7 @@ export default function HubertChat({ onClose }: { onClose: () => void }) {
             <HubertIcon size={20} color="#fff" />
           </div>
           <div style={{ flex: 1 }}>
-            <div style={{
+            <div id="hubert-chat-title" style={{
               fontWeight: 700,
               fontSize: "1rem",
               fontFamily: "var(--font-display)",
@@ -378,7 +380,7 @@ export default function HubertChat({ onClose }: { onClose: () => void }) {
           ))}
 
           {error && (
-            <div style={{
+            <div role="alert" aria-live="assertive" style={{
               textAlign: "center",
               fontSize: "0.8rem",
               color: "var(--accent-red)",
@@ -412,7 +414,11 @@ export default function HubertChat({ onClose }: { onClose: () => void }) {
             gap: "0.5rem",
             alignItems: "center",
           }}>
+            <label htmlFor="hubert-chat-input" className="sr-only">
+              Type a message to Hubert
+            </label>
             <input
+              id="hubert-chat-input"
               ref={inputRef}
               type="text"
               value={input}
@@ -420,6 +426,7 @@ export default function HubertChat({ onClose }: { onClose: () => void }) {
               onKeyDown={handleKeyDown}
               placeholder="Type a message..."
               disabled={streaming}
+              autoComplete="off"
               style={{
                 flex: 1,
                 padding: "0.7rem 1rem",

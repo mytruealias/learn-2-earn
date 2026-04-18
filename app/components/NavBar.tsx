@@ -26,7 +26,7 @@ export default function NavBar() {
   ];
 
   return (
-    <nav style={{
+    <nav aria-label="Primary" style={{
       position: "fixed",
       bottom: 0,
       left: 0,
@@ -50,6 +50,8 @@ export default function NavBar() {
             <Link
               key={link.href}
               href={link.href}
+              aria-current={active ? "page" : undefined}
+              aria-label={link.label}
               style={{
                 flex: 1,
                 display: "flex",
