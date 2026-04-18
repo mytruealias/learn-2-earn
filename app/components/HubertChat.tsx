@@ -64,8 +64,15 @@ export default function HubertChat({ onClose }: { onClose: () => void }) {
   useEffect(() => {
     const html = document.documentElement;
     const body = document.body;
-    const origHtmlPosition = body.style.position;
     const scrollY = window.scrollY;
+
+    const prev = {
+      htmlOverflow: html.style.overflow,
+      bodyPosition: body.style.position,
+      bodyTop: body.style.top,
+      bodyLeft: body.style.left,
+      bodyRight: body.style.right,
+    };
 
     html.style.overflow = "hidden";
     body.style.position = "fixed";
@@ -74,11 +81,11 @@ export default function HubertChat({ onClose }: { onClose: () => void }) {
     body.style.right = "0";
 
     return () => {
-      html.style.overflow = "";
-      body.style.position = origHtmlPosition;
-      body.style.top = "";
-      body.style.left = "";
-      body.style.right = "";
+      html.style.overflow = prev.htmlOverflow;
+      body.style.position = prev.bodyPosition;
+      body.style.top = prev.bodyTop;
+      body.style.left = prev.bodyLeft;
+      body.style.right = prev.bodyRight;
       window.scrollTo(0, scrollY);
     };
   }, []);
