@@ -52,8 +52,32 @@ async function verifyToken(token: string, secret: string): Promise<boolean> {
   return verifyHmacToken(token, secret, "demo-access:");
 }
 
-async function verifyAustinToken(token: string, secret: string): Promise<boolean> {
-  return verifyHmacToken(token, secret, "austin-access:");
+interface CityGate {
+  slug: string;          // url segment, e.g. "austin", "los-angeles"
+  basePath: string;      // "/austin"
+  unlockPath: string;    // "/austin/unlock"
+  cookie: string;        // "l2e_austin_access"
+  prefix: string;        // "austin-access:"
+  pinEnv: string;        // "AUSTIN_ACCESS_PIN" or "CITY_ACCESS_PIN"
+}
+
+const CITY_GATES: CityGate[] = [
+  { slug: "austin", basePath: "/austin", unlockPath: "/austin/unlock",
+    cookie: "l2e_austin_access", prefix: "austin-access:", pinEnv: "AUSTIN_ACCESS_PIN" },
+  { slug: "los-angeles", basePath: "/los-angeles", unlockPath: "/los-angeles/unlock",
+    cookie: "l2e_los_angeles_access", prefix: "los-angeles-access:", pinEnv: "CITY_ACCESS_PIN" },
+  { slug: "dallas", basePath: "/dallas", unlockPath: "/dallas/unlock",
+    cookie: "l2e_dallas_access", prefix: "dallas-access:", pinEnv: "CITY_ACCESS_PIN" },
+  { slug: "denver", basePath: "/denver", unlockPath: "/denver/unlock",
+    cookie: "l2e_denver_access", prefix: "denver-access:", pinEnv: "CITY_ACCESS_PIN" },
+  { slug: "houston", basePath: "/houston", unlockPath: "/houston/unlock",
+    cookie: "l2e_houston_access", prefix: "houston-access:", pinEnv: "CITY_ACCESS_PIN" },
+];
+
+function isCityDeckPath(pathname: string): boolean {
+  return CITY_GATES.some(
+    (g) => pathname === g.basePath || pathname.startsWith(g.basePath + "/"),
+  );
 }
 
 function redirect301(url: string): NextResponse {
@@ -86,14 +110,14 @@ export async function middleware(request: NextRequest) {
       const isLearnerPath = LEARNER_PATHS.some(
         (p) => pathname === p || pathname.startsWith(p + "/")
       );
-      const isAustinPagePath = pathname === "/austin" || pathname.startsWith("/austin/");
+      const isCityPagePath = isCityDeckPath(pathname);
       const isRootPath = pathname === "/";
 
       // API routes always pass through — no subdomain restriction on the API layer
       if (!isApiPath) {
         if (isRoot) {
-          // Root domain serves / and /austin (city-partnership deck with its own PIN gate)
-          if (!isRootPath && !isAustinPagePath) {
+          // Root domain serves / and the city-partnership decks (each PIN-gated)
+          if (!isRootPath && !isCityPagePath) {
             if (isAdminPath)   return redirect301(`https://admin.${rootDomain}${pathname}${search}`);
             if (isLearnerPath) return redirect301(`https://app.${rootDomain}${pathname}${search}`);
             return redirect301(`https://${rootDomain}/`);
@@ -102,42 +126,44 @@ export async function middleware(request: NextRequest) {
           // App subdomain: learner routes only
           if (isRootPath)  return redirect301(`https://app.${rootDomain}/app`);
           if (isAdminPath) return redirect301(`https://admin.${rootDomain}${pathname}${search}`);
-          if (isAustinPagePath) return redirect301(`https://${rootDomain}${pathname}${search}`);
+          if (isCityPagePath) return redirect301(`https://${rootDomain}${pathname}${search}`);
           if (!isLearnerPath) return redirect301(`https://app.${rootDomain}/app`);
         } else if (isAdmin) {
           // Admin subdomain: admin routes only
           // Learner paths → route to the app subdomain (not trapped on admin)
           if (isRootPath)     return redirect301(`https://admin.${rootDomain}/admin`);
           if (isLearnerPath)  return redirect301(`https://app.${rootDomain}${pathname}${search}`);
-          if (isAustinPagePath) return redirect301(`https://${rootDomain}${pathname}${search}`);
+          if (isCityPagePath) return redirect301(`https://${rootDomain}${pathname}${search}`);
           if (!isAdminPath)   return redirect301(`https://admin.${rootDomain}/admin`);
         }
       }
     }
   }
 
-  // ── AUSTIN PIN GATE ────────────────────────────────────────────────────────
-  // The /austin pitch deck is sensitive and requires a PIN. Independent from
-  // the learner demo gate: separate cookie, separate token prefix, separate
-  // unlock page. /austin/unlock itself must stay reachable.
-  const isAustinPath =
-    (pathname === "/austin" || pathname.startsWith("/austin/")) &&
-    pathname !== "/austin/unlock" &&
-    !pathname.startsWith("/austin/unlock/");
+  // ── CITY PARTNERSHIP DECK PIN GATES ────────────────────────────────────────
+  // Each city deck (/austin, /los-angeles, /dallas, /denver, /houston) is
+  // sensitive and requires a PIN. Independent from the learner demo gate:
+  // separate cookie + token prefix per city. The /<city>/unlock page itself
+  // must stay reachable.
+  for (const gate of CITY_GATES) {
+    const inGate =
+      (pathname === gate.basePath || pathname.startsWith(gate.basePath + "/")) &&
+      pathname !== gate.unlockPath &&
+      !pathname.startsWith(gate.unlockPath + "/");
+    if (!inGate) continue;
 
-  if (isAustinPath) {
-    const austinToken = request.cookies.get("l2e_austin_access")?.value;
-    let austinOk = false;
-    if (austinToken) {
-      const austinSecret =
+    const cityToken = request.cookies.get(gate.cookie)?.value;
+    let cityOk = false;
+    if (cityToken) {
+      const citySecret =
         process.env.SESSION_SECRET ||
-        process.env.AUSTIN_ACCESS_PIN ||
-        "l2e-austin-fallback-secret";
-      austinOk = await verifyAustinToken(austinToken, austinSecret);
+        process.env[gate.pinEnv] ||
+        "l2e-city-fallback-secret";
+      cityOk = await verifyHmacToken(cityToken, citySecret, gate.prefix);
     }
-    if (!austinOk) {
+    if (!cityOk) {
       const url = request.nextUrl.clone();
-      url.pathname = "/austin/unlock";
+      url.pathname = gate.unlockPath;
       url.search = "";
       url.searchParams.set("next", pathname);
       return NextResponse.redirect(url);

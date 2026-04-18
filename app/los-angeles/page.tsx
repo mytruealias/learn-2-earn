@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import CityDeckPage from "../components/CityDeck/CityDeckPage";
-import { dallasConfig as cfg } from "../components/CityDeck/configs/dallas";
+import { losAngelesConfig as cfg } from "../components/CityDeck/configs/los-angeles";
 
 export const metadata: Metadata = {
   title: cfg.metadata.title,
@@ -19,6 +19,6 @@ export const metadata: Metadata = {
   },
 };
 
-export default function DallasPage() {
+export default function LosAngelesPage() {
   return <CityDeckPage config={cfg} />;
 }

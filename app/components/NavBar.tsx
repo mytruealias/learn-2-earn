@@ -13,7 +13,9 @@ export default function NavBar() {
     setLoggedIn(localStorage.getItem("l2e_logged_in") === "true");
   }, []);
 
-  if (pathname === "/" || pathname.startsWith("/lesson/") || pathname.startsWith("/invest") || pathname.startsWith("/admin") || pathname.startsWith("/access") || pathname === "/austin" || pathname.startsWith("/austin/")) return null;
+  const cityDeckSlugs = ["/austin", "/los-angeles", "/dallas", "/denver", "/houston"];
+  const isCityDeck = cityDeckSlugs.some((s) => pathname === s || pathname.startsWith(s + "/"));
+  if (pathname === "/" || pathname.startsWith("/lesson/") || pathname.startsWith("/invest") || pathname.startsWith("/admin") || pathname.startsWith("/access") || isCityDeck) return null;
 
   const links = [
     { href: "/app", label: "Home", icon: (color: string) => <HomeIcon size={22} color={color} /> },
