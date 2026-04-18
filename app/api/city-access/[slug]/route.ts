@@ -20,6 +20,12 @@ export async function POST(
     }
 
     const expected = getExpectedPin(citySlug);
+    if (!expected) {
+      return NextResponse.json(
+        { error: "City access gate is not configured" },
+        { status: 503 },
+      );
+    }
     if (pin.trim() !== expected) {
       return NextResponse.json({ error: "Invalid PIN" }, { status: 401 });
     }

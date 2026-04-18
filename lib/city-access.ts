@@ -2,7 +2,6 @@ import { createHmac } from "crypto";
 import { NextResponse } from "next/server";
 
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
-const FALLBACK_SECRET = "l2e-city-fallback-secret";
 
 export type CitySlug = "austin" | "los-angeles" | "dallas" | "denver" | "houston";
 
@@ -10,7 +9,6 @@ interface CityAccessSpec {
   cookieName: string;
   tokenPrefix: string;
   pinEnvVar: string;
-  defaultPin: string;
 }
 
 const CITY_ACCESS: Record<CitySlug, CityAccessSpec> = {
@@ -18,31 +16,26 @@ const CITY_ACCESS: Record<CitySlug, CityAccessSpec> = {
     cookieName: "l2e_austin_access",
     tokenPrefix: "austin-access:",
     pinEnvVar: "AUSTIN_ACCESS_PIN",
-    defaultPin: "AUSTIN2026",
   },
   "los-angeles": {
     cookieName: "l2e_los_angeles_access",
     tokenPrefix: "los-angeles-access:",
     pinEnvVar: "CITY_ACCESS_PIN",
-    defaultPin: "8828",
   },
   "dallas": {
     cookieName: "l2e_dallas_access",
     tokenPrefix: "dallas-access:",
     pinEnvVar: "CITY_ACCESS_PIN",
-    defaultPin: "8828",
   },
   "denver": {
     cookieName: "l2e_denver_access",
     tokenPrefix: "denver-access:",
     pinEnvVar: "CITY_ACCESS_PIN",
-    defaultPin: "8828",
   },
   "houston": {
     cookieName: "l2e_houston_access",
     tokenPrefix: "houston-access:",
     pinEnvVar: "CITY_ACCESS_PIN",
-    defaultPin: "8828",
   },
 };
 
@@ -50,20 +43,30 @@ export function getCityAccess(slug: CitySlug): CityAccessSpec | null {
   return CITY_ACCESS[slug] ?? null;
 }
 
-function getSecretFor(spec: CityAccessSpec): string {
-  return process.env.SESSION_SECRET || process.env[spec.pinEnvVar] || FALLBACK_SECRET;
+function requireSecret(spec: CityAccessSpec): string {
+  const sessionSecret = process.env.SESSION_SECRET;
+  const pin = process.env[spec.pinEnvVar];
+  const secret = sessionSecret || pin;
+  if (!secret) {
+    throw new Error(
+      `City access gate is not configured: missing SESSION_SECRET and ${spec.pinEnvVar}`
+    );
+  }
+  return secret;
 }
 
-export function getExpectedPin(slug: CitySlug): string {
+export function getExpectedPin(slug: CitySlug): string | null {
   const spec = CITY_ACCESS[slug];
-  if (!spec) return "";
-  return (process.env[spec.pinEnvVar] || spec.defaultPin).trim();
+  if (!spec) return null;
+  const pin = process.env[spec.pinEnvVar];
+  if (!pin) return null;
+  return pin.trim();
 }
 
 export function createCityToken(slug: CitySlug): string {
   const spec = CITY_ACCESS[slug];
   if (!spec) throw new Error(`Unknown city slug: ${slug}`);
-  const secret = getSecretFor(spec);
+  const secret = requireSecret(spec);
   const payload = `${spec.tokenPrefix}${Date.now()}`;
   const signature = createHmac("sha256", secret).update(payload).digest("hex");
   return `${Buffer.from(payload).toString("base64")}.${signature}`;
@@ -92,7 +95,7 @@ export function verifyCityToken(slug: CitySlug, token: string): boolean {
     const payload = Buffer.from(encodedPayload, "base64").toString();
     if (!payload.startsWith(spec.tokenPrefix)) return false;
 
-    const secret = getSecretFor(spec);
+    const secret = requireSecret(spec);
     const expectedSig = createHmac("sha256", secret).update(payload).digest("hex");
     if (signature !== expectedSig) return false;
 
