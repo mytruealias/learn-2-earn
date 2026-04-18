@@ -47,16 +47,11 @@ export default async function globalSetup(): Promise<void> {
     env,
     stdio: "inherit",
   });
-  try {
-    execSync("npx tsx prisma/seed.ts", { env, stdio: "inherit" });
-  } catch {
-    // Optional: seed script may fail if data already exists; ignore.
-  }
-  try {
-    execSync("npx tsx prisma/seed-recovery.ts", { env, stdio: "inherit" });
-  } catch {
-    // Optional.
-  }
+  // Seeds run against a freshly reset schema, so any failure here is a
+  // real setup regression — fail fast rather than letting tests run
+  // against a half-empty DB.
+  execSync("npx tsx prisma/seed.ts", { env, stdio: "inherit" });
+  execSync("npx tsx prisma/seed-recovery.ts", { env, stdio: "inherit" });
 
   // Propagate so the Playwright webServer process inherits the test DB URL
   // as its DATABASE_URL, ensuring every HTTP call hits the test DB.
