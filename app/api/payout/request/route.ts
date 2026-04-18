@@ -39,17 +39,22 @@ export async function POST(req: Request) {
       );
     }
 
+    // Identity comes ONLY from the signed session cookie. A body userId, if
+    // present, must match — never treated as a fallback so an unauthenticated
+    // request cannot create a payout for an arbitrary user ID.
     const sessionUserId = getUserIdFromRequest(req);
+    if (!sessionUserId) {
+      return apiError("unauthorized", "Please sign in to request a payout.", 401);
+    }
 
     const parsed = await parseJson(req, Schema);
     if (!parsed.ok) return parsed.response;
     const { xpAmount, paymentMethod, paymentHandle } = parsed.data;
 
-    const userId = sessionUserId ?? parsed.data.userId;
-    if (!userId) return apiError("unauthorized", "Not signed in.", 401);
-    if (sessionUserId && parsed.data.userId && sessionUserId !== parsed.data.userId) {
-      return apiError("forbidden", "Not authorized.", 403);
+    if (parsed.data.userId && sessionUserId !== parsed.data.userId) {
+      return apiError("forbidden", "You can only request payouts for yourself.", 403);
     }
+    const userId = sessionUserId;
 
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) return apiError("not_found", "User not found.", 404);

@@ -42,12 +42,15 @@ const Schema = z.object({ userId: z.string().min(1).max(120).optional() });
 
 export async function POST(req: Request) {
   try {
-    // Allow either the signed session cookie or a body userId, but if both
-    // are present they MUST match — otherwise a logged-in user could read
-    // any other user's session by guessing a guest userId.
+    // Identity comes ONLY from the signed session cookie. A body userId, if
+    // sent, is treated as a sanity check — it must match the cookie. We do
+    // NOT accept a body userId as a fallback identity, since that would let
+    // anyone read any user's profile just by guessing the userId.
     const sessionUserId = getUserIdFromRequest(req);
+    if (!sessionUserId) {
+      return apiError("unauthorized", "Not signed in.", 401);
+    }
 
-    // Body is optional. If present, validate it; if not, that's fine.
     let bodyUserId: string | undefined;
     try {
       const raw = await req.text();
@@ -59,14 +62,11 @@ export async function POST(req: Request) {
       // ignore — body was missing or malformed
     }
 
-    if (sessionUserId && bodyUserId && sessionUserId !== bodyUserId) {
+    if (bodyUserId && sessionUserId !== bodyUserId) {
       return apiError("forbidden", "Session does not match requested user.", 403);
     }
 
-    const userId = sessionUserId ?? bodyUserId;
-    if (!userId) {
-      return apiError("unauthorized", "Not signed in.", 401);
-    }
+    const userId = sessionUserId;
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
