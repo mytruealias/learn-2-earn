@@ -1,70 +1,97 @@
 import { test, expect } from "@playwright/test";
 
 const SLUG = process.env.E2E_CITY_SLUG || "austin";
-// Default to the same value the Playwright webServer is spawned with so the
-// "correct PIN" path always runs in the dedicated test environment.
+// Default to the value the Playwright webServer is spawned with so the
+// happy-path test always runs in the dedicated test environment.
 const VALID_PIN = process.env.E2E_CITY_PIN || process.env.AUSTIN_ACCESS_PIN || "1234";
-const HAS_VALID_PIN = VALID_PIN.length > 0;
+
+// Each test uses its own X-Forwarded-For so the in-memory rate limiter
+// (keyed by IP+city) treats them as different clients. This prevents the
+// lockout test from polluting the happy-path test.
+const LOCKOUT_IP = "10.0.0.1";
+const HAPPY_IP = "10.0.0.2";
+const LANDING_IP = "10.0.0.3";
 
 test.describe("City PIN gate", () => {
-  test("locks out after 10 wrong attempts from the same client", async ({ request }) => {
-    // Warm up Next dev compilation for this route. We count this hit toward
-    // the total so the assertion below reflects real wrong-PIN attempts.
-    const warmup = await request.post(`/api/city-access/${SLUG}`, {
+  test("rejects exactly 10 wrong attempts then locks out on the 11th", async ({ request }) => {
+    // Warm up Next dev compilation for this route from a *different* IP so
+    // it doesn't consume budget against LOCKOUT_IP's bucket.
+    await request.post(`/api/city-access/${SLUG}`, {
+      headers: { "x-forwarded-for": "10.99.99.99" },
       data: { pin: "000000" },
       failOnStatusCode: false,
     });
-    expect([401, 429]).toContain(warmup.status());
-    let totalWrongAttempts = 1;
-    let blockedStatus = warmup.status();
-    let blockedBody: { error?: { code?: string } } = blockedStatus === 429
-      ? await warmup.json()
-      : {};
 
-    // Keep sending wrong PINs until 429. Cap at 25 so a real bug fails fast.
-    while (blockedStatus !== 429 && totalWrongAttempts < 25) {
+    // Attempts 1..10 must each return 401 (allowed-but-wrong).
+    for (let i = 1; i <= 10; i++) {
       const res = await request.post(`/api/city-access/${SLUG}`, {
+        headers: { "x-forwarded-for": LOCKOUT_IP },
         data: { pin: "000000" },
         failOnStatusCode: false,
       });
-      totalWrongAttempts++;
-      if (res.status() === 429) {
-        blockedStatus = 429;
-        blockedBody = await res.json();
-        break;
-      }
-      expect(res.status(), `attempt ${totalWrongAttempts} should be 401 before lockout`).toBe(401);
+      expect(res.status(), `attempt ${i} (of 10 allowed) must be 401`).toBe(401);
     }
 
-    // With max=10, the 11th wrong attempt must be the first 429.
-    expect(blockedStatus, "rate limiter must block within 25 wrong attempts").toBe(429);
+    // Attempt 11 must be 429 with rate_limited error code.
+    const blocked = await request.post(`/api/city-access/${SLUG}`, {
+      headers: { "x-forwarded-for": LOCKOUT_IP },
+      data: { pin: "000000" },
+      failOnStatusCode: false,
+    });
+    expect(blocked.status(), "11th attempt must be rate-limited").toBe(429);
+    expect(blocked.headers()["retry-after"]).toBeTruthy();
+    const blockedBody = await blocked.json();
     expect(blockedBody.error?.code).toBe("rate_limited");
-    expect(
-      totalWrongAttempts,
-      "must allow at least 10 wrong attempts before locking out",
-    ).toBeGreaterThanOrEqual(11);
   });
 
   test("correct PIN returns 200 and sets the city cookie", async ({ request }) => {
-    test.skip(!HAS_VALID_PIN, "AUSTIN_ACCESS_PIN / E2E_CITY_PIN not set");
+    // Uses a separate forwarded IP from the lockout test so this never
+    // races into the same bucket. Always runs.
     const res = await request.post(`/api/city-access/${SLUG}`, {
+      headers: { "x-forwarded-for": HAPPY_IP },
       data: { pin: VALID_PIN },
       failOnStatusCode: false,
     });
-    if (res.status() === 429) {
-      test.skip(true, "rate-limited by previous test; restart dev server to retry");
-    }
-    expect(res.status()).toBe(200);
+    expect(res.status(), "happy-path PIN must succeed (independent IP)").toBe(200);
     const cookies = res.headersArray().filter((h) => h.name.toLowerCase() === "set-cookie");
-    expect(cookies.some((c) => c.value.includes(`l2e_${SLUG}_access=`))).toBe(true);
+    expect(
+      cookies.some((c) => c.value.includes(`l2e_${SLUG}_access=`)),
+      "expected l2e_<slug>_access cookie",
+    ).toBe(true);
   });
 });
 
 test.describe("Landing page", () => {
-  test("server-rendered HTML contains a Book-a-Demo / contact CTA", async ({ request }) => {
-    const res = await request.get("/");
-    expect(res.status()).toBe(200);
-    const html = (await res.text()).toLowerCase();
-    expect(html).toMatch(/book a demo|request demo|contact/);
+  test("SSR HTML contains a CTA whose href resolves to a real route", async ({ request }) => {
+    const landing = await request.get("/", {
+      headers: { "x-forwarded-for": LANDING_IP },
+    });
+    expect(landing.status()).toBe(200);
+    const html = await landing.text();
+
+    // CTA text must be present.
+    expect(html.toLowerCase()).toMatch(/book a demo|request demo|contact/);
+
+    // Discover at least one anchor href on the page and verify it
+    // resolves. We accept hash anchors (in-page section), absolute URLs
+    // back to the same origin, and relative paths.
+    const hrefs = Array.from(html.matchAll(/href="([^"]+)"/g))
+      .map((m) => m[1])
+      .filter((h) => h && !h.startsWith("mailto:") && !h.startsWith("tel:"));
+
+    expect(hrefs.length, "landing page must expose at least one navigable link").toBeGreaterThan(0);
+
+    // Pick the first non-hash, non-external link and assert it resolves.
+    const internal = hrefs.find((h) => h.startsWith("/") && !h.startsWith("//"));
+    if (internal) {
+      const probe = await request.get(internal, {
+        headers: { "x-forwarded-for": LANDING_IP },
+        maxRedirects: 0,
+      });
+      expect(
+        [200, 301, 302, 303, 307, 308].includes(probe.status()),
+        `internal landing link ${internal} must resolve (got ${probe.status()})`,
+      ).toBe(true);
+    }
   });
 });
