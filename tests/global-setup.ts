@@ -41,12 +41,9 @@ export default async function globalSetup() {
         "Point DATABASE_URL_TEST at a database whose NAME contains 'test' (e.g. learn2earn_test)."
     );
   }
-  const liveDbUrl = process.env.DATABASE_URL;
-  if (liveDbUrl && testDbUrl === liveDbUrl) {
-    throw new Error(
-      "Refusing to run tests: DATABASE_URL_TEST equals DATABASE_URL. Use a separate test DB."
-    );
-  }
+  // The dbName-must-contain-"test" check above is the real safety net;
+  // intentionally allow DATABASE_URL == DATABASE_URL_TEST when both point at
+  // the test DB (common when running locally with .env.test loaded).
 
   process.env.DATABASE_URL = testDbUrl;
 

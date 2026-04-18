@@ -157,39 +157,51 @@ The project ships with two test suites:
 
 | Suite | Tooling | Scope |
 |---|---|---|
-| API integration tests | [Vitest](https://vitest.dev/) | Calls Next.js route handlers directly against a real Postgres test DB |
-| End-to-end tests | [Playwright](https://playwright.dev/) | Drives the running app in a real browser |
+| API integration tests | [Vitest](https://vitest.dev/) | Calls Next.js route handlers directly against a dedicated Postgres test DB |
+| End-to-end tests | [Playwright](https://playwright.dev/) | Drives a Next.js server (spawned by Playwright) over real HTTP against the dedicated test DB |
+
+Both suites use the **same dedicated test database** (`DATABASE_URL_TEST`) and never touch the dev DB.
 
 ### One-time setup
 
-1. Create a separate, throw-away Postgres database for tests (the URL or name should contain the word `test` — the test runner refuses to wipe a DB that doesn't look like a test DB).
+1. Create a separate, throw-away Postgres database for tests. The database **name** (URL path) must contain the word `test` — the runner refuses to wipe a DB that doesn't look like a test DB.
 2. Copy the example env file and fill it in:
    ```bash
    cp .env.test.example .env.test
-   # edit DATABASE_URL_TEST and any PIN/secret values
+   # edit DATABASE_URL_TEST (required), and DATABASE_URL (optional — see below)
    ```
+   `.env.test` is loaded automatically by both Vitest and Playwright.
+3. (Optional) If you also set `DATABASE_URL` in `.env.test` to the same test DB, the Playwright-spawned Next server will use it directly. Otherwise Playwright passes `DATABASE_URL_TEST` through as `DATABASE_URL` for the spawned server.
 
-The API test runner resets this database (`prisma db push --force-reset`) at the start of every run, so never point it at your dev or production DB.
+The API test runner resets the test database (`prisma db push --force-reset`) at the start of every Vitest run; the Playwright global setup does the same and seeds lessons + recovery content. Both refuse to run if the DB name doesn't contain `test`.
 
 ### Commands
 
 ```bash
-npm run test:api        # vitest, single run (default `npm test`)
-npm run test:api:watch  # vitest in watch mode
-npm run test:e2e        # playwright, requires the dev server (auto-starts via playwright.config.ts)
-npm run test:all        # API tests then E2E
+npm run test:api        # Vitest API tests (default part of `npm test`)
+npm run test:api:watch  # Vitest in watch mode
+npm run test:e2e        # Playwright e2e — spawns its own Next server on port 5050
+                        # against the test DB, with an isolated `.next-e2e` build dir
+npm test                # API tests + e2e
+npm run test:e2e:ui     # Browser-driven e2e (e2e/admin.spec.ts) — requires Chromium
+                        # system libraries (libglib2.0 etc.) to be installed
+npm run test:all        # Everything above
 ```
+
+The e2e specs in `npm run test:e2e` (`city-pin`, `learner-flow`, `payout-approval`) use Playwright's `APIRequestContext` (no browser launch), so they run anywhere Node + Postgres are available. The legacy browser-driven admin suite is kept under `test:e2e:ui` for environments with a real browser.
 
 ### What's covered
 
-- `tests/api/auth.test.ts` — register / login / session including duplicate-email, bad password, invalid JSON
+- `tests/api/auth.test.ts` — register / login / session including duplicate-email, bad password, invalid JSON, tampered cookie
 - `tests/api/payout.test.ts` — auth gate, supported payment methods, balance + weekly cap, body/session userId mismatch
 - `tests/api/progress.test.ts` — XP award, idempotent re-completion, unknown lesson, session mismatch
-- `tests/api/admin-login.test.ts` — wrong credentials + audit log writes
-- `tests/api/city-access.test.ts` — wrong PIN, correct PIN, per-IP+city lockout after 10 wrong attempts
-- `tests/api/access.test.ts` — demo gate code + lockout
-- `e2e/admin.spec.ts` — admin dashboard flows (login, payout review, sidebar)
-- `e2e/city-pin.spec.ts` — city PIN gate happy path and landing page CTA
+- `tests/api/admin-login.test.ts` — wrong credentials, audit log writes on success and failure
+- `tests/api/city-access.test.ts` — wrong PIN, correct PIN, per-IP+city lockout after 10 wrong attempts, different-IP isolation
+- `tests/api/access.test.ts` — demo gate code (case-insensitive), 15-attempt lockout
+- `e2e/city-pin.spec.ts` — deterministic PIN lockout, correct-PIN cookie issuance, landing CTA via SSR HTML
+- `e2e/learner-flow.spec.ts` — demo gate → register → complete real seeded lesson → totalXp visible via session API
+- `e2e/payout-approval.spec.ts` — register learner, submit payout, admin login, review → approve transitions, payout reflected in admin list
+- `e2e/admin.spec.ts` (browser-only, `test:e2e:ui`) — admin dashboard UI flows
 
 ---
 

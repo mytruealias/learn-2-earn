@@ -6,6 +6,7 @@ import {
   disconnect,
 } from "./helpers/seed";
 
+// Match the value the Playwright webServer is spawned with.
 const DEMO_CODE = process.env.DEMO_ACCESS_CODE || "LEARN2EARN";
 
 test.describe.serial("Learner: signup → complete lesson → XP visible in profile", () => {

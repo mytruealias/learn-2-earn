@@ -27,11 +27,11 @@ test.describe.serial("Learner payout request → admin approval → status refle
     await disconnect();
   });
 
-  test("full payout pipeline", async ({ playwright }) => {
+  test("full payout pipeline", async ({ playwright, baseURL }) => {
     // ── Learner side ─────────────────────────────────────────────────────
-    const learnerCtx = await playwright.request.newContext({
-      baseURL: process.env.PLAYWRIGHT_BASE_URL || "http://localhost:5000",
-    });
+    // Reuse the suite-wide baseURL (set in playwright.config.ts) so this
+    // test always hits the dedicated e2e webServer and never the dev DB.
+    const learnerCtx = await playwright.request.newContext({ baseURL });
 
     const accessRes = await learnerCtx.post("/api/access", { data: { code: DEMO_CODE } });
     expect(accessRes.status(), "demo gate").toBe(200);
@@ -56,9 +56,7 @@ test.describe.serial("Learner payout request → admin approval → status refle
     await learnerCtx.dispose();
 
     // ── Admin side (separate request context, separate cookie jar) ──────
-    const adminCtx = await playwright.request.newContext({
-      baseURL: process.env.PLAYWRIGHT_BASE_URL || "http://localhost:5000",
-    });
+    const adminCtx = await playwright.request.newContext({ baseURL });
 
     const login = await adminCtx.post("/api/admin/login", {
       data: { email: ADMIN_EMAIL, password: ADMIN_PASSWORD },

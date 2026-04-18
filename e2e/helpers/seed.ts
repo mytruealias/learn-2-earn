@@ -1,12 +1,24 @@
 /**
- * E2E test helpers. These talk to the SAME database the running dev server
- * uses (since Playwright drives the live app). We seed/clean only data we
- * create ourselves and never wipe anything.
+ * E2E test helpers. These talk to the dedicated test database
+ * (DATABASE_URL_TEST), the same one the Playwright webServer is pointed at.
+ * Never touches the dev DB.
+ *
+ * Per-test cleanup removes every row this suite creates; the Playwright
+ * global teardown removes the admin fixture.
  */
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
-const prisma = new PrismaClient();
+const testDbUrl = process.env.DATABASE_URL_TEST;
+if (!testDbUrl) {
+  throw new Error(
+    "DATABASE_URL_TEST is not set. e2e helpers refuse to run against the dev DB.",
+  );
+}
+
+const prisma = new PrismaClient({
+  datasources: { db: { url: testDbUrl } },
+});
 
 export async function findAnyLessonId(): Promise<string> {
   const lesson = await prisma.lesson.findFirst({
@@ -14,7 +26,9 @@ export async function findAnyLessonId(): Promise<string> {
     select: { id: true },
   });
   if (!lesson) {
-    throw new Error("No lessons in dev DB. Run `npx tsx prisma/seed.ts` first.");
+    throw new Error(
+      "No lessons in test DB. The Playwright global setup should have seeded them.",
+    );
   }
   return lesson.id;
 }

@@ -19,6 +19,9 @@ const subdomainOrigins = rootDomain
 const allAllowedOrigins = [...new Set([...devOrigins, ...subdomainOrigins])];
 
 const nextConfig: NextConfig = {
+  // Allow the e2e test server to use a separate build directory so it does
+  // not corrupt the dev server's `.next` cache when both run concurrently.
+  ...(process.env.NEXT_DIST_DIR ? { distDir: process.env.NEXT_DIST_DIR } : {}),
   ...(allAllowedOrigins.length > 0 && { allowedDevOrigins: allAllowedOrigins }),
   experimental: {
     serverActions: {
