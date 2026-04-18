@@ -236,7 +236,6 @@ export default function AdminPayoutsPage() {
         <div className={styles.payoutList}>
           {payouts.map((p) => {
             const colorClass = statusColorClass[p.status] || "statusDefault";
-            const isCompleted = p.status === "completed";
             return (
               <div key={p.id} className={`${styles.payoutCard} ${styles[colorClass]}`}>
                 <div className={styles.payoutCardHeader}>

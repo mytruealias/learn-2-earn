@@ -208,7 +208,7 @@ export default function LessonPlayer({ lesson }: { lesson: Lesson }) {
   const [badgeCelebrationIndex, setBadgeCelebrationIndex] = useState(0);
   const [showBadgeCelebration, setShowBadgeCelebration] = useState(false);
 
-  const [completedIds, setCompletedIds] = useState<Set<string>>(new Set());
+  const [, setCompletedIds] = useState<Set<string>>(new Set());
   const [nextLesson, setNextLesson] = useState<{ id: string; title: string; moduleTitle: string } | null>(null);
 
   useEffect(() => {

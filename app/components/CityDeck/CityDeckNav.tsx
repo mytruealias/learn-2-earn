@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useEffect } from "react";
 
 interface Props {
@@ -26,14 +27,14 @@ export default function CityDeckNav({ primary }: Props) {
 
   return (
     <nav className="cd-nav">
-      <a href="/" className="cd-nav-logo">
+      <Link href="/" className="cd-nav-logo">
         <svg viewBox="0 0 32 32" fill="none">
           <rect x="4" y="18" width="6" height="10" rx="1" fill={primary} opacity="0.5" />
           <rect x="13" y="12" width="6" height="16" rx="1" fill={primary} opacity="0.7" />
           <rect x="22" y="6" width="6" height="22" rx="1" fill={primary} />
         </svg>
         Learn2Earn
-      </a>
+      </Link>
 
       <button
         className={`cd-nav-hamburger ${menuOpen ? "cd-nav-hamburger--open" : ""}`}

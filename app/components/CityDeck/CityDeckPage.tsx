@@ -1,4 +1,5 @@
 import "./city-deck.css";
+import Link from "next/link";
 import CityDeckNav from "./CityDeckNav";
 import {
   UsersIcon, ClipboardIcon, CoinIcon, ShieldIcon, BarChartIcon,
@@ -593,7 +594,7 @@ export default function CityDeckPage({ config }: Props) {
             Measurable impact. Full transparency. Real outcomes.
           </p>
           <nav className="cd-footer-links">
-            <a href="/">Home</a>
+            <Link href="/">Home</Link>
             <span className="cd-footer-sep">|</span>
             <a href="mailto:partners@learn2earn.org">partners@learn2earn.org</a>
           </nav>

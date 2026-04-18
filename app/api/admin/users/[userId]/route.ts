@@ -44,7 +44,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ userId: 
       ipAddress: req.headers.get("x-forwarded-for") || "unknown",
     });
 
-    const { passwordHash, ...safeUser } = user;
+    const { passwordHash: _passwordHash, ...safeUser } = user;
+    void _passwordHash;
     return NextResponse.json({ ok: true, user: safeUser });
   } catch (error) {
     console.error("Admin user detail error:", error);
@@ -103,7 +104,8 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ userId
       ipAddress: req.headers.get("x-forwarded-for") || "unknown",
     });
 
-    const { passwordHash, ...safeUser } = updatedUser;
+    const { passwordHash: _passwordHash, ...safeUser } = updatedUser;
+    void _passwordHash;
     return NextResponse.json({ ok: true, user: safeUser });
   } catch (error) {
     console.error("Admin user patch error:", error);

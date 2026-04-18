@@ -8,8 +8,6 @@ interface IconProps {
   fill?: string;
 }
 
-const defaultProps = { size: 28, stroke: "currentColor", fill: "none" };
-
 export function TrendingUpIcon({ size = 28, stroke = "currentColor", style, className }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" style={style} className={className}>

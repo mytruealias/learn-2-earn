@@ -96,7 +96,7 @@ export async function getAdminSession() {
   }
 }
 
-export async function getAdminFromRequest(req: Request) {
+export async function getAdminFromRequest(_req: Request) {
   const admin = await getAdminSession();
   return admin;
 }

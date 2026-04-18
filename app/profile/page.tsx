@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import HelpButton from "../components/HelpButton";
@@ -129,11 +129,7 @@ export default function ProfilePage() {
     state: "", zipCode: "", emergencyContactName: "", emergencyContactPhone: "",
   });
 
-  useEffect(() => {
-    loadProfile();
-  }, []);
-
-  const loadProfile = async () => {
+  const loadProfile = useCallback(async () => {
     const userId = localStorage.getItem("l2e_user_id");
     const loggedIn = localStorage.getItem("l2e_logged_in");
 
@@ -165,7 +161,11 @@ export default function ProfilePage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [router]);
+
+  useEffect(() => {
+    loadProfile();
+  }, [loadProfile]);
 
   const startEdit = () => {
     if (!user) return;

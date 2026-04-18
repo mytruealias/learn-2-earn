@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
+import Image from "next/image";
 
 export default function FounderModal() {
   const [open, setOpen] = useState(false);
@@ -44,7 +45,7 @@ export default function FounderModal() {
 
             <div className="inv-founder-modal-body">
               <div className="inv-founder-photo-wrap">
-                <img
+                <Image
                   src="/images/founder-headshot.jpeg"
                   alt="Anthony Cognet, Founder of Learn2Earn"
                   className="inv-founder-photo"

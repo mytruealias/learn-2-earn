@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, use } from "react";
+import { useState, useEffect, useCallback, use } from "react";
 import { useRouter } from "next/navigation";
 import styles from "../cases.module.css";
 
@@ -118,21 +118,21 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
   const [editAssigneeId, setEditAssigneeId] = useState("");
   const [saving, setSaving] = useState(false);
 
-  const fetchCase = async () => {
+  const fetchCase = useCallback(async () => {
     const res = await fetch(`/api/admin/cases/${id}`, { credentials: "include" });
     const data = await res.json();
     if (data.ok) setC(data.case);
     setLoading(false);
-  };
+  }, [id]);
 
-  useEffect(() => { fetchCase(); }, [id]);
+  useEffect(() => { fetchCase(); }, [fetchCase]);
 
   useEffect(() => {
     if (staff.length > 0) return;
     fetch("/api/admin/cases/staff", { credentials: "include" })
       .then(r => r.json())
       .then(data => { if (data.ok) setStaff(data.staff); });
-  }, []);
+  }, [staff.length]);
 
   const openEditMeta = () => {
     if (!c) return;

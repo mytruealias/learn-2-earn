@@ -64,7 +64,6 @@ export default function HubertChat({ onClose }: { onClose: () => void }) {
     const body = document.body;
     const origHtmlOverflow = html.style.overflow;
     const origBodyOverflow = body.style.overflow;
-    const origHtmlPosition = html.style.position;
     const origBodyPosition = body.style.position;
     const scrollY = window.scrollY;
 

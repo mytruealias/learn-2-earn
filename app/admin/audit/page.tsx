@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import styles from "../audit.module.css";
 
 interface AuditEntry {
@@ -46,7 +46,7 @@ export default function AdminAuditPage() {
   const [loading, setLoading] = useState(true);
   const [entityFilter, setEntityFilter] = useState("");
 
-  const fetchLogs = () => {
+  const fetchLogs = useCallback(() => {
     setLoading(true);
     const params = new URLSearchParams({ page: String(page) });
     if (entityFilter) params.set("entity", entityFilter);
@@ -59,11 +59,11 @@ export default function AdminAuditPage() {
         }
       })
       .finally(() => setLoading(false));
-  };
+  }, [page, entityFilter]);
 
   useEffect(() => {
     fetchLogs();
-  }, [page, entityFilter]);
+  }, [fetchLogs]);
 
   return (
     <div className={styles.page}>
