@@ -158,27 +158,32 @@ export default function AdminStaffPage() {
             {!tempPassword && (
               <form onSubmit={handleCreate}>
                 <div className={styles.modalField}>
-                  <label className={styles.modalLabel}>Full Name</label>
+                  <label className={styles.modalLabel} htmlFor="staff-full-name">Full Name</label>
                   <input
+                    id="staff-full-name"
                     className={styles.modalInput}
                     value={form.fullName}
                     onChange={(e) => setForm((f) => ({ ...f, fullName: e.target.value }))}
                     required
+                    autoComplete="name"
                   />
                 </div>
                 <div className={styles.modalField}>
-                  <label className={styles.modalLabel}>Email</label>
+                  <label className={styles.modalLabel} htmlFor="staff-email">Email</label>
                   <input
+                    id="staff-email"
                     type="email"
                     className={styles.modalInput}
                     value={form.email}
                     onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
                     required
+                    autoComplete="email"
                   />
                 </div>
                 <div className={styles.modalField}>
-                  <label className={styles.modalLabel}>Role</label>
+                  <label className={styles.modalLabel} htmlFor="staff-role">Role</label>
                   <select
+                    id="staff-role"
                     className={styles.modalSelect}
                     value={form.role}
                     onChange={(e) => setForm((f) => ({ ...f, role: e.target.value }))}

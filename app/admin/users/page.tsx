@@ -208,8 +208,9 @@ export default function AdminUsersPage() {
               {editError && <div className={styles.modalError}>{editError}</div>}
               <form onSubmit={handleSaveEdit}>
                 <div className={styles.modalField}>
-                  <label className={styles.modalLabel}>Case Number</label>
+                  <label className={styles.modalLabel} htmlFor="edit-case-number">Case Number</label>
                   <input
+                    id="edit-case-number"
                     className={styles.modalInput}
                     value={editForm.caseNumber}
                     onChange={(e) => setEditForm((f) => ({ ...f, caseNumber: e.target.value }))}
@@ -218,8 +219,9 @@ export default function AdminUsersPage() {
                 </div>
                 <div className={styles.modalRow}>
                   <div className={styles.modalField}>
-                    <label className={styles.modalLabel}>XP Adjustment</label>
+                    <label className={styles.modalLabel} htmlFor="edit-xp-adjustment">XP Adjustment</label>
                     <input
+                      id="edit-xp-adjustment"
                       type="number"
                       className={styles.modalInput}
                       value={editForm.xpAdjustment}
@@ -228,8 +230,9 @@ export default function AdminUsersPage() {
                     />
                   </div>
                   <div className={styles.modalField}>
-                    <label className={styles.modalLabel}>Reason (required for XP)</label>
+                    <label className={styles.modalLabel} htmlFor="edit-xp-reason">Reason (required for XP)</label>
                     <input
+                      id="edit-xp-reason"
                       className={styles.modalInput}
                       value={editForm.xpReason}
                       onChange={(e) => setEditForm((f) => ({ ...f, xpReason: e.target.value }))}
@@ -238,8 +241,9 @@ export default function AdminUsersPage() {
                   </div>
                 </div>
                 <div className={styles.modalField}>
-                  <label className={styles.modalLabel}>Account Status</label>
+                  <label className={styles.modalLabel} htmlFor="edit-account-status">Account Status</label>
                   <select
+                    id="edit-account-status"
                     className={styles.modalSelect}
                     value={editForm.isActive ? "active" : "inactive"}
                     onChange={(e) => setEditForm((f) => ({ ...f, isActive: e.target.value === "active" }))}
@@ -360,13 +364,16 @@ export default function AdminUsersPage() {
         <h1 className={styles.pageTitle}>Users</h1>
       </div>
 
-      <form onSubmit={handleSearch} className={styles.searchForm}>
+      <form onSubmit={handleSearch} className={styles.searchForm} role="search">
+        <label htmlFor="users-search" className="sr-only">Search users</label>
         <input
-          type="text"
+          id="users-search"
+          type="search"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search by name, email, or case number..."
           className={styles.searchInput}
+          aria-label="Search users by name, email, or case number"
         />
         <button type="submit" className={styles.searchBtn}>Search</button>
       </form>

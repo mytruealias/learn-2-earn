@@ -72,7 +72,7 @@ function AccessForm() {
           padding: "2rem",
           backdropFilter: "blur(12px)",
         }}>
-          <label style={{
+          <label htmlFor="access-code" style={{
             display: "block",
             fontFamily: "var(--cy-mono)",
             fontSize: "0.7rem",
@@ -84,11 +84,17 @@ function AccessForm() {
             Access Code
           </label>
           <input
+            id="access-code"
             type="text"
             value={code}
             onChange={(e) => setCode(e.target.value)}
             placeholder="Enter your code"
             autoFocus
+            autoComplete="off"
+            required
+            aria-required="true"
+            aria-invalid={!!error}
+            aria-describedby={error ? "access-error" : undefined}
             style={{
               width: "100%",
               padding: "0.85rem 1rem",
@@ -104,16 +110,18 @@ function AccessForm() {
               textTransform: "uppercase",
             }}
           />
-          {error && (
-            <p style={{
-              color: "var(--cy-red)",
-              fontSize: "0.82rem",
-              marginTop: "0.75rem",
-              textAlign: "center",
-            }}>
-              {error}
-            </p>
-          )}
+          <div role="alert" aria-live="assertive">
+            {error && (
+              <p id="access-error" style={{
+                color: "var(--cy-red)",
+                fontSize: "0.82rem",
+                marginTop: "0.75rem",
+                textAlign: "center",
+              }}>
+                {error}
+              </p>
+            )}
+          </div>
         </div>
 
         <button

@@ -61,3 +61,50 @@ Before shipping a UI change, verify with the keyboard only:
 3. Submit the form with bad data — the error appears and is announced (use VoiceOver / NVDA).
 4. Re-test with `prefers-reduced-motion` enabled.
 5. Run an automated audit (Lighthouse > Accessibility) and resolve any new violations.
+
+## 9. Route-by-route status
+
+This is the audit baseline as of the WCAG 2.2 AA pass. Each route was walked
+keyboard-only with focus-visible enabled.
+
+### Public / marketing
+| Route | Forms labelled | Modals trapped | Focus ring | Notes |
+|---|---|---|---|---|
+| `/` (B2B landing) | n/a | `FounderModal` ✅ | ✅ | Icons hidden via `aria-hidden`. |
+| `/access` | ✅ (`access-code` + `aria-live` error) | n/a | ✅ | PIN gate. |
+| `/login` | ✅ (htmlFor + autoComplete + alert) | n/a | ✅ | Real `<form onSubmit>`. |
+| `/signup` | ✅ (3-step form, single submit, alert) | n/a | ✅ | Step Back is `type="button"`. |
+| `/austin`, `/la`, `/dallas`, `/denver`, `/houston` (CityDeck) | ✅ unlock form labelled | n/a | ✅ | All decorative SVGs hidden. |
+| `/invest` | n/a | n/a | ✅ | Static marketing. |
+
+### Learner app
+| Route | Forms labelled | Modals trapped | Focus ring | Notes |
+|---|---|---|---|---|
+| `/app` | n/a | `HelpButton` ✅ | ✅ | Bottom nav `aria-label="Primary"` + `aria-current`. |
+| `/profile` | ✅ (payout: handle input + radiogroup + status region) | n/a (inline panel, not a dialog) | ✅ | Submit is `type="button"` w/ `aria-busy`. |
+| `/lifeline` | ✅ (sr-only label on textarea + location input) | `HubertChat` ✅ | ✅ | SOS button has explicit `aria-label`. |
+| `/lesson/[lessonId]` | n/a | Celebration screens are full-page early returns, not modals | ✅ | Quiz buttons are real `<button>` with text. |
+
+### Admin
+| Route | Forms labelled | Modals trapped | Focus ring | Notes |
+|---|---|---|---|---|
+| `/admin/login` | ✅ (htmlFor + autoComplete) | n/a | ✅ | Pre-existing. |
+| `/admin/payouts` | ✅ (decision note + checkbox aria-label) | Inline panel | ✅ | Counter linked via `aria-describedby`. |
+| `/admin/users` | ✅ (search + edit modal labelled) | Edit modal uses overlay (see follow-up #57) | ✅ | All inputs have htmlFor/id. |
+| `/admin/staff` | ✅ (full name, email, role) | Create modal (see follow-up #57) | ✅ | autoComplete on name/email. |
+| `/admin/cases` | ✅ (search + status + priority filters labelled) | n/a | ✅ | |
+| `/admin/cases/[id]` | ✅ (note textarea + 3 modals: editMeta / dispatch / allocate) | Modals (see follow-up #57) | ✅ | All `<label>` now carry `htmlFor`. |
+| `/admin/directory` | ✅ (search + add/edit modal labelled, autoComplete on phone/address/website) | Add/edit modal (see follow-up #57) | ✅ | |
+| `/admin/finance` | ✅ (adjustment + payout config forms) | n/a | ✅ | |
+
+### Known follow-ups
+- **#57 — admin/lifeline modal hardening.** The remaining admin overlays
+  (`users` edit, `staff` create, `cases/[id]` editMeta/dispatch/allocate,
+  `directory` add/edit) close on overlay click but do not yet share
+  `useModalA11y` for focus trap / Escape / focus restore. The user-facing
+  `HelpButton`, `FounderModal`, `HubertChat` are all wrapped. Tracked.
+- **#58 — Automated axe scan in CI.** Tracked.
+
+Run `npm run typecheck` and Lighthouse → Accessibility against `/login`,
+`/signup`, `/access`, `/profile`, `/lifeline`, and `/admin/payouts` before
+merging UI changes.

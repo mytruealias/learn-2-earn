@@ -543,14 +543,17 @@ export default function ProfilePage() {
                     </div>
                   </div>
 
-                  <div>
-                    <div style={{ fontSize: "0.72rem", fontWeight: "700", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "0.4rem" }}>
+                  <div role="radiogroup" aria-label="Payment method">
+                    <div id="payment-method-label" style={{ fontSize: "0.72rem", fontWeight: "700", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "0.4rem" }}>
                       Payment Method
                     </div>
                     <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
                       {PAYMENT_METHODS.map((m) => (
                         <button
                           key={m.value}
+                          type="button"
+                          role="radio"
+                          aria-checked={paymentMethod === m.value}
                           onClick={() => { setPaymentMethod(m.value); setPaymentHandle(""); }}
                           style={{
                             padding: "0.45rem 0.9rem",
@@ -570,11 +573,15 @@ export default function ProfilePage() {
 
                   {paymentMethod && (
                     <div>
-                      <div style={{ fontSize: "0.72rem", fontWeight: "700", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "0.4rem" }}>
+                      <label htmlFor="payout-handle" style={{ display: "block", fontSize: "0.72rem", fontWeight: "700", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "0.4rem" }}>
                         {paymentMethod === "check" ? "Mailing Address" : "Handle / Address"}
-                      </div>
+                      </label>
                       <input
+                        id="payout-handle"
                         type="text"
+                        autoComplete="off"
+                        required
+                        aria-required="true"
                         value={paymentHandle}
                         onChange={(e) => setPaymentHandle(e.target.value)}
                         placeholder={PAYMENT_PLACEHOLDERS[paymentMethod] || ""}
@@ -594,8 +601,10 @@ export default function ProfilePage() {
                   )}
 
                   <button
+                    type="button"
                     onClick={handlePayout}
                     disabled={payoutLoading || !paymentMethod || !paymentHandle.trim()}
+                    aria-busy={payoutLoading}
                     style={{
                       width: "100%",
                       padding: "0.85rem",
@@ -614,16 +623,18 @@ export default function ProfilePage() {
                 </div>
               )}
 
-              {payoutMsg && (
-                <div style={{
-                  marginTop: "0.75rem",
-                  fontSize: "0.8rem",
-                  color: payoutMsg.includes("error") || payoutMsg.includes("Failed") ? "var(--accent-red)" : "var(--accent-green)",
-                  lineHeight: "1.5",
-                }}>
-                  {payoutMsg}
-                </div>
-              )}
+              <div role="status" aria-live="polite">
+                {payoutMsg && (
+                  <div style={{
+                    marginTop: "0.75rem",
+                    fontSize: "0.8rem",
+                    color: payoutMsg.includes("error") || payoutMsg.includes("Failed") ? "var(--accent-red)" : "var(--accent-green)",
+                    lineHeight: "1.5",
+                  }}>
+                    {payoutMsg}
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Achievements teaser */}

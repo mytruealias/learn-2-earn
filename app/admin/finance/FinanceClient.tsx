@@ -353,10 +353,11 @@ export default function FinanceClient({ initialData }: { initialData: FinanceDat
             <form onSubmit={handleAdjust} className={styles.adjustForm}>
               <div className={styles.adjustFormRow}>
                 <div className={styles.adjustFormGroup}>
-                  <label className={styles.adjustLabel}>Amount (USD)</label>
+                  <label className={styles.adjustLabel} htmlFor="fin-adjust-amount">Amount (USD)</label>
                   <div className={styles.adjustAmountWrap}>
                     <span className={styles.adjustCurrencySign}>$</span>
                     <input
+                      id="fin-adjust-amount"
                       type="number"
                       step="0.01"
                       value={adjustAmount}
@@ -369,8 +370,9 @@ export default function FinanceClient({ initialData }: { initialData: FinanceDat
                   <div className={styles.adjustHint}>Positive = deposit, negative = withdrawal</div>
                 </div>
                 <div className={styles.adjustFormGroup} style={{ flex: 2 }}>
-                  <label className={styles.adjustLabel}>Reason</label>
+                  <label className={styles.adjustLabel} htmlFor="fin-adjust-reason">Reason</label>
                   <input
+                      id="fin-adjust-reason"
                     type="text"
                     value={adjustReason}
                     onChange={(e) => setAdjustReason(e.target.value.slice(0, 200))}
@@ -431,8 +433,9 @@ export default function FinanceClient({ initialData }: { initialData: FinanceDat
               <div className={styles.adjustFormRow}>
                 {!editingConfig && (
                   <div className={styles.adjustFormGroup}>
-                    <label className={styles.adjustLabel}>Program slug</label>
+                    <label className={styles.adjustLabel} htmlFor="fin-cfg-slug">Program slug</label>
                     <input
+                      id="fin-cfg-slug"
                       type="text"
                       value={cfgSlug}
                       onChange={(e) => setCfgSlug(e.target.value.slice(0, 50))}
@@ -444,8 +447,9 @@ export default function FinanceClient({ initialData }: { initialData: FinanceDat
                   </div>
                 )}
                 <div className={styles.adjustFormGroup}>
-                  <label className={styles.adjustLabel}>Program name</label>
+                  <label className={styles.adjustLabel} htmlFor="fin-cfg-name">Program name</label>
                   <input
+                      id="fin-cfg-name"
                     type="text"
                     value={cfgName}
                     onChange={(e) => setCfgName(e.target.value.slice(0, 100))}
@@ -457,10 +461,11 @@ export default function FinanceClient({ initialData }: { initialData: FinanceDat
               </div>
               <div className={styles.adjustFormRow}>
                 <div className={styles.adjustFormGroup}>
-                  <label className={styles.adjustLabel}>XP-to-dollar rate</label>
+                  <label className={styles.adjustLabel} htmlFor="fin-cfg-rate">XP-to-dollar rate</label>
                   <div className={styles.adjustAmountWrap}>
                     <span className={styles.adjustCurrencySign}>$</span>
                     <input
+                      id="fin-cfg-rate"
                       type="number"
                       step="0.001"
                       min="0.001"
@@ -473,8 +478,9 @@ export default function FinanceClient({ initialData }: { initialData: FinanceDat
                   <div className={styles.adjustHint}>Dollars per 1 XP</div>
                 </div>
                 <div className={styles.adjustFormGroup}>
-                  <label className={styles.adjustLabel}>Minimum XP</label>
+                  <label className={styles.adjustLabel} htmlFor="fin-cfg-min">Minimum XP</label>
                   <input
+                      id="fin-cfg-min"
                     type="number"
                     min="1"
                     step="1"
@@ -486,8 +492,9 @@ export default function FinanceClient({ initialData }: { initialData: FinanceDat
                   <div className={styles.adjustHint}>Minimum XP to request a payout</div>
                 </div>
                 <div className={styles.adjustFormGroup}>
-                  <label className={styles.adjustLabel}>Weekly XP cap</label>
+                  <label className={styles.adjustLabel} htmlFor="fin-cfg-cap">Weekly XP cap</label>
                   <input
+                      id="fin-cfg-cap"
                     type="number"
                     min="1"
                     step="1"

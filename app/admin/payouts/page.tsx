@@ -196,13 +196,18 @@ export default function AdminPayoutsPage() {
           <div className={styles.actionTitle}>
             Confirm: {activeAction.action}
           </div>
+          <label htmlFor="payout-decision-note" className="sr-only">
+            Decision note (optional)
+          </label>
           <textarea
+            id="payout-decision-note"
             value={decisionNote}
             onChange={(e) => setDecisionNote(e.target.value.slice(0, 500))}
             placeholder="Decision note (optional, max 500 chars)..."
             className={styles.actionNote}
+            aria-describedby="payout-decision-count"
           />
-          <div className={styles.actionNoteCount}>{decisionNote.length}/500</div>
+          <div id="payout-decision-count" className={styles.actionNoteCount}>{decisionNote.length}/500</div>
           <div className={styles.actionBtns}>
             <button
               onClick={handleAction}
@@ -245,6 +250,7 @@ export default function AdminPayoutsPage() {
                         <input
                           type="checkbox"
                           className={styles.checkboxInput}
+                          aria-label={`Select payout for ${p.user.fullName || p.user.email}`}
                           checked={selectedIds.has(p.id)}
                           onChange={() => toggleSelect(p.id)}
                         />

@@ -190,11 +190,16 @@ export default function LifelinePage() {
               🚨 Tell us what&apos;s happening
             </div>
             <div style={{ marginBottom: "0.75rem" }}>
+              <label htmlFor="stress-message" className="sr-only">
+                Describe what is happening
+              </label>
               <textarea
+                id="stress-message"
                 value={stressMessage}
                 onChange={e => setStressMessage(e.target.value)}
                 placeholder="Describe what's happening or what you need help with..."
                 rows={4}
+                aria-required="true"
                 style={{
                   width: "100%",
                   padding: "0.75rem 1rem",
@@ -211,8 +216,13 @@ export default function LifelinePage() {
               />
             </div>
             <div style={{ marginBottom: "1rem" }}>
+              <label htmlFor="stress-location" className="sr-only">
+                Your location (optional)
+              </label>
               <input
+                id="stress-location"
                 type="text"
+                autoComplete="street-address"
                 value={stressLocation}
                 onChange={e => setStressLocation(e.target.value)}
                 placeholder="Your location (optional — e.g. East 6th & Chicon)"

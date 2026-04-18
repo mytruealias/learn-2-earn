@@ -163,15 +163,22 @@ export default function AdminDirectoryPage() {
         <button className={styles.addBtn} onClick={openAdd}>+ Add Service</button>
       </div>
 
-      <div className={styles.filters}>
+      <div className={styles.filters} role="search">
+        <label htmlFor="directory-search" className="sr-only">Search services</label>
         <input
+          id="directory-search"
+          type="search"
           className={styles.filterInput}
           placeholder="Search services..."
+          aria-label="Search services"
           value={search}
           onChange={e => setSearch(e.target.value)}
         />
+        <label htmlFor="directory-category" className="sr-only">Filter by category</label>
         <select
+          id="directory-category"
           className={styles.filterSelect}
+          aria-label="Filter by category"
           value={categoryFilter}
           onChange={e => setCategoryFilter(e.target.value)}
         >
@@ -256,23 +263,29 @@ export default function AdminDirectoryPage() {
 
             <div className={styles.formRow}>
               <div className={styles.formField} style={{ gridColumn: "1 / -1" }}>
-                <label className={styles.formLabel}>Organization Name *</label>
+                <label className={styles.formLabel} htmlFor="dir-org-name">Organization Name *</label>
                 <input
+                  id="dir-org-name"
                   className={styles.formInput}
                   value={form.name}
                   onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
                   placeholder="e.g. Austin Resource Center for the Homeless"
+                  required
+                  aria-required="true"
                 />
               </div>
             </div>
 
             <div className={styles.formRow}>
               <div className={styles.formField}>
-                <label className={styles.formLabel}>Category *</label>
+                <label className={styles.formLabel} htmlFor="dir-category">Category *</label>
                 <select
+                  id="dir-category"
                   className={styles.formSelect}
                   value={form.category}
                   onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
+                  required
+                  aria-required="true"
                 >
                   {CATEGORIES.map(cat => (
                     <option key={cat} value={cat}>{cat}</option>
@@ -280,8 +293,11 @@ export default function AdminDirectoryPage() {
                 </select>
               </div>
               <div className={styles.formField}>
-                <label className={styles.formLabel}>Phone</label>
+                <label className={styles.formLabel} htmlFor="dir-phone">Phone</label>
                 <input
+                  id="dir-phone"
+                  type="tel"
+                  autoComplete="tel"
                   className={styles.formInput}
                   value={form.phone}
                   onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
@@ -291,8 +307,10 @@ export default function AdminDirectoryPage() {
             </div>
 
             <div className={styles.formField}>
-              <label className={styles.formLabel}>Address</label>
+              <label className={styles.formLabel} htmlFor="dir-address">Address</label>
               <input
+                id="dir-address"
+                autoComplete="street-address"
                 className={styles.formInput}
                 value={form.address}
                 onChange={e => setForm(f => ({ ...f, address: e.target.value }))}
@@ -302,8 +320,9 @@ export default function AdminDirectoryPage() {
 
             <div className={styles.formRow}>
               <div className={styles.formField}>
-                <label className={styles.formLabel}>Hours</label>
+                <label className={styles.formLabel} htmlFor="dir-hours">Hours</label>
                 <input
+                  id="dir-hours"
                   className={styles.formInput}
                   value={form.hours}
                   onChange={e => setForm(f => ({ ...f, hours: e.target.value }))}
@@ -311,8 +330,11 @@ export default function AdminDirectoryPage() {
                 />
               </div>
               <div className={styles.formField}>
-                <label className={styles.formLabel}>Website</label>
+                <label className={styles.formLabel} htmlFor="dir-website">Website</label>
                 <input
+                  id="dir-website"
+                  type="url"
+                  autoComplete="url"
                   className={styles.formInput}
                   value={form.website}
                   onChange={e => setForm(f => ({ ...f, website: e.target.value }))}
@@ -322,8 +344,9 @@ export default function AdminDirectoryPage() {
             </div>
 
             <div className={styles.formField}>
-              <label className={styles.formLabel}>Notes</label>
+              <label className={styles.formLabel} htmlFor="dir-notes">Notes</label>
               <textarea
+                id="dir-notes"
                 className={styles.formTextarea}
                 value={form.notes}
                 onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}

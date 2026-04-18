@@ -91,11 +91,14 @@ export default function AdminCasesPage() {
         <input
           className={styles.filterInput}
           placeholder="Search by name, message..."
+          aria-label="Search cases"
+          type="search"
           value={search}
           onChange={e => { setSearch(e.target.value); setPage(1); }}
         />
         <select
           className={styles.filterSelect}
+          aria-label="Filter by status"
           value={status}
           onChange={e => { setStatus(e.target.value); setPage(1); }}
         >
@@ -108,6 +111,7 @@ export default function AdminCasesPage() {
         </select>
         <select
           className={styles.filterSelect}
+          aria-label="Filter by priority"
           value={priority}
           onChange={e => { setPriority(e.target.value); setPage(1); }}
         >

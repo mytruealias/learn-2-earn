@@ -279,7 +279,9 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
             )}
 
             <div className={styles.noteForm}>
+              <label htmlFor="case-note" className="sr-only">Add a note to this case</label>
               <textarea
+                id="case-note"
                 className={styles.noteTextarea}
                 placeholder="Add a note to this case..."
                 value={noteText}
@@ -397,8 +399,9 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
           <div className={styles.modal} onClick={e => e.stopPropagation()}>
             <div className={styles.modalTitle}>Edit Case</div>
             <div className={styles.modalField}>
-              <label className={styles.modalLabel}>Status</label>
+              <label className={styles.modalLabel} htmlFor="case-edit-status">Status</label>
               <select
+                id="case-edit-status"
                 className={styles.modalSelect}
                 value={editStatus}
                 onChange={e => setEditStatus(e.target.value)}
@@ -411,8 +414,9 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
               </select>
             </div>
             <div className={styles.modalField}>
-              <label className={styles.modalLabel}>Priority</label>
+              <label className={styles.modalLabel} htmlFor="case-edit-priority">Priority</label>
               <select
+                id="case-edit-priority"
                 className={styles.modalSelect}
                 value={editPriority}
                 onChange={e => setEditPriority(e.target.value)}
@@ -423,8 +427,9 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
               </select>
             </div>
             <div className={styles.modalField}>
-              <label className={styles.modalLabel}>Assign to</label>
+              <label className={styles.modalLabel} htmlFor="case-edit-assignee">Assign to</label>
               <select
+                id="case-edit-assignee"
                 className={styles.modalSelect}
                 value={editAssigneeId}
                 onChange={e => setEditAssigneeId(e.target.value)}
@@ -450,8 +455,9 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
           <div className={styles.modal} onClick={e => e.stopPropagation()}>
             <div className={styles.modalTitle}>Dispatch Staff</div>
             <div className={styles.modalField}>
-              <label className={styles.modalLabel}>Staff Member</label>
+              <label className={styles.modalLabel} htmlFor="dispatch-staff">Staff Member</label>
               <select
+                id="dispatch-staff"
                 className={styles.modalSelect}
                 value={dispatchStaffId}
                 onChange={e => setDispatchStaffId(e.target.value)}
@@ -463,8 +469,9 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
               </select>
             </div>
             <div className={styles.modalField}>
-              <label className={styles.modalLabel}>Notes (optional)</label>
+              <label className={styles.modalLabel} htmlFor="dispatch-notes">Notes (optional)</label>
               <textarea
+                id="dispatch-notes"
                 className={styles.modalTextarea}
                 placeholder="Dispatch instructions..."
                 value={dispatchNotes}
@@ -486,8 +493,9 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
           <div className={styles.modal} onClick={e => e.stopPropagation()}>
             <div className={styles.modalTitle}>Allocate Resource</div>
             <div className={styles.modalField}>
-              <label className={styles.modalLabel}>Resource Type</label>
+              <label className={styles.modalLabel} htmlFor="alloc-type">Resource Type</label>
               <select
+                id="alloc-type"
                 className={styles.modalSelect}
                 value={allocType}
                 onChange={e => setAllocType(e.target.value)}
@@ -501,8 +509,9 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
               </select>
             </div>
             <div className={styles.modalField}>
-              <label className={styles.modalLabel}>Quantity</label>
+              <label className={styles.modalLabel} htmlFor="alloc-qty">Quantity</label>
               <input
+                id="alloc-qty"
                 type="number"
                 min="1"
                 max="99"
@@ -512,8 +521,9 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
               />
             </div>
             <div className={styles.modalField}>
-              <label className={styles.modalLabel}>Notes (optional)</label>
+              <label className={styles.modalLabel} htmlFor="alloc-notes">Notes (optional)</label>
               <textarea
+                id="alloc-notes"
                 className={styles.modalTextarea}
                 placeholder="Additional notes..."
                 value={allocNotes}
