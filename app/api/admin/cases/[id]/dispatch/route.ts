@@ -2,7 +2,7 @@ import { z } from "zod";
 import { getAdminFromRequest } from "@/lib/admin-auth";
 import { logAudit } from "@/lib/audit";
 import prisma from "@/lib/prisma";
-import { apiError, apiOk, apiServerError, parseJson, getClientIp } from "@/lib/api-helpers";
+import { apiError, apiOk, apiServerError, parseJson, parseParam, idParamSchema, getClientIp } from "@/lib/api-helpers";
 
 const Schema = z.object({
   staffId: z.string().min(1, "staffId is required").max(120),
@@ -14,7 +14,11 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     const admin = await getAdminFromRequest(req);
     if (!admin) return apiError("unauthorized", "Not signed in", 401);
 
-    const { id } = await params;
+    const { id: rawId } = await params;
+    const idCheck = parseParam(rawId, idParamSchema, "id");
+    if (!idCheck.ok) return idCheck.response;
+    const id = idCheck.data;
+
     const parsed = await parseJson(req, Schema);
     if (!parsed.ok) return parsed.response;
     const { staffId, notes } = parsed.data;

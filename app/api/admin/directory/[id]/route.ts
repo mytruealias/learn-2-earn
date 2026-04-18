@@ -2,7 +2,7 @@ import { z } from "zod";
 import { getAdminFromRequest } from "@/lib/admin-auth";
 import { logAudit } from "@/lib/audit";
 import prisma from "@/lib/prisma";
-import { apiError, apiOk, apiServerError, parseJson, getClientIp } from "@/lib/api-helpers";
+import { apiOk, apiServerError, parseJson, parseParam, idParamSchema, getClientIp, apiError } from "@/lib/api-helpers";
 
 const optStr = (max: number) =>
   z.string().trim().max(max).optional().or(z.literal("").transform(() => undefined));
@@ -22,7 +22,11 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     const admin = await getAdminFromRequest(req);
     if (!admin) return apiError("unauthorized", "Not signed in", 401);
 
-    const { id } = await params;
+    const { id: rawId } = await params;
+    const idCheck = parseParam(rawId, idParamSchema, "id");
+    if (!idCheck.ok) return idCheck.response;
+    const id = idCheck.data;
+
     const parsed = await parseJson(req, PatchSchema);
     if (!parsed.ok) return parsed.response;
     const data = parsed.data;
@@ -60,7 +64,11 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     const admin = await getAdminFromRequest(req);
     if (!admin) return apiError("unauthorized", "Not signed in", 401);
 
-    const { id } = await params;
+    const { id: rawId } = await params;
+    const idCheck = parseParam(rawId, idParamSchema, "id");
+    if (!idCheck.ok) return idCheck.response;
+    const id = idCheck.data;
+
     await prisma.serviceDirectory.update({ where: { id }, data: { isActive: false } });
 
     await logAudit({

@@ -92,6 +92,44 @@ export async function parseJson<S extends ZodTypeAny>(
  * Validate query string / URL params. Caller supplies a plain object built
  * from `URLSearchParams.entries()` (or `Object.fromEntries(url.searchParams)`).
  */
+/**
+ * Validate a single dynamic path segment (e.g. [userId], [id], [slug]) with a
+ * zod schema. Returns the parsed value or a 400 response. Use this for every
+ * dynamic route segment so malformed/over-long IDs get rejected before they
+ * hit the database.
+ */
+export function parseParam<S extends ZodTypeAny>(
+  raw: unknown,
+  schema: S,
+  paramName = "param",
+): { ok: true; data: z.infer<S> } | { ok: false; response: NextResponse } {
+  const parsed = schema.safeParse(raw);
+  if (!parsed.success) {
+    return {
+      ok: false,
+      response: apiError(
+        "validation_error",
+        parsed.error.issues[0]?.message ?? `Invalid ${paramName}`,
+        400,
+        { fields: { [paramName]: parsed.error.issues.map((i) => i.message) } },
+      ),
+    };
+  }
+  return { ok: true, data: parsed.data };
+}
+
+/** Reusable schema for opaque ID-like path segments. */
+export const idParamSchema = z.string().trim().min(1).max(120).regex(
+  /^[a-zA-Z0-9_-]+$/,
+  "ID must be alphanumeric, dashes, or underscores",
+);
+
+/** Reusable schema for short slugs (city slugs, etc.). */
+export const slugParamSchema = z.string().trim().min(1).max(60).regex(
+  /^[a-z0-9-]+$/,
+  "Slug must be lowercase letters, numbers, or dashes",
+);
+
 export function parseQuery<S extends ZodTypeAny>(
   raw: Record<string, string | undefined>,
   schema: S,

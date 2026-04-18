@@ -5,6 +5,8 @@ import {
   apiOk,
   apiServerError,
   parseJson,
+  parseParam,
+  slugParamSchema,
   getClientIp,
   createRateLimiter,
   rateLimitResponse,
@@ -22,8 +24,10 @@ export async function POST(
   context: { params: Promise<{ slug: string }> },
 ) {
   try {
-    const { slug } = await context.params;
-    const citySlug = slug as CitySlug;
+    const { slug: rawSlug } = await context.params;
+    const slugCheck = parseParam(rawSlug, slugParamSchema, "slug");
+    if (!slugCheck.ok) return slugCheck.response;
+    const citySlug = slugCheck.data as CitySlug;
     if (!getCityAccess(citySlug)) {
       return apiError("not_found", "Unknown city", 404);
     }

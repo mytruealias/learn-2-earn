@@ -2,7 +2,7 @@ import { z } from "zod";
 import { getAdminFromRequest } from "@/lib/admin-auth";
 import { logAudit } from "@/lib/audit";
 import prisma from "@/lib/prisma";
-import { apiError, apiOk, apiServerError, parseJson, getClientIp } from "@/lib/api-helpers";
+import { apiError, apiOk, apiServerError, parseJson, parseParam, idParamSchema, getClientIp } from "@/lib/api-helpers";
 
 const PatchSchema = z.object({
   status: z.string().max(40).optional(),
@@ -15,7 +15,11 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     const admin = await getAdminFromRequest(req);
     if (!admin) return apiError("unauthorized", "Not signed in", 401);
 
-    const { id } = await params;
+    const { id: rawId } = await params;
+    const idCheck = parseParam(rawId, idParamSchema, "id");
+    if (!idCheck.ok) return idCheck.response;
+    const id = idCheck.data;
+
     const c = await prisma.case.findUnique({
       where: { id },
       include: {
@@ -63,7 +67,11 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     const admin = await getAdminFromRequest(req);
     if (!admin) return apiError("unauthorized", "Not signed in", 401);
 
-    const { id } = await params;
+    const { id: rawId } = await params;
+    const idCheck = parseParam(rawId, idParamSchema, "id");
+    if (!idCheck.ok) return idCheck.response;
+    const id = idCheck.data;
+
     const parsed = await parseJson(req, PatchSchema);
     if (!parsed.ok) return parsed.response;
     const { status, priority, assignedToId } = parsed.data;

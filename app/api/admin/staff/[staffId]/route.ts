@@ -2,7 +2,7 @@ import { z } from "zod";
 import { getAdminFromRequest, requireRole } from "@/lib/admin-auth";
 import { logAudit } from "@/lib/audit";
 import prisma from "@/lib/prisma";
-import { apiError, apiOk, apiServerError, parseJson, getClientIp } from "@/lib/api-helpers";
+import { apiError, apiOk, apiServerError, parseJson, parseParam, idParamSchema, getClientIp } from "@/lib/api-helpers";
 
 const PatchSchema = z.object({ isActive: z.boolean() });
 
@@ -12,7 +12,11 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ staffI
     if (!admin) return apiError("unauthorized", "Not signed in", 401);
     if (!requireRole(admin.role, ["admin"])) return apiError("forbidden", "Admin role required", 403);
 
-    const { staffId } = await params;
+    const { staffId: rawStaffId } = await params;
+    const idCheck = parseParam(rawStaffId, idParamSchema, "staffId");
+    if (!idCheck.ok) return idCheck.response;
+    const staffId = idCheck.data;
+
     const parsed = await parseJson(req, PatchSchema);
     if (!parsed.ok) return parsed.response;
     const { isActive } = parsed.data;
