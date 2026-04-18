@@ -112,4 +112,40 @@ test.describe("Landing page", () => {
       throw new Error(`Unexpected CTA href format: ${href}`);
     }
   });
+
+  test("primary navigation links resolve", async ({ request }) => {
+    const landing = await request.get("/", {
+      headers: { "x-forwarded-for": LANDING_IP },
+    });
+    expect(landing.status()).toBe(200);
+    const html = await landing.text();
+
+    // Pull every internal anchor href from the landing HTML, then probe
+    // each unique route-style link to make sure it's actually reachable
+    // (200 or a redirect). Skips hash-only fragments, mailto/tel, and
+    // external links — those are validated separately above when they
+    // happen to be the CTA.
+    const internal = new Set<string>();
+    for (const m of html.matchAll(/href="([^"]+)"/g)) {
+      const h = m[1];
+      if (h.startsWith("/") && !h.startsWith("//")) {
+        internal.add(h.split("#")[0]);
+      }
+    }
+    expect(internal.size, "landing page must expose at least one internal nav link").toBeGreaterThan(
+      0,
+    );
+
+    for (const href of internal) {
+      if (!href) continue;
+      const probe = await request.get(href, {
+        headers: { "x-forwarded-for": LANDING_IP },
+        maxRedirects: 0,
+      });
+      expect(
+        [200, 301, 302, 303, 307, 308].includes(probe.status()),
+        `nav link ${href} must resolve (got ${probe.status()})`,
+      ).toBe(true);
+    }
+  });
 });
