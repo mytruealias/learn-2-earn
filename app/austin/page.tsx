@@ -54,12 +54,18 @@ export default function AustinPage() {
       <div className="atx-stat-highlight">
         <div className="atx-stat-grid">
           <div className="atx-stat-item">
-            <div className="atx-stat-value">4,400+</div>
-            <div className="atx-stat-label">Austinites Experiencing Homelessness</div>
+            <div className="atx-stat-value">3,000+</div>
+            <div className="atx-stat-label">
+              Austinites Experiencing Homelessness on a Single Night
+              <sup className="atx-stat-cite">1</sup>
+            </div>
           </div>
           <div className="atx-stat-item">
-            <div className="atx-stat-value">72%</div>
-            <div className="atx-stat-label">Want Workforce Skills but Lack Access</div>
+            <div className="atx-stat-value">Up to 60%</div>
+            <div className="atx-stat-label">
+              Are Employed but Can&apos;t Afford Housing
+              <sup className="atx-stat-cite">2</sup>
+            </div>
           </div>
           <div className="atx-stat-item">
             <div className="atx-stat-value">$0</div>
@@ -727,6 +733,45 @@ export default function AustinPage() {
             <a href="mailto:partners@learn2earn.org?subject=Schedule%20Austin%20Demo" className="atx-btn-outline">Schedule Demo</a>
           </div>
           <p className="atx-cta-note">Response within 1 business day</p>
+        </div>
+      </section>
+
+      <section className="atx-sources" aria-label="Sources">
+        <div className="atx-container">
+          <div className="atx-sources-label">Sources</div>
+          <ol className="atx-sources-list">
+            <li>
+              <span className="atx-sources-num">1.</span>
+              <span className="atx-sources-text">
+                <strong>3,000+ Austinites experiencing homelessness</strong> &mdash;{" "}
+                ECHO Austin/Travis County 2025 Point-in-Time Count (single-night snapshot, conducted January 2025).{" "}
+                <a
+                  href="https://www.austinecho.org/leading-system-change/data-and-reports/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  austinecho.org/leading-system-change/data-and-reports
+                </a>
+              </span>
+            </li>
+            <li>
+              <span className="atx-sources-num">2.</span>
+              <span className="atx-sources-text">
+                <strong>Up to 60% are employed but can&apos;t afford housing</strong> &mdash;{" "}
+                U.S. Interagency Council on Homelessness; corroborated by University of Chicago (2021), which found 53% of sheltered and 40% of unsheltered adults experiencing homelessness were employed.{" "}
+                <a
+                  href="https://www.usich.gov/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  usich.gov
+                </a>
+              </span>
+            </li>
+          </ol>
+          <p className="atx-sources-note">
+            Figures reflect the most recent publicly reported data at time of publication. Additional citations available on request.
+          </p>
         </div>
       </section>
 
