@@ -151,6 +151,48 @@ Role levels: `admin`, `caseworker`, `finance`.
 
 ---
 
+## Running the tests
+
+The project ships with two test suites:
+
+| Suite | Tooling | Scope |
+|---|---|---|
+| API integration tests | [Vitest](https://vitest.dev/) | Calls Next.js route handlers directly against a real Postgres test DB |
+| End-to-end tests | [Playwright](https://playwright.dev/) | Drives the running app in a real browser |
+
+### One-time setup
+
+1. Create a separate, throw-away Postgres database for tests (the URL or name should contain the word `test` — the test runner refuses to wipe a DB that doesn't look like a test DB).
+2. Copy the example env file and fill it in:
+   ```bash
+   cp .env.test.example .env.test
+   # edit DATABASE_URL_TEST and any PIN/secret values
+   ```
+
+The API test runner resets this database (`prisma db push --force-reset`) at the start of every run, so never point it at your dev or production DB.
+
+### Commands
+
+```bash
+npm run test:api        # vitest, single run (default `npm test`)
+npm run test:api:watch  # vitest in watch mode
+npm run test:e2e        # playwright, requires the dev server (auto-starts via playwright.config.ts)
+npm run test:all        # API tests then E2E
+```
+
+### What's covered
+
+- `tests/api/auth.test.ts` — register / login / session including duplicate-email, bad password, invalid JSON
+- `tests/api/payout.test.ts` — auth gate, supported payment methods, balance + weekly cap, body/session userId mismatch
+- `tests/api/progress.test.ts` — XP award, idempotent re-completion, unknown lesson, session mismatch
+- `tests/api/admin-login.test.ts` — wrong credentials + audit log writes
+- `tests/api/city-access.test.ts` — wrong PIN, correct PIN, per-IP+city lockout after 10 wrong attempts
+- `tests/api/access.test.ts` — demo gate code + lockout
+- `e2e/admin.spec.ts` — admin dashboard flows (login, payout review, sidebar)
+- `e2e/city-pin.spec.ts` — city PIN gate happy path and landing page CTA
+
+---
+
 ## Deployment
 
 The app runs on any Node.js host. Ensure the following before deploying to production:
