@@ -51,55 +51,57 @@ export default function PathProgressBar({ allLessonIds }: PathProgressBarProps) 
     <div style={{
       backgroundColor: "var(--bg-card)",
       border: "1px solid var(--border-color)",
+      borderRadius: "var(--radius)",
       padding: "1rem 1.25rem",
       marginBottom: "1.5rem",
+      boxShadow: "var(--shadow-sm)",
     }}>
       <div style={{
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
-        marginBottom: "0.5rem",
+        marginBottom: "0.6rem",
       }}>
         <span style={{
-          fontFamily: "var(--font-mono)",
-          fontSize: "0.65rem",
-          color: "var(--accent-green)",
-          letterSpacing: "0.15em",
+          fontFamily: "var(--font-display)",
+          fontSize: "0.85rem",
+          color: "var(--text-primary)",
+          fontWeight: 700,
         }}>
-          {'>'} path_progress
+          Path progress
         </span>
         <span style={{
-          fontFamily: "var(--font-mono)",
-          fontSize: "0.75rem",
-          color: "var(--text-muted)",
-          fontWeight: "700",
+          fontFamily: "var(--font-display)",
+          fontSize: "0.8rem",
+          color: "var(--text-secondary)",
+          fontWeight: 600,
         }}>
           {completedCount} / {total} lessons
         </span>
       </div>
       <div style={{
-        height: "8px",
-        backgroundColor: "var(--bg-secondary)",
-        border: "1px solid var(--border-color)",
+        height: "10px",
+        backgroundColor: "rgba(15,25,35,0.06)",
+        borderRadius: "var(--radius-pill)",
         overflow: "hidden",
-        marginBottom: "0.4rem",
+        marginBottom: "0.5rem",
       }}>
         <div style={{
           height: "100%",
           backgroundColor: "var(--accent-green)",
+          borderRadius: "var(--radius-pill)",
           width: `${pct}%`,
           transition: "width 0.6s ease",
-          boxShadow: "0 0 8px rgba(88,204,2,0.4)",
         }} />
       </div>
       <div style={{
-        fontSize: "0.7rem",
-        color: pct === 100 ? "var(--accent-gold)" : "var(--text-muted)",
-        fontWeight: "600",
+        fontSize: "0.78rem",
+        color: pct === 100 ? "var(--accent-green)" : "var(--text-secondary)",
+        fontWeight: 600,
         textAlign: "right",
-        fontFamily: "var(--font-mono)",
+        fontFamily: "var(--font-display)",
       }}>
-        {pct === 100 ? "✓ PATH COMPLETE" : `${Math.round(pct)}% complete`}
+        {pct === 100 ? "✓ Path complete" : `${Math.round(pct)}% complete`}
       </div>
     </div>
   );
