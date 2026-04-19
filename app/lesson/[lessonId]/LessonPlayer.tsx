@@ -92,7 +92,16 @@ function ConfettiCanvas() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    const colors = ["var(--accent-green)", "var(--accent-gold)", "var(--accent-blue)", "var(--accent-purple)", "var(--accent-red)", "#f59e0b"];
+    const cs = getComputedStyle(document.documentElement);
+    const tok = (n: string, fb: string) => (cs.getPropertyValue(n).trim() || fb);
+    const colors = [
+      tok("--accent-green", "#2d7a13"),
+      tok("--accent-gold", "#8b6914"),
+      tok("--accent-blue", "#1976d2"),
+      tok("--accent-purple", "#6845d9"),
+      tok("--accent-red", "#d63838"),
+      tok("--accent-orange", "#b8500a"),
+    ];
     const particles: {
       x: number;
       y: number;
