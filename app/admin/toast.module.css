@@ -16,7 +16,7 @@
   font-size: 0.82rem;
   font-weight: 500;
   border: 1px solid;
-  border-radius: 8px;
+  border-radius: var(--adm-radius-sm);
   max-width: 320px;
   animation: slideIn 0.2s ease;
   display: flex;

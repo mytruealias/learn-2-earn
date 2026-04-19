@@ -61,7 +61,7 @@
 .actionPanel {
   background-color: var(--adm-surface);
   border: 1px solid var(--adm-border);
-  border-radius: 8px;
+  border-radius: var(--adm-radius-sm);
   padding: 1.25rem;
   margin-bottom: 1.5rem;
 }
@@ -79,7 +79,7 @@
   padding: 0.65rem 0.875rem;
   background-color: var(--adm-bg);
   border: 1px solid var(--adm-border);
-  border-radius: 6px;
+  border-radius: var(--adm-radius-sm);
   color: var(--adm-text);
   font-size: 0.875rem;
   font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
@@ -111,7 +111,7 @@
 .confirmBtn {
   padding: 0.5rem 1.25rem;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--adm-radius-sm);
   font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
   font-size: 0.8rem;
   font-weight: 600;
@@ -139,7 +139,7 @@
   background-color: transparent;
   color: var(--adm-muted);
   border: 1px solid var(--adm-border);
-  border-radius: 6px;
+  border-radius: var(--adm-radius-sm);
   font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
   font-size: 0.8rem;
   font-weight: 500;
@@ -160,7 +160,7 @@
   padding: 0.65rem 1rem;
   background-color: rgba(59, 130, 246, 0.08);
   border: 1px solid rgba(59, 130, 246, 0.2);
-  border-radius: 8px;
+  border-radius: var(--adm-radius-sm);
   margin-bottom: 1rem;
   gap: 1rem;
   flex-wrap: wrap;
@@ -176,7 +176,7 @@
   background-color: var(--adm-blue);
   color: #fff;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--adm-radius-sm);
   font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
   font-size: 0.78rem;
   font-weight: 600;
@@ -196,7 +196,7 @@
   padding: 3rem;
   background-color: var(--adm-surface);
   border: 1px solid var(--adm-border);
-  border-radius: 8px;
+  border-radius: var(--adm-radius-sm);
 }
 
 .payoutList {
@@ -208,7 +208,7 @@
   background-color: var(--adm-surface);
   border: 1px solid var(--adm-border);
   border-left: 3px solid var(--adm-border-lt);
-  border-radius: 8px;
+  border-radius: var(--adm-radius-sm);
   padding: 1.25rem;
   position: relative;
 }
@@ -324,7 +324,7 @@
 .actionBtn {
   padding: 0.4rem 0.875rem;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--adm-radius-sm);
   font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
   font-size: 0.78rem;
   font-weight: 600;
@@ -351,7 +351,7 @@
   background-color: transparent;
   color: var(--adm-red);
   border: 1px solid rgba(239, 68, 68, 0.3);
-  border-radius: 6px;
+  border-radius: var(--adm-radius-sm);
   font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
   font-size: 0.78rem;
   font-weight: 500;
@@ -401,7 +401,7 @@
   background-color: transparent;
   color: var(--adm-green-lt);
   border: 1px solid rgba(34, 197, 94, 0.4);
-  border-radius: 6px;
+  border-radius: var(--adm-radius-sm);
   font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
   font-size: 0.72rem;
   font-weight: 600;
@@ -420,7 +420,7 @@
   padding: 0.45rem 1.125rem;
   background-color: var(--adm-green);
   color: #052e16;
-  border-radius: 6px;
+  border-radius: var(--adm-radius-sm);
   font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
   font-size: 0.8rem;
   font-weight: 700;
@@ -467,7 +467,7 @@
   padding: 0.65rem 1rem;
   background-color: var(--adm-surface);
   border: 1px solid var(--adm-border);
-  border-radius: 8px;
+  border-radius: var(--adm-radius-sm);
 }
 
 .paginationInfo {
@@ -485,7 +485,7 @@
   background-color: var(--adm-border);
   color: var(--adm-text);
   border: 1px solid var(--adm-border-lt);
-  border-radius: 6px;
+  border-radius: var(--adm-radius-sm);
   font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
   font-size: 0.78rem;
   font-weight: 500;

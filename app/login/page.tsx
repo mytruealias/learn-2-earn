@@ -56,6 +56,7 @@ export default function LoginPage() {
     padding: "0.85rem 1rem",
     backgroundColor: "var(--bg-card)",
     border: "1px solid var(--border-color)",
+    borderRadius: "var(--radius)",
     color: "var(--text-primary)",
     fontSize: "0.95rem",
     fontFamily: "var(--font-display)",

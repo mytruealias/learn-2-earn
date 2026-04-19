@@ -31,7 +31,7 @@
   color: var(--adm-text);
   background: var(--adm-green);
   border: none;
-  border-radius: 6px;
+  border-radius: var(--adm-radius-sm);
   cursor: pointer;
   transition: background 0.15s;
 }
@@ -63,7 +63,7 @@
   background: var(--adm-surface);
   border: 1px solid var(--adm-border);
   border-left: 3px solid var(--adm-violet);
-  border-radius: 8px;
+  border-radius: var(--adm-radius-sm);
   padding: 1.25rem;
 }
 
@@ -90,7 +90,7 @@
 .chartCard {
   background: var(--adm-surface);
   border: 1px solid var(--adm-border);
-  border-radius: 8px;
+  border-radius: var(--adm-radius-sm);
   padding: 1.25rem;
 }
 
@@ -151,7 +151,7 @@
   border-collapse: collapse;
   background: var(--adm-surface);
   border: 1px solid var(--adm-border);
-  border-radius: 8px;
+  border-radius: var(--adm-radius-sm);
   overflow: hidden;
 }
 
@@ -237,7 +237,7 @@
   padding: 1rem;
   background: rgba(239, 68, 68, 0.08);
   border: 1px solid rgba(239, 68, 68, 0.2);
-  border-radius: 8px;
+  border-radius: var(--adm-radius-sm);
 }
 
 .noData {

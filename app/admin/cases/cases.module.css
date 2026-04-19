@@ -48,7 +48,7 @@
   padding: 0.6rem 0.875rem;
   background-color: var(--adm-surface);
   border: 1px solid var(--adm-border);
-  border-radius: 6px;
+  border-radius: var(--adm-radius-sm);
   color: var(--adm-text);
   font-size: 0.875rem;
   font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
@@ -68,7 +68,7 @@
   padding: 0.6rem 0.875rem;
   background-color: var(--adm-surface);
   border: 1px solid var(--adm-border);
-  border-radius: 6px;
+  border-radius: var(--adm-radius-sm);
   color: var(--adm-text);
   font-size: 0.875rem;
   font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
@@ -90,7 +90,7 @@
 .caseRow {
   background-color: var(--adm-surface);
   border: 1px solid var(--adm-border);
-  border-radius: 8px;
+  border-radius: var(--adm-radius-sm);
   padding: 0.875rem 1.125rem;
   cursor: pointer;
   display: grid;
@@ -184,7 +184,7 @@
   padding: 0.4rem 0.9rem;
   background-color: var(--adm-surface);
   border: 1px solid var(--adm-border);
-  border-radius: 6px;
+  border-radius: var(--adm-radius-sm);
   color: var(--adm-text);
   font-size: 0.8rem;
   font-weight: 600;
@@ -249,7 +249,7 @@
 .card {
   background-color: var(--adm-surface);
   border: 1px solid var(--adm-border);
-  border-radius: 10px;
+  border-radius: var(--adm-radius);
   padding: 1.25rem 1.5rem;
   margin-bottom: 1rem;
 }
@@ -292,7 +292,7 @@
 .messageBox {
   background-color: var(--adm-bg);
   border: 1px solid var(--adm-border);
-  border-radius: 8px;
+  border-radius: var(--adm-radius-sm);
   padding: 1rem 1.25rem;
   font-size: 0.875rem;
   color: var(--adm-muted);
@@ -364,7 +364,7 @@
   padding: 0.7rem 1rem;
   background-color: var(--adm-surface);
   border: 1px solid var(--adm-border);
-  border-radius: 8px;
+  border-radius: var(--adm-radius-sm);
   color: var(--adm-text);
   font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
   font-size: 0.85rem;
@@ -405,7 +405,7 @@
   padding: 0.75rem;
   background-color: var(--adm-bg);
   border: 1px solid var(--adm-border);
-  border-radius: 6px;
+  border-radius: var(--adm-radius-sm);
   color: var(--adm-text);
   font-size: 0.875rem;
   font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
@@ -427,7 +427,7 @@
   background-color: var(--adm-blue);
   color: #fff;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--adm-radius-sm);
   font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
   font-size: 0.8rem;
   font-weight: 600;
@@ -451,7 +451,7 @@
   padding: 0.6rem 0.875rem;
   background-color: var(--adm-bg);
   border: 1px solid var(--adm-border);
-  border-radius: 6px;
+  border-radius: var(--adm-radius-sm);
   color: var(--adm-text);
   font-size: 0.875rem;
   font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
@@ -506,7 +506,7 @@
 .modal {
   background: var(--adm-surface);
   border: 1px solid var(--adm-border);
-  border-radius: 12px;
+  border-radius: var(--adm-radius);
   padding: 1.5rem;
   max-width: 480px;
   width: 100%;
@@ -539,7 +539,7 @@
   padding: 0.65rem 0.875rem;
   background-color: var(--adm-bg);
   border: 1px solid var(--adm-border);
-  border-radius: 6px;
+  border-radius: var(--adm-radius-sm);
   color: var(--adm-text);
   font-size: 0.875rem;
   font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
@@ -570,7 +570,7 @@
   padding: 0.6rem 1.25rem;
   background-color: transparent;
   border: 1px solid var(--adm-border);
-  border-radius: 6px;
+  border-radius: var(--adm-radius-sm);
   color: var(--adm-muted);
   font-size: 0.8rem;
   font-weight: 600;
@@ -587,7 +587,7 @@
   background-color: var(--adm-blue);
   color: #fff;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--adm-radius-sm);
   font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
   font-size: 0.8rem;
   font-weight: 600;
