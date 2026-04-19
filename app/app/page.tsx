@@ -143,11 +143,11 @@ export default async function AppHome() {
             const moduleCount = path.modules.length;
 
             const palette = [
-              { color: "#58cc02", rgb: "88,204,2" },
-              { color: "#3b9eff", rgb: "59,158,255" },
-              { color: "#a78bfa", rgb: "167,139,250" },
-              { color: "#f5b731", rgb: "245,183,49" },
-              { color: "#f55050", rgb: "245,80,80" },
+              { color: "var(--accent-green)", rgb: "88,204,2" },
+              { color: "var(--accent-blue)", rgb: "59,158,255" },
+              { color: "var(--accent-purple)", rgb: "167,139,250" },
+              { color: "var(--accent-gold)", rgb: "245,183,49" },
+              { color: "var(--accent-red)", rgb: "245,80,80" },
             ];
             const { color, rgb } = palette[idx % palette.length];
 

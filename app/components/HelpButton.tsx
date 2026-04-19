@@ -125,7 +125,7 @@ export default function HelpButton() {
                   width: 28,
                   height: 28,
                   borderRadius: "50%",
-                  background: "linear-gradient(135deg, #58cc02, #3b9eff)",
+                  background: "linear-gradient(135deg, var(--accent-green), var(--accent-blue))",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",

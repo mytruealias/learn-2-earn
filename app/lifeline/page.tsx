@@ -162,7 +162,7 @@ export default function LifelinePage() {
               onClick={() => setStressStep("form")}
               style={{
                 padding: "0.6rem 1.25rem",
-                background: "#ef4444",
+                background: "var(--accent-red)",
                 color: "#fff",
                 border: "none",
                 borderRadius: "8px",
@@ -262,7 +262,7 @@ export default function LifelinePage() {
                 disabled={sending || !stressMessage.trim()}
                 style={{
                   padding: "0.6rem 1.25rem",
-                  background: "#ef4444",
+                  background: "var(--accent-red)",
                   color: "#fff",
                   border: "none",
                   borderRadius: "8px",
@@ -320,7 +320,7 @@ export default function LifelinePage() {
             width: 44,
             height: 44,
             borderRadius: "50%",
-            background: "linear-gradient(135deg, #58cc02, #3b9eff)",
+            background: "linear-gradient(135deg, var(--accent-green), var(--accent-blue))",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",

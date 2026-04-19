@@ -169,14 +169,15 @@ export default function LoginPage() {
               width: "100%",
               padding: "0.85rem",
               marginTop: "0.5rem",
-              backgroundColor: "transparent",
-              color: loading ? "var(--text-muted)" : "var(--accent-green)",
+              backgroundColor: loading ? "var(--bg-card)" : "var(--accent-green)",
+              color: loading ? "var(--text-muted)" : "#fff",
               border: `1px solid ${loading ? "var(--border-color)" : "var(--accent-green)"}`,
+              borderRadius: "var(--radius)",
               fontWeight: "700",
               fontSize: "0.95rem",
               fontFamily: "var(--font-display)",
               letterSpacing: "0.05em",
-              boxShadow: loading ? "none" : "var(--glow-green)",
+              boxShadow: loading ? "none" : "var(--shadow-md)",
             }}
           >
             {loading ? "AUTHENTICATING..." : "LOG IN"}

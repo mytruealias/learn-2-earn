@@ -3,7 +3,6 @@
 import { useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import "../invest/invest.css";
 
 function AccessForm() {
   const [code, setCode] = useState("");
@@ -43,21 +42,21 @@ function AccessForm() {
   return (
     <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: "420px" }}>
       <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
-        <div className="inv-nav-logo" style={{ fontSize: "1.6rem", marginBottom: "1.5rem" }}>
-          Learn <span>2</span> Earn
+        <div style={{ fontSize: "1.6rem", fontWeight: 700, marginBottom: "1.5rem", color: "var(--text-primary)", fontFamily: "var(--font-display)" }}>
+          Learn <span style={{ color: "var(--accent-blue)" }}>2</span> Earn
         </div>
         <h1 style={{
-          fontFamily: "var(--cy-display)",
+          fontFamily: "var(--font-display)",
           fontSize: "2rem",
           fontWeight: 700,
-          color: "var(--cy-text-bright)",
+          color: "var(--text-primary)",
           marginBottom: "0.75rem",
         }}>
           Demo Access
         </h1>
         <p style={{
           fontSize: "0.95rem",
-          color: "var(--cy-text-dim)",
+          color: "var(--text-secondary)",
           lineHeight: 1.6,
         }}>
           Enter your access code to explore the learning platform.
@@ -66,19 +65,19 @@ function AccessForm() {
 
       <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
         <div style={{
-          background: "var(--cy-bg-card)",
-          border: "1px solid var(--cy-border)",
-          borderRadius: "14px",
+          background: "var(--bg-card)",
+          border: "1px solid var(--border-color)",
+          borderRadius: "var(--radius-lg)",
           padding: "2rem",
-          backdropFilter: "blur(12px)",
+          boxShadow: "var(--shadow-sm)",
         }}>
           <label htmlFor="access-code" style={{
             display: "block",
-            fontFamily: "var(--cy-mono)",
+            fontFamily: "var(--font-mono)",
             fontSize: "0.7rem",
             letterSpacing: "0.14em",
             textTransform: "uppercase",
-            color: "var(--cy-blue-bright)",
+            color: "var(--accent-blue)",
             marginBottom: "0.75rem",
           }}>
             Access Code
@@ -99,12 +98,12 @@ function AccessForm() {
               width: "100%",
               padding: "0.85rem 1rem",
               fontSize: "1rem",
-              fontFamily: "var(--cy-mono)",
+              fontFamily: "var(--font-mono)",
               letterSpacing: "0.1em",
-              background: "rgba(15,25,35,0.05)",
-              border: "1px solid var(--cy-border-hover)",
-              borderRadius: "10px",
-              color: "var(--cy-text-bright)",
+              background: "var(--bg-primary)",
+              border: "1px solid var(--border-color)",
+              borderRadius: "var(--radius)",
+              color: "var(--text-primary)",
               outline: "none",
               textAlign: "center",
               textTransform: "uppercase",
@@ -113,7 +112,7 @@ function AccessForm() {
           <div role="alert" aria-live="assertive">
             {error && (
               <p id="access-error" style={{
-                color: "var(--cy-red)",
+                color: "var(--accent-red)",
                 fontSize: "0.82rem",
                 marginTop: "0.75rem",
                 textAlign: "center",
@@ -127,11 +126,19 @@ function AccessForm() {
         <button
           type="submit"
           disabled={loading || !code.trim()}
-          className="inv-btn inv-btn-primary inv-btn-lg"
           style={{
             width: "100%",
-            opacity: loading || !code.trim() ? 0.5 : 1,
+            padding: "0.95rem 1rem",
+            fontSize: "0.95rem",
+            fontWeight: 700,
+            letterSpacing: "0.05em",
+            fontFamily: "var(--font-display)",
+            background: loading || !code.trim() ? "var(--bg-card)" : "var(--accent-blue)",
+            color: loading || !code.trim() ? "var(--text-muted)" : "#fff",
+            border: `1px solid ${loading || !code.trim() ? "var(--border-color)" : "var(--accent-blue)"}`,
+            borderRadius: "var(--radius)",
             cursor: loading || !code.trim() ? "not-allowed" : "pointer",
+            boxShadow: loading || !code.trim() ? "none" : "var(--shadow-md)",
           }}
         >
           {loading ? "Verifying..." : "Access Platform"}
@@ -139,16 +146,16 @@ function AccessForm() {
       </form>
 
       <div style={{ textAlign: "center", marginTop: "2rem" }}>
-        <p style={{ fontSize: "0.82rem", color: "var(--cy-text-dim)", marginBottom: "1rem" }}>
+        <p style={{ fontSize: "0.82rem", color: "var(--text-muted)", marginBottom: "1rem" }}>
           Need an access code?
         </p>
         <a
           href="mailto:partners@learn2earn.org"
           style={{
             fontSize: "0.82rem",
-            color: "var(--cy-blue-bright)",
+            color: "var(--accent-blue)",
             textDecoration: "none",
-            borderBottom: "1px solid rgba(96,165,250,0.3)",
+            borderBottom: "1px solid rgba(25,118,210,0.3)",
             paddingBottom: "1px",
           }}
         >
@@ -161,7 +168,7 @@ function AccessForm() {
           href="/"
           style={{
             fontSize: "0.78rem",
-            color: "var(--cy-text-dim)",
+            color: "var(--text-muted)",
             textDecoration: "none",
             letterSpacing: "0.04em",
             textTransform: "uppercase",
@@ -177,11 +184,9 @@ function AccessForm() {
 
 export default function AccessPage() {
   return (
-    <div className="inv-page" style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "2rem" }}>
-      <div className="inv-hero-glow inv-hero-glow-1"></div>
-      <div className="inv-hero-glow inv-hero-glow-2"></div>
+    <div className="grid-bg" style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "2rem", background: "var(--bg-primary)" }}>
       <Suspense fallback={
-        <div style={{ position: "relative", zIndex: 1, textAlign: "center", color: "var(--cy-text-dim)" }}>
+        <div style={{ position: "relative", zIndex: 1, textAlign: "center", color: "var(--text-muted)" }}>
           Loading...
         </div>
       }>
