@@ -115,10 +115,12 @@ export default function ContinueLearningCard({ paths }: ContinueLearningCardProp
     <div style={{
       backgroundColor: "var(--bg-card)",
       border: "1px solid var(--accent-green)",
+      borderRadius: "var(--radius)",
       padding: "1.25rem 1.5rem",
       marginBottom: "1.5rem",
       position: "relative",
       overflow: "hidden",
+      boxShadow: "var(--shadow-sm)",
     }}>
       <div style={{
         position: "absolute",

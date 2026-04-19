@@ -120,7 +120,7 @@ function EngagementChart({ data, range }: { data: EngagementPoint[]; range: Rang
 
 function RateBar({ rate }: { rate: number }) {
   const colorClass = rate >= 60 ? styles.rateGreen : rate >= 30 ? styles.rateYellow : styles.rateRed;
-  const textColor = rate >= 60 ? "#4ade80" : rate >= 30 ? "#fcd34d" : "#fca5a5";
+  const textColor = rate >= 60 ? "var(--adm-green)" : rate >= 30 ? "var(--adm-amber)" : "var(--adm-red)";
 
   return (
     <div className={styles.rateBar}>

@@ -50,9 +50,9 @@ function CopyBtn({ value, label }: { value: string; label: string }) {
         border: "none",
         cursor: "pointer",
         padding: "1px 4px",
-        borderRadius: "4px",
+        borderRadius: "var(--adm-radius-sm)",
         fontSize: "0.7rem",
-        color: copied ? "#22c55e" : "#64748b",
+        color: copied ? "var(--adm-green)" : "var(--adm-dim)",
         fontFamily: "inherit",
         transition: "color 0.15s",
         flexShrink: 0,
@@ -231,7 +231,7 @@ export default function AdminDirectoryPage() {
                             href={entry.website}
                             target="_blank"
                             rel="noreferrer"
-                            style={{ color: "#3b82f6" }}
+                            style={{ color: "var(--adm-blue)" }}
                             onClick={e => e.stopPropagation()}
                           >
                             🌐 Website

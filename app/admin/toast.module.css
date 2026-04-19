@@ -34,13 +34,13 @@
 .toastError {
   background-color: rgba(239, 68, 68, 0.1);
   border-color: rgba(239, 68, 68, 0.3);
-  color: #fca5a5;
+  color: var(--adm-red);
 }
 
 .toastInfo {
   background-color: rgba(59, 130, 246, 0.1);
   border-color: rgba(59, 130, 246, 0.3);
-  color: #93c5fd;
+  color: var(--adm-blue);
 }
 
 .toastMsg {

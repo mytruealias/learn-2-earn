@@ -1117,7 +1117,7 @@ export default function LessonPlayer({ lesson }: { lesson: Lesson }) {
             style={{
               borderLeft: "3px solid var(--accent-blue)",
               backgroundColor: "rgba(59,158,255,0.05)",
-              borderRadius: "0 12px 12px 0",
+              borderRadius: "var(--radius)",
               padding: "1.75rem 1.75rem 2rem",
               position: "relative",
               overflow: "hidden",

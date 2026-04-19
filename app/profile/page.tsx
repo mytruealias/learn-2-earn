@@ -677,7 +677,7 @@ export default function ProfilePage() {
                     </div>
                     <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
                       <div style={{ flex: 1 }}>
-                        <div style={{ height: "5px", borderRadius: "3px", backgroundColor: "rgba(255,255,255,0.07)", overflow: "hidden" }}>
+                        <div style={{ height: "5px", borderRadius: "3px", backgroundColor: "rgba(15,25,35,0.08)", overflow: "hidden" }}>
                           <div style={{
                             height: "100%",
                             width: `${pct}%`,
@@ -858,7 +858,7 @@ export default function ProfilePage() {
             </div>
 
             {/* Progress bar */}
-            <div style={{ height: "6px", borderRadius: "3px", backgroundColor: "rgba(255,255,255,0.07)", overflow: "hidden" }}>
+            <div style={{ height: "6px", borderRadius: "3px", backgroundColor: "rgba(15,25,35,0.08)", overflow: "hidden" }}>
               <div style={{
                 height: "100%",
                 width: `${totalCount > 0 ? Math.round((earnedCount / totalCount) * 100) : 0}%`,
@@ -888,7 +888,7 @@ export default function ProfilePage() {
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "space-between",
-                      backgroundColor: "rgba(255,255,255,0.02)",
+                      backgroundColor: "rgba(15,25,35,0.04)",
                     }}>
                       <div style={{ fontSize: "0.7rem", fontWeight: "700", color: "var(--accent-purple)", letterSpacing: "0.08em", textTransform: "uppercase" }}>
                         {group.label}
@@ -1098,7 +1098,7 @@ export default function ProfilePage() {
               { label: "Case Number", value: user.caseNumber },
             ].map((field) => (
               <div key={field.label} style={{
-                backgroundColor: "rgba(255,255,255,0.02)",
+                backgroundColor: "rgba(15,25,35,0.04)",
                 border: "1px solid var(--border-color)",
                 borderRadius: "10px",
                 padding: "0.65rem 1rem",

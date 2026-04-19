@@ -296,7 +296,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                           height: "18px",
                           padding: "0 4px",
                           borderRadius: "999px",
-                          background: "#ef4444",
+                          background: "var(--adm-red)",
                           color: "#fff",
                           fontSize: "0.65rem",
                           fontWeight: 700,

@@ -1,5 +1,5 @@
 .page {
-  color: #f1f5f9;
+  color: var(--adm-text);
   font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
   max-width: 1200px;
 }
@@ -30,19 +30,19 @@
 .quickAction_danger {
   background: rgba(239, 68, 68, 0.1);
   border-color: rgba(239, 68, 68, 0.3);
-  color: #fca5a5;
+  color: var(--adm-red);
 }
 
 .quickAction_warning {
   background: rgba(245, 158, 11, 0.1);
   border-color: rgba(245, 158, 11, 0.3);
-  color: #fcd34d;
+  color: var(--adm-amber);
 }
 
 .quickAction_neutral {
   background: rgba(59, 130, 246, 0.08);
   border-color: rgba(59, 130, 246, 0.25);
-  color: #93c5fd;
+  color: var(--adm-blue);
 }
 
 .quickDot {
@@ -66,7 +66,7 @@
   font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
   font-size: 1.5rem;
   font-weight: 700;
-  color: #f1f5f9;
+  color: var(--adm-text);
   margin: 0;
   letter-spacing: -0.02em;
 }
@@ -80,7 +80,7 @@
   font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
   font-size: 0.75rem;
   font-weight: 600;
-  color: #64748b;
+  color: var(--adm-dim);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   margin-bottom: 0.875rem;
@@ -94,26 +94,26 @@
 }
 
 .statCard {
-  background-color: #1e293b;
-  border: 1px solid #334155;
-  border-left: 3px solid #475569;
+  background-color: var(--adm-surface);
+  border: 1px solid var(--adm-border);
+  border-left: 3px solid var(--adm-border-lt);
   border-radius: 8px;
   padding: 1.25rem;
 }
 
-.colorGreen  { border-left-color: #22c55e; }
-.colorBlue   { border-left-color: #3b82f6; }
-.colorYellow { border-left-color: #f59e0b; }
-.colorPurple { border-left-color: #a78bfa; }
-.colorRed    { border-left-color: #ef4444; }
+.colorGreen  { border-left-color: var(--adm-green); }
+.colorBlue   { border-left-color: var(--adm-blue); }
+.colorYellow { border-left-color: var(--adm-amber); }
+.colorPurple { border-left-color: var(--adm-violet); }
+.colorRed    { border-left-color: var(--adm-red); }
 .colorOrange { border-left-color: #f97316; }
-.colorMuted  { border-left-color: #475569; }
+.colorMuted  { border-left-color: var(--adm-border-lt); }
 
 .statLabel {
   font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
   font-size: 0.72rem;
   font-weight: 500;
-  color: #94a3b8;
+  color: var(--adm-muted);
   margin-bottom: 0.5rem;
   letter-spacing: 0;
 }
@@ -123,26 +123,26 @@
   font-size: 1.75rem;
   font-weight: 700;
   line-height: 1;
-  color: #f1f5f9;
+  color: var(--adm-text);
   letter-spacing: -0.02em;
 }
 
-.colorGreen  .statValue { color: #4ade80; }
-.colorBlue   .statValue { color: #60a5fa; }
-.colorYellow .statValue { color: #fcd34d; }
+.colorGreen  .statValue { color: var(--adm-green-lt); }
+.colorBlue   .statValue { color: var(--adm-blue-lt); }
+.colorYellow .statValue { color: var(--adm-amber); }
 .colorPurple .statValue { color: #c4b5fd; }
-.colorRed    .statValue { color: #fca5a5; }
+.colorRed    .statValue { color: var(--adm-red); }
 .colorOrange .statValue { color: #fdba74; }
 
 .statSub {
   font-size: 0.72rem;
-  color: #64748b;
+  color: var(--adm-dim);
   margin-top: 0.4rem;
   font-weight: 400;
 }
 
 .poolWarning {
-  color: #fca5a5;
+  color: var(--adm-red);
 }
 
 /* ---- CASES ROW ---- */
@@ -162,7 +162,7 @@
   align-items: center;
   font-size: 0.8rem;
   font-weight: 500;
-  color: #60a5fa;
+  color: var(--adm-blue-lt);
   text-decoration: none;
   white-space: nowrap;
   padding: 0.4rem 0.75rem;
@@ -199,8 +199,8 @@
 }
 
 .chartCard {
-  background-color: #1e293b;
-  border: 1px solid #334155;
+  background-color: var(--adm-surface);
+  border: 1px solid var(--adm-border);
   border-radius: 8px;
   padding: 1.25rem;
 }
@@ -209,7 +209,7 @@
   font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
   font-size: 0.72rem;
   font-weight: 500;
-  color: #64748b;
+  color: var(--adm-dim);
   margin-bottom: 1rem;
   letter-spacing: 0;
 }
@@ -221,7 +221,7 @@
 }
 
 .chartLoading {
-  color: #64748b;
+  color: var(--adm-dim);
   font-size: 0.8rem;
   text-align: center;
   padding: 2rem 0;
@@ -229,8 +229,8 @@
 
 /* ---- ACTIVITY FEED ---- */
 .activityFeed {
-  background: #1e293b;
-  border: 1px solid #334155;
+  background: var(--adm-surface);
+  border: 1px solid var(--adm-border);
   border-radius: 8px;
   overflow: hidden;
 }
@@ -240,8 +240,8 @@
   align-items: flex-start;
   gap: 0.75rem;
   padding: 0.75rem 1rem;
-  border-bottom: 1px solid #1e293b;
-  background: #0f172a;
+  border-bottom: 1px solid var(--adm-surface);
+  background: var(--adm-bg);
 }
 
 .activityItem:last-child {
@@ -249,11 +249,11 @@
 }
 
 .activityItem:nth-child(odd) {
-  background: #0f172a;
+  background: var(--adm-bg);
 }
 
 .activityItem:nth-child(even) {
-  background: #111827;
+  background: var(--adm-bg);
 }
 
 .activityIcon {
@@ -274,7 +274,7 @@
 
 .activityLabel {
   font-size: 0.78rem;
-  color: #cbd5e1;
+  color: var(--adm-muted);
   text-decoration: none;
   line-height: 1.4;
   overflow: hidden;
@@ -285,23 +285,23 @@
 }
 
 a.activityLabel:hover {
-  color: #93c5fd;
+  color: var(--adm-blue);
 }
 
 .activityTime {
   font-size: 0.7rem;
-  color: #475569;
+  color: var(--adm-border-lt);
 }
 
 /* ---- LOADING / ERROR ---- */
 .loading {
-  color: #94a3b8;
+  color: var(--adm-muted);
   font-size: 0.875rem;
   padding: 2rem 0;
 }
 
 .error {
-  color: #fca5a5;
+  color: var(--adm-red);
   font-size: 0.875rem;
   padding: 1rem;
   background: rgba(239, 68, 68, 0.08);

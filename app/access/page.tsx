@@ -101,7 +101,7 @@ function AccessForm() {
               fontSize: "1rem",
               fontFamily: "var(--cy-mono)",
               letterSpacing: "0.1em",
-              background: "rgba(255,255,255,0.04)",
+              background: "rgba(15,25,35,0.05)",
               border: "1px solid var(--cy-border-hover)",
               borderRadius: "10px",
               color: "var(--cy-text-bright)",

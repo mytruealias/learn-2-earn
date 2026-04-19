@@ -212,8 +212,8 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
     setSaving(false);
   };
 
-  if (loading) return <div style={{ color: "#94a3b8", padding: "2rem", fontFamily: "Inter, sans-serif" }}>Loading...</div>;
-  if (!c) return <div style={{ color: "#ef4444", padding: "2rem", fontFamily: "Inter, sans-serif" }}>Case not found.</div>;
+  if (loading) return <div style={{ color: "var(--adm-muted)", padding: "2rem", fontFamily: "Inter, sans-serif" }}>Loading...</div>;
+  if (!c) return <div style={{ color: "var(--adm-red)", padding: "2rem", fontFamily: "Inter, sans-serif" }}>Case not found.</div>;
 
   return (
     <div className={styles.detailPage}>
@@ -222,7 +222,7 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
       </button>
 
       <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1.5rem", flexWrap: "wrap" }}>
-        <h1 style={{ fontSize: "1.4rem", fontWeight: 700, color: "#f1f5f9", margin: 0 }}>{c.title}</h1>
+        <h1 style={{ fontSize: "1.4rem", fontWeight: 700, color: "var(--adm-text)", margin: 0 }}>{c.title}</h1>
         <span className={`${styles.statusBadge} ${styles[STATUS_CLASS[c.status] || "statusNew"]}`}>
           {c.status}
         </span>
@@ -235,12 +235,12 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
           padding: "0.2rem 0.6rem",
           borderRadius: "999px",
           background: c.priority === "high" ? "rgba(239,68,68,0.15)" : c.priority === "medium" ? "rgba(245,158,11,0.15)" : "rgba(34,197,94,0.15)",
-          color: c.priority === "high" ? "#ef4444" : c.priority === "medium" ? "#f59e0b" : "#22c55e",
+          color: c.priority === "high" ? "var(--adm-red)" : c.priority === "medium" ? "var(--adm-amber)" : "var(--adm-green)",
           border: `1px solid ${c.priority === "high" ? "rgba(239,68,68,0.3)" : c.priority === "medium" ? "rgba(245,158,11,0.3)" : "rgba(34,197,94,0.3)"}`,
         }}>
           {c.priority} priority
         </span>
-        <span style={{ fontSize: "0.75rem", color: "#64748b" }} title={formatDate(c.createdAt)}>
+        <span style={{ fontSize: "0.75rem", color: "var(--adm-dim)" }} title={formatDate(c.createdAt)}>
           {timeElapsed(c.createdAt)}
         </span>
       </div>
@@ -251,7 +251,7 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
             <div className={styles.cardTitle}>Case message</div>
             <div className={styles.messageBox}>{c.message}</div>
             {c.location && (
-              <div style={{ marginTop: "0.75rem", fontSize: "0.85rem", color: "#94a3b8" }}>
+              <div style={{ marginTop: "0.75rem", fontSize: "0.85rem", color: "var(--adm-muted)" }}>
                 📍 {c.location}
               </div>
             )}
@@ -260,7 +260,7 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
           <div className={styles.card}>
             <div className={styles.cardTitle}>Activity timeline</div>
             {c.notes.length === 0 ? (
-              <div style={{ color: "#64748b", fontSize: "0.85rem" }}>No activity yet.</div>
+              <div style={{ color: "var(--adm-dim)", fontSize: "0.85rem" }}>No activity yet.</div>
             ) : (
               <div className={styles.timeline}>
                 {c.notes.map(n => (
@@ -354,7 +354,7 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
             <div style={{ marginTop: "0.75rem" }}>
               <a
                 href={`/admin/users/${c.user.id}`}
-                style={{ color: "#3b82f6", fontSize: "0.8rem", fontWeight: 600, textDecoration: "none" }}
+                style={{ color: "var(--adm-blue)", fontSize: "0.8rem", fontWeight: 600, textDecoration: "none" }}
               >
                 View full profile →
               </a>
@@ -562,9 +562,9 @@ function CopyField({ value, label }: { value: string; label: string }) {
           border: "none",
           cursor: "pointer",
           padding: "2px 4px",
-          borderRadius: "4px",
+          borderRadius: "var(--adm-radius-sm)",
           fontSize: "0.7rem",
-          color: copied ? "#22c55e" : "#64748b",
+          color: copied ? "var(--adm-green)" : "var(--adm-dim)",
           fontFamily: "inherit",
           transition: "color 0.15s",
         }}

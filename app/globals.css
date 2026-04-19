@@ -1,44 +1,58 @@
 :root {
-  /* ---- Admin portal design tokens ---- */
-  --adm-bg:        #0f172a;
-  --adm-surface:   #1e293b;
-  --adm-border:    #334155;
-  --adm-border-lt: #475569;
-  --adm-text:      #f1f5f9;
-  --adm-muted:     #94a3b8;
-  --adm-dim:       #64748b;
-  --adm-blue:      #3b82f6;
-  --adm-blue-lt:   #60a5fa;
-  --adm-green:     #22c55e;
+  /* ---- Admin portal design tokens (light) ---- */
+  --adm-bg:        #f4f6fb;
+  --adm-surface:   #ffffff;
+  --adm-border:    #e2e8f0;
+  --adm-border-lt: #cbd5e1;
+  --adm-text:      #1a2433;
+  --adm-muted:     #56657a;
+  --adm-dim:       #8b97a8;
+  --adm-blue:      #1976d2;
+  --adm-blue-lt:   #3b82f6;
+  --adm-green:     #2f9e44;
   --adm-green-lt:  #4ade80;
-  --adm-amber:     #f59e0b;
-  --adm-red:       #ef4444;
-  --adm-violet:    #a78bfa;
+  --adm-amber:     #c08e0a;
+  --adm-red:       #d63838;
+  --adm-violet:    #7c5cf5;
   --adm-font:      var(--font-inter), 'Inter', system-ui, sans-serif;
-  --adm-radius:    8px;
-  --adm-radius-sm: 6px;
+  --adm-radius:    12px;
+  --adm-radius-sm: 8px;
 
-  --bg-primary: #0f1923;
-  --bg-secondary: #141e2b;
-  --bg-card: #1a2736;
-  --bg-card-hover: #223344;
-  --text-primary: #e8edf3;
-  --text-secondary: #8fa3b8;
-  --text-muted: #6b829a;
-  --accent-green: #58cc02;
-  --accent-green-dark: #46a302;
-  --accent-blue: #3b9eff;
-  --accent-gold: #f5b731;
-  --accent-red: #f55050;
-  --accent-purple: #a78bfa;
-  --accent-orange: #f59e0b;
-  --border-color: #243447;
-  --glow-green: 0 0 12px rgba(88, 204, 2, 0.25), 0 0 24px rgba(88, 204, 2, 0.08);
-  --glow-blue: 0 0 12px rgba(59, 158, 255, 0.25), 0 0 24px rgba(59, 158, 255, 0.08);
-  --glow-red: 0 0 12px rgba(245, 80, 80, 0.25), 0 0 24px rgba(245, 80, 80, 0.08);
-  --glow-gold: 0 0 12px rgba(245, 183, 49, 0.25), 0 0 24px rgba(245, 183, 49, 0.08);
-  --glow-purple: 0 0 12px rgba(167, 139, 250, 0.25), 0 0 24px rgba(167, 139, 250, 0.08);
-  --radius: 12px;
+  /* ---- Learner app design tokens (light) ---- */
+  --bg-primary: #f5f7fa;
+  --bg-secondary: #ffffff;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f0f4fa;
+  --text-primary: #1a2433;
+  --text-secondary: #4f5d72;
+  --text-muted: #7d8a9c;
+  --accent-green: #2d7a13;
+  --accent-green-dark: #1f5a08;
+  --accent-blue: #1976d2;
+  --accent-gold: #8b6914;
+  --accent-red: #d63838;
+  --accent-purple: #6845d9;
+  --accent-orange: #b8500a;
+  --border-color: #e2e8f0;
+
+  /* Soft drop shadows (replacing dark-mode glow) */
+  --glow-green: 0 4px 14px rgba(58, 157, 24, 0.16), 0 1px 3px rgba(58, 157, 24, 0.08);
+  --glow-blue:  0 4px 14px rgba(25, 118, 210, 0.16), 0 1px 3px rgba(25, 118, 210, 0.08);
+  --glow-red:   0 4px 14px rgba(214, 56, 56, 0.16), 0 1px 3px rgba(214, 56, 56, 0.08);
+  --glow-gold:  0 4px 14px rgba(192, 142, 10, 0.16), 0 1px 3px rgba(192, 142, 10, 0.08);
+  --glow-purple:0 4px 14px rgba(124, 92, 245, 0.16), 0 1px 3px rgba(124, 92, 245, 0.08);
+
+  /* Subtle elevation shadows */
+  --shadow-sm: 0 1px 2px rgba(15, 25, 35, 0.04), 0 1px 1px rgba(15, 25, 35, 0.03);
+  --shadow-md: 0 4px 12px rgba(15, 25, 35, 0.06), 0 2px 4px rgba(15, 25, 35, 0.04);
+  --shadow-lg: 0 12px 28px rgba(15, 25, 35, 0.10), 0 4px 8px rgba(15, 25, 35, 0.04);
+
+  /* Rounded scale — no square boxes */
+  --radius-sm: 8px;
+  --radius: 14px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+
   --font-mono: var(--font-share-tech-mono), 'Share Tech Mono', monospace;
   --font-display: var(--font-rajdhani), 'Rajdhani', sans-serif;
 }
@@ -90,8 +104,8 @@ button {
 :where(a, button, input, select, textarea, [tabindex]):focus-visible {
   outline: 2px solid var(--accent-blue) !important;
   outline-offset: 2px !important;
-  box-shadow: 0 0 0 4px rgba(59, 158, 255, 0.25) !important;
-  border-radius: 4px;
+  box-shadow: 0 0 0 4px rgba(25, 118, 210, 0.18) !important;
+  border-radius: var(--radius-sm);
 }
 
 .sr-only {
@@ -172,6 +186,7 @@ button {
   position: relative;
   overflow: hidden;
   transition: all 0.25s ease;
+  box-shadow: var(--shadow-sm);
 }
 
 .cyber-card::before {
@@ -183,12 +198,12 @@ button {
   height: 3px;
   background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple), var(--accent-green));
   border-radius: var(--radius) var(--radius) 0 0;
-  opacity: 0.7;
+  opacity: 0.55;
 }
 
 .cyber-card:hover {
   border-color: var(--accent-blue);
-  box-shadow: var(--glow-blue);
+  box-shadow: var(--shadow-md);
   background: var(--bg-card-hover);
   transform: translateY(-2px);
 }
@@ -203,7 +218,7 @@ button {
 
 .grid-bg {
   background-image:
-    radial-gradient(circle at 15% 50%, rgba(59, 158, 255, 0.04) 0%, transparent 50%),
-    radial-gradient(circle at 85% 20%, rgba(167, 139, 250, 0.04) 0%, transparent 50%),
-    radial-gradient(circle at 50% 85%, rgba(88, 204, 2, 0.03) 0%, transparent 50%);
+    radial-gradient(circle at 15% 50%, rgba(25, 118, 210, 0.06) 0%, transparent 55%),
+    radial-gradient(circle at 85% 20%, rgba(124, 92, 245, 0.06) 0%, transparent 55%),
+    radial-gradient(circle at 50% 85%, rgba(58, 157, 24, 0.05) 0%, transparent 55%);
 }

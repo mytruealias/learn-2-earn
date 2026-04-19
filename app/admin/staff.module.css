@@ -1,5 +1,5 @@
 .page {
-  color: #f1f5f9;
+  color: var(--adm-text);
   font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
   max-width: 1000px;
 }
@@ -11,7 +11,7 @@
 .pageTitle {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #f1f5f9;
+  color: var(--adm-text);
   margin: 0;
   letter-spacing: -0.02em;
 }
@@ -24,7 +24,7 @@
 
 .createBtn {
   padding: 0.55rem 1.125rem;
-  background-color: #3b82f6;
+  background-color: var(--adm-blue);
   color: #fff;
   border: none;
   border-radius: 6px;
@@ -46,8 +46,8 @@
 }
 
 .staffRow {
-  background-color: #1e293b;
-  border: 1px solid #334155;
+  background-color: var(--adm-surface);
+  border: 1px solid var(--adm-border);
   border-radius: 8px;
   padding: 1rem 1.125rem;
   display: flex;
@@ -86,12 +86,12 @@
 .staffName {
   font-size: 0.9rem;
   font-weight: 600;
-  color: #f1f5f9;
+  color: var(--adm-text);
 }
 
 .staffEmail {
   font-size: 0.75rem;
-  color: #64748b;
+  color: var(--adm-dim);
 }
 
 .staffMeta {
@@ -104,7 +104,7 @@
 .staffRole {
   font-size: 0.72rem;
   font-weight: 500;
-  color: #93c5fd;
+  color: var(--adm-blue);
   text-transform: capitalize;
   background-color: rgba(59, 130, 246, 0.1);
   border: 1px solid rgba(59, 130, 246, 0.25);
@@ -114,7 +114,7 @@
 
 .staffLastLogin {
   font-size: 0.72rem;
-  color: #64748b;
+  color: var(--adm-dim);
 }
 
 .statusBadge {
@@ -132,13 +132,13 @@
 }
 
 .statusInactive {
-  color: #fca5a5;
+  color: var(--adm-red);
   border-color: rgba(239, 68, 68, 0.3);
   background-color: rgba(239, 68, 68, 0.06);
 }
 
 .statusLocked {
-  color: #fcd34d;
+  color: var(--adm-amber);
   border-color: rgba(245, 158, 11, 0.35);
   background-color: rgba(245, 158, 11, 0.08);
 }
@@ -153,7 +153,7 @@
 .deactivateBtn {
   padding: 0.35rem 0.875rem;
   background-color: transparent;
-  color: #fca5a5;
+  color: var(--adm-red);
   border: 1px solid rgba(239, 68, 68, 0.3);
   border-radius: 6px;
   font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
@@ -190,13 +190,13 @@
 
 /* ---- LOADING / ACCESS ---- */
 .loading {
-  color: #94a3b8;
+  color: var(--adm-muted);
   font-size: 0.875rem;
   padding: 2rem 0;
 }
 
 .accessDenied {
-  color: #fca5a5;
+  color: var(--adm-red);
   font-size: 0.875rem;
   padding: 1.25rem;
   background-color: rgba(239, 68, 68, 0.08);
@@ -217,8 +217,8 @@
 }
 
 .modal {
-  background-color: #1e293b;
-  border: 1px solid #334155;
+  background-color: var(--adm-surface);
+  border: 1px solid var(--adm-border);
   border-radius: 10px;
   padding: 1.75rem;
   width: 100%;
@@ -228,7 +228,7 @@
 .modalTitle {
   font-size: 1.125rem;
   font-weight: 700;
-  color: #f1f5f9;
+  color: var(--adm-text);
   margin: 0 0 1.5rem;
   letter-spacing: -0.01em;
 }
@@ -241,7 +241,7 @@
   display: block;
   font-size: 0.72rem;
   font-weight: 500;
-  color: #94a3b8;
+  color: var(--adm-muted);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   margin-bottom: 0.4rem;
@@ -250,10 +250,10 @@
 .modalInput {
   width: 100%;
   padding: 0.6rem 0.875rem;
-  background-color: #0f172a;
-  border: 1px solid #334155;
+  background-color: var(--adm-bg);
+  border: 1px solid var(--adm-border);
   border-radius: 6px;
-  color: #f1f5f9;
+  color: var(--adm-text);
   font-size: 0.875rem;
   font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
   outline: none;
@@ -262,16 +262,16 @@
 }
 
 .modalInput:focus {
-  border-color: #3b82f6;
+  border-color: var(--adm-blue);
 }
 
 .modalSelect {
   width: 100%;
   padding: 0.6rem 0.875rem;
-  background-color: #0f172a;
-  border: 1px solid #334155;
+  background-color: var(--adm-bg);
+  border: 1px solid var(--adm-border);
   border-radius: 6px;
-  color: #f1f5f9;
+  color: var(--adm-text);
   font-size: 0.875rem;
   font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
   outline: none;
@@ -283,7 +283,7 @@
   background-color: rgba(239, 68, 68, 0.08);
   border: 1px solid rgba(239, 68, 68, 0.25);
   border-radius: 6px;
-  color: #fca5a5;
+  color: var(--adm-red);
   font-size: 0.8rem;
   margin-bottom: 1rem;
 }
@@ -299,7 +299,7 @@
 .tempPasswordLabel {
   font-size: 0.68rem;
   font-weight: 600;
-  color: #4ade80;
+  color: var(--adm-green-lt);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   margin-bottom: 0.4rem;
@@ -308,14 +308,14 @@
 .tempPasswordValue {
   font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
   font-size: 1rem;
-  color: #f1f5f9;
+  color: var(--adm-text);
   word-break: break-all;
   font-weight: 600;
 }
 
 .tempPasswordNote {
   font-size: 0.72rem;
-  color: #64748b;
+  color: var(--adm-dim);
   margin-top: 0.5rem;
 }
 
@@ -327,7 +327,7 @@
 
 .modalSaveBtn {
   padding: 0.6rem 1.25rem;
-  background-color: #3b82f6;
+  background-color: var(--adm-blue);
   color: #fff;
   border: none;
   border-radius: 6px;
@@ -343,16 +343,16 @@
 }
 
 .modalSaveBtn:disabled {
-  background-color: #334155;
-  color: #64748b;
+  background-color: var(--adm-border);
+  color: var(--adm-dim);
   cursor: default;
 }
 
 .modalCancelBtn {
   padding: 0.6rem 1.25rem;
   background-color: transparent;
-  color: #94a3b8;
-  border: 1px solid #334155;
+  color: var(--adm-muted);
+  border: 1px solid var(--adm-border);
   border-radius: 6px;
   font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
   font-size: 0.8rem;
@@ -362,8 +362,8 @@
 }
 
 .modalCancelBtn:hover {
-  border-color: #475569;
-  color: #e2e8f0;
+  border-color: var(--adm-border-lt);
+  color: var(--adm-text);
 }
 
 @media (max-width: 600px) {

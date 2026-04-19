@@ -154,7 +154,7 @@ export default async function AppHome() {
             return (
               <Link key={path.id} href={`/paths/${path.slug}`}>
                 <div style={{
-                  backgroundColor: "#1e2d3d",
+                  backgroundColor: "var(--bg-card)",
                   borderRadius: "14px",
                   border: `1px solid rgba(${rgb},0.35)`,
                   borderLeft: `5px solid ${color}`,
@@ -185,7 +185,7 @@ export default async function AppHome() {
                     <div style={{
                       fontSize: "1.05rem",
                       fontWeight: "700",
-                      color: "#ffffff",
+                      color: "var(--text-primary)",
                       letterSpacing: "0.01em",
                       marginBottom: "0.25rem",
                       lineHeight: "1.2",
@@ -194,7 +194,7 @@ export default async function AppHome() {
                     </div>
                     {path.description && (
                       <p style={{
-                        color: "#9ab0c4",
+                        color: "var(--text-secondary)",
                         fontSize: "0.8rem",
                         lineHeight: "1.45",
                         marginBottom: "0.5rem",

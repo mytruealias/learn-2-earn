@@ -1,6 +1,6 @@
 .page {
   min-height: 100vh;
-  background-color: #0f172a;
+  background-color: var(--adm-bg);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -11,8 +11,8 @@
 .card {
   width: 100%;
   max-width: 400px;
-  background-color: #1e293b;
-  border: 1px solid #334155;
+  background-color: var(--adm-surface);
+  border: 1px solid var(--adm-border);
   border-radius: 12px;
   padding: 2.5rem;
 }
@@ -20,26 +20,26 @@
 .brandWordmark {
   font-size: 1rem;
   font-weight: 700;
-  color: #f1f5f9;
+  color: var(--adm-text);
   letter-spacing: -0.02em;
   margin-bottom: 0.25rem;
 }
 
 .brandWordmark span {
-  color: #3b82f6;
+  color: var(--adm-blue);
 }
 
 .brandSub {
   font-size: 0.72rem;
   font-weight: 400;
-  color: #64748b;
+  color: var(--adm-dim);
   margin-bottom: 1.75rem;
 }
 
 .title {
   font-size: 1.375rem;
   font-weight: 700;
-  color: #f1f5f9;
+  color: var(--adm-text);
   margin-bottom: 1.75rem;
   letter-spacing: -0.02em;
 }
@@ -49,7 +49,7 @@
   background-color: rgba(239, 68, 68, 0.08);
   border: 1px solid rgba(239, 68, 68, 0.25);
   border-radius: 6px;
-  color: #fca5a5;
+  color: var(--adm-red);
   font-size: 0.82rem;
   margin-bottom: 1.5rem;
 }
@@ -66,7 +66,7 @@
   display: block;
   font-size: 0.72rem;
   font-weight: 500;
-  color: #94a3b8;
+  color: var(--adm-muted);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   margin-bottom: 0.45rem;
@@ -75,10 +75,10 @@
 .input {
   width: 100%;
   padding: 0.7rem 0.875rem;
-  background-color: #0f172a;
-  border: 1px solid #334155;
+  background-color: var(--adm-bg);
+  border: 1px solid var(--adm-border);
   border-radius: 6px;
-  color: #f1f5f9;
+  color: var(--adm-text);
   font-size: 0.9rem;
   font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
   outline: none;
@@ -87,17 +87,17 @@
 }
 
 .input:focus {
-  border-color: #3b82f6;
+  border-color: var(--adm-blue);
 }
 
 .input::placeholder {
-  color: #475569;
+  color: var(--adm-border-lt);
 }
 
 .submitBtn {
   width: 100%;
   padding: 0.8rem;
-  background-color: #3b82f6;
+  background-color: var(--adm-blue);
   color: #fff;
   border: none;
   border-radius: 6px;
@@ -114,7 +114,7 @@
 }
 
 .submitBtn:disabled {
-  background-color: #334155;
-  color: #64748b;
+  background-color: var(--adm-border);
+  color: var(--adm-dim);
   cursor: default;
 }

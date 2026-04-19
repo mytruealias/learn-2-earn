@@ -1,5 +1,5 @@
 .page {
-  color: #f1f5f9;
+  color: var(--adm-text);
   font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
   max-width: 1200px;
 }
@@ -16,7 +16,7 @@
 .pageTitle {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #f1f5f9;
+  color: var(--adm-text);
   margin: 0;
   letter-spacing: -0.02em;
 }
@@ -28,8 +28,8 @@
   padding: 0.5rem 1rem;
   font-size: 0.8125rem;
   font-weight: 600;
-  color: #f1f5f9;
-  background: #22c55e;
+  color: var(--adm-text);
+  background: var(--adm-green);
   border: none;
   border-radius: 6px;
   cursor: pointer;
@@ -37,7 +37,7 @@
 }
 
 .exportBtn:hover {
-  background: #16a34a;
+  background: var(--adm-green);
 }
 
 .section {
@@ -47,7 +47,7 @@
 .sectionTitle {
   font-size: 0.75rem;
   font-weight: 600;
-  color: #64748b;
+  color: var(--adm-dim);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   margin-bottom: 0.875rem;
@@ -60,9 +60,9 @@
 }
 
 .milestoneCard {
-  background: #1e293b;
-  border: 1px solid #334155;
-  border-left: 3px solid #a78bfa;
+  background: var(--adm-surface);
+  border: 1px solid var(--adm-border);
+  border-left: 3px solid var(--adm-violet);
   border-radius: 8px;
   padding: 1.25rem;
 }
@@ -70,7 +70,7 @@
 .milestoneLabel {
   font-size: 0.72rem;
   font-weight: 500;
-  color: #94a3b8;
+  color: var(--adm-muted);
   margin-bottom: 0.5rem;
 }
 
@@ -82,14 +82,14 @@
   letter-spacing: -0.02em;
 }
 
-.milestoneGreen { border-left-color: #22c55e; }
-.milestoneGreen .milestoneValue { color: #4ade80; }
-.milestoneBlue { border-left-color: #3b82f6; }
-.milestoneBlue .milestoneValue { color: #60a5fa; }
+.milestoneGreen { border-left-color: var(--adm-green); }
+.milestoneGreen .milestoneValue { color: var(--adm-green-lt); }
+.milestoneBlue { border-left-color: var(--adm-blue); }
+.milestoneBlue .milestoneValue { color: var(--adm-blue-lt); }
 
 .chartCard {
-  background: #1e293b;
-  border: 1px solid #334155;
+  background: var(--adm-surface);
+  border: 1px solid var(--adm-border);
   border-radius: 8px;
   padding: 1.25rem;
 }
@@ -104,7 +104,7 @@
 .chartTitle {
   font-size: 0.72rem;
   font-weight: 500;
-  color: #64748b;
+  color: var(--adm-dim);
 }
 
 .rangePicker {
@@ -116,9 +116,9 @@
   padding: 0.2rem 0.5rem;
   font-size: 0.7rem;
   font-weight: 500;
-  border: 1px solid #334155;
+  border: 1px solid var(--adm-border);
   background: transparent;
-  color: #94a3b8;
+  color: var(--adm-muted);
   border-radius: 4px;
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
@@ -129,8 +129,8 @@
 }
 
 .rangeBtnActive {
-  background: #3b82f6;
-  border-color: #3b82f6;
+  background: var(--adm-blue);
+  border-color: var(--adm-blue);
   color: #fff;
 }
 
@@ -149,8 +149,8 @@
 .dropoffTable {
   width: 100%;
   border-collapse: collapse;
-  background: #1e293b;
-  border: 1px solid #334155;
+  background: var(--adm-surface);
+  border: 1px solid var(--adm-border);
   border-radius: 8px;
   overflow: hidden;
 }
@@ -158,17 +158,17 @@
 .dropoffTable th {
   font-size: 0.72rem;
   font-weight: 600;
-  color: #64748b;
+  color: var(--adm-dim);
   text-align: left;
   padding: 0.75rem 1rem;
-  border-bottom: 1px solid #334155;
+  border-bottom: 1px solid var(--adm-border);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
 
 .dropoffTable td {
   font-size: 0.8rem;
-  color: #cbd5e1;
+  color: var(--adm-muted);
   padding: 0.625rem 1rem;
   border-bottom: 1px solid rgba(51, 65, 85, 0.5);
 }
@@ -183,14 +183,14 @@
 
 .pathRow td {
   font-weight: 600;
-  color: #f1f5f9;
+  color: var(--adm-text);
   background: rgba(30, 41, 59, 0.8);
 }
 
 .moduleRow td {
   padding-left: 2rem;
   font-size: 0.78rem;
-  color: #94a3b8;
+  color: var(--adm-muted);
 }
 
 .rateBar {
@@ -202,7 +202,7 @@
 .rateTrack {
   flex: 1;
   height: 6px;
-  background: #334155;
+  background: var(--adm-border);
   border-radius: 3px;
   overflow: hidden;
   max-width: 120px;
@@ -214,9 +214,9 @@
   transition: width 0.3s;
 }
 
-.rateGreen { background: #22c55e; }
-.rateYellow { background: #f59e0b; }
-.rateRed { background: #ef4444; }
+.rateGreen { background: var(--adm-green); }
+.rateYellow { background: var(--adm-amber); }
+.rateRed { background: var(--adm-red); }
 
 .rateText {
   font-size: 0.75rem;
@@ -226,13 +226,13 @@
 }
 
 .loading {
-  color: #94a3b8;
+  color: var(--adm-muted);
   font-size: 0.875rem;
   padding: 2rem 0;
 }
 
 .error {
-  color: #fca5a5;
+  color: var(--adm-red);
   font-size: 0.875rem;
   padding: 1rem;
   background: rgba(239, 68, 68, 0.08);
@@ -241,7 +241,7 @@
 }
 
 .noData {
-  color: #64748b;
+  color: var(--adm-dim);
   font-size: 0.8rem;
   text-align: center;
   padding: 2rem 0;

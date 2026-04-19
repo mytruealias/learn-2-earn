@@ -1,5 +1,5 @@
 .page {
-  color: #f1f5f9;
+  color: var(--adm-text);
   font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
   max-width: 1100px;
 }
@@ -16,14 +16,14 @@
 .pageTitle {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #f1f5f9;
+  color: var(--adm-text);
   margin: 0;
   letter-spacing: -0.02em;
 }
 
 .addBtn {
   padding: 0.6rem 1.25rem;
-  background-color: #3b82f6;
+  background-color: var(--adm-blue);
   color: #fff;
   border: none;
   border-radius: 6px;
@@ -51,10 +51,10 @@
   flex: 1;
   min-width: 200px;
   padding: 0.6rem 0.875rem;
-  background-color: #1e293b;
-  border: 1px solid #334155;
+  background-color: var(--adm-surface);
+  border: 1px solid var(--adm-border);
   border-radius: 6px;
-  color: #f1f5f9;
+  color: var(--adm-text);
   font-size: 0.875rem;
   font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
   outline: none;
@@ -62,19 +62,19 @@
 }
 
 .filterInput:focus {
-  border-color: #3b82f6;
+  border-color: var(--adm-blue);
 }
 
 .filterInput::placeholder {
-  color: #64748b;
+  color: var(--adm-dim);
 }
 
 .filterSelect {
   padding: 0.6rem 0.875rem;
-  background-color: #1e293b;
-  border: 1px solid #334155;
+  background-color: var(--adm-surface);
+  border: 1px solid var(--adm-border);
   border-radius: 6px;
-  color: #f1f5f9;
+  color: var(--adm-text);
   font-size: 0.875rem;
   font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
   outline: none;
@@ -83,7 +83,7 @@
 }
 
 .filterSelect:focus {
-  border-color: #3b82f6;
+  border-color: var(--adm-blue);
 }
 
 /* ---- CATEGORY GROUPS ---- */
@@ -97,12 +97,12 @@
   gap: 0.5rem;
   font-size: 0.75rem;
   font-weight: 700;
-  color: #64748b;
+  color: var(--adm-dim);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   margin-bottom: 0.75rem;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid #1e293b;
+  border-bottom: 1px solid var(--adm-surface);
 }
 
 .entryList {
@@ -111,8 +111,8 @@
 }
 
 .entryCard {
-  background-color: #1e293b;
-  border: 1px solid #334155;
+  background-color: var(--adm-surface);
+  border: 1px solid var(--adm-border);
   border-radius: 8px;
   padding: 0.875rem 1.125rem;
   display: flex;
@@ -123,7 +123,7 @@
 }
 
 .entryCard:hover {
-  border-color: #475569;
+  border-color: var(--adm-border-lt);
 }
 
 .entryMain {
@@ -134,13 +134,13 @@
 .entryName {
   font-size: 0.95rem;
   font-weight: 600;
-  color: #f1f5f9;
+  color: var(--adm-text);
   margin-bottom: 0.3rem;
 }
 
 .entryMeta {
   font-size: 0.8rem;
-  color: #94a3b8;
+  color: var(--adm-muted);
   display: flex;
   gap: 0.75rem;
   flex-wrap: wrap;
@@ -148,7 +148,7 @@
 
 .entryNotes {
   font-size: 0.8rem;
-  color: #64748b;
+  color: var(--adm-dim);
   margin-top: 0.35rem;
   font-style: italic;
 }
@@ -162,9 +162,9 @@
 .editBtn {
   padding: 0.3rem 0.7rem;
   background-color: transparent;
-  border: 1px solid #334155;
+  border: 1px solid var(--adm-border);
   border-radius: 5px;
-  color: #94a3b8;
+  color: var(--adm-muted);
   font-size: 0.75rem;
   font-weight: 600;
   cursor: pointer;
@@ -173,16 +173,16 @@
 }
 
 .editBtn:hover {
-  border-color: #3b82f6;
-  color: #3b82f6;
+  border-color: var(--adm-blue);
+  color: var(--adm-blue);
 }
 
 .deleteBtn {
   padding: 0.3rem 0.7rem;
   background-color: transparent;
-  border: 1px solid #334155;
+  border: 1px solid var(--adm-border);
   border-radius: 5px;
-  color: #64748b;
+  color: var(--adm-dim);
   font-size: 0.75rem;
   font-weight: 600;
   cursor: pointer;
@@ -191,14 +191,14 @@
 }
 
 .deleteBtn:hover {
-  border-color: #ef4444;
-  color: #ef4444;
+  border-color: var(--adm-red);
+  color: var(--adm-red);
 }
 
 .empty {
   text-align: center;
   padding: 3rem 1rem;
-  color: #64748b;
+  color: var(--adm-dim);
 }
 
 /* ---- MODAL ---- */
@@ -214,8 +214,8 @@
 }
 
 .modal {
-  background: #1e293b;
-  border: 1px solid #334155;
+  background: var(--adm-surface);
+  border: 1px solid var(--adm-border);
   border-radius: 12px;
   padding: 1.5rem;
   max-width: 520px;
@@ -227,7 +227,7 @@
 .modalTitle {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #f1f5f9;
+  color: var(--adm-text);
   margin-bottom: 1.25rem;
 }
 
@@ -245,7 +245,7 @@
   display: block;
   font-size: 0.8rem;
   font-weight: 600;
-  color: #94a3b8;
+  color: var(--adm-muted);
   margin-bottom: 0.35rem;
   letter-spacing: 0.04em;
 }
@@ -255,10 +255,10 @@
 .formTextarea {
   width: 100%;
   padding: 0.65rem 0.875rem;
-  background-color: #0f172a;
-  border: 1px solid #334155;
+  background-color: var(--adm-bg);
+  border: 1px solid var(--adm-border);
   border-radius: 6px;
-  color: #f1f5f9;
+  color: var(--adm-text);
   font-size: 0.875rem;
   font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
   outline: none;
@@ -269,7 +269,7 @@
 .formInput:focus,
 .formSelect:focus,
 .formTextarea:focus {
-  border-color: #3b82f6;
+  border-color: var(--adm-blue);
 }
 
 .formTextarea {
@@ -287,9 +287,9 @@
 .cancelBtn {
   padding: 0.6rem 1.25rem;
   background-color: transparent;
-  border: 1px solid #334155;
+  border: 1px solid var(--adm-border);
   border-radius: 6px;
-  color: #94a3b8;
+  color: var(--adm-muted);
   font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
@@ -297,12 +297,12 @@
 }
 
 .cancelBtn:hover {
-  border-color: #64748b;
+  border-color: var(--adm-dim);
 }
 
 .saveBtn {
   padding: 0.6rem 1.25rem;
-  background-color: #3b82f6;
+  background-color: var(--adm-blue);
   color: #fff;
   border: none;
   border-radius: 6px;
