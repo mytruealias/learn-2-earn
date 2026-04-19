@@ -513,7 +513,7 @@ export default function HubertChat({ onClose }: { onClose: () => void }) {
                 style={{
                   maxWidth: "80%",
                   padding: "0.65rem 0.9rem",
-                  borderRadius: msg.role === "user" ? "14px 14px 4px 14px" : "14px 14px 14px 4px",
+                  borderRadius: msg.role === "user" ? "16px 16px 6px 16px" : "16px 16px 16px 6px",
                   backgroundColor: msg.role === "user" ? "var(--accent-blue)" : "var(--bg-card)",
                   color: msg.role === "user" ? "#fff" : "var(--text-primary)",
                   fontSize: "0.88rem",

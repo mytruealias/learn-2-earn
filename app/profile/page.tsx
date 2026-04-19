@@ -677,12 +677,12 @@ export default function ProfilePage() {
                     </div>
                     <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
                       <div style={{ flex: 1 }}>
-                        <div style={{ height: "5px", borderRadius: "3px", backgroundColor: "rgba(15,25,35,0.08)", overflow: "hidden" }}>
+                        <div style={{ height: "5px", borderRadius: "var(--radius-pill)", backgroundColor: "rgba(15,25,35,0.08)", overflow: "hidden" }}>
                           <div style={{
                             height: "100%",
                             width: `${pct}%`,
                             background: "linear-gradient(90deg, var(--accent-purple), var(--accent-blue))",
-                            borderRadius: "3px",
+                            borderRadius: "var(--radius-pill)",
                           }} />
                         </div>
                         <div style={{ fontSize: "0.65rem", color: "var(--text-muted)", marginTop: "0.3rem" }}>
@@ -858,12 +858,12 @@ export default function ProfilePage() {
             </div>
 
             {/* Progress bar */}
-            <div style={{ height: "6px", borderRadius: "3px", backgroundColor: "rgba(15,25,35,0.08)", overflow: "hidden" }}>
+            <div style={{ height: "6px", borderRadius: "var(--radius-pill)", backgroundColor: "rgba(15,25,35,0.08)", overflow: "hidden" }}>
               <div style={{
                 height: "100%",
                 width: `${totalCount > 0 ? Math.round((earnedCount / totalCount) * 100) : 0}%`,
                 background: "linear-gradient(90deg, var(--accent-purple), var(--accent-blue))",
-                borderRadius: "3px",
+                borderRadius: "var(--radius-pill)",
                 transition: "width 0.5s ease",
               }} />
             </div>
