@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
-import { SOSIcon, PhoneIcon, HomeIcon, ChatIcon, HandshakeIcon, HeartPulseIcon, HubertIcon } from "./icons";
+import { PhoneIcon, HomeIcon, ChatIcon, HandshakeIcon, HeartPulseIcon, HubertIcon } from "./icons";
 import HubertChat from "./HubertChat";
 import { useModalA11y } from "@/lib/use-modal-a11y";
 
@@ -31,23 +31,21 @@ export default function HelpButton() {
           color: "#fff",
           border: "none",
           height: "48px",
-          padding: "0 1rem 0 0.85rem",
+          padding: "0 1.1rem",
           borderRadius: "999px",
           zIndex: 1000,
           boxShadow: "0 4px 12px rgba(255,75,75,0.4)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          gap: "0.4rem",
           fontFamily: "var(--font-display)",
           fontWeight: 800,
-          fontSize: "0.95rem",
-          letterSpacing: "0.06em",
+          fontSize: "1rem",
+          letterSpacing: "0.08em",
           transition: "all 0.2s",
         }}
       >
-        <SOSIcon size={22} color="#fff" />
-        <span>SOS</span>
+        SOS
       </button>
 
       {open && (
