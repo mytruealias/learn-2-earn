@@ -30,7 +30,6 @@ export default function LandingNav() {
           <li><a href="#impact">Impact</a></li>
           <li><a href="#usecases">Use Cases</a></li>
           <li><a href="#demo">Demo</a></li>
-          <li><a href="#contact">Pilot Request</a></li>
           <li><a href="#contact">Contact</a></li>
           <li>
             <a href="#demo" className="inv-btn inv-btn-glass inv-btn-nav">Book a Demo</a>
@@ -57,7 +56,6 @@ export default function LandingNav() {
         <a href="#impact" className="inv-mobile-link" onClick={close}>Impact</a>
         <a href="#usecases" className="inv-mobile-link" onClick={close}>Use Cases</a>
         <a href="#demo" className="inv-mobile-link" onClick={close}>Demo</a>
-        <a href="#contact" className="inv-mobile-link" onClick={close}>Pilot Request</a>
         <a href="#contact" className="inv-mobile-link" onClick={close}>Contact</a>
         <div className="inv-mobile-actions">
           <a href="#demo" className="inv-btn inv-btn-glass" onClick={close}>Book a Demo</a>

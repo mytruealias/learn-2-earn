@@ -598,10 +598,19 @@ export default function HomePage() {
             <span className="inv-footer-sep">|</span>
             <a href="mailto:partners@learn2earn.org">partners@learn2earn.org</a>
             <span className="inv-footer-sep">|</span>
-            <a href="/austin">Austin Pilot</a>
-            <span className="inv-footer-sep">|</span>
             <FounderModal />
           </nav>
+
+          <div className="inv-footer-pilots">
+            <div className="inv-footer-pilots-label">Pilot Requests</div>
+            <div className="inv-footer-pilots-links">
+              <a href="/austin">Austin</a>
+              <a href="/dallas">Dallas</a>
+              <a href="/denver">Denver</a>
+              <a href="/houston">Houston</a>
+              <a href="/los-angeles">Los Angeles</a>
+            </div>
+          </div>
         </div>
       </footer>
     </div>

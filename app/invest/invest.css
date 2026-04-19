@@ -1313,6 +1313,45 @@
   opacity: 0.2;
 }
 
+.inv-footer-pilots {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.12);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.inv-footer-pilots-label {
+  font-family: var(--font-mono, "JetBrains Mono", monospace);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: #64748b;
+}
+
+.inv-footer-pilots-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.25rem;
+}
+
+.inv-footer-pilots-links a {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #cbd5e1;
+  transition: color 0.2s ease;
+  text-decoration: none;
+}
+
+.inv-footer-pilots-links a:hover {
+  color: #5eead4;
+}
+
 /* ---- RESPONSIVE ---- */
 @media (max-width: 1024px) {
   .inv-card-grid {
