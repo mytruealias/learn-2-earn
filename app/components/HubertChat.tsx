@@ -568,34 +568,8 @@ export default function HubertChat({ onClose }: { onClose: () => void }) {
               backgroundColor: "var(--bg-card)",
               border: "1px solid var(--border-color)",
               borderRadius: "8px",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              gap: "0.5rem",
-              flexWrap: "wrap",
             }}>
-              <span>{voiceHint}</span>
-              {voiceDisabled && voiceSupported && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setVoiceDisabled(false);
-                    setVoiceHint(null);
-                  }}
-                  style={{
-                    background: "none",
-                    border: "none",
-                    color: "var(--accent-blue)",
-                    fontWeight: 700,
-                    fontSize: "0.7rem",
-                    cursor: "pointer",
-                    textDecoration: "underline",
-                    padding: 0,
-                  }}
-                >
-                  Try again
-                </button>
-              )}
+              {voiceHint}
             </div>
           )}
           <div style={{
