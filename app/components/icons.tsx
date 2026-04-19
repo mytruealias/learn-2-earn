@@ -421,6 +421,16 @@ export function HandsIcon({ size = 20, color = "currentColor" }: IconProps) {
   );
 }
 
+export function MicIcon({ size = 20, color = "currentColor" }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+      <rect x="9" y="2" width="6" height="12" rx="3" stroke={color} strokeWidth="2" />
+      <path d="M5 11C5 14.87 8.13 18 12 18C15.87 18 19 14.87 19 11" stroke={color} strokeWidth="2" strokeLinecap="round" />
+      <path d="M12 18V22M9 22H15" stroke={color} strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export function HubertIcon({ size = 20, color = "currentColor" }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">

@@ -1,8 +1,32 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { HubertIcon, CloseIcon } from "./icons";
+import { HubertIcon, CloseIcon, MicIcon } from "./icons";
 import { useModalA11y } from "@/lib/use-modal-a11y";
+
+type SpeechRecognitionLike = {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  start: () => void;
+  stop: () => void;
+  abort: () => void;
+  onresult: ((event: { resultIndex: number; results: ArrayLike<{ 0: { transcript: string }; isFinal: boolean; length: number }> }) => void) | null;
+  onerror: ((event: { error: string }) => void) | null;
+  onend: (() => void) | null;
+  onstart: (() => void) | null;
+};
+
+type SpeechRecognitionCtor = new () => SpeechRecognitionLike;
+
+function getSpeechRecognitionCtor(): SpeechRecognitionCtor | null {
+  if (typeof window === "undefined") return null;
+  const w = window as unknown as {
+    SpeechRecognition?: SpeechRecognitionCtor;
+    webkitSpeechRecognition?: SpeechRecognitionCtor;
+  };
+  return w.SpeechRecognition ?? w.webkitSpeechRecognition ?? null;
+}
 
 interface Message {
   role: "user" | "assistant";
@@ -21,8 +45,118 @@ export default function HubertChat({ onClose }: { onClose: () => void }) {
   const [error, setError] = useState<string | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [voiceSupported, setVoiceSupported] = useState(false);
+  const [voiceDisabled, setVoiceDisabled] = useState(false);
+  const [listening, setListening] = useState(false);
+  const [voiceHint, setVoiceHint] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
+  const finalTranscriptRef = useRef<string>("");
+  const baseInputRef = useRef<string>("");
+
+  useEffect(() => {
+    setVoiceSupported(getSpeechRecognitionCtor() !== null);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      const rec = recognitionRef.current;
+      if (!rec) return;
+      try {
+        rec.onresult = null;
+        rec.onerror = null;
+        rec.onend = null;
+        rec.onstart = null;
+        rec.abort();
+      } catch {
+        // ignore
+      }
+      recognitionRef.current = null;
+    };
+  }, []);
+
+  const stopListening = useCallback(() => {
+    const rec = recognitionRef.current;
+    if (!rec) return;
+    try {
+      rec.stop();
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const startListening = useCallback(() => {
+    if (voiceDisabled || listening) return;
+    const Ctor = getSpeechRecognitionCtor();
+    if (!Ctor) return;
+
+    try {
+      const rec: SpeechRecognitionLike = new Ctor();
+      rec.continuous = true;
+      rec.interimResults = true;
+      rec.lang = (typeof navigator !== "undefined" && navigator.language) || "en-US";
+
+      finalTranscriptRef.current = "";
+      baseInputRef.current = input ? input.replace(/\s*$/, "") + (input ? " " : "") : "";
+
+      rec.onstart = () => {
+        setListening(true);
+        setVoiceHint(null);
+      };
+
+      rec.onresult = (event) => {
+        let interim = "";
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const result = event.results[i];
+          const transcript = result[0]?.transcript ?? "";
+          if (result.isFinal) {
+            finalTranscriptRef.current += transcript;
+          } else {
+            interim += transcript;
+          }
+        }
+        const combined = (baseInputRef.current + finalTranscriptRef.current + interim)
+          .replace(/\s+/g, " ")
+          .trimStart();
+        setInput(combined);
+      };
+
+      rec.onerror = (event) => {
+        const err = event.error;
+        if (err === "not-allowed" || err === "service-not-allowed") {
+          setVoiceDisabled(true);
+          setVoiceHint("Microphone access blocked. Enable mic permission in your browser to use voice.");
+        } else if (err === "no-speech") {
+          setVoiceHint("Didn't catch that — try again.");
+        } else if (err === "audio-capture") {
+          setVoiceDisabled(true);
+          setVoiceHint("No microphone detected on this device.");
+        } else if (err !== "aborted") {
+          setVoiceHint("Voice input stopped unexpectedly.");
+        }
+      };
+
+      rec.onend = () => {
+        setListening(false);
+        recognitionRef.current = null;
+      };
+
+      recognitionRef.current = rec;
+      rec.start();
+    } catch {
+      setVoiceHint("Voice input isn't available right now.");
+      setListening(false);
+    }
+  }, [input, listening, voiceDisabled]);
+
+  const toggleListening = useCallback(() => {
+    if (listening) {
+      stopListening();
+    } else {
+      startListening();
+    }
+  }, [listening, startListening, stopListening]);
 
   useEffect(() => {
     fetch("/api/auth/session", {
@@ -118,6 +252,14 @@ export default function HubertChat({ onClose }: { onClose: () => void }) {
   const sendMessage = async () => {
     const text = input.trim();
     if (!text || streaming) return;
+
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.stop();
+      } catch {
+        // ignore
+      }
+    }
 
     setInput("");
     setError(null);
@@ -416,6 +558,46 @@ export default function HubertChat({ onClose }: { onClose: () => void }) {
           }}>
             Hubert is an AI companion, not a therapist. In crisis? Call <a href="tel:988" style={{ color: "var(--accent-red)", fontWeight: 700 }}>988</a>
           </div>
+          {voiceHint && (
+            <div role="status" aria-live="polite" style={{
+              fontSize: "0.7rem",
+              color: "var(--text-secondary)",
+              textAlign: "center",
+              marginBottom: "0.5rem",
+              padding: "0.4rem 0.6rem",
+              backgroundColor: "var(--bg-card)",
+              border: "1px solid var(--border-color)",
+              borderRadius: "8px",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: "0.5rem",
+              flexWrap: "wrap",
+            }}>
+              <span>{voiceHint}</span>
+              {voiceDisabled && voiceSupported && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setVoiceDisabled(false);
+                    setVoiceHint(null);
+                  }}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    color: "var(--accent-blue)",
+                    fontWeight: 700,
+                    fontSize: "0.7rem",
+                    cursor: "pointer",
+                    textDecoration: "underline",
+                    padding: 0,
+                  }}
+                >
+                  Try again
+                </button>
+              )}
+            </div>
+          )}
           <div style={{
             display: "flex",
             gap: "0.5rem",
@@ -429,7 +611,10 @@ export default function HubertChat({ onClose }: { onClose: () => void }) {
               ref={inputRef}
               type="text"
               value={input}
-              onChange={(e) => setInput(e.target.value)}
+              onChange={(e) => {
+                setInput(e.target.value);
+                if (listening) stopListening();
+              }}
               onKeyDown={handleKeyDown}
               placeholder="Type a message..."
               disabled={streaming}
@@ -446,6 +631,34 @@ export default function HubertChat({ onClose }: { onClose: () => void }) {
                 outline: "none",
               }}
             />
+            {voiceSupported && !voiceDisabled && (
+              <button
+                type="button"
+                onClick={toggleListening}
+                disabled={streaming}
+                aria-label={listening ? "Stop voice input" : "Start voice input"}
+                aria-pressed={listening}
+                title={listening ? "Stop voice input" : "Start voice input"}
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: "50%",
+                  backgroundColor: listening ? "var(--accent-red)" : "var(--bg-card)",
+                  color: listening ? "#fff" : "var(--text-secondary)",
+                  border: `1px solid ${listening ? "var(--accent-red)" : "var(--border-color)"}`,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                  cursor: streaming ? "not-allowed" : "pointer",
+                  transition: "all 0.2s",
+                  animation: listening ? "hubertMicPulse 1.4s ease-in-out infinite" : "none",
+                  opacity: streaming ? 0.5 : 1,
+                }}
+              >
+                <MicIcon size={18} color="currentColor" />
+              </button>
+            )}
             <button
               onClick={sendMessage}
               disabled={streaming || !input.trim()}
