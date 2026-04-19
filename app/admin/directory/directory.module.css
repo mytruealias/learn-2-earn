@@ -163,7 +163,7 @@
   padding: 0.3rem 0.7rem;
   background-color: transparent;
   border: 1px solid var(--adm-border);
-  border-radius: 5px;
+  border-radius: var(--adm-radius-sm);
   color: var(--adm-muted);
   font-size: 0.75rem;
   font-weight: 600;
@@ -181,7 +181,7 @@
   padding: 0.3rem 0.7rem;
   background-color: transparent;
   border: 1px solid var(--adm-border);
-  border-radius: 5px;
+  border-radius: var(--adm-radius-sm);
   color: var(--adm-dim);
   font-size: 0.75rem;
   font-weight: 600;

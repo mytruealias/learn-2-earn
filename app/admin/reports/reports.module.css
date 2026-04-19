@@ -170,7 +170,7 @@
   font-size: 0.8rem;
   color: var(--adm-muted);
   padding: 0.625rem 1rem;
-  border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+  border-bottom: 1px solid var(--adm-border);
 }
 
 .dropoffTable tr:last-child td {
@@ -184,7 +184,7 @@
 .pathRow td {
   font-weight: 600;
   color: var(--adm-text);
-  background: rgba(30, 41, 59, 0.8);
+  background: rgba(15, 25, 35, 0.05);
 }
 
 .moduleRow td {

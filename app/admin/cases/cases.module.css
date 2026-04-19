@@ -28,7 +28,7 @@
   font-size: 0.75rem;
   font-weight: 700;
   padding: 0.2rem 0.65rem;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: rgba(239, 68, 68, 0.15);
   color: var(--adm-red);
   border: 1px solid rgba(239, 68, 68, 0.3);
@@ -104,7 +104,7 @@
 
 .caseRow:hover {
   border-color: var(--adm-blue);
-  background-color: rgba(30, 41, 59, 0.8);
+  background-color: rgba(15, 25, 35, 0.05);
 }
 
 .priorityDot {
@@ -150,7 +150,7 @@
   font-size: 0.7rem;
   font-weight: 700;
   padding: 0.2rem 0.6rem;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -269,7 +269,7 @@
   align-items: flex-start;
   gap: 1rem;
   padding: 0.5rem 0;
-  border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+  border-bottom: 1px solid var(--adm-border);
   font-size: 0.875rem;
 }
 
@@ -484,7 +484,7 @@
 .allocTable td {
   padding: 0.6rem 0.75rem;
   color: var(--adm-muted);
-  border-bottom: 1px solid rgba(51, 65, 85, 0.4);
+  border-bottom: 1px solid var(--adm-border);
 }
 
 .allocTable tr:last-child td {

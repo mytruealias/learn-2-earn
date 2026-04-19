@@ -28,7 +28,7 @@
   padding: 0.35rem 0.875rem;
   background-color: var(--adm-surface);
   border: 1px solid var(--adm-border);
-  border-radius: 20px;
+  border-radius: var(--radius-pill);
   color: var(--adm-muted);
   font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
   font-size: 0.78rem;
@@ -97,7 +97,7 @@
   font-size: 0.68rem;
   font-weight: 600;
   padding: 0.2rem 0.65rem;
-  border-radius: 20px;
+  border-radius: var(--radius-pill);
   border: 1px solid;
   white-space: nowrap;
   font-family: var(--font-inter), 'Inter', system-ui, sans-serif;

@@ -108,7 +108,7 @@
   text-transform: capitalize;
   background-color: rgba(59, 130, 246, 0.1);
   border: 1px solid rgba(59, 130, 246, 0.25);
-  border-radius: 20px;
+  border-radius: var(--radius-pill);
   padding: 0.15rem 0.6rem;
 }
 
@@ -121,7 +121,7 @@
   font-size: 0.7rem;
   font-weight: 500;
   padding: 0.2rem 0.6rem;
-  border-radius: 20px;
+  border-radius: var(--radius-pill);
   border: 1px solid;
 }
 
