@@ -1750,7 +1750,14 @@
   }
   .cd-stat-label {
     color: #374151 !important;
-    font-size: 9pt !important;
+    font-size: 8.5pt !important;
+    line-height: 1.35 !important;
+  }
+  /* Stat grid: align top so cities with long labels (e.g. Houston's
+     "Harris/Fort Bend/Montgomery County...") don't push their value cell
+     out of alignment with shorter neighbors. */
+  .cd-stat-grid {
+    align-items: start !important;
   }
 
   /* Sections */
@@ -1778,6 +1785,41 @@
   #contact {
     page-break-before: always;
     break-before: page;
+  }
+
+  /* Tall sections must be allowed to flow across pages: the platform grid
+     (6 cards) and the learning paths section (11 cards + custom paths block)
+     cannot fit on a single Letter page. Releasing avoid here lets each card
+     keep its own avoid rule and break cleanly between cards. */
+  #platform,
+  #learning-paths {
+    page-break-inside: auto;
+    break-inside: auto;
+  }
+  /* Keep each path-group title with at least the first card */
+  .cd-paths-group-title {
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+  /* Path groups themselves can split between groups but each card stays whole */
+  .cd-paths-group {
+    page-break-inside: auto;
+    break-inside: auto;
+  }
+  /* The custom-paths block (city-specific examples) must always stay
+     together so the city-tailored chips don't orphan from the heading. */
+  .cd-custom-paths {
+    page-break-inside: avoid;
+    break-inside: avoid;
+    page-break-before: auto;
+  }
+  /* City-specific example chips: flatten the colored pill backgrounds so
+     they print legibly under print-color-adjust: economy regardless of
+     each city's primary color. */
+  .cd-custom-examples span {
+    background: transparent !important;
+    color: #111827 !important;
+    border: 1px solid #9ca3af !important;
   }
   .cd-section-title,
   .cd-section-title em {
@@ -1857,13 +1899,19 @@
     color: #111827 !important;
   }
 
-  /* Sources block: must always print */
+  /* Sources block: always starts on a fresh page (last page of the deck).
+     Avoid splitting individual citations, but allow the block as a whole
+     to flow if a city's citations are unusually long. */
   .cd-sources {
     background: #ffffff !important;
     border-top: 1px solid #d1d5db !important;
     padding: 0.75rem 0 !important;
     page-break-before: always;
+    page-break-inside: auto;
+  }
+  .cd-sources-list li {
     page-break-inside: avoid;
+    break-inside: avoid;
   }
   .cd-sources-label {
     color: #0A1929 !important;
