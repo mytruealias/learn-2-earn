@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { HubertIcon, CloseIcon, MicIcon } from "./icons";
+import { HubertIcon, CloseIcon, MicIcon, SpeakerOnIcon, SpeakerOffIcon } from "./icons";
 import { useModalA11y } from "@/lib/use-modal-a11y";
 
 type SpeechRecognitionLike = {
@@ -49,6 +49,9 @@ export default function HubertChat({ onClose }: { onClose: () => void }) {
   const [voiceDisabled, setVoiceDisabled] = useState(false);
   const [listening, setListening] = useState(false);
   const [voiceHint, setVoiceHint] = useState<string | null>(null);
+  const [speechSynthSupported, setSpeechSynthSupported] = useState(false);
+  const [speakReplies, setSpeakReplies] = useState(false);
+  const lastSpokenIndexRef = useRef<number>(-1);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
@@ -58,6 +61,73 @@ export default function HubertChat({ onClose }: { onClose: () => void }) {
   useEffect(() => {
     setVoiceSupported(getSpeechRecognitionCtor() !== null);
   }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const supported = typeof window.speechSynthesis !== "undefined" && typeof window.SpeechSynthesisUtterance !== "undefined";
+    setSpeechSynthSupported(supported);
+    if (!supported) return;
+    try {
+      const stored = window.localStorage.getItem("hubert-speak-replies");
+      if (stored === "1") setSpeakReplies(true);
+    } catch {
+      // ignore
+    }
+    lastSpokenIndexRef.current = 0;
+  }, []);
+
+  const stopSpeaking = useCallback(() => {
+    if (typeof window === "undefined") return;
+    if (!window.speechSynthesis) return;
+    try {
+      window.speechSynthesis.cancel();
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const toggleSpeakReplies = useCallback(() => {
+    setSpeakReplies((prev) => {
+      const next = !prev;
+      try {
+        window.localStorage.setItem("hubert-speak-replies", next ? "1" : "0");
+      } catch {
+        // ignore
+      }
+      if (next) {
+        lastSpokenIndexRef.current = messages.length - 1;
+      } else {
+        stopSpeaking();
+      }
+      return next;
+    });
+  }, [stopSpeaking, messages.length]);
+
+  useEffect(() => {
+    if (!speechSynthSupported || !speakReplies) return;
+    if (streaming) return;
+    const lastIdx = messages.length - 1;
+    if (lastIdx <= lastSpokenIndexRef.current) return;
+    const last = messages[lastIdx];
+    if (!last || last.role !== "assistant") return;
+    const text = last.content.trim();
+    if (!text) return;
+    lastSpokenIndexRef.current = lastIdx;
+    try {
+      window.speechSynthesis.cancel();
+      const utter = new window.SpeechSynthesisUtterance(text);
+      utter.lang = (typeof navigator !== "undefined" && navigator.language) || "en-US";
+      window.speechSynthesis.speak(utter);
+    } catch {
+      // ignore
+    }
+  }, [messages, streaming, speakReplies, speechSynthSupported]);
+
+  useEffect(() => {
+    return () => {
+      stopSpeaking();
+    };
+  }, [stopSpeaking]);
 
   useEffect(() => {
     return () => {
@@ -408,6 +478,31 @@ export default function HubertChat({ onClose }: { onClose: () => void }) {
               {streaming ? "typing..." : "online"}
             </div>
           </div>
+          {speechSynthSupported && (
+            <button
+              type="button"
+              onClick={toggleSpeakReplies}
+              aria-label={speakReplies ? "Turn off read replies aloud" : "Turn on read replies aloud"}
+              aria-pressed={speakReplies}
+              title={speakReplies ? "Mute Hubert's voice" : "Read Hubert's replies aloud"}
+              style={{
+                background: "none",
+                border: "none",
+                color: speakReplies ? "var(--accent-green)" : "var(--text-muted)",
+                padding: "0.5rem",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+              }}
+            >
+              {speakReplies ? (
+                <SpeakerOnIcon size={20} color="currentColor" />
+              ) : (
+                <SpeakerOffIcon size={20} color="currentColor" />
+              )}
+            </button>
+          )}
           <button
             onClick={onClose}
             style={{
