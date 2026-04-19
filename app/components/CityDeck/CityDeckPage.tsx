@@ -1,6 +1,7 @@
 import "./city-deck.css";
 import Link from "next/link";
 import CityDeckNav from "./CityDeckNav";
+import CityDeckPrintButton from "./CityDeckPrintButton";
 import {
   UsersIcon, ClipboardIcon, CoinIcon, ShieldIcon, BarChartIcon,
   CheckCircleIcon, SmartphoneIcon, BriefcaseIcon, TargetIcon,
@@ -40,6 +41,7 @@ export default function CityDeckPage({ config }: Props) {
         <div className="cd-hero-actions">
           <a href="#contact" className="cd-btn-primary">Request Pilot Plan</a>
           <a href="#contact" className="cd-btn-outline">Schedule Demo</a>
+          <CityDeckPrintButton />
         </div>
       </section>
 

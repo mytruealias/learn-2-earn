@@ -1662,3 +1662,252 @@
 .cd-unlock-back:hover {
   color: var(--cd-navy);
 }
+
+/* ==================================================================
+   Print / PDF styles
+   Optimised for handing out a printed leave-behind during in-person
+   pitch meetings, or saving the deck as a PDF via the browser.
+   ================================================================== */
+
+.cd-print-btn {
+  cursor: pointer;
+  font-family: inherit;
+}
+
+@media print {
+  @page {
+    size: Letter;
+    margin: 0.6in 0.55in;
+  }
+
+  html, body {
+    background: #ffffff !important;
+    color: #111827 !important;
+    font-size: 10.5pt;
+    -webkit-print-color-adjust: economy;
+    print-color-adjust: economy;
+  }
+
+  /* Hide interactive / navigational chrome */
+  .cd-nav,
+  .cd-nav-overlay,
+  .cd-hero-actions,
+  .cd-cta-actions,
+  .cd-cta-note,
+  .cd-print-btn,
+  .cd-footer-links {
+    display: none !important;
+  }
+
+  .cd-page {
+    background: #ffffff !important;
+  }
+
+  /* Hero: drop the gradient + glow, keep the text */
+  .cd-hero {
+    background: #ffffff !important;
+    color: #111827 !important;
+    padding: 0 0 0.75rem 0 !important;
+    min-height: auto !important;
+    text-align: left !important;
+  }
+  .cd-hero::before,
+  .cd-hero::after {
+    display: none !important;
+  }
+  .cd-hero-badge {
+    background: transparent !important;
+    color: #111827 !important;
+    border: 1px solid #cbd5e1 !important;
+    padding: 0.2rem 0.5rem !important;
+    font-size: 9pt !important;
+  }
+  .cd-hero h1 {
+    color: #0A1929 !important;
+    font-size: 22pt !important;
+    margin: 0.4rem 0 0.5rem 0 !important;
+  }
+  .cd-hero h1 em {
+    color: #0A1929 !important;
+    font-style: italic !important;
+  }
+  .cd-hero-sub {
+    color: #374151 !important;
+    font-size: 11pt !important;
+  }
+
+  /* Stat highlight strip */
+  .cd-stat-highlight {
+    background: #ffffff !important;
+    border-top: 1px solid #d1d5db !important;
+    border-bottom: 1px solid #d1d5db !important;
+    padding: 0.5rem 0 !important;
+    page-break-inside: avoid;
+  }
+  .cd-stat-value {
+    color: #0A1929 !important;
+    font-size: 16pt !important;
+  }
+  .cd-stat-label {
+    color: #374151 !important;
+    font-size: 9pt !important;
+  }
+
+  /* Sections */
+  .cd-section,
+  .cd-section-alt {
+    background: #ffffff !important;
+    padding: 0.6rem 0 !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .cd-section + .cd-section,
+  .cd-section + .cd-section-alt,
+  .cd-section-alt + .cd-section,
+  .cd-section-alt + .cd-section-alt {
+    page-break-before: auto;
+  }
+  /* Force a page break before each major section so they land cleanly */
+  #problem,
+  #platform,
+  #scope,
+  #funding,
+  #security,
+  #learning-paths,
+  #expansion,
+  #contact {
+    page-break-before: always;
+    break-before: page;
+  }
+  .cd-section-title,
+  .cd-section-title em {
+    color: #0A1929 !important;
+    font-size: 16pt !important;
+  }
+  .cd-section-subtitle {
+    color: #374151 !important;
+    font-size: 10.5pt !important;
+  }
+  .cd-section-label,
+  .cd-slide-number {
+    color: #4b5563 !important;
+    background: transparent !important;
+  }
+
+  .cd-divider {
+    display: none !important;
+  }
+
+  /* Cards: render as flat bordered boxes that survive printing */
+  .cd-problem-card,
+  .cd-solution-item,
+  .cd-platform-card,
+  .cd-step,
+  .cd-scope-card,
+  .cd-deliver-item,
+  .cd-funding-card,
+  .cd-metric,
+  .cd-security-item,
+  .cd-timeline-content,
+  .cd-path-card,
+  .cd-expand-item,
+  .cd-custom-paths {
+    background: #ffffff !important;
+    border: 1px solid #d1d5db !important;
+    box-shadow: none !important;
+    color: #111827 !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .cd-problem-icon,
+  .cd-solution-icon,
+  .cd-platform-card-icon,
+  .cd-step-icon,
+  .cd-scope-icon,
+  .cd-path-icon {
+    background: transparent !important;
+    border: 1px solid #d1d5db !important;
+  }
+
+  .cd-funding-badge,
+  .cd-custom-paths-badge {
+    background: transparent !important;
+    color: #0A1929 !important;
+    border: 1px solid #0A1929 !important;
+  }
+
+  .cd-tl-green,
+  .cd-tl-blue,
+  .cd-tl-gold,
+  .cd-tl-purple {
+    background: #0A1929 !important;
+  }
+
+  /* CTA section: flatten the gradient hero-style block */
+  .cd-cta-section {
+    background: #ffffff !important;
+    color: #111827 !important;
+    border-top: 1px solid #d1d5db !important;
+    padding: 0.75rem 0 !important;
+    page-break-before: always;
+  }
+  .cd-cta-section h2,
+  .cd-cta-section p {
+    color: #111827 !important;
+  }
+
+  /* Sources block: must always print */
+  .cd-sources {
+    background: #ffffff !important;
+    border-top: 1px solid #d1d5db !important;
+    padding: 0.75rem 0 !important;
+    page-break-before: always;
+    page-break-inside: avoid;
+  }
+  .cd-sources-label {
+    color: #0A1929 !important;
+  }
+  .cd-sources-list,
+  .cd-sources-text,
+  .cd-sources-num,
+  .cd-sources-note {
+    color: #111827 !important;
+    font-size: 9pt !important;
+  }
+  .cd-sources-list a,
+  .cd-sources-text a {
+    color: #111827 !important;
+    text-decoration: underline;
+  }
+  .cd-stat-cite {
+    color: #4b5563 !important;
+  }
+
+  /* Footer: keep the contact line, drop the dark slab */
+  .cd-footer {
+    background: #ffffff !important;
+    color: #111827 !important;
+    border-top: 1px solid #d1d5db !important;
+    padding: 0.5rem 0 !important;
+  }
+  .cd-footer-logo,
+  .cd-footer-tagline {
+    color: #111827 !important;
+  }
+
+  /* Generic: prevent orphaned headings */
+  h2, h3, h4 {
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+  ul, ol, p {
+    orphans: 3;
+    widows: 3;
+  }
+
+  /* Show citation links inline where useful */
+  a[href^="http"]::after {
+    content: "";
+  }
+}
