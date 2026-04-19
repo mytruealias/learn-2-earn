@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -10,6 +10,13 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [alreadyLoggedIn, setAlreadyLoggedIn] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setAlreadyLoggedIn(localStorage.getItem("l2e_logged_in") === "true");
+    }
+  }, []);
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -176,14 +183,29 @@ export default function LoginPage() {
         </form>
 
         <div style={{ textAlign: "center", marginTop: "1.5rem" }}>
-          <span style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>Need an account? </span>
-          <Link href="/signup" style={{
-            color: "var(--accent-blue)",
-            fontSize: "0.85rem",
-            fontWeight: "600",
-          }}>
-            Create one
-          </Link>
+          {alreadyLoggedIn ? (
+            <>
+              <span style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>Already signed in. </span>
+              <Link href="/profile" style={{
+                color: "var(--accent-blue)",
+                fontSize: "0.85rem",
+                fontWeight: "600",
+              }}>
+                View Profile
+              </Link>
+            </>
+          ) : (
+            <>
+              <span style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>Need an account? </span>
+              <Link href="/signup" style={{
+                color: "var(--accent-blue)",
+                fontSize: "0.85rem",
+                fontWeight: "600",
+              }}>
+                Create one
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </div>

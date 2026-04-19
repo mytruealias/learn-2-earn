@@ -1,15 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { PenIcon, MapPinIcon, ShieldIcon } from "../components/icons";
+import { PenIcon, MapPinIcon, ShieldIcon, UserIcon } from "../components/icons";
 
 export default function SignupPage() {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [alreadyLoggedIn, setAlreadyLoggedIn] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setAlreadyLoggedIn(localStorage.getItem("l2e_logged_in") === "true");
+    }
+  }, []);
 
   const [form, setForm] = useState({
     fullName: "",
@@ -115,6 +122,80 @@ export default function SignupPage() {
     <ShieldIcon key="shield" size={20} color="var(--accent-green)" />,
   ];
   const stepLabels = ["Your Info", "Location", "Emergency"];
+
+  if (alreadyLoggedIn === null) {
+    return (
+      <div className="grid-bg" style={{ minHeight: "100vh" }} aria-hidden />
+    );
+  }
+
+  if (alreadyLoggedIn) {
+    return (
+      <div className="grid-bg" style={{ minHeight: "100vh", padding: "2rem 1.5rem 4rem", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ maxWidth: "440px", width: "100%", textAlign: "center" }}>
+          <div style={{
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: "64px",
+            height: "64px",
+            borderRadius: "999px",
+            backgroundColor: "rgba(88,204,2,0.12)",
+            border: "1.5px solid var(--accent-green)",
+            marginBottom: "1.25rem",
+          }}>
+            <UserIcon size={28} color="var(--accent-green)" />
+          </div>
+          <h1 style={{
+            fontFamily: "var(--font-display)",
+            fontSize: "1.75rem",
+            fontWeight: "700",
+            marginBottom: "0.5rem",
+            color: "var(--text-primary)",
+          }}>
+            You&apos;re already signed in
+          </h1>
+          <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem", marginBottom: "1.75rem", lineHeight: "1.5" }}>
+            No need to create another account — head to your profile to keep earning XP and managing your progress.
+          </p>
+          <Link
+            href="/profile"
+            style={{
+              display: "block",
+              padding: "0.9rem",
+              backgroundColor: "transparent",
+              color: "var(--accent-green)",
+              border: "1px solid var(--accent-green)",
+              fontWeight: "700",
+              fontSize: "1rem",
+              textAlign: "center",
+              fontFamily: "var(--font-display)",
+              letterSpacing: "0.05em",
+              boxShadow: "var(--glow-green)",
+              marginBottom: "0.85rem",
+              borderRadius: "10px",
+            }}
+          >
+            VIEW PROFILE
+          </Link>
+          <Link
+            href="/app"
+            style={{
+              display: "block",
+              padding: "0.9rem",
+              color: "var(--text-secondary)",
+              fontWeight: "600",
+              fontSize: "0.9rem",
+              textAlign: "center",
+              fontFamily: "var(--font-display)",
+            }}
+          >
+            ← Back to Home
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="grid-bg" style={{ minHeight: "100vh", padding: "2rem 1.5rem 4rem" }}>
