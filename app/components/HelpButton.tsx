@@ -21,7 +21,7 @@ export default function HelpButton() {
     <>
       <button
         onClick={() => setOpen(true)}
-        aria-label="Open emergency help and crisis resources"
+        aria-label="SOS — open emergency help and crisis resources"
         aria-haspopup="dialog"
         style={{
           position: "fixed",
@@ -30,19 +30,24 @@ export default function HelpButton() {
           backgroundColor: "var(--accent-red)",
           color: "#fff",
           border: "none",
-          width: "48px",
           height: "48px",
-          borderRadius: "50%",
-          padding: 0,
+          padding: "0 1rem 0 0.85rem",
+          borderRadius: "999px",
           zIndex: 1000,
           boxShadow: "0 4px 12px rgba(255,75,75,0.4)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
+          gap: "0.4rem",
+          fontFamily: "var(--font-display)",
+          fontWeight: 800,
+          fontSize: "0.95rem",
+          letterSpacing: "0.06em",
           transition: "all 0.2s",
         }}
       >
-        <SOSIcon size={24} color="#fff" />
+        <SOSIcon size={22} color="#fff" />
+        <span>SOS</span>
       </button>
 
       {open && (
