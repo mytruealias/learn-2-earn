@@ -606,9 +606,10 @@ export default function HomePage() {
             <div className="inv-footer-pilots-links">
               <a href="/austin">Austin</a>
               <a href="/dallas">Dallas</a>
-              <a href="/denver">Denver</a>
               <a href="/houston">Houston</a>
+              <a href="/denver">Denver</a>
               <a href="/los-angeles">Los Angeles</a>
+              <a href="/san-francisco">San Francisco</a>
             </div>
           </div>
         </div>

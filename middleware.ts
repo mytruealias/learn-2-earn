@@ -64,14 +64,16 @@ interface CityGate {
 const CITY_GATES: CityGate[] = [
   { slug: "austin", basePath: "/austin", unlockPath: "/austin/unlock",
     cookie: "l2e_austin_access", prefix: "austin-access:", pinEnv: "AUSTIN_ACCESS_PIN" },
-  { slug: "los-angeles", basePath: "/los-angeles", unlockPath: "/los-angeles/unlock",
-    cookie: "l2e_los-angeles_access", prefix: "los-angeles-access:", pinEnv: "CITY_ACCESS_PIN" },
   { slug: "dallas", basePath: "/dallas", unlockPath: "/dallas/unlock",
     cookie: "l2e_dallas_access", prefix: "dallas-access:", pinEnv: "CITY_ACCESS_PIN" },
-  { slug: "denver", basePath: "/denver", unlockPath: "/denver/unlock",
-    cookie: "l2e_denver_access", prefix: "denver-access:", pinEnv: "CITY_ACCESS_PIN" },
   { slug: "houston", basePath: "/houston", unlockPath: "/houston/unlock",
     cookie: "l2e_houston_access", prefix: "houston-access:", pinEnv: "CITY_ACCESS_PIN" },
+  { slug: "denver", basePath: "/denver", unlockPath: "/denver/unlock",
+    cookie: "l2e_denver_access", prefix: "denver-access:", pinEnv: "CITY_ACCESS_PIN" },
+  { slug: "los-angeles", basePath: "/los-angeles", unlockPath: "/los-angeles/unlock",
+    cookie: "l2e_los-angeles_access", prefix: "los-angeles-access:", pinEnv: "CITY_ACCESS_PIN" },
+  { slug: "san-francisco", basePath: "/san-francisco", unlockPath: "/san-francisco/unlock",
+    cookie: "l2e_san-francisco_access", prefix: "san-francisco-access:", pinEnv: "CITY_ACCESS_PIN" },
 ];
 
 function isCityDeckPath(pathname: string): boolean {
@@ -141,7 +143,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // ── CITY PARTNERSHIP DECK PIN GATES ────────────────────────────────────────
-  // Each city deck (/austin, /los-angeles, /dallas, /denver, /houston) is
+  // Each city deck (/austin, /dallas, /houston, /denver, /los-angeles, /san-francisco) is
   // sensitive and requires a PIN. Independent from the learner demo gate:
   // separate cookie + token prefix per city. The /<city>/unlock page itself
   // must stay reachable.

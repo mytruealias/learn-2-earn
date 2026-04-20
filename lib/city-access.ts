@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 
-export type CitySlug = "austin" | "los-angeles" | "dallas" | "denver" | "houston";
+export type CitySlug = "austin" | "dallas" | "houston" | "denver" | "los-angeles" | "san-francisco";
 
 interface CityAccessSpec {
   cookieName: string;
@@ -17,14 +17,14 @@ const CITY_ACCESS: Record<CitySlug, CityAccessSpec> = {
     tokenPrefix: "austin-access:",
     pinEnvVar: "AUSTIN_ACCESS_PIN",
   },
-  "los-angeles": {
-    cookieName: "l2e_los-angeles_access",
-    tokenPrefix: "los-angeles-access:",
-    pinEnvVar: "CITY_ACCESS_PIN",
-  },
   "dallas": {
     cookieName: "l2e_dallas_access",
     tokenPrefix: "dallas-access:",
+    pinEnvVar: "CITY_ACCESS_PIN",
+  },
+  "houston": {
+    cookieName: "l2e_houston_access",
+    tokenPrefix: "houston-access:",
     pinEnvVar: "CITY_ACCESS_PIN",
   },
   "denver": {
@@ -32,9 +32,14 @@ const CITY_ACCESS: Record<CitySlug, CityAccessSpec> = {
     tokenPrefix: "denver-access:",
     pinEnvVar: "CITY_ACCESS_PIN",
   },
-  "houston": {
-    cookieName: "l2e_houston_access",
-    tokenPrefix: "houston-access:",
+  "los-angeles": {
+    cookieName: "l2e_los-angeles_access",
+    tokenPrefix: "los-angeles-access:",
+    pinEnvVar: "CITY_ACCESS_PIN",
+  },
+  "san-francisco": {
+    cookieName: "l2e_san-francisco_access",
+    tokenPrefix: "san-francisco-access:",
     pinEnvVar: "CITY_ACCESS_PIN",
   },
 };

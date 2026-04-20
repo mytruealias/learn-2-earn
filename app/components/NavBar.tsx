@@ -13,7 +13,7 @@ export default function NavBar() {
     setLoggedIn(localStorage.getItem("l2e_logged_in") === "true");
   }, []);
 
-  const cityDeckSlugs = ["/austin", "/los-angeles", "/dallas", "/denver", "/houston"];
+  const cityDeckSlugs = ["/austin", "/dallas", "/houston", "/denver", "/los-angeles", "/san-francisco"];
   const isCityDeck = cityDeckSlugs.some((s) => pathname === s || pathname.startsWith(s + "/"));
   if (pathname === "/" || pathname.startsWith("/lesson/") || pathname.startsWith("/invest") || pathname.startsWith("/admin") || pathname.startsWith("/access") || isCityDeck) return null;
 
