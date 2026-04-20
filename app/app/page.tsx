@@ -222,9 +222,9 @@ export default async function AppHome() {
                       <span style={{
                         fontSize: "0.68rem",
                         fontWeight: "700",
-                        color: "#8fa3b8",
+                        color: "#5d6a7d",
                         backgroundColor: "rgba(136,146,176,0.1)",
-                        border: "1px solid rgba(136,146,176,0.2)",
+                        border: "1px solid rgba(136,146,176,0.35)",
                         padding: "0.15rem 0.55rem",
                         borderRadius: "999px",
                         letterSpacing: "0.03em",
