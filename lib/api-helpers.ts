@@ -212,6 +212,53 @@ export function createRateLimiter({
   };
 }
 
+export interface UsageQuota {
+  check(key: string, amount: number): { allowed: boolean; retryAfterSec: number; remaining: number };
+  record(key: string, amount: number): void;
+}
+
+/**
+ * In-memory per-key usage quota that resets on a fixed window (e.g. 24h).
+ * Tracks a numeric total (characters, tokens, bytes) rather than request count.
+ */
+export function createUsageQuota({
+  max,
+  windowMs,
+}: {
+  max: number;
+  windowMs: number;
+}): UsageQuota {
+  const buckets = new Map<string, { used: number; resetAt: number }>();
+
+  return {
+    check(key, amount) {
+      const now = Date.now();
+      const entry = buckets.get(key);
+      if (!entry || now > entry.resetAt) {
+        return { allowed: amount <= max, retryAfterSec: 0, remaining: max };
+      }
+      const remaining = Math.max(0, max - entry.used);
+      if (entry.used + amount > max) {
+        return {
+          allowed: false,
+          retryAfterSec: Math.max(1, Math.ceil((entry.resetAt - now) / 1000)),
+          remaining,
+        };
+      }
+      return { allowed: true, retryAfterSec: 0, remaining };
+    },
+    record(key, amount) {
+      const now = Date.now();
+      const entry = buckets.get(key);
+      if (!entry || now > entry.resetAt) {
+        buckets.set(key, { used: amount, resetAt: now + windowMs });
+        return;
+      }
+      entry.used += amount;
+    },
+  };
+}
+
 export function rateLimitResponse(retryAfterSec: number, message?: string): NextResponse {
   const minutes = Math.max(1, Math.ceil(retryAfterSec / 60));
   return apiError(

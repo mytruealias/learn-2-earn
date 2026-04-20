@@ -1,9 +1,18 @@
 import { z } from "zod";
 import OpenAI from "openai";
 import { getUserIdFromRequest } from "@/lib/user-session";
-import { apiError, apiServerError, parseJson, createRateLimiter } from "@/lib/api-helpers";
+import { apiError, apiServerError, parseJson, createRateLimiter, createUsageQuota } from "@/lib/api-helpers";
 
 const ttsLimiter = createRateLimiter({ max: 120, windowMs: 60 * 60 * 1000 });
+
+const TTS_DAILY_CHAR_CAP = Math.max(
+  1,
+  Number(process.env.TTS_DAILY_CHAR_CAP) || 20000,
+);
+const ttsDailyQuota = createUsageQuota({
+  max: TTS_DAILY_CHAR_CAP,
+  windowMs: 24 * 60 * 60 * 1000,
+});
 
 const Schema = z.object({
   text: z.string().trim().min(1, "Text is required.").max(2000, "Text is too long."),
@@ -24,7 +33,6 @@ export async function POST(req: Request) {
       { headers: { "Retry-After": String(gate.retryAfterSec) } },
     );
   }
-  ttsLimiter.record(userId);
 
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
@@ -34,6 +42,18 @@ export async function POST(req: Request) {
   const parsed = await parseJson(req, Schema);
   if (!parsed.ok) return parsed.response;
   const { text } = parsed.data;
+
+  const quotaGate = ttsDailyQuota.check(userId, text.length);
+  if (!quotaGate.allowed) {
+    return apiError(
+      "rate_limited",
+      "You've reached your daily limit for Hubert's voice. It will reset tomorrow.",
+      429,
+      { headers: { "Retry-After": String(quotaGate.retryAfterSec) } },
+    );
+  }
+
+  ttsLimiter.record(userId);
 
   try {
     const openai = new OpenAI({ apiKey });
@@ -49,6 +69,7 @@ export async function POST(req: Request) {
       return apiError("service_unavailable", "Hubert's voice is not available right now.", 503);
     }
 
+    ttsDailyQuota.record(userId, text.length);
     return new Response(body, {
       headers: {
         "Content-Type": "audio/mpeg",
