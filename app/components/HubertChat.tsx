@@ -59,6 +59,10 @@ export default function HubertChat({ onClose }: { onClose: () => void }) {
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
   const finalTranscriptRef = useRef<string>("");
   const baseInputRef = useRef<string>("");
+  const ttsAbortRef = useRef<AbortController | null>(null);
+  const ttsAudioRef = useRef<HTMLAudioElement | null>(null);
+  const ttsObjectUrlRef = useRef<string | null>(null);
+  const [ttsAvailable, setTtsAvailable] = useState(true);
 
   useEffect(() => {
     setVoiceSupported(getSpeechRecognitionCtor() !== null);
@@ -130,11 +134,118 @@ export default function HubertChat({ onClose }: { onClose: () => void }) {
 
   const stopSpeaking = useCallback(() => {
     if (typeof window === "undefined") return;
+    if (ttsAbortRef.current) {
+      try {
+        ttsAbortRef.current.abort();
+      } catch {
+        // ignore
+      }
+      ttsAbortRef.current = null;
+    }
+    const audio = ttsAudioRef.current;
+    if (audio) {
+      try {
+        audio.pause();
+        audio.src = "";
+      } catch {
+        // ignore
+      }
+      ttsAudioRef.current = null;
+    }
+    if (ttsObjectUrlRef.current) {
+      try {
+        URL.revokeObjectURL(ttsObjectUrlRef.current);
+      } catch {
+        // ignore
+      }
+      ttsObjectUrlRef.current = null;
+    }
+    if (window.speechSynthesis) {
+      try {
+        window.speechSynthesis.cancel();
+      } catch {
+        // ignore
+      }
+    }
+  }, []);
+
+  const speakWithBrowser = useCallback((text: string) => {
+    if (typeof window === "undefined") return;
     if (!window.speechSynthesis) return;
     try {
       window.speechSynthesis.cancel();
+      const utter = new window.SpeechSynthesisUtterance(text);
+      const chosen = selectedVoiceURI
+        ? availableVoices.find((v) => v.voiceURI === selectedVoiceURI)
+        : undefined;
+      if (chosen) {
+        utter.voice = chosen;
+        utter.lang = chosen.lang;
+      } else {
+        utter.lang = (typeof navigator !== "undefined" && navigator.language) || "en-US";
+      }
+      window.speechSynthesis.speak(utter);
     } catch {
       // ignore
+    }
+  }, [selectedVoiceURI, availableVoices]);
+
+  const speakWithServer = useCallback(async (text: string) => {
+    if (typeof window === "undefined") return false;
+    if (typeof navigator !== "undefined" && navigator.onLine === false) return false;
+    const controller = new AbortController();
+    ttsAbortRef.current = controller;
+    try {
+      const res = await fetch("/api/tts", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+        signal: controller.signal,
+      });
+      if (!res.ok || !res.body) {
+        if (res.status === 503 || res.status === 401) {
+          setTtsAvailable(false);
+        }
+        return false;
+      }
+      const blob = await res.blob();
+      if (controller.signal.aborted) return true;
+      const url = URL.createObjectURL(blob);
+      ttsObjectUrlRef.current = url;
+      const audio = new Audio(url);
+      ttsAudioRef.current = audio;
+      audio.onended = () => {
+        if (ttsObjectUrlRef.current === url) {
+          URL.revokeObjectURL(url);
+          ttsObjectUrlRef.current = null;
+        }
+        if (ttsAudioRef.current === audio) ttsAudioRef.current = null;
+      };
+      audio.onerror = () => {
+        if (ttsObjectUrlRef.current === url) {
+          URL.revokeObjectURL(url);
+          ttsObjectUrlRef.current = null;
+        }
+        if (ttsAudioRef.current === audio) ttsAudioRef.current = null;
+      };
+      try {
+        await audio.play();
+      } catch {
+        try { audio.pause(); } catch { /* ignore */ }
+        if (ttsAudioRef.current === audio) ttsAudioRef.current = null;
+        if (ttsObjectUrlRef.current === url) {
+          try { URL.revokeObjectURL(url); } catch { /* ignore */ }
+          ttsObjectUrlRef.current = null;
+        }
+        return false;
+      }
+      return true;
+    } catch (err) {
+      if ((err as { name?: string })?.name === "AbortError") return true;
+      return false;
+    } finally {
+      if (ttsAbortRef.current === controller) ttsAbortRef.current = null;
     }
   }, []);
 
@@ -156,7 +267,7 @@ export default function HubertChat({ onClose }: { onClose: () => void }) {
   }, [stopSpeaking, messages.length]);
 
   useEffect(() => {
-    if (!speechSynthSupported || !speakReplies) return;
+    if (!speakReplies) return;
     if (streaming) return;
     const lastIdx = messages.length - 1;
     if (lastIdx <= lastSpokenIndexRef.current) return;
@@ -165,23 +276,24 @@ export default function HubertChat({ onClose }: { onClose: () => void }) {
     const text = last.content.trim();
     if (!text) return;
     lastSpokenIndexRef.current = lastIdx;
-    try {
-      window.speechSynthesis.cancel();
-      const utter = new window.SpeechSynthesisUtterance(text);
-      const chosen = selectedVoiceURI
-        ? availableVoices.find((v) => v.voiceURI === selectedVoiceURI)
-        : undefined;
-      if (chosen) {
-        utter.voice = chosen;
-        utter.lang = chosen.lang;
-      } else {
-        utter.lang = (typeof navigator !== "undefined" && navigator.language) || "en-US";
+
+    stopSpeaking();
+
+    let cancelled = false;
+    (async () => {
+      let played = false;
+      if (ttsAvailable) {
+        played = await speakWithServer(text);
       }
-      window.speechSynthesis.speak(utter);
-    } catch {
-      // ignore
-    }
-  }, [messages, streaming, speakReplies, speechSynthSupported, selectedVoiceURI, availableVoices]);
+      if (!played && !cancelled && speechSynthSupported) {
+        speakWithBrowser(text);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [messages, streaming, speakReplies, speechSynthSupported, ttsAvailable, speakWithServer, speakWithBrowser, stopSpeaking]);
 
   useEffect(() => {
     return () => {
@@ -569,7 +681,7 @@ export default function HubertChat({ onClose }: { onClose: () => void }) {
               </select>
             </>
           )}
-          {speechSynthSupported && (
+          {(speechSynthSupported || ttsAvailable) && (
             <button
               type="button"
               onClick={toggleSpeakReplies}
