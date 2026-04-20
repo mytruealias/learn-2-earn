@@ -569,6 +569,52 @@ export default function CityDeckPage({ config }: Props) {
             <a href={mailto(emailSubjectDemo)} className="cd-btn-outline">Schedule Demo</a>
           </div>
           <p className="cd-cta-note">Response within 1 business day</p>
+
+          <div className="cd-cta-print" aria-hidden="true">
+            <div className="cd-cta-print-contact">
+              <div className="cd-cta-print-label">Contact</div>
+              <div className="cd-cta-print-email">partners@learn2earn.org</div>
+              <div className="cd-cta-print-sub">Response within 1 business day</div>
+            </div>
+
+            <div className="cd-cta-print-next">
+              <div className="cd-cta-print-label">What happens next</div>
+              <ol className="cd-cta-print-steps">
+                <li>
+                  <span className="cd-cta-print-step-num">1</span>
+                  <div>
+                    <strong>Intro call (week 1)</strong>
+                    <p>30-minute scoping call to align on goals, partner orgs, and the {cityName} learning paths that matter most.</p>
+                  </div>
+                </li>
+                <li>
+                  <span className="cd-cta-print-step-num">2</span>
+                  <div>
+                    <strong>Pilot plan (week 2)</strong>
+                    <p>We deliver a tailored 90-day plan: scope, success metrics, partner roles, and a fixed budget.</p>
+                  </div>
+                </li>
+                <li>
+                  <span className="cd-cta-print-step-num">3</span>
+                  <div>
+                    <strong>Launch (week 3-4)</strong>
+                    <p>Onboard partner orgs and case workers, distribute access PINs, and begin enrolling participants.</p>
+                  </div>
+                </li>
+                <li>
+                  <span className="cd-cta-print-step-num">4</span>
+                  <div>
+                    <strong>Measure &amp; report (day 90)</strong>
+                    <p>Shared dashboard throughout, plus a written outcomes report covering engagement, completion, and incentive payouts.</p>
+                  </div>
+                </li>
+              </ol>
+            </div>
+
+            <p className="cd-cta-print-foot">
+              Prepared for {cityName} · {new Date().getFullYear()} · learn2earn.org
+            </p>
+          </div>
         </div>
       </section>
 

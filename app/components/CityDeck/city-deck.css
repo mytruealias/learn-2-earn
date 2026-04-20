@@ -929,6 +929,12 @@
   color: rgba(255,255,255,0.55);
 }
 
+/* Print-only closing content for the CTA page. Hidden on screen so the
+   on-screen CTA stays focused on the two action buttons. */
+.cd-cta-print {
+  display: none;
+}
+
 .cd-footer {
   background: #0A1929;
   color: rgba(255,255,255,0.5);
@@ -1897,6 +1903,105 @@
   .cd-cta-section h2,
   .cd-cta-section p {
     color: #111827 !important;
+  }
+  .cd-cta-section h2 {
+    font-size: 18pt !important;
+    margin-bottom: 0.35rem !important;
+  }
+  .cd-cta-section > .cd-container > p {
+    font-size: 10.5pt !important;
+    margin-bottom: 0.6rem !important;
+  }
+
+  /* Print-only closing content: contact card + "What happens next" steps
+     so the CTA page isn't a near-empty sheet. */
+  .cd-cta-print {
+    display: block !important;
+    text-align: left;
+    margin-top: 0.6rem;
+  }
+  .cd-cta-print-label {
+    font-family: var(--cy-display);
+    font-size: 8.5pt !important;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #4b5563 !important;
+    margin-bottom: 0.35rem;
+  }
+  .cd-cta-print-contact {
+    border: 1px solid #d1d5db;
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 0.75rem;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .cd-cta-print-email {
+    font-size: 13pt !important;
+    font-weight: 700;
+    color: #0A1929 !important;
+    margin-bottom: 0.15rem;
+  }
+  .cd-cta-print-sub {
+    font-size: 9pt !important;
+    color: #4b5563 !important;
+  }
+  .cd-cta-print-next {
+    page-break-inside: avoid;
+    break-inside: avoid;
+    margin-bottom: 0.75rem;
+  }
+  .cd-cta-print-steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem 0.75rem;
+  }
+  .cd-cta-print-steps li {
+    display: flex;
+    gap: 0.5rem;
+    border: 1px solid #d1d5db;
+    padding: 0.45rem 0.6rem;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .cd-cta-print-step-num {
+    flex: 0 0 auto;
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 1px solid #0A1929;
+    border-radius: 999px;
+    color: #0A1929 !important;
+    font-family: var(--cy-display);
+    font-weight: 700;
+    font-size: 9pt !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+  .cd-cta-print-steps strong {
+    display: block;
+    font-family: var(--cy-display);
+    font-size: 10pt !important;
+    color: #0A1929 !important;
+    margin-bottom: 0.1rem;
+  }
+  .cd-cta-print-steps p {
+    font-size: 9pt !important;
+    line-height: 1.4 !important;
+    color: #374151 !important;
+    margin: 0 !important;
+  }
+  .cd-cta-print-foot {
+    font-size: 8.5pt !important;
+    color: #6b7280 !important;
+    text-align: center;
+    border-top: 1px solid #e5e7eb;
+    padding-top: 0.4rem;
+    margin: 0 !important;
   }
 
   /* Sources block: always starts on a fresh page (last page of the deck).
