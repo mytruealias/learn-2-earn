@@ -51,6 +51,8 @@ export default function HubertChat({ onClose }: { onClose: () => void }) {
   const [voiceHint, setVoiceHint] = useState<string | null>(null);
   const [speechSynthSupported, setSpeechSynthSupported] = useState(false);
   const [speakReplies, setSpeakReplies] = useState(false);
+  const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [selectedVoiceURI, setSelectedVoiceURI] = useState<string>("");
   const lastSpokenIndexRef = useRef<number>(-1);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -73,7 +75,57 @@ export default function HubertChat({ onClose }: { onClose: () => void }) {
     } catch {
       // ignore
     }
+    try {
+      const storedVoice = window.localStorage.getItem("hubert-voice-uri");
+      if (storedVoice) setSelectedVoiceURI(storedVoice);
+    } catch {
+      // ignore
+    }
     lastSpokenIndexRef.current = 0;
+
+    const loadVoices = () => {
+      try {
+        const voices = window.speechSynthesis.getVoices() || [];
+        setAvailableVoices(voices);
+      } catch {
+        // ignore
+      }
+    };
+    loadVoices();
+    window.speechSynthesis.addEventListener?.("voiceschanged", loadVoices);
+    return () => {
+      window.speechSynthesis.removeEventListener?.("voiceschanged", loadVoices);
+    };
+  }, []);
+
+  const filteredVoices = (() => {
+    if (availableVoices.length === 0) return [];
+    const navLang = (typeof navigator !== "undefined" && navigator.language) || "en-US";
+    const baseLang = navLang.split("-")[0].toLowerCase();
+    const matching = availableVoices.filter((v) => v.lang?.toLowerCase().startsWith(baseLang));
+    const list = matching.length > 0 ? matching : availableVoices;
+    const seen = new Set<string>();
+    const unique: SpeechSynthesisVoice[] = [];
+    for (const v of list) {
+      const key = v.voiceURI || `${v.name}|${v.lang}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      unique.push(v);
+    }
+    unique.sort((a, b) => {
+      if (a.localService !== b.localService) return a.localService ? -1 : 1;
+      return a.name.localeCompare(b.name);
+    });
+    return unique;
+  })();
+
+  const handleVoiceChange = useCallback((uri: string) => {
+    setSelectedVoiceURI(uri);
+    try {
+      window.localStorage.setItem("hubert-voice-uri", uri);
+    } catch {
+      // ignore
+    }
   }, []);
 
   const stopSpeaking = useCallback(() => {
@@ -116,12 +168,20 @@ export default function HubertChat({ onClose }: { onClose: () => void }) {
     try {
       window.speechSynthesis.cancel();
       const utter = new window.SpeechSynthesisUtterance(text);
-      utter.lang = (typeof navigator !== "undefined" && navigator.language) || "en-US";
+      const chosen = selectedVoiceURI
+        ? availableVoices.find((v) => v.voiceURI === selectedVoiceURI)
+        : undefined;
+      if (chosen) {
+        utter.voice = chosen;
+        utter.lang = chosen.lang;
+      } else {
+        utter.lang = (typeof navigator !== "undefined" && navigator.language) || "en-US";
+      }
       window.speechSynthesis.speak(utter);
     } catch {
       // ignore
     }
-  }, [messages, streaming, speakReplies, speechSynthSupported]);
+  }, [messages, streaming, speakReplies, speechSynthSupported, selectedVoiceURI, availableVoices]);
 
   useEffect(() => {
     return () => {
@@ -478,6 +538,37 @@ export default function HubertChat({ onClose }: { onClose: () => void }) {
               {streaming ? "typing..." : "online"}
             </div>
           </div>
+          {speechSynthSupported && filteredVoices.length > 0 && (
+            <>
+              <label htmlFor="hubert-voice-select" className="sr-only">
+                Choose Hubert&apos;s voice
+              </label>
+              <select
+                id="hubert-voice-select"
+                value={selectedVoiceURI}
+                onChange={(e) => handleVoiceChange(e.target.value)}
+                title="Choose Hubert's voice"
+                style={{
+                  maxWidth: 140,
+                  padding: "0.35rem 0.5rem",
+                  fontSize: "0.75rem",
+                  backgroundColor: "var(--bg-card)",
+                  color: "var(--text-primary)",
+                  border: "1px solid var(--border-color)",
+                  borderRadius: "8px",
+                  fontFamily: "inherit",
+                  cursor: "pointer",
+                }}
+              >
+                <option value="">Default voice</option>
+                {filteredVoices.map((v) => (
+                  <option key={v.voiceURI || `${v.name}|${v.lang}`} value={v.voiceURI}>
+                    {v.name} ({v.lang})
+                  </option>
+                ))}
+              </select>
+            </>
+          )}
           {speechSynthSupported && (
             <button
               type="button"
