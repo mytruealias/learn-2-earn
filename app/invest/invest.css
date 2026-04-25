@@ -1,22 +1,22 @@
 :root {
-  /* Houston-inspired light palette: deep navy + warm amber */
+  /* Austin-inspired light palette: deep ocean blue + forest green */
   --cy-bg: #ffffff;
   --cy-bg-card: #ffffff;
-  --cy-bg-surface: #f5f7fa;
-  --cy-bg-dark: #f0f4f8;
-  --cy-text: #4a6580;
-  --cy-text-dim: #5a7290;
-  --cy-text-bright: #1a2b3c;
-  --cy-green: #1e3a8a;          /* primary navy (brand) */
-  --cy-green-bright: #2563eb;   /* primary-light (accent text) */
-  --cy-blue: #2563eb;
-  --cy-blue-bright: #3b82f6;
-  --cy-cyan: #d97706;           /* secondary amber (paired with navy) */
-  --cy-gold: #d97706;
-  --cy-red: #dc2626;
-  --cy-purple: #6845d9;
-  --cy-border: rgba(30,58,138,0.10);
-  --cy-border-hover: rgba(30,58,138,0.22);
+  --cy-bg-surface: #f4f7fa;
+  --cy-bg-dark: #eef3f7;
+  --cy-text: #3d5566;
+  --cy-text-dim: #5a7184;
+  --cy-text-bright: #102a3d;
+  --cy-green: #00467F;          /* primary deep ocean blue (brand) */
+  --cy-green-bright: #0C5DA5;   /* primary-light (accent text) */
+  --cy-blue: #0C5DA5;
+  --cy-blue-bright: #1976D2;
+  --cy-cyan: #2E7D32;           /* secondary forest green (paired with blue) */
+  --cy-gold: #43A047;           /* lighter forest tone for variety */
+  --cy-red: #C62828;
+  --cy-purple: #5E35B1;
+  --cy-border: rgba(0,70,127,0.10);
+  --cy-border-hover: rgba(0,70,127,0.22);
   --cy-mono: var(--font-share-tech-mono), 'Share Tech Mono', 'Courier New', monospace;
   --cy-display: var(--font-rajdhani), 'Rajdhani', 'Inter', sans-serif;
   --cy-body: var(--font-inter), 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -150,12 +150,12 @@
   color: #ffffff;
   font-weight: 700;
   letter-spacing: 0.02em;
-  box-shadow: 0 4px 14px rgba(30,58,138,0.18), 0 1px 3px rgba(15,25,35,0.06);
+  box-shadow: 0 4px 14px rgba(0,70,127,0.18), 0 1px 3px rgba(15,25,35,0.06);
   text-shadow: 0 1px 0 rgba(0,0,0,0.08);
 }
 
 .inv-btn-primary:hover {
-  box-shadow: 0 8px 28px rgba(30,58,138,0.28), 0 4px 12px rgba(217,119,6,0.12);
+  box-shadow: 0 8px 28px rgba(0,70,127,0.28), 0 4px 12px rgba(46,125,50,0.18);
   transform: translateY(-2px);
 }
 
@@ -166,8 +166,8 @@
 }
 
 .inv-btn-outline:hover {
-  background: rgba(30,58,138,0.04);
-  border-color: rgba(30,58,138,0.35);
+  background: rgba(0,70,127,0.04);
+  border-color: rgba(0,70,127,0.35);
   box-shadow: 0 8px 24px rgba(15,25,35,0.08);
   transform: translateY(-2px);
 }
@@ -179,7 +179,7 @@
 }
 
 .inv-btn-glass {
-  background: rgba(30,58,138,0.04);
+  background: rgba(0,70,127,0.04);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--cy-border);
@@ -187,7 +187,7 @@
 }
 
 .inv-btn-glass:hover {
-  background: rgba(30,58,138,0.08);
+  background: rgba(0,70,127,0.08);
   border-color: var(--cy-border-hover);
   transform: translateY(-2px);
 }
@@ -226,7 +226,7 @@
 .inv-hero-glow-2 {
   width: 500px;
   height: 500px;
-  background: radial-gradient(circle, #d97706 0%, transparent 65%);
+  background: radial-gradient(circle, #2E7D32 0%, transparent 65%);
   bottom: -5%;
   right: -10%;
   opacity: 0.10;
@@ -236,7 +236,7 @@
 .inv-hero-glow-3 {
   width: 350px;
   height: 350px;
-  background: radial-gradient(circle, #2563eb 0%, transparent 70%);
+  background: radial-gradient(circle, #0C5DA5 0%, transparent 70%);
   top: 35%;
   left: 50%;
   transform: translateX(-50%);
@@ -249,8 +249,8 @@
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(30,58,138,0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(30,58,138,0.04) 1px, transparent 1px);
+    linear-gradient(rgba(0,70,127,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,70,127,0.04) 1px, transparent 1px);
   background-size: 80px 80px;
   mask-image: radial-gradient(ellipse at center, black 0%, transparent 75%);
   -webkit-mask-image: radial-gradient(ellipse at center, black 0%, transparent 75%);
@@ -270,8 +270,8 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--cy-green);
-  border: 1px solid rgba(30,58,138,0.20);
-  background: rgba(30,58,138,0.06);
+  border: 1px solid rgba(0,70,127,0.20);
+  background: rgba(0,70,127,0.06);
   margin-bottom: 2rem;
   border-radius: 100px;
 }
@@ -440,7 +440,7 @@
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(30,58,138,0.18), transparent);
+  background: linear-gradient(90deg, transparent, rgba(0,70,127,0.18), transparent);
 }
 
 .inv-stat-card:hover {
@@ -496,7 +496,7 @@
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(30,58,138,0.14), transparent);
+  background: linear-gradient(90deg, transparent, rgba(0,70,127,0.14), transparent);
 }
 
 .inv-glass-card:hover {
@@ -881,7 +881,7 @@
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: rgba(30,58,138,0.10);
+  background: rgba(0,70,127,0.10);
   color: var(--cy-green);
   display: flex;
   align-items: center;
@@ -916,7 +916,7 @@
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(30,58,138,0.14), transparent);
+  background: linear-gradient(90deg, transparent, rgba(0,70,127,0.14), transparent);
 }
 
 .inv-usecase-card:hover {
@@ -976,7 +976,7 @@
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(30,58,138,0.14), transparent);
+  background: linear-gradient(90deg, transparent, rgba(0,70,127,0.14), transparent);
 }
 
 .inv-pillar-card:hover {
@@ -1169,7 +1169,7 @@
 
 .inv-mobile-link:hover {
   color: var(--cy-text-bright);
-  background: rgba(30,58,138,0.05);
+  background: rgba(0,70,127,0.05);
 }
 
 .inv-mobile-actions {
@@ -1202,12 +1202,12 @@
 }
 
 /* ---- ICON COLOR UTILITIES (Houston-aligned tints on white) ---- */
-.inv-icon-blue  { background: rgba(37,99,235,0.10);  }
-.inv-icon-green { background: rgba(30,58,138,0.10);  }
-.inv-icon-purple{ background: rgba(104,69,217,0.10); }
-.inv-icon-gold  { background: rgba(217,119,6,0.12);  }
-.inv-icon-red   { background: rgba(220,38,38,0.10);  }
-.inv-icon-cyan  { background: rgba(2,136,209,0.10);  }
+.inv-icon-blue  { background: rgba(12,93,165,0.10);  }
+.inv-icon-green { background: rgba(0,70,127,0.10);  }
+.inv-icon-purple{ background: rgba(94,53,177,0.10); }
+.inv-icon-gold  { background: rgba(46,125,50,0.12);  }
+.inv-icon-red   { background: rgba(198,40,40,0.10);  }
+.inv-icon-cyan  { background: rgba(46,125,50,0.10);  }
 
 /* ---- PILLAR CARD ICON ---- */
 .inv-pillar-icon {
@@ -1221,9 +1221,9 @@
   flex-shrink: 0;
 }
 
-.inv-pillar-icon-blue   { background: rgba(37,99,235,0.10);  }
-.inv-pillar-icon-purple { background: rgba(104,69,217,0.10); }
-.inv-pillar-icon-gold   { background: rgba(217,119,6,0.12);  }
+.inv-pillar-icon-blue   { background: rgba(12,93,165,0.10);  }
+.inv-pillar-icon-purple { background: rgba(94,53,177,0.10); }
+.inv-pillar-icon-gold   { background: rgba(46,125,50,0.12);  }
 
 .inv-pillar-card h3 {
   margin-bottom: 1rem;
@@ -1240,10 +1240,10 @@
   margin: 0 auto 1rem;
 }
 
-.inv-stat-icon-green  { background: rgba(30,58,138,0.10);  }
-.inv-stat-icon-blue   { background: rgba(37,99,235,0.10);  }
-.inv-stat-icon-red    { background: rgba(220,38,38,0.10);  }
-.inv-stat-icon-purple { background: rgba(104,69,217,0.10); }
+.inv-stat-icon-green  { background: rgba(0,70,127,0.10);  }
+.inv-stat-icon-blue   { background: rgba(12,93,165,0.10);  }
+.inv-stat-icon-red    { background: rgba(198,40,40,0.10);  }
+.inv-stat-icon-purple { background: rgba(94,53,177,0.10); }
 
 .inv-stat-desc {
   font-size: 0.82rem;
@@ -2131,13 +2131,13 @@
 }
 
 .inv-safety-icon-green {
-  background: rgba(30,58,138,0.10);
-  border: 1px solid rgba(30,58,138,0.20);
+  background: rgba(0,70,127,0.10);
+  border: 1px solid rgba(0,70,127,0.20);
 }
 
 .inv-safety-icon-red {
-  background: rgba(220,38,38,0.10);
-  border: 1px solid rgba(220,38,38,0.20);
+  background: rgba(198,40,40,0.10);
+  border: 1px solid rgba(198,40,40,0.20);
 }
 
 .inv-safety-badge {
@@ -2147,16 +2147,16 @@
   text-transform: uppercase;
   padding: 0.25rem 0.7rem;
   border-radius: 999px;
-  background: rgba(30,58,138,0.08);
+  background: rgba(0,70,127,0.08);
   color: var(--cy-green);
-  border: 1px solid rgba(30,58,138,0.22);
+  border: 1px solid rgba(0,70,127,0.22);
   font-weight: 600;
 }
 
 .inv-safety-badge-red {
-  background: rgba(220,38,38,0.08);
+  background: rgba(198,40,40,0.08);
   color: #b91c1c;
-  border-color: rgba(220,38,38,0.22);
+  border-color: rgba(198,40,40,0.22);
 }
 
 .inv-safety-card h3 {
@@ -2203,7 +2203,7 @@
   gap: 0.35rem;
   font-size: 0.8rem;
   color: var(--cy-text);
-  background: rgba(30,58,138,0.04);
+  background: rgba(0,70,127,0.04);
   border: 1px solid var(--cy-border);
   padding: 0.35rem 0.7rem;
   border-radius: 8px;
@@ -2287,7 +2287,7 @@
   position: absolute;
   top: 1rem;
   right: 1rem;
-  background: rgba(30,58,138,0.05);
+  background: rgba(0,70,127,0.05);
   border: 1px solid var(--cy-border);
   color: var(--cy-text-dim);
   width: 36px;
@@ -2304,7 +2304,7 @@
 }
 
 .inv-founder-modal-close:hover {
-  background: rgba(30,58,138,0.10);
+  background: rgba(0,70,127,0.10);
   color: var(--cy-text-bright);
 }
 

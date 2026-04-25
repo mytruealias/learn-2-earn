@@ -17,8 +17,8 @@ export default function LandingNav() {
             <rect x="21" y="8" width="4" height="17" rx="1" fill="white" fillOpacity="0.9"/>
             <defs>
               <linearGradient id="lnLogoGrad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
-                <stop offset="0%" stopColor="#1e3a8a"/>
-                <stop offset="100%" stopColor="#d97706"/>
+                <stop offset="0%" stopColor="#00467F"/>
+                <stop offset="100%" stopColor="#2E7D32"/>
               </linearGradient>
             </defs>
           </svg>

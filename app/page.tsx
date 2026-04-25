@@ -100,7 +100,7 @@ export default function HomePage() {
           <div className="inv-pillar-grid">
             <div className="inv-pillar-card">
               <div className="inv-pillar-icon inv-pillar-icon-blue">
-                <SmartphoneIcon size={22} stroke="#2563eb" />
+                <SmartphoneIcon size={22} stroke="#0C5DA5" />
               </div>
               <h3>Learner Experience</h3>
               <ul className="inv-pillar-list">
@@ -112,7 +112,7 @@ export default function HomePage() {
             </div>
             <div className="inv-pillar-card">
               <div className="inv-pillar-icon inv-pillar-icon-purple">
-                <ClipboardIcon size={22} stroke="#6845d9" />
+                <ClipboardIcon size={22} stroke="#5E35B1" />
               </div>
               <h3>Case Worker & Admin Tools</h3>
               <ul className="inv-pillar-list">
@@ -123,7 +123,7 @@ export default function HomePage() {
             </div>
             <div className="inv-pillar-card">
               <div className="inv-pillar-icon inv-pillar-icon-gold">
-                <CoinIcon size={22} stroke="#d97706" />
+                <CoinIcon size={22} stroke="#2E7D32" />
               </div>
               <h3>Incentive System</h3>
               <ul className="inv-pillar-list">
@@ -160,7 +160,7 @@ export default function HomePage() {
             <div className="inv-safety-card inv-safety-hubert">
               <div className="inv-safety-icon-wrap">
                 <div className="inv-safety-icon inv-safety-icon-green">
-                  <BotIcon size={32} stroke="#1e3a8a" />
+                  <BotIcon size={32} stroke="#00467F" />
                 </div>
                 <span className="inv-safety-badge">AI-Powered</span>
               </div>
@@ -185,7 +185,7 @@ export default function HomePage() {
             <div className="inv-safety-card inv-safety-signal">
               <div className="inv-safety-icon-wrap">
                 <div className="inv-safety-icon inv-safety-icon-red">
-                  <MapPinAlertIcon size={32} stroke="#dc2626" />
+                  <MapPinAlertIcon size={32} stroke="#C62828" />
                 </div>
                 <span className="inv-safety-badge inv-safety-badge-red">Dispatch</span>
               </div>
@@ -203,17 +203,17 @@ export default function HomePage() {
               <div className="inv-safety-footer">
                 <div className="inv-safety-flow">
                   <div className="inv-safety-flow-step">
-                    <RadioIcon size={16} stroke="#dc2626" />
+                    <RadioIcon size={16} stroke="#C62828" />
                     <span>Learner sends signal</span>
                   </div>
                   <div className="inv-safety-flow-arrow">&rarr;</div>
                   <div className="inv-safety-flow-step">
-                    <ClipboardIcon size={16} stroke="#2563eb" />
+                    <ClipboardIcon size={16} stroke="#0C5DA5" />
                     <span>Case created</span>
                   </div>
                   <div className="inv-safety-flow-arrow">&rarr;</div>
                   <div className="inv-safety-flow-step">
-                    <MapPinAlertIcon size={16} stroke="#1e3a8a" />
+                    <MapPinAlertIcon size={16} stroke="#00467F" />
                     <span>Resources dispatched</span>
                   </div>
                 </div>
@@ -237,22 +237,22 @@ export default function HomePage() {
           </div>
           <div className="inv-stats">
             <div className="inv-stat-card">
-              <div className="inv-stat-icon inv-stat-icon-green"><TrendingUpIcon size={32} stroke="#1e3a8a" /></div>
+              <div className="inv-stat-icon inv-stat-icon-green"><TrendingUpIcon size={32} stroke="#00467F" /></div>
               <div className="inv-stat-label">Engagement</div>
               <p className="inv-stat-desc">Incentives increase follow-through on learning and routines</p>
             </div>
             <div className="inv-stat-card">
-              <div className="inv-stat-icon inv-stat-icon-blue"><HomeIcon size={32} stroke="#2563eb" /></div>
+              <div className="inv-stat-icon inv-stat-icon-blue"><HomeIcon size={32} stroke="#0C5DA5" /></div>
               <div className="inv-stat-label">Stability</div>
               <p className="inv-stat-desc">Skills pathways support housing, employment readiness, and recovery</p>
             </div>
             <div className="inv-stat-card">
-              <div className="inv-stat-icon inv-stat-icon-red"><TrendingDownIcon size={32} stroke="#dc2626" /></div>
+              <div className="inv-stat-icon inv-stat-icon-red"><TrendingDownIcon size={32} stroke="#C62828" /></div>
               <div className="inv-stat-label">Cost Reduction</div>
               <p className="inv-stat-desc">Better engagement can reduce avoidable emergency utilization over time</p>
             </div>
             <div className="inv-stat-card">
-              <div className="inv-stat-icon inv-stat-icon-purple"><BarChartIcon size={32} stroke="#6845d9" /></div>
+              <div className="inv-stat-icon inv-stat-icon-purple"><BarChartIcon size={32} stroke="#5E35B1" /></div>
               <div className="inv-stat-label">Measurable Outcomes</div>
               <p className="inv-stat-desc">Completions, time in program, milestones, referrals, payout activity</p>
             </div>
@@ -275,28 +275,28 @@ export default function HomePage() {
           <div className="inv-usecase-grid">
             <div className="inv-usecase-card">
               <div className="inv-usecase-icon inv-icon-blue">
-                <HomeIcon size={26} stroke="#2563eb" />
+                <HomeIcon size={26} stroke="#0C5DA5" />
               </div>
               <h3>Shelter & Navigation Centers</h3>
               <p>Deploy on shared devices or personal phones. Track participation and progress across your facility.</p>
             </div>
             <div className="inv-usecase-card">
               <div className="inv-usecase-icon inv-icon-green">
-                <WalkingIcon size={26} stroke="#1e3a8a" />
+                <WalkingIcon size={26} stroke="#00467F" />
               </div>
               <h3>Street Outreach Teams</h3>
               <p>Low barrier entry, quick lesson starts, connect to resources instantly — no signup required.</p>
             </div>
             <div className="inv-usecase-card">
               <div className="inv-usecase-icon inv-icon-purple">
-                <HeartPlusIcon size={26} stroke="#6845d9" />
+                <HeartPlusIcon size={26} stroke="#5E35B1" />
               </div>
               <h3>Recovery & Re-entry Programs</h3>
               <p>Structured learning tracks, routines, relapse prevention, and incentives with oversight.</p>
             </div>
             <div className="inv-usecase-card">
               <div className="inv-usecase-icon inv-icon-gold">
-                <BriefcaseIcon size={26} stroke="#d97706" />
+                <BriefcaseIcon size={26} stroke="#2E7D32" />
               </div>
               <h3>Workforce Readiness</h3>
               <p>Financial literacy, document preparation, job readiness, and systems navigation.</p>
@@ -353,7 +353,7 @@ export default function HomePage() {
             <h3 className="inv-demo-sub">Explore the Platform</h3>
             <div className="inv-steps">
               <div className="inv-step">
-                <div className="inv-step-number"><SmartphoneIcon size={32} stroke="#1e3a8a" /></div>
+                <div className="inv-step-number"><SmartphoneIcon size={32} stroke="#00467F" /></div>
                 <h3>Learner Experience</h3>
                 <p>
                   Preview the learner-facing app — bite-sized lessons, progress tracking, and earning.
@@ -365,7 +365,7 @@ export default function HomePage() {
                 </div>
               </div>
               <div className="inv-step">
-                <div className="inv-step-number"><ClipboardIcon size={32} stroke="#2563eb" /></div>
+                <div className="inv-step-number"><ClipboardIcon size={32} stroke="#0C5DA5" /></div>
                 <h3>Admin Dashboard</h3>
                 <p>
                   See the case worker and admin tools — participant management, analytics, and approvals.
@@ -377,7 +377,7 @@ export default function HomePage() {
                 </div>
               </div>
               <div className="inv-step">
-                <div className="inv-step-number"><CoinIcon size={32} stroke="#d97706" /></div>
+                <div className="inv-step-number"><CoinIcon size={32} stroke="#2E7D32" /></div>
                 <h3>Payout Workflow</h3>
                 <p>
                   Multi-step payout approval with audit trail — review, approve, and disburse with full oversight.
@@ -439,56 +439,56 @@ export default function HomePage() {
           </div>
           <div className="inv-curriculum-grid">
             <div className="inv-curriculum-card">
-              <div className="inv-curriculum-icon inv-icon-green"><HomeIcon size={22} stroke="#1e3a8a" /></div>
+              <div className="inv-curriculum-icon inv-icon-green"><HomeIcon size={22} stroke="#00467F" /></div>
               <div>
                 <h4>Stability Basics</h4>
                 <p>Daily routines, communication, document safety.</p>
               </div>
             </div>
             <div className="inv-curriculum-card">
-              <div className="inv-curriculum-icon inv-icon-blue"><ShieldIcon size={22} stroke="#2563eb" /></div>
+              <div className="inv-curriculum-icon inv-icon-blue"><ShieldIcon size={22} stroke="#0C5DA5" /></div>
               <div>
                 <h4>Survival & Systems</h4>
                 <p>Housing navigation, benefits access, work readiness.</p>
               </div>
             </div>
             <div className="inv-curriculum-card">
-              <div className="inv-curriculum-icon inv-icon-purple"><TargetIcon size={22} stroke="#6845d9" /></div>
+              <div className="inv-curriculum-icon inv-icon-purple"><TargetIcon size={22} stroke="#5E35B1" /></div>
               <div>
                 <h4>Building Your Future</h4>
                 <p>Goal-setting, values alignment, sustainable habits.</p>
               </div>
             </div>
             <div className="inv-curriculum-card">
-              <div className="inv-curriculum-icon inv-icon-gold"><DollarIcon size={22} stroke="#d97706" /></div>
+              <div className="inv-curriculum-icon inv-icon-gold"><DollarIcon size={22} stroke="#2E7D32" /></div>
               <div>
                 <h4>Financial Literacy</h4>
                 <p>Budgeting, banking basics, scam prevention.</p>
               </div>
             </div>
             <div className="inv-curriculum-card">
-              <div className="inv-curriculum-icon inv-icon-red"><HeartIcon size={22} stroke="#dc2626" /></div>
+              <div className="inv-curriculum-icon inv-icon-red"><HeartIcon size={22} stroke="#C62828" /></div>
               <div>
                 <h4>Addiction & Recovery</h4>
                 <p>108 lessons from understanding addiction to sustained recovery.</p>
               </div>
             </div>
             <div className="inv-curriculum-card">
-              <div className="inv-curriculum-icon inv-icon-cyan"><HandshakeIcon size={22} stroke="#0288d1" /></div>
+              <div className="inv-curriculum-icon inv-icon-cyan"><HandshakeIcon size={22} stroke="#1976D2" /></div>
               <div>
                 <h4>Harm Reduction</h4>
                 <p>Naloxone training, overdose response, safety planning.</p>
               </div>
             </div>
             <div className="inv-curriculum-card">
-              <div className="inv-curriculum-icon inv-icon-purple"><MessageIcon size={22} stroke="#6845d9" /></div>
+              <div className="inv-curriculum-icon inv-icon-purple"><MessageIcon size={22} stroke="#5E35B1" /></div>
               <div>
                 <h4>Life & Communication</h4>
                 <p>Conflict resolution, digital skills, self-advocacy.</p>
               </div>
             </div>
             <div className="inv-curriculum-card">
-              <div className="inv-curriculum-icon inv-icon-green"><UsersIcon size={22} stroke="#1e3a8a" /></div>
+              <div className="inv-curriculum-icon inv-icon-green"><UsersIcon size={22} stroke="#00467F" /></div>
               <div>
                 <h4>Family & Supporters</h4>
                 <p>Boundary-setting, caregiver burnout, healthy support.</p>
@@ -512,42 +512,42 @@ export default function HomePage() {
           </div>
           <div className="inv-features-grid">
             <div className="inv-feature">
-              <div className="inv-feature-icon"><LockIcon size={22} stroke="#1e3a8a" /></div>
+              <div className="inv-feature-icon"><LockIcon size={22} stroke="#00467F" /></div>
               <div>
                 <h4>Full Audit Trail</h4>
                 <p>Every action logged with timestamps, IP addresses, and user attribution.</p>
               </div>
             </div>
             <div className="inv-feature">
-              <div className="inv-feature-icon"><UserIcon size={22} stroke="#2563eb" /></div>
+              <div className="inv-feature-icon"><UserIcon size={22} stroke="#0C5DA5" /></div>
               <div>
                 <h4>Role-Based Permissions</h4>
                 <p>Admin, case worker, and finance roles with separation of duties.</p>
               </div>
             </div>
             <div className="inv-feature">
-              <div className="inv-feature-icon"><FileTextIcon size={22} stroke="#6845d9" /></div>
+              <div className="inv-feature-icon"><FileTextIcon size={22} stroke="#5E35B1" /></div>
               <div>
                 <h4>Data Privacy & Consent</h4>
                 <p>Built-in consent management designed for serving vulnerable populations.</p>
               </div>
             </div>
             <div className="inv-feature">
-              <div className="inv-feature-icon"><BarChartIcon size={22} stroke="#d97706" /></div>
+              <div className="inv-feature-icon"><BarChartIcon size={22} stroke="#2E7D32" /></div>
               <div>
                 <h4>Reporting Exports</h4>
                 <p>Export engagement and outcome data for HUD, CDBG, and CoC requirements.</p>
               </div>
             </div>
             <div className="inv-feature">
-              <div className="inv-feature-icon"><CheckCircleIcon size={22} stroke="#1e3a8a" /></div>
+              <div className="inv-feature-icon"><CheckCircleIcon size={22} stroke="#00467F" /></div>
               <div>
                 <h4>Multi-Step Approvals</h4>
                 <p>Multi-step payout approval prevents single points of failure.</p>
               </div>
             </div>
             <div className="inv-feature">
-              <div className="inv-feature-icon"><GlobeIcon size={22} stroke="#0288d1" /></div>
+              <div className="inv-feature-icon"><GlobeIcon size={22} stroke="#1976D2" /></div>
               <div>
                 <h4>Works at Any Scale</h4>
                 <p>Cloud-based platform that fits a single shelter or an entire city.</p>
