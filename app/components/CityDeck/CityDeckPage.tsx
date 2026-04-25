@@ -33,6 +33,7 @@ export default function CityDeckPage({ config }: Props) {
 
       <section className="cd-hero">
         <div className="cd-hero-badge">{partnerLine}</div>
+        <div className="cd-hero-nonprofit-tag">A Texas Nonprofit · 4 Years in the Community</div>
         <h1>
           Workforce Readiness &amp; Stability
           <em>Through Incentive-Based Learning</em>
@@ -640,6 +641,9 @@ export default function CityDeckPage({ config }: Props) {
           <div className="cd-footer-logo">Learn<span>2</span>Earn</div>
           <p className="cd-footer-tagline">
             Measurable impact. Full transparency. Real outcomes.
+          </p>
+          <p className="cd-footer-nonprofit">
+            Learn2Earn is a Texas nonprofit organization.
           </p>
           <nav className="cd-footer-links">
             <Link href="/">Home</Link>

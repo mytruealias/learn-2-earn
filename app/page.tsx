@@ -25,18 +25,18 @@ export default function HomePage() {
         <div className="inv-hero-glow inv-hero-glow-3"></div>
 
         <div className="inv-hero-badge">
-          Deployable Workforce & Stabilization Tool
+          A Texas Nonprofit · 4 Years in the Community
         </div>
         <h1>
           A Hand Up,<br />
           <em>Not a Handout.</em>
         </h1>
         <p>
-          Micro-learning + verified incentives for measurable outcomes.
-          Learn to Earn helps people experiencing homelessness build life skills,
-          complete recovery-focused learning, and earn small cash incentives
-          with case worker approval. Cities and funders get real-time reporting,
-          compliance-ready oversight, and a scalable deployment model.
+          Learn to Earn is a Texas nonprofit working alongside cities, shelters,
+          and local partners to help people experiencing homelessness build life
+          skills, complete recovery-focused learning, and earn small cash
+          incentives with case worker approval. Partners get real-time
+          reporting and clear, compliance-ready oversight throughout the pilot.
         </p>
         <div className="inv-hero-actions">
           <a href="#demo" className="inv-btn inv-btn-primary inv-btn-lg">
@@ -93,7 +93,7 @@ export default function HomePage() {
               What Learn to Earn Includes
             </h2>
             <p className="inv-section-subtitle">
-              A complete system for deploying incentivized learning programs
+              A complete system for running incentivized learning programs
               with oversight, reporting, and built-in safety features.
             </p>
           </div>
@@ -319,7 +319,7 @@ export default function HomePage() {
             </h2>
             <p className="inv-section-subtitle">
               Watch a quick overview, explore the platform, and see exactly
-              what a pilot deployment includes.
+              what a 90-day pilot includes.
             </p>
           </div>
 
@@ -549,8 +549,8 @@ export default function HomePage() {
             <div className="inv-feature">
               <div className="inv-feature-icon"><GlobeIcon size={22} stroke="#0288d1" /></div>
               <div>
-                <h4>Scalable Infrastructure</h4>
-                <p>Cloud-based platform deploys to one shelter or an entire city.</p>
+                <h4>Works at Any Scale</h4>
+                <p>Cloud-based platform that fits a single shelter or an entire city.</p>
               </div>
             </div>
           </div>
@@ -564,7 +564,8 @@ export default function HomePage() {
           <h2>Ready to Launch a Pilot?</h2>
           <p>
             Whether you represent a city, a shelter network, or a funding
-            organization — we&apos;ll help you deploy Learn to Earn in your community.
+            organization — we&apos;d love to partner with you to bring Learn to Earn
+            to your community.
           </p>
           <div className="inv-cta-actions">
             <a href="mailto:partners@learn2earn.org" className="inv-btn inv-btn-primary inv-btn-lg">
@@ -590,6 +591,9 @@ export default function HomePage() {
           </div>
           <p className="inv-footer-tagline">
             Measurable impact. Full transparency. Real outcomes.
+          </p>
+          <p className="inv-footer-nonprofit">
+            Learn2Earn is a Texas nonprofit organization.
           </p>
           <nav className="inv-footer-links">
             <a href="/app">Learner Experience</a>

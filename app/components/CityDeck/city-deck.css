@@ -212,8 +212,20 @@
   border: 1px solid rgba(255,255,255,0.15);
   padding: 0.5rem 1.5rem;
   border-radius: 999px;
-  margin-bottom: 2.5rem;
+  margin-bottom: 0.75rem;
   backdrop-filter: blur(8px);
+}
+
+.cd-hero-nonprofit-tag {
+  display: inline-block;
+  font-family: var(--cy-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.7);
+  margin-bottom: 2.5rem;
+  position: relative;
+  z-index: 1;
 }
 
 .cd-hero h1 {
@@ -956,8 +968,17 @@
 
 .cd-footer-tagline {
   font-size: 0.85rem;
-  margin-bottom: 1.25rem;
+  margin-bottom: 0.5rem;
   color: rgba(255,255,255,0.4);
+}
+
+.cd-footer-nonprofit {
+  font-family: var(--cy-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.55);
+  margin: 0 0 1.25rem;
 }
 
 .cd-footer-links {
@@ -1727,6 +1748,11 @@
     border: 1px solid #cbd5e1 !important;
     padding: 0.2rem 0.5rem !important;
     font-size: 9pt !important;
+  }
+  .cd-hero-nonprofit-tag {
+    color: #475569 !important;
+    margin-bottom: 0.5rem !important;
+    font-size: 8pt !important;
   }
   .cd-hero h1 {
     color: #0A1929 !important;

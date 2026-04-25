@@ -28,7 +28,7 @@ export default function FounderModal() {
             onClick={(e) => e.stopPropagation()}
             role="dialog"
             aria-modal="true"
-            aria-label="About the Founder"
+            aria-label="About Learn2Earn"
           >
             <button
               className="inv-founder-modal-close"
@@ -51,7 +51,7 @@ export default function FounderModal() {
 
               <div className="inv-founder-story">
                 <h3 className="inv-founder-name">Anthony Cognet</h3>
-                <p className="inv-founder-role">Founder</p>
+                <p className="inv-founder-role">Founder &amp; Executive Director</p>
 
                 <p className="inv-founder-text">
                   I grew up in Los Angeles. My parents were young, caught up in substance
@@ -75,6 +75,22 @@ export default function FounderModal() {
                   A movement that meets people where they are and gives them a real shot
                   at moving forward. Impact comes first. Everything else follows.
                 </p>
+
+                <div className="inv-founder-org">
+                  <span className="inv-founder-org-label">About the Organization</span>
+                  <p className="inv-founder-text">
+                    Learn2Earn is a Texas-based nonprofit. We&apos;ve spent the last
+                    four years building this work from the ground up &mdash; showing up
+                    at local townhall meetings, listening to residents and city leaders,
+                    and sitting down regularly with nonprofit representatives across the
+                    region to understand what people on the ground actually need.
+                  </p>
+                  <p className="inv-founder-text">
+                    Today the team includes four full-time developers building and
+                    maintaining the platform, with our roots and our day-to-day work
+                    firmly in Texas.
+                  </p>
+                </div>
 
                 <div className="inv-founder-edu">
                   <span className="inv-founder-edu-label">Education</span>

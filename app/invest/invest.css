@@ -1297,8 +1297,18 @@
 
 /* ---- FOOTER ---- */
 .inv-footer-tagline {
-  margin-bottom: 1.25rem;
+  margin-bottom: 0.5rem;
   font-size: 0.82rem;
+}
+
+.inv-footer-nonprofit {
+  margin: 0 0 1.25rem;
+  font-family: var(--cy-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--cy-green-bright);
+  opacity: 0.8;
 }
 
 .inv-footer-links {
@@ -2362,6 +2372,27 @@
 
 .inv-founder-text:last-of-type {
   margin-bottom: 1.5rem;
+}
+
+.inv-founder-org {
+  border-top: 1px solid var(--cy-border);
+  padding-top: 1.25rem;
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
+.inv-founder-org-label {
+  font-family: var(--cy-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--cy-green-bright);
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+.inv-founder-org .inv-founder-text:last-child {
+  margin-bottom: 0;
 }
 
 .inv-founder-edu {
