@@ -96,7 +96,7 @@ export default function StatsBar() {
       ))}
 
       <div
-        title={freezeAvailable ? "Streak freeze available, one missed day won't break your streak" : "Streak freeze used, earn back after 7 active days"}
+        title={freezeAvailable ? "Streak freeze available. One missed day won't break your streak." : "Streak freeze used. Earn back after 7 active days."}
         style={{
           backgroundColor: freezeAvailable ? "rgba(59,158,255,0.12)" : "rgba(136,146,176,0.08)",
           border: `1.5px solid ${freezeAvailable ? "rgba(59,158,255,0.4)" : "rgba(136,146,176,0.2)"}`,

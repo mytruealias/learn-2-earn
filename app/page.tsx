@@ -191,7 +191,7 @@ export default function HomePage() {
               </div>
               <h3>Help Request & Ground Response</h3>
               <p className="inv-safety-tagline">
-                When a learner is in trouble, their team can know, and act.
+                When a learner is in trouble, their team can know and act.
               </p>
               <ul className="inv-pillar-list">
                 <li>Learners can send an urgent help request directly from the app</li>

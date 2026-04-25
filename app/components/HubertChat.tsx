@@ -370,7 +370,7 @@ export default function HubertChat({ onClose }: { onClose: () => void }) {
           setVoiceDisabled(true);
           setVoiceHint("Microphone access blocked. Enable mic permission in your browser to use voice.");
         } else if (err === "no-speech") {
-          setVoiceHint("Didn't catch that, try again.");
+          setVoiceHint("Didn't catch that. Try again.");
         } else if (err === "audio-capture") {
           setVoiceDisabled(true);
           setVoiceHint("No microphone detected on this device.");
