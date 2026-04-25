@@ -205,7 +205,7 @@ export default function AdminDashboard() {
   }
   if (poolAtRisk) {
     quickActions.push({
-      label: "Pool balance low — top up",
+      label: "Pool balance low, top up",
       href: "/admin/finance",
       variant: "warning",
     });
@@ -365,11 +365,11 @@ export default function AdminDashboard() {
             ) : trends ? (
               <div className={styles.chartsStack}>
                 <div className={styles.chartCard}>
-                  <div className={styles.chartTitle}>New Registrations — Past 30 Days</div>
+                  <div className={styles.chartTitle}>New Registrations, Past 30 Days</div>
                   <SparkLine data={trends.userGrowth} color="#22c55e" valueKey="count" />
                 </div>
                 <div className={styles.chartCard}>
-                  <div className={styles.chartTitle}>Payout Volume (USD) — Past 12 Weeks</div>
+                  <div className={styles.chartTitle}>Payout Volume (USD), Past 12 Weeks</div>
                   <SparkLine data={trends.payoutVolume} color="#f59e0b" valueKey="dollars" />
                 </div>
               </div>

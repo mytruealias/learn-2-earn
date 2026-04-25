@@ -98,7 +98,7 @@ export default function FounderModal() {
                 <p className="inv-founder-text">
                   Anthony grew up in a family that experienced homelessness firsthand.
                   He started Learn to Earn because he&apos;s seen up close that people
-                  on the streets aren&apos;t lacking ability &mdash; they&apos;re
+                  on the streets aren&apos;t lacking ability, they&apos;re
                   lacking opportunity. That conviction is what this whole
                   organization is built on.
                 </p>
@@ -107,7 +107,7 @@ export default function FounderModal() {
                   <span className="inv-founder-org-label">About the Organization</span>
                   <p className="inv-founder-text">
                     Learn2Earn is a Texas-based nonprofit. We&apos;ve spent the last
-                    four years building this work from the ground up &mdash; showing up
+                    four years building this work from the ground up, showing up
                     at local townhall meetings, listening to residents and city leaders,
                     and sitting down regularly with nonprofit representatives across
                     the region to understand what people on the ground actually need.
@@ -136,7 +136,7 @@ export default function FounderModal() {
                     ))}
                   </div>
                   <p className="inv-team-placeholder-note">
-                    Headshots coming soon &mdash; the placeholders above stand in for
+                    Headshots coming soon, the placeholders above stand in for
                     real teammates.
                   </p>
                 </div>

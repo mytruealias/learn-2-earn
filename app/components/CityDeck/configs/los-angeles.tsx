@@ -7,7 +7,7 @@ export const losAngelesConfig: CityDeckConfig = {
   heroSub:
     "A structured, measurable pilot to drive engagement, build life skills, and create real progress for Angelenos facing instability.",
   problemIntro:
-    "Tens of thousands of Angelenos are caught in survival mode — focused on making it through each day, not building toward tomorrow.",
+    "Tens of thousands of Angelenos are caught in survival mode, focused on making it through each day, not building toward tomorrow.",
   customPathsCopy: "We build city-specific learning paths tailored to your priorities. Examples for Los Angeles:",
   customExamples: [
     "Metro & DASH Navigation",
@@ -41,7 +41,7 @@ export const losAngelesConfig: CityDeckConfig = {
   },
   sources: [
     <>
-      <strong>45,252 Angelenos experiencing homelessness</strong> —{" "}
+      <strong>45,252 Angelenos experiencing homelessness</strong>,{" "}
       Los Angeles Homeless Services Authority (LAHSA) 2024 Greater Los Angeles Homeless Count
       (City of Los Angeles total, single-night snapshot conducted January 2024).{" "}
       <a href="https://www.lahsa.org/news?article=988-2024-greater-los-angeles-homeless-count-results" target="_blank" rel="noopener noreferrer">
@@ -49,11 +49,11 @@ export const losAngelesConfig: CityDeckConfig = {
       </a>
     </>,
     <>
-      <strong>Up to 60% are employed but can&apos;t afford housing</strong> —{" "}
+      <strong>Up to 60% are employed but can&apos;t afford housing</strong>,{" "}
       U.S. Interagency Council on Homelessness (
       <a href="https://www.usich.gov/" target="_blank" rel="noopener noreferrer">usich.gov</a>
       ). Corroborated by Meyer, Wyse, et al., University of Chicago (2021),{" "}
-      <em>&ldquo;Learning About Homelessness Using Linked Survey and Administrative Data&rdquo;</em> — 53% of sheltered and 40% of unsheltered adults experiencing homelessness were employed (
+      <em>&ldquo;Learning About Homelessness Using Linked Survey and Administrative Data&rdquo;</em>, 53% of sheltered and 40% of unsheltered adults experiencing homelessness were employed (
       <a href="https://bfi.uchicago.edu/working-paper/2021-65/" target="_blank" rel="noopener noreferrer">bfi.uchicago.edu/working-paper/2021-65</a>
       ).
     </>,
@@ -73,7 +73,7 @@ export const losAngelesConfig: CityDeckConfig = {
   metadata: {
     title: "Los Angeles Pilot – Workforce Readiness & Stability",
     description:
-      "A 90-day Learn2Earn pilot for Los Angeles — incentive-based learning to drive workforce readiness and stability for Angelenos facing homelessness.",
+      "A 90-day Learn2Earn pilot for Los Angeles, incentive-based learning to drive workforce readiness and stability for Angelenos facing homelessness.",
     openGraphTitle: "Learn2Earn Los Angeles Pilot – Workforce Readiness & Stability",
     openGraphDescription:
       "A structured, measurable 90-day pilot to drive engagement, build life skills, and create real progress for Angelenos facing instability.",

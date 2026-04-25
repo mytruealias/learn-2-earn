@@ -308,12 +308,12 @@ export default function AdminDemo() {
       </div>
 
       <div className="ademo-caption">
-        {view === "dashboard" && "Real-time overview — learner activity, open cases, and pool health at a glance"}
-        {view === "cases"     && "Case management — priority-flagged cases with type, status, and assigned caseworker"}
+        {view === "dashboard" && "Real-time overview, learner activity, open cases, and pool health at a glance"}
+        {view === "cases"     && "Case management, priority-flagged cases with type, status, and assigned caseworker"}
         {view === "users"     && "Participant management with case numbers, XP earned, and lesson progress"}
-        {view === "payouts"   && "Pending payout queue — review each request before approving disbursement"}
+        {view === "payouts"   && "Pending payout queue, review each request before approving disbursement"}
         {view === "approving" && "One-click approval with a full audit trail of who approved and when"}
-        {view === "done"      && "Deep-link to Venmo, PayPal, or Cash App opens instantly — no copy-paste needed"}
+        {view === "done"      && "Deep-link to Venmo, PayPal, or Cash App opens instantly, no copy-paste needed"}
       </div>
     </div>
   );

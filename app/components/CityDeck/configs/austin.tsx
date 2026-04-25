@@ -7,7 +7,7 @@ export const austinConfig: CityDeckConfig = {
   heroSub:
     "A structured, measurable pilot to drive engagement, build life skills, and create real progress for Austin residents facing instability.",
   problemIntro:
-    "Thousands of Austin residents are caught in survival mode — focused on making it through each day, not building toward tomorrow.",
+    "Thousands of Austin residents are caught in survival mode, focused on making it through each day, not building toward tomorrow.",
   customPathsCopy: "We build city-specific learning paths tailored to your priorities. Examples for Austin:",
   customExamples: [
     "Local Workforce Programs",
@@ -41,18 +41,18 @@ export const austinConfig: CityDeckConfig = {
   },
   sources: [
     <>
-      <strong>3,000+ Austinites experiencing homelessness</strong> —{" "}
+      <strong>3,000+ Austinites experiencing homelessness</strong>,{" "}
       ECHO Austin/Travis County 2025 Point-in-Time Count (single-night snapshot, conducted January 2025).{" "}
       <a href="https://www.austinecho.org/leading-system-change/data-and-reports/" target="_blank" rel="noopener noreferrer">
         austinecho.org/leading-system-change/data-and-reports
       </a>
     </>,
     <>
-      <strong>Up to 60% are employed but can&apos;t afford housing</strong> —{" "}
+      <strong>Up to 60% are employed but can&apos;t afford housing</strong>,{" "}
       U.S. Interagency Council on Homelessness (
       <a href="https://www.usich.gov/" target="_blank" rel="noopener noreferrer">usich.gov</a>
       ). Corroborated by Meyer, Wyse, et al., University of Chicago (2021),{" "}
-      <em>&ldquo;Learning About Homelessness Using Linked Survey and Administrative Data&rdquo;</em> — 53% of sheltered and 40% of unsheltered adults experiencing homelessness were employed (
+      <em>&ldquo;Learning About Homelessness Using Linked Survey and Administrative Data&rdquo;</em>, 53% of sheltered and 40% of unsheltered adults experiencing homelessness were employed (
       <a href="https://bfi.uchicago.edu/working-paper/2021-65/" target="_blank" rel="noopener noreferrer">bfi.uchicago.edu/working-paper/2021-65</a>
       ).
     </>,
@@ -61,7 +61,7 @@ export const austinConfig: CityDeckConfig = {
     primary: "#00467F",
     secondary: "#2E7D32",
     themeStyle: {
-      // Austin defaults — no overrides needed; explicit for parity.
+      // Austin defaults, no overrides needed; explicit for parity.
       "--cd-primary-rgb": "0, 70, 127",
       "--cd-secondary-rgb": "46, 125, 50",
       "--cd-primary-light": "#0C5DA5",
@@ -72,7 +72,7 @@ export const austinConfig: CityDeckConfig = {
   metadata: {
     title: "Austin Pilot – Workforce Readiness & Stability",
     description:
-      "A 90-day Learn2Earn pilot for Austin — incentive-based learning to drive workforce readiness and stability for residents facing homelessness.",
+      "A 90-day Learn2Earn pilot for Austin, incentive-based learning to drive workforce readiness and stability for residents facing homelessness.",
     openGraphTitle: "Learn2Earn Austin Pilot – Workforce Readiness & Stability",
     openGraphDescription:
       "A structured, measurable 90-day pilot to drive engagement, build life skills, and create real progress for Austin residents facing instability.",

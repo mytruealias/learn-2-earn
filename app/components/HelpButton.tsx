@@ -21,7 +21,7 @@ export default function HelpButton() {
     <>
       <button
         onClick={() => setOpen(true)}
-        aria-label="SOS — open emergency help and crisis resources"
+        aria-label="SOS, open emergency help and crisis resources"
         aria-haspopup="dialog"
         style={{
           position: "fixed",
@@ -147,7 +147,7 @@ export default function HelpButton() {
               </button>
               {[
                 { href: "tel:988", label: "988 Suicide & Crisis Lifeline", color: "var(--accent-red)", icon: <PhoneIcon size={20} color="var(--accent-red)" /> },
-                { href: "tel:211", label: "211 — Food, Shelter, & Services", color: "var(--accent-blue)", icon: <HomeIcon size={20} color="var(--accent-blue)" /> },
+                { href: "tel:211", label: "211, Food, Shelter, & Services", color: "var(--accent-blue)", icon: <HomeIcon size={20} color="var(--accent-blue)" /> },
                 { href: "sms:741741&body=HELLO", label: "Text HOME to 741741", color: "var(--accent-purple)", icon: <ChatIcon size={20} color="var(--accent-purple)" /> },
                 { href: "tel:18007997233", label: "SAMHSA Helpline", color: "var(--accent-gold)", icon: <HandshakeIcon size={20} color="var(--accent-gold)" /> },
               ].map((item) => (

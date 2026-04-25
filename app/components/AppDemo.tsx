@@ -189,7 +189,7 @@ export default function AppDemo() {
               <div className="demo-xp-reward">
                 <div className="demo-xp-burst" style={{ fontSize: "2rem" }}>&#x1F389;</div>
                 <div className="demo-xp-message">2 Lessons Done!</div>
-                <div className="demo-xp-earning">{totalXp} XP Total — $1.00 earned</div>
+                <div className="demo-xp-earning">{totalXp} XP Total, $1.00 earned</div>
                 <div className="demo-xp-continue">Keep Going</div>
               </div>
             </div>
@@ -259,9 +259,9 @@ export default function AppDemo() {
           {phase === "card" && "Interactive cards test knowledge"}
           {phase === "correct" && "Instant feedback on answers"}
           {phase === "xp" && "XP and cash earned for each completion"}
-          {phase === "complete" && "Progress tracked — every lesson counts"}
+          {phase === "complete" && "Progress tracked, every lesson counts"}
           {phase === "wallet" && "Tap Cash Out to withdraw real earnings instantly"}
-          {phase === "cashout" && "Payout confirmed — money sent to their account"}
+          {phase === "cashout" && "Payout confirmed, money sent to their account"}
         </p>
       </div>
     </div>

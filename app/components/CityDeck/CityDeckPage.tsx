@@ -72,7 +72,7 @@ export default function CityDeckPage({ config }: Props) {
       <section className="cd-section" id="problem">
         <div className="cd-container">
           <div className="cd-section-header">
-            <div className="cd-slide-number">01 &mdash; The Challenge</div>
+            <div className="cd-slide-number">01. The Challenge</div>
             <div className="cd-section-label">Why This Matters</div>
             <h2 className="cd-section-title">{cityName} Needs a <em>New Approach</em></h2>
             <p className="cd-section-subtitle">{problemIntro}</p>
@@ -117,11 +117,11 @@ export default function CityDeckPage({ config }: Props) {
       <section className="cd-section cd-section-alt" id="solution">
         <div className="cd-container">
           <div className="cd-section-header">
-            <div className="cd-slide-number">02 &mdash; The Solution</div>
+            <div className="cd-slide-number">02. The Solution</div>
             <div className="cd-section-label">Learn to Earn</div>
             <h2 className="cd-section-title">Structured Learning, <em>Real Incentives</em></h2>
             <p className="cd-section-subtitle">
-              A mobile-first platform that rewards progress with trackable incentives &mdash;
+              A mobile-first platform that rewards progress with trackable incentives,
               designed for people experiencing homelessness and instability.
             </p>
           </div>
@@ -130,28 +130,28 @@ export default function CityDeckPage({ config }: Props) {
               <div className="cd-solution-icon"><SmartphoneIcon size={24} stroke={primary} /></div>
               <div>
                 <h4>Phone-First Micro-Learning</h4>
-                <p>248+ bite-sized lessons at a 6th-grade reading level &mdash; no app download needed. Works in any browser, on any device.</p>
+                <p>248+ bite-sized lessons at a 6th-grade reading level, no app download needed. Works in any browser, on any device.</p>
               </div>
             </div>
             <div className="cd-solution-item">
               <div className="cd-solution-icon"><CoinIcon size={24} stroke={primary} /></div>
               <div>
                 <h4>Flexible Cash Incentives</h4>
-                <p>Participants earn XP for completing lessons and redeem via Zelle, Venmo, PayPal, Cash App, or check &mdash; with multi-stage admin approval.</p>
+                <p>Participants earn XP for completing lessons and redeem via Zelle, Venmo, PayPal, Cash App, or check, with multi-stage admin approval.</p>
               </div>
             </div>
             <div className="cd-solution-item">
               <div className="cd-solution-icon"><BotIcon size={24} stroke={primary} /></div>
               <div>
                 <h4>AI Support Companion</h4>
-                <p>Hubert &mdash; a 24/7 AI companion providing trauma-informed emotional support, goal coaching, and automatic crisis escalation.</p>
+                <p>Hubert, a 24/7 AI companion providing trauma-informed emotional support, goal coaching, and automatic crisis escalation.</p>
               </div>
             </div>
             <div className="cd-solution-item">
               <div className="cd-solution-icon"><BarChartIcon size={24} stroke={primary} /></div>
               <div>
                 <h4>Real-Time Reporting</h4>
-                <p>Live dashboards showing enrollment, engagement, completion rates, and outcomes &mdash; exportable for grant and compliance reporting.</p>
+                <p>Live dashboards showing enrollment, engagement, completion rates, and outcomes, exportable for grant and compliance reporting.</p>
               </div>
             </div>
           </div>
@@ -161,11 +161,11 @@ export default function CityDeckPage({ config }: Props) {
       <section className="cd-section" id="platform">
         <div className="cd-container">
           <div className="cd-section-header">
-            <div className="cd-slide-number">03 &mdash; Platform</div>
+            <div className="cd-slide-number">03. Platform</div>
             <div className="cd-section-label">What&apos;s Built</div>
             <h2 className="cd-section-title">A Complete System, <em>Ready to Deploy</em></h2>
             <p className="cd-section-subtitle">
-              Not a concept &mdash; a working platform with 248+ lessons, an AI companion,
+              Not a concept, a working platform with 248+ lessons, an AI companion,
               built-in safety tools, and a full admin layer.
             </p>
           </div>
@@ -186,7 +186,7 @@ export default function CityDeckPage({ config }: Props) {
             <div className="cd-platform-card">
               <div className="cd-platform-card-icon cd-pci-gold"><RadioIcon size={24} stroke={GOLD} /></div>
               <h4>Gamification Engine</h4>
-              <p>Streaks, hearts, badges, and streak freezes drive daily engagement &mdash; modeled on the same mechanics that keep users coming back to top learning apps.</p>
+              <p>Streaks, hearts, badges, and streak freezes drive daily engagement, modeled on the same mechanics that keep users coming back to top learning apps.</p>
             </div>
 
             <div className="cd-platform-card">
@@ -204,7 +204,7 @@ export default function CityDeckPage({ config }: Props) {
             <div className="cd-platform-card">
               <div className="cd-platform-card-icon cd-pci-navy"><MessageIcon size={24} stroke={primary} /></div>
               <h4>Casework Hub</h4>
-              <p>Staff dashboard for managing stress signals, assigning cases, adding notes, and tracking participant progress &mdash; with role-based access and compliance logging.</p>
+              <p>Staff dashboard for managing stress signals, assigning cases, adding notes, and tracking participant progress, with role-based access and compliance logging.</p>
             </div>
           </div>
         </div>
@@ -215,11 +215,11 @@ export default function CityDeckPage({ config }: Props) {
       <section className="cd-section cd-section-alt" id="how-it-works">
         <div className="cd-container">
           <div className="cd-section-header">
-            <div className="cd-slide-number">04 &mdash; Process</div>
+            <div className="cd-slide-number">04. Process</div>
             <div className="cd-section-label">How It Works</div>
             <h2 className="cd-section-title">Five Steps to <em>Measurable Impact</em></h2>
             <p className="cd-section-subtitle">
-              From enrollment to outcome tracking &mdash; a clear, repeatable process.
+              From enrollment to outcome tracking, a clear, repeatable process.
             </p>
           </div>
           <div className="cd-steps">
@@ -265,7 +265,7 @@ export default function CityDeckPage({ config }: Props) {
       <section className="cd-section cd-section-alt" id="scope">
         <div className="cd-container">
           <div className="cd-section-header">
-            <div className="cd-slide-number">05 &mdash; Pilot Scope</div>
+            <div className="cd-slide-number">05. Pilot Scope</div>
             <div className="cd-section-label">Scope</div>
             <h2 className="cd-section-title">Defined, Manageable, <em>Measurable</em></h2>
           </div>
@@ -297,7 +297,7 @@ export default function CityDeckPage({ config }: Props) {
       <section className="cd-section" id="deliverables">
         <div className="cd-container">
           <div className="cd-section-header">
-            <div className="cd-slide-number">06 &mdash; Deliverables</div>
+            <div className="cd-slide-number">06. Deliverables</div>
             <div className="cd-section-label">What You Receive</div>
             <h2 className="cd-section-title">Everything Included in the <em>Pilot</em></h2>
           </div>
@@ -327,11 +327,11 @@ export default function CityDeckPage({ config }: Props) {
       <section className="cd-section cd-section-alt" id="funding">
         <div className="cd-container">
           <div className="cd-section-header">
-            <div className="cd-slide-number">07 &mdash; Investment</div>
+            <div className="cd-slide-number">07. Investment</div>
             <div className="cd-section-label">Funding</div>
             <h2 className="cd-section-title">Simple, <em>Transparent</em> Funding</h2>
             <p className="cd-section-subtitle">
-              Two separate, clearly defined budgets &mdash; no hidden costs.
+              Two separate, clearly defined budgets, no hidden costs.
             </p>
           </div>
           <div className="cd-funding-grid">
@@ -364,7 +364,7 @@ export default function CityDeckPage({ config }: Props) {
       <section className="cd-section" id="reporting">
         <div className="cd-container">
           <div className="cd-section-header">
-            <div className="cd-slide-number">08 &mdash; Outcomes</div>
+            <div className="cd-slide-number">08. Outcomes</div>
             <div className="cd-section-label">Reporting</div>
             <h2 className="cd-section-title">Measurable <em>Outcomes</em></h2>
             <p className="cd-section-subtitle">
@@ -389,7 +389,7 @@ export default function CityDeckPage({ config }: Props) {
       <section className="cd-section cd-section-alt" id="security">
         <div className="cd-container">
           <div className="cd-section-header">
-            <div className="cd-slide-number">09 &mdash; Compliance</div>
+            <div className="cd-slide-number">09. Compliance</div>
             <div className="cd-section-label">Security</div>
             <h2 className="cd-section-title">Security &amp; <em>Oversight</em></h2>
           </div>
@@ -417,7 +417,7 @@ export default function CityDeckPage({ config }: Props) {
       <section className="cd-section" id="timeline">
         <div className="cd-container">
           <div className="cd-section-header">
-            <div className="cd-slide-number">10 &mdash; Timeline</div>
+            <div className="cd-slide-number">10. Timeline</div>
             <div className="cd-section-label">Timeline</div>
             <h2 className="cd-section-title">Pilot <em>Timeline</em></h2>
           </div>
@@ -463,11 +463,11 @@ export default function CityDeckPage({ config }: Props) {
       <section className="cd-section cd-section-alt" id="learning-paths">
         <div className="cd-container">
           <div className="cd-section-header">
-            <div className="cd-slide-number">11 &mdash; Content Library</div>
+            <div className="cd-slide-number">11. Content Library</div>
             <div className="cd-section-label">Learning Paths</div>
             <h2 className="cd-section-title">11 Paths Ready to <em>Deploy</em></h2>
             <p className="cd-section-subtitle">
-              Start with one pathway during the pilot &mdash; then layer in additional tracks
+              Start with one pathway during the pilot, then layer in additional tracks
               as outcomes grow. No re-enrollment required.
             </p>
           </div>
@@ -523,7 +523,7 @@ export default function CityDeckPage({ config }: Props) {
               </li>
               <li className="cd-path-card">
                 <div className="cd-path-icon cd-path-icon-green" aria-hidden="true"><HeartHandIcon size={20} stroke={secondary} /></div>
-                <div><h4>Supporter &amp; Family Skills</h4><p>Help a loved one without enabling &mdash; protect your own wellbeing</p></div>
+                <div><h4>Supporter &amp; Family Skills</h4><p>Help a loved one without enabling, protect your own wellbeing</p></div>
               </li>
             </ul>
           </div>
@@ -545,7 +545,7 @@ export default function CityDeckPage({ config }: Props) {
       <section className="cd-section" id="expansion">
         <div className="cd-container">
           <div className="cd-section-header">
-            <div className="cd-slide-number">12 &mdash; Growth</div>
+            <div className="cd-slide-number">12. Growth</div>
             <div className="cd-section-label">Expansion</div>
             <h2 className="cd-section-title">Built to <em>Scale</em></h2>
             <p className="cd-section-subtitle">

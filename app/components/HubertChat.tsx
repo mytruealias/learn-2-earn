@@ -37,7 +37,7 @@ export default function HubertChat({ onClose }: { onClose: () => void }) {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
-      content: "Hi, I'm Hubert. I'm here to listen — no judgment, no pressure. What's on your mind?",
+      content: "Hi, I'm Hubert. I'm here to listen, no judgment, no pressure. What's on your mind?",
     },
   ]);
   const [input, setInput] = useState("");
@@ -370,7 +370,7 @@ export default function HubertChat({ onClose }: { onClose: () => void }) {
           setVoiceDisabled(true);
           setVoiceHint("Microphone access blocked. Enable mic permission in your browser to use voice.");
         } else if (err === "no-speech") {
-          setVoiceHint("Didn't catch that — try again.");
+          setVoiceHint("Didn't catch that, try again.");
         } else if (err === "audio-capture") {
           setVoiceDisabled(true);
           setVoiceHint("No microphone detected on this device.");

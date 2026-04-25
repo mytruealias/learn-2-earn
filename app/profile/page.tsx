@@ -90,24 +90,24 @@ const BADGE_GROUPS = [
 
 const BADGE_HOW_TO: Record<string, string> = {
   first_lesson:        "Complete your very first lesson on any learning path.",
-  lessons_5:           "Finish 5 lessons total — mix any paths you like.",
+  lessons_5:           "Finish 5 lessons total, mix any paths you like.",
   lessons_10:          "Complete 10 lessons total across any paths.",
-  lessons_25:          "Keep going — 25 lessons completed across any paths.",
+  lessons_25:          "Keep going, 25 lessons completed across any paths.",
   lessons_50:          "A true scholar. Complete 50 lessons total.",
   streak_3:            "Log in and complete at least one lesson 3 days in a row.",
   streak_7:            "Keep your streak alive for 7 consecutive days.",
-  streak_14:           "Two weeks of showing up — 14 days in a row.",
-  streak_30:           "A full month of daily learning — 30 days in a row.",
+  streak_14:           "Two weeks of showing up, 14 days in a row.",
+  streak_30:           "A full month of daily learning, 30 days in a row.",
   xp_50:               "Earn a total of 50 XP by completing lessons (worth $2.50).",
-  xp_100:              "Earn 100 XP total — that's $5.00 in your pocket.",
-  xp_500:              "Earn 500 XP total — the weekly cap and worth $25!",
+  xp_100:              "Earn 100 XP total, that's $5.00 in your pocket.",
+  xp_500:              "Earn 500 XP total, the weekly cap and worth $25!",
   first_payout:        "Request your first cash payout from the Earnings tab.",
   first_path:          "Complete every single lesson in one full learning path.",
   paths_2:             "Finish all lessons in 2 different learning paths.",
   paths_3:             "Master 3 complete learning paths from start to finish.",
   perfect_lesson:      "Complete any lesson without losing a single heart.",
-  perfect_3:           "Achieve 3 perfectly completed lessons — no hearts lost.",
-  perfect_5:           "Go flawless on 5 different lessons — no hearts lost.",
+  perfect_3:           "Achieve 3 perfectly completed lessons, no hearts lost.",
+  perfect_5:           "Go flawless on 5 different lessons, no hearts lost.",
 };
 
 export default function ProfilePage() {
@@ -472,7 +472,7 @@ export default function ProfilePage() {
                 gap: "0.4rem",
               }}>
                 <WalletIcon size={16} color="var(--accent-gold)" />
-                XP to Cash — 1 XP = ${xpToDollar.toFixed(2)}
+                XP to Cash, 1 XP = ${xpToDollar.toFixed(2)}
               </div>
               <div style={{ display: "flex", alignItems: "baseline", gap: "1rem", marginBottom: "0.5rem" }}>
                 <div style={{ fontSize: "2.5rem", fontWeight: "700", color: "var(--accent-gold)" }}>
@@ -686,7 +686,7 @@ export default function ProfilePage() {
                           }} />
                         </div>
                         <div style={{ fontSize: "0.65rem", color: "var(--text-muted)", marginTop: "0.3rem" }}>
-                          {pct}% complete — tap to see all
+                          {pct}% complete, tap to see all
                         </div>
                       </div>
                       {recent.length > 0 && (
@@ -805,7 +805,7 @@ export default function ProfilePage() {
                       ${p.dollarAmount.toFixed(2)}
                     </div>
                     <div style={{ fontSize: "0.7rem", color: "var(--text-muted)", marginTop: "0.2rem" }}>
-                      {p.xpAmount} XP — {new Date(p.createdAt).toLocaleDateString()}
+                      {p.xpAmount} XP, {new Date(p.createdAt).toLocaleDateString()}
                     </div>
                   </div>
                   <div style={{

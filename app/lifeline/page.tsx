@@ -155,7 +155,7 @@ export default function LifelinePage() {
                 🚨 Need immediate help?
               </div>
               <div style={{ fontSize: "0.82rem", color: "var(--text-secondary)", lineHeight: "1.4" }}>
-                Send a signal to our support team — we&apos;ll follow up as soon as possible.
+                Send a signal to our support team, we&apos;ll follow up as soon as possible.
               </div>
             </div>
             <button
@@ -225,7 +225,7 @@ export default function LifelinePage() {
                 autoComplete="street-address"
                 value={stressLocation}
                 onChange={e => setStressLocation(e.target.value)}
-                placeholder="Your location (optional — e.g. East 6th & Chicon)"
+                placeholder="Your location (optional, e.g. East 6th & Chicon)"
                 style={{
                   width: "100%",
                   padding: "0.65rem 1rem",
@@ -333,7 +333,7 @@ export default function LifelinePage() {
               Talk to Hubert
             </div>
             <div style={{ fontSize: "0.82rem", color: "var(--text-secondary)", lineHeight: "1.4" }}>
-              AI support companion — someone to listen, anytime
+              AI support companion, someone to listen, anytime
             </div>
           </div>
           <div style={{

@@ -263,7 +263,7 @@ export default function FinanceClient({ initialData }: { initialData: FinanceDat
           )}
           {!data.stripe.keyConfigured && (
             <div className={styles.poolSub}>
-              Manual pool — updated {formatDateTime(data.pool.updatedAt)}
+              Manual pool, updated {formatDateTime(data.pool.updatedAt)}
             </div>
           )}
         </div>

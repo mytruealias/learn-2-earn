@@ -7,7 +7,7 @@ export const denverConfig: CityDeckConfig = {
   heroSub:
     "A structured, measurable pilot to drive engagement, build life skills, and create real progress for Denver residents facing instability.",
   problemIntro:
-    "Thousands of Denver residents are caught in survival mode — focused on making it through each day, not building toward tomorrow.",
+    "Thousands of Denver residents are caught in survival mode, focused on making it through each day, not building toward tomorrow.",
   customPathsCopy: "We build city-specific learning paths tailored to your priorities. Examples for Denver:",
   customExamples: [
     "RTD Light Rail & Bus Navigation",
@@ -41,7 +41,7 @@ export const denverConfig: CityDeckConfig = {
   },
   sources: [
     <>
-      <strong>6,539 City &amp; County of Denver residents experiencing homelessness</strong> —{" "}
+      <strong>6,539 City &amp; County of Denver residents experiencing homelessness</strong>,{" "}
       Metro Denver Homeless Initiative (MDHI) 2024 Point-in-Time Count,
       City &amp; County of Denver jurisdiction (single-night snapshot conducted January 2024).{" "}
       <a href="https://www.mdhi.org/pit" target="_blank" rel="noopener noreferrer">
@@ -49,11 +49,11 @@ export const denverConfig: CityDeckConfig = {
       </a>
     </>,
     <>
-      <strong>Up to 60% are employed but can&apos;t afford housing</strong> —{" "}
+      <strong>Up to 60% are employed but can&apos;t afford housing</strong>,{" "}
       U.S. Interagency Council on Homelessness (
       <a href="https://www.usich.gov/" target="_blank" rel="noopener noreferrer">usich.gov</a>
       ). Corroborated by Meyer, Wyse, et al., University of Chicago (2021),{" "}
-      <em>&ldquo;Learning About Homelessness Using Linked Survey and Administrative Data&rdquo;</em> — 53% of sheltered and 40% of unsheltered adults experiencing homelessness were employed (
+      <em>&ldquo;Learning About Homelessness Using Linked Survey and Administrative Data&rdquo;</em>, 53% of sheltered and 40% of unsheltered adults experiencing homelessness were employed (
       <a href="https://bfi.uchicago.edu/working-paper/2021-65/" target="_blank" rel="noopener noreferrer">bfi.uchicago.edu/working-paper/2021-65</a>
       ).
     </>,
@@ -73,7 +73,7 @@ export const denverConfig: CityDeckConfig = {
   metadata: {
     title: "Denver Pilot – Workforce Readiness & Stability",
     description:
-      "A 90-day Learn2Earn pilot for Denver — incentive-based learning to drive workforce readiness and stability for residents facing homelessness.",
+      "A 90-day Learn2Earn pilot for Denver, incentive-based learning to drive workforce readiness and stability for residents facing homelessness.",
     openGraphTitle: "Learn2Earn Denver Pilot – Workforce Readiness & Stability",
     openGraphDescription:
       "A structured, measurable 90-day pilot to drive engagement, build life skills, and create real progress for Denver residents facing instability.",

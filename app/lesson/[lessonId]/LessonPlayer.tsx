@@ -533,7 +533,7 @@ export default function LessonPlayer({ lesson }: { lesson: Lesson }) {
               lineHeight: "1.6",
               marginBottom: "1.25rem",
             }}>
-              You&apos;ve completed your first lesson — nice work! Sign up now to save your progress, keep earning XP, and start converting it to real cash.
+              You&apos;ve completed your first lesson, nice work! Sign up now to save your progress, keep earning XP, and start converting it to real cash.
             </div>
             <div style={{
               fontFamily: "var(--font-mono)",
@@ -956,7 +956,7 @@ export default function LessonPlayer({ lesson }: { lesson: Lesson }) {
             lineHeight: "1.6",
             fontSize: "0.95rem",
           }}>
-            That&apos;s okay — mistakes are part of learning. Take a break and try again.
+            That&apos;s okay, mistakes are part of learning. Take a break and try again.
           </p>
           <div style={{ display: "grid", gap: "0.75rem" }}>
             <button
@@ -1293,7 +1293,7 @@ export default function LessonPlayer({ lesson }: { lesson: Lesson }) {
                   fontWeight: "600",
                   fontFamily: "var(--font-display)",
                 }}>
-                  — {motivationalMsg}
+                  {motivationalMsg}
                 </span>
               )}
             </div>

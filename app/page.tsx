@@ -105,8 +105,8 @@ export default function HomePage() {
               <h3>Learner Experience</h3>
               <ul className="inv-pillar-list">
                 <li>Bite-sized lessons, low reading level, trauma-informed</li>
-                <li>Hubert — AI emotional support companion, available 24/7</li>
-                <li>Works in browser, minimal friction — no app download needed</li>
+                <li>Hubert, AI emotional support companion, available 24/7</li>
+                <li>Works in browser, minimal friction, no app download needed</li>
                 <li>Built-in safety net (988, 211, SAMHSA, DV hotline, text line)</li>
               </ul>
             </div>
@@ -150,7 +150,7 @@ export default function HomePage() {
               Support That Goes Beyond<br />the Classroom
             </h2>
             <p className="inv-section-subtitle">
-              Learning matters — but so does knowing someone has your back.
+              Learning matters, but so does knowing someone has your back.
               Learn to Earn has two built-in tools that bridge the gap between
               education and real-world help.
             </p>
@@ -166,18 +166,18 @@ export default function HomePage() {
               </div>
               <h3>Meet Hubert</h3>
               <p className="inv-safety-tagline">
-                Your AI emotional support companion — available 24/7, right inside the app.
+                Your AI emotional support companion, available 24/7, right inside the app.
               </p>
               <ul className="inv-pillar-list">
                 <li>Warm, trauma-informed conversations at a 6th-grade reading level</li>
                 <li>Knows when to listen and when to connect you with real help</li>
-                <li>Immediate crisis escalation — surfaces 988, 911, and Crisis Text Line when needed</li>
-                <li>No data stored — every conversation is private and ephemeral</li>
+                <li>Immediate crisis escalation, surfaces 988, 911, and Crisis Text Line when needed</li>
+                <li>No data stored, every conversation is private and ephemeral</li>
                 <li>Accessible from the Lifeline page or the SOS help button on any screen</li>
               </ul>
               <div className="inv-safety-footer">
                 <span className="inv-safety-note">
-                  Hubert is not a therapist — he&apos;s a supportive friend who&apos;s always there.
+                  Hubert is not a therapist, he&apos;s a supportive friend who&apos;s always there.
                 </span>
               </div>
             </div>
@@ -191,7 +191,7 @@ export default function HomePage() {
               </div>
               <h3>Help Request & Ground Response</h3>
               <p className="inv-safety-tagline">
-                When a learner is in trouble, their team can know — and act.
+                When a learner is in trouble, their team can know, and act.
               </p>
               <ul className="inv-pillar-list">
                 <li>Learners can send an urgent help request directly from the app</li>
@@ -231,7 +231,7 @@ export default function HomePage() {
               Why This Works
             </h2>
             <p className="inv-section-subtitle">
-              Real engagement, real skills, real accountability — designed to
+              Real engagement, real skills, real accountability, designed to
               create measurable change for the people and programs that need it most.
             </p>
           </div>
@@ -269,7 +269,7 @@ export default function HomePage() {
             </h2>
             <p className="inv-section-subtitle">
               Whether you operate a shelter, run street outreach, or manage
-              a workforce readiness program — Learn to Earn adapts to your workflow.
+              a workforce readiness program, Learn to Earn adapts to your workflow.
             </p>
           </div>
           <div className="inv-usecase-grid">
@@ -285,7 +285,7 @@ export default function HomePage() {
                 <WalkingIcon size={26} stroke="#00467F" />
               </div>
               <h3>Street Outreach Teams</h3>
-              <p>Low barrier entry, quick lesson starts, connect to resources instantly — no signup required.</p>
+              <p>Low barrier entry, quick lesson starts, connect to resources instantly, no signup required.</p>
             </div>
             <div className="inv-usecase-card">
               <div className="inv-usecase-icon inv-icon-purple">
@@ -356,7 +356,7 @@ export default function HomePage() {
                 <div className="inv-step-number"><SmartphoneIcon size={32} stroke="#00467F" /></div>
                 <h3>Learner Experience</h3>
                 <p>
-                  Preview the learner-facing app — bite-sized lessons, progress tracking, and earning.
+                  Preview the learner-facing app, bite-sized lessons, progress tracking, and earning.
                 </p>
                 <div className="inv-step-cta">
                   <a href="/app" className="inv-btn inv-btn-glass inv-btn-sm">
@@ -368,7 +368,7 @@ export default function HomePage() {
                 <div className="inv-step-number"><ClipboardIcon size={32} stroke="#0C5DA5" /></div>
                 <h3>Admin Dashboard</h3>
                 <p>
-                  See the case worker and admin tools — participant management, analytics, and approvals.
+                  See the case worker and admin tools, participant management, analytics, and approvals.
                 </p>
                 <div className="inv-step-cta">
                   <a href="/admin" className="inv-btn inv-btn-glass inv-btn-sm">
@@ -380,7 +380,7 @@ export default function HomePage() {
                 <div className="inv-step-number"><CoinIcon size={32} stroke="#2E7D32" /></div>
                 <h3>Payout Workflow</h3>
                 <p>
-                  Multi-step payout approval with audit trail — review, approve, and disburse with full oversight.
+                  Multi-step payout approval with audit trail, review, approve, and disburse with full oversight.
                 </p>
                 <div className="inv-step-cta">
                   <a href="/admin" className="inv-btn inv-btn-glass inv-btn-sm">
@@ -564,7 +564,7 @@ export default function HomePage() {
           <h2>Ready to Launch a Pilot?</h2>
           <p>
             Whether you represent a city, a shelter network, or a funding
-            organization — we&apos;d love to partner with you to bring Learn to Earn
+            organization, we&apos;d love to partner with you to bring Learn to Earn
             to your community.
           </p>
           <div className="inv-cta-actions">

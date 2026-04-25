@@ -156,7 +156,7 @@ export default function SignupPage() {
             You&apos;re already signed in
           </h1>
           <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem", marginBottom: "1.75rem", lineHeight: "1.5" }}>
-            No need to create another account — head to your profile to keep earning XP and managing your progress.
+            No need to create another account, head to your profile to keep earning XP and managing your progress.
           </p>
           <Link
             href="/profile"
@@ -234,7 +234,7 @@ export default function SignupPage() {
             color: "var(--accent-green)",
             textTransform: "uppercase",
             letterSpacing: "0.1em",
-          }}>Step {step} of 3 — {stepLabels[step - 1]}</span>
+          }}>Step {step} of 3, {stepLabels[step - 1]}</span>
         </div>
 
         <h1 style={{
