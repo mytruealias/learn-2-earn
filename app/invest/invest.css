@@ -17,6 +17,16 @@
   --cy-purple: #5E35B1;
   --cy-border: rgba(0,70,127,0.10);
   --cy-border-hover: rgba(0,70,127,0.22);
+  /* Additional landing-page tokens — added so rules below can avoid raw hex */
+  --cy-on-color:    #ffffff;   /* white text on coloured buttons/badges */
+  --cy-surface-alt: #f4f6fb;   /* alt surface for nested cards */
+  --cy-divider:     #e2e8f0;   /* hairline divider used in screenshots */
+  --cy-ink:         #1a2433;   /* deep ink for screenshot mock-ups */
+  --cy-ink-medium:  #4f5d72;   /* medium ink for screenshot body copy */
+  --cy-ink-soft:    #56657a;   /* soft ink for screenshot meta text */
+  --cy-ink-dim:     #5d6a7d;   /* dim ink for screenshot captions */
+  --cy-success:     #1f7a31;   /* success accent for mock pills */
+  --cy-amber:       #7a5b10;   /* amber accent for mock pills */
   --cy-mono: var(--font-share-tech-mono), 'Share Tech Mono', 'Courier New', monospace;
   --cy-display: var(--font-rajdhani), 'Rajdhani', 'Inter', sans-serif;
   --cy-body: var(--font-inter), 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -147,7 +157,7 @@
 
 .inv-btn-primary {
   background: linear-gradient(135deg, var(--cy-green), var(--cy-cyan));
-  color: #ffffff;
+  color: var(--cy-on-color);
   font-weight: 700;
   letter-spacing: 0.02em;
   box-shadow: 0 4px 14px rgba(0,70,127,0.18), 0 1px 3px rgba(15,25,35,0.06);
@@ -226,7 +236,7 @@
 .inv-hero-glow-2 {
   width: 500px;
   height: 500px;
-  background: radial-gradient(circle, #2E7D32 0%, transparent 65%);
+  background: radial-gradient(circle, var(--cy-cyan) 0%, transparent 65%);
   bottom: -5%;
   right: -10%;
   opacity: 0.10;
@@ -236,7 +246,7 @@
 .inv-hero-glow-3 {
   width: 350px;
   height: 350px;
-  background: radial-gradient(circle, #0C5DA5 0%, transparent 70%);
+  background: radial-gradient(circle, var(--cy-blue) 0%, transparent 70%);
   top: 35%;
   left: 50%;
   transform: translateX(-50%);
@@ -748,8 +758,8 @@
   border-radius: 17px;
   padding: 1px;
   background: linear-gradient(135deg, rgba(59,130,246,0.3), transparent, rgba(139,92,246,0.3));
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(var(--cy-on-color) 0 0) content-box, linear-gradient(var(--cy-on-color) 0 0);
+  -webkit-mask: linear-gradient(var(--cy-on-color) 0 0) content-box, linear-gradient(var(--cy-on-color) 0 0);
   mask-composite: exclude;
   -webkit-mask-composite: xor;
   pointer-events: none;
@@ -1707,7 +1717,7 @@
   box-shadow:
     0 32px 80px rgba(0, 0, 0, 0.55),
     0 0 0 1px rgba(255, 255, 255, 0.03);
-  background: #ffffff;
+  background: var(--cy-on-color);
 }
 
 /* Browser chrome stays dark like a real macOS browser bar */
@@ -1753,26 +1763,26 @@
   display: grid;
   grid-template-columns: 192px 1fr;
   min-height: 440px;
-  background: #f4f6fb;
+  background: var(--cy-surface-alt);
 }
 
 /* ---- SIDEBAR (light, mirrors real /admin) ---- */
 .ademo-sidebar {
-  background: #ffffff;
-  border-right: 1px solid #e2e8f0;
+  background: var(--cy-on-color);
+  border-right: 1px solid var(--cy-divider);
   display: flex;
   flex-direction: column;
 }
 
 .ademo-brand {
   padding: 1rem 1rem 0.875rem;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--cy-divider);
 }
 
 .ademo-brand-wordmark {
   font-size: 0.95rem;
   font-weight: 700;
-  color: #1a2433;
+  color: var(--cy-ink);
   letter-spacing: -0.02em;
   line-height: 1;
   margin-bottom: 0.2rem;
@@ -1780,12 +1790,12 @@
 }
 
 .ademo-brand-wordmark span {
-  color: #1976d2;
+  color: var(--cy-blue-bright);
 }
 
 .ademo-brand-sub {
   font-size: 0.65rem;
-  color: #5d6a7d;
+  color: var(--cy-ink-dim);
   font-weight: 500;
   font-family: Inter, system-ui, sans-serif;
 }
@@ -1802,7 +1812,7 @@
 .ademo-nav-group-label {
   font-size: 0.58rem;
   font-weight: 700;
-  color: #5d6a7d;
+  color: var(--cy-ink-dim);
   letter-spacing: 0.07em;
   text-transform: uppercase;
   padding: 0.55rem 0.625rem 0.2rem;
@@ -1819,7 +1829,7 @@
   border-left: 2px solid transparent;
   font-size: 0.75rem;
   font-weight: 500;
-  color: #4f5d72;
+  color: var(--cy-ink-medium);
   transition: background 0.15s, color 0.15s;
   position: relative;
   cursor: default;
@@ -1833,8 +1843,8 @@
 
 .ademo-nav-active {
   background: rgba(25, 118, 210, 0.10);
-  border-left-color: #1976d2;
-  color: #1976d2;
+  border-left-color: var(--cy-blue-bright);
+  color: var(--cy-blue-bright);
   font-weight: 600;
 }
 
@@ -1851,8 +1861,8 @@
 
 .ademo-badge-dot {
   margin-left: auto;
-  background: #c92626;
-  color: #ffffff;
+  background: var(--cy-red);
+  color: var(--cy-on-color);
   font-size: 0.58rem;
   font-weight: 700;
   min-width: 16px;
@@ -1866,7 +1876,7 @@
 
 .ademo-sidebar-foot {
   padding: 0.875rem 1rem;
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid var(--cy-divider);
   margin-top: auto;
   display: flex;
   align-items: center;
@@ -1877,19 +1887,19 @@
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #1976d2 0%, #6845d9 100%);
+  background: linear-gradient(135deg, var(--cy-blue-bright) 0%, #6845d9 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 0.62rem;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--cy-on-color);
   flex-shrink: 0;
 }
 
 .ademo-admin-name {
   font-size: 0.72rem;
-  color: #1a2433;
+  color: var(--cy-ink);
   font-weight: 600;
   line-height: 1.2;
   font-family: Inter, system-ui, sans-serif;
@@ -1897,14 +1907,14 @@
 
 .ademo-admin-role {
   font-size: 0.62rem;
-  color: #5d6a7d;
+  color: var(--cy-ink-dim);
   font-family: Inter, system-ui, sans-serif;
   text-transform: capitalize;
 }
 
 /* ---- MAIN CONTENT (light) ---- */
 .ademo-main {
-  background: #f4f6fb;
+  background: var(--cy-surface-alt);
   padding: 1.375rem 1.5rem;
   overflow: hidden;
 }
@@ -1921,7 +1931,7 @@
 .ademo-page-title {
   font-size: 1.15rem;
   font-weight: 700;
-  color: #1a2433;
+  color: var(--cy-ink);
   margin-bottom: 1rem;
   letter-spacing: -0.01em;
   font-family: Inter, system-ui, sans-serif;
@@ -1930,7 +1940,7 @@
 .ademo-section-head {
   font-size: 0.65rem;
   font-weight: 700;
-  color: #56657a;
+  color: var(--cy-ink-soft);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   margin-bottom: 0.4rem;
@@ -1946,22 +1956,22 @@
 }
 
 .ademo-stat-card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: var(--cy-on-color);
+  border: 1px solid var(--cy-divider);
   border-radius: 10px;
   padding: 0.7rem 0.75rem;
   border-left: 3px solid;
   box-shadow: 0 1px 2px rgba(15, 25, 35, 0.04);
 }
 
-.ademo-stat-blue   { border-left-color: #1976d2; }
-.ademo-stat-green  { border-left-color: #1f7a31; }
-.ademo-stat-red    { border-left-color: #c92626; }
-.ademo-stat-gold   { border-left-color: #7a5b10; }
+.ademo-stat-blue   { border-left-color: var(--cy-blue-bright); }
+.ademo-stat-green  { border-left-color: var(--cy-success); }
+.ademo-stat-red    { border-left-color: var(--cy-red); }
+.ademo-stat-gold   { border-left-color: var(--cy-amber); }
 
 .ademo-stat-label {
   font-size: 0.58rem;
-  color: #56657a;
+  color: var(--cy-ink-soft);
   margin-bottom: 0.25rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -1972,14 +1982,14 @@
 .ademo-stat-value {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #1a2433;
+  color: var(--cy-ink);
   font-family: Inter, system-ui, sans-serif;
 }
 
 /* Mini cases list in dashboard */
 .ademo-mini-cases {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: var(--cy-on-color);
+  border: 1px solid var(--cy-divider);
   border-radius: 10px;
   overflow: hidden;
   box-shadow: 0 1px 2px rgba(15, 25, 35, 0.04);
@@ -2007,14 +2017,14 @@
 
 .ademo-mini-case-name {
   font-size: 0.73rem;
-  color: #1a2433;
+  color: var(--cy-ink);
   font-weight: 600;
   flex: 1;
 }
 
 .ademo-mini-case-type {
   font-size: 0.68rem;
-  color: #56657a;
+  color: var(--cy-ink-soft);
 }
 
 /* Pool health bar */
@@ -2027,20 +2037,20 @@
 .ademo-pool-bar {
   flex: 1;
   height: 8px;
-  background: #e2e8f0;
+  background: var(--cy-divider);
   border-radius: 999px;
   overflow: hidden;
 }
 
 .ademo-pool-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, #1976d2, #1f7a31);
+  background: linear-gradient(90deg, var(--cy-blue-bright), var(--cy-success));
   border-radius: 999px;
 }
 
 .ademo-pool-pct {
   font-size: 0.65rem;
-  color: #4f5d72;
+  color: var(--cy-ink-medium);
   white-space: nowrap;
   font-weight: 600;
   font-family: Inter, system-ui, sans-serif;
@@ -2048,10 +2058,10 @@
 
 /* Table */
 .ademo-table {
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--cy-divider);
   border-radius: 10px;
   overflow: hidden;
-  background: #ffffff;
+  background: var(--cy-on-color);
   box-shadow: 0 1px 2px rgba(15, 25, 35, 0.04);
 }
 
@@ -2060,10 +2070,10 @@
   grid-template-columns: 28px 1.4fr 1.1fr 0.9fr;
   gap: 0.5rem;
   padding: 0.55rem 0.875rem;
-  background: #f4f6fb;
-  border-bottom: 1px solid #e2e8f0;
+  background: var(--cy-surface-alt);
+  border-bottom: 1px solid var(--cy-divider);
   font-size: 0.58rem;
-  color: #56657a;
+  color: var(--cy-ink-soft);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   font-weight: 700;
@@ -2093,20 +2103,20 @@
 
 .ademo-user-name {
   font-size: 0.73rem;
-  color: #1a2433;
+  color: var(--cy-ink);
   font-weight: 600;
   font-family: Inter, system-ui, sans-serif;
 }
 
 .ademo-dim {
   font-size: 0.67rem;
-  color: #56657a;
+  color: var(--cy-ink-soft);
   font-family: Inter, system-ui, sans-serif;
 }
 
 .ademo-xp-val {
   font-size: 0.7rem;
-  color: #7a5b10;
+  color: var(--cy-amber);
   font-weight: 700;
   font-family: Inter, system-ui, sans-serif;
 }
@@ -2133,10 +2143,10 @@
 
 /* Payouts */
 .ademo-payout-card {
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--cy-divider);
   border-radius: 10px;
   padding: 0.875rem 1rem;
-  background: #ffffff;
+  background: var(--cy-on-color);
   margin-bottom: 0.5rem;
   box-shadow: 0 1px 2px rgba(15, 25, 35, 0.04);
   transition: border-color 0.3s, background 0.3s, box-shadow 0.3s;
@@ -2170,14 +2180,14 @@
 
 .ademo-payout-name {
   font-size: 0.75rem;
-  color: #1a2433;
+  color: var(--cy-ink);
   font-weight: 700;
   font-family: Inter, system-ui, sans-serif;
 }
 
 .ademo-payout-meta {
   font-size: 0.63rem;
-  color: #56657a;
+  color: var(--cy-ink-soft);
   margin-top: 0.1rem;
   font-family: Inter, system-ui, sans-serif;
 }
@@ -2196,19 +2206,19 @@
 
 .ademo-payout-method {
   font-size: 0.7rem;
-  color: #1976d2;
+  color: var(--cy-blue-bright);
   font-weight: 600;
   font-family: Inter, system-ui, sans-serif;
 }
 
 .ademo-approve-btn {
   padding: 0.4rem 0.9rem;
-  background: #1976d2;
+  background: var(--cy-blue-bright);
   border: 1px solid #1664b6;
   border-radius: 8px;
   font-size: 0.65rem;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--cy-on-color);
   white-space: nowrap;
   letter-spacing: 0.02em;
   transition: background 0.25s, box-shadow 0.25s;
@@ -2225,9 +2235,9 @@
 .ademo-pay-link {
   margin-top: 0.55rem;
   padding-top: 0.55rem;
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid var(--cy-divider);
   font-size: 0.68rem;
-  color: #1976d2;
+  color: var(--cy-blue-bright);
   font-weight: 600;
   display: flex;
   align-items: center;
