@@ -26,6 +26,7 @@ export default function LandingNav() {
         </Link>
 
         <ul className="inv-nav-links">
+          <li><a href="#how-it-works">How It Works</a></li>
           <li><a href="#platform">Platform</a></li>
           <li><a href="#impact">Impact</a></li>
           <li><a href="#usecases">Use Cases</a></li>
@@ -52,6 +53,7 @@ export default function LandingNav() {
       </nav>
 
       <div className={`inv-mobile-nav${open ? " inv-mobile-nav-open" : ""}`} aria-hidden={!open}>
+        <a href="#how-it-works" className="inv-mobile-link" onClick={close}>How It Works</a>
         <a href="#platform" className="inv-mobile-link" onClick={close}>Platform</a>
         <a href="#impact" className="inv-mobile-link" onClick={close}>Impact</a>
         <a href="#usecases" className="inv-mobile-link" onClick={close}>Use Cases</a>

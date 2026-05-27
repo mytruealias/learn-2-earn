@@ -139,6 +139,81 @@ export default function HomePage() {
 
       <div className="inv-section-divider"></div>
 
+      <section className="inv-section" id="how-it-works">
+        <div className="inv-container">
+          <div className="inv-section-header">
+            <div className="inv-section-label">How It Works</div>
+            <h2 className="inv-section-title">
+              The Program in Four Steps
+            </h2>
+            <p className="inv-section-subtitle">
+              A simple loop that puts partners in charge of who joins, what
+              gets approved, and how progress is measured.
+            </p>
+          </div>
+
+          <ol className="inv-howit-grid">
+            <li className="inv-howit-step">
+              <div className="inv-howit-num">01</div>
+              <div className="inv-howit-icon inv-icon-blue">
+                <HandshakeIcon size={28} stroke="#0C5DA5" />
+              </div>
+              <h3>Partner enrolls learners</h3>
+              <p>
+                A city, shelter, or local nonprofit signs on as a partner and
+                invites people in their program to join.
+              </p>
+            </li>
+
+            <li className="inv-howit-step">
+              <div className="inv-howit-num">02</div>
+              <div className="inv-howit-icon inv-icon-green">
+                <SmartphoneIcon size={28} stroke="#00467F" />
+              </div>
+              <h3>Learners take short lessons</h3>
+              <p>
+                Learners open the app in any browser and work through
+                bite-sized, trauma-informed lessons at their own pace.
+              </p>
+            </li>
+
+            <li className="inv-howit-step">
+              <div className="inv-howit-num">03</div>
+              <div className="inv-howit-icon inv-icon-gold">
+                <CoinIcon size={28} stroke="#2E7D32" />
+              </div>
+              <h3>Lessons turn into small payouts</h3>
+              <p>
+                Completed lessons earn XP. Learners can convert that XP into
+                a small cash payout through Zelle, Venmo, PayPal, Cash App,
+                or check.
+              </p>
+            </li>
+
+            <li className="inv-howit-step">
+              <div className="inv-howit-num">04</div>
+              <div className="inv-howit-icon inv-icon-purple">
+                <CheckCircleIcon size={28} stroke="#5E35B1" />
+              </div>
+              <h3>Case worker approves, partner sees results</h3>
+              <p>
+                Every payout is reviewed and approved by a case worker.
+                Partners see real-time reporting on participation, progress,
+                and disbursements.
+              </p>
+            </li>
+          </ol>
+
+          <div className="inv-section-cta">
+            <a href="#demo" className="inv-btn inv-btn-outline inv-btn-lg">
+              See It in the Demo
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <div className="inv-section-divider"></div>
+
       <section className="inv-section" id="platform">
         <div className="inv-container">
           <div className="inv-section-header">
