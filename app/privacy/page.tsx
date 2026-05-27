@@ -8,6 +8,7 @@ export const metadata: Metadata = {
   description:
     "How Learn2Earn collects, uses, and protects your personal information, lesson activity, payout details, and Hubert chat content.",
   robots: { index: true, follow: true },
+  alternates: { canonical: "/privacy" },
 };
 
 const LAST_UPDATED = "May 27, 2026";

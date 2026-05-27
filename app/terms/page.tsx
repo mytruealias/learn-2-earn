@@ -8,6 +8,7 @@ export const metadata: Metadata = {
   description:
     "Learn2Earn's rules of the road: account responsibilities, XP-to-cash payouts, prohibited conduct, and the limits of what our app can do for you.",
   robots: { index: true, follow: true },
+  alternates: { canonical: "/terms" },
 };
 
 const LAST_UPDATED = "May 27, 2026";

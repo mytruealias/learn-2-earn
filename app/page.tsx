@@ -1,5 +1,11 @@
+import type { Metadata } from "next";
 import "./invest/invest.css";
 import "./invest/demo-phone.css";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
+
 import AppDemo from "./components/AppDemo";
 import AdminDemo from "./components/AdminDemo";
 import LandingNav from "./components/LandingNav";
@@ -14,9 +20,57 @@ import {
   BotIcon, MapPinAlertIcon, RadioIcon,
 } from "./components/LandingIcons";
 
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://learn2earn-usa.com";
+
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "NGO",
+  name: "Learn2Earn",
+  alternateName: "Learn 2 Earn",
+  url: SITE_URL,
+  logo: `${SITE_URL}/opengraph-image`,
+  image: `${SITE_URL}/opengraph-image`,
+  description:
+    "Texas nonprofit helping people experiencing homelessness build life skills, complete recovery-focused learning, and earn small verified cash incentives, in partnership with cities, shelters, and local case workers.",
+  foundingDate: "2022",
+  areaServed: [
+    { "@type": "AdministrativeArea", name: "Texas, USA" },
+    { "@type": "AdministrativeArea", name: "United States" },
+  ],
+  address: {
+    "@type": "PostalAddress",
+    addressLocality: "Austin",
+    addressRegion: "TX",
+    addressCountry: "US",
+  },
+  contactPoint: [
+    {
+      "@type": "ContactPoint",
+      contactType: "partnerships",
+      email: "partners@learn2earn.org",
+      availableLanguage: ["English"],
+    },
+  ],
+  knowsAbout: [
+    "Homelessness services",
+    "Life skills education",
+    "Addiction recovery",
+    "Workforce readiness",
+    "Case worker tools",
+    "Incentive-based learning",
+  ],
+};
+
 export default function HomePage() {
   return (
     <div className="inv-page">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(organizationJsonLd),
+        }}
+      />
       <LandingNav />
 
       <section className="inv-hero">

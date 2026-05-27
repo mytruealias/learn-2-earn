@@ -17,6 +17,7 @@ export const metadata: Metadata = {
     title: austinConfig.metadata.openGraphTitle ?? austinConfig.metadata.title,
     description: austinConfig.metadata.openGraphDescription ?? austinConfig.metadata.description,
   },
+  alternates: { canonical: "/austin" },
 };
 
 export default function AustinPage() {

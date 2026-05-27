@@ -17,6 +17,7 @@ export const metadata: Metadata = {
     title: cfg.metadata.openGraphTitle ?? cfg.metadata.title,
     description: cfg.metadata.openGraphDescription ?? cfg.metadata.description,
   },
+  alternates: { canonical: "/los-angeles" },
 };
 
 export default function LosAngelesPage() {
