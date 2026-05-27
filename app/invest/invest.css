@@ -1628,12 +1628,6 @@
   .inv-nav {
     padding: 0 1.5rem;
   }
-}
-
-/* Switch to hamburger sooner — the full link row + 2 buttons needs ~1100px to breathe */
-@media (max-width: 1100px) {
-  .inv-nav-links { display: none; }
-  .inv-hamburger { display: flex; }
   .inv-section {
     padding: 5rem 1.5rem;
   }
@@ -1646,6 +1640,12 @@
   .inv-demo-sub {
     font-size: 1.1rem;
   }
+}
+
+/* Switch to hamburger sooner — the full link row + 2 buttons needs ~1100px to breathe */
+@media (max-width: 1100px) {
+  .inv-nav-links { display: none; }
+  .inv-hamburger { display: flex; }
 }
 
 @media (max-width: 600px) {
