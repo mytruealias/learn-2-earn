@@ -329,27 +329,27 @@ export default function CaseDetailPage({ params }: { params: Promise<{ id: strin
             <div className={styles.cardTitle}>Learner info</div>
             <div className={styles.detailRow}>
               <span className={styles.detailLabel}>Name</span>
-              <span className={styles.detailValue}>{c.user.fullName || "—"}</span>
+              <span className={styles.detailValue}>{c.user.fullName || "N/A"}</span>
             </div>
             <div className={styles.detailRow}>
               <span className={styles.detailLabel}>Email</span>
-              <span className={styles.detailValue}>{c.user.email || "—"}</span>
+              <span className={styles.detailValue}>{c.user.email || "N/A"}</span>
             </div>
             <div className={styles.detailRow}>
               <span className={styles.detailLabel}>Phone</span>
               <span className={styles.detailValue}>
                 {c.user.phone ? (
                   <CopyField value={c.user.phone} label="phone" />
-                ) : "—"}
+                ) : "N/A"}
               </span>
             </div>
             <div className={styles.detailRow}>
               <span className={styles.detailLabel}>Location</span>
-              <span className={styles.detailValue}>{[c.user.city, c.user.state].filter(Boolean).join(", ") || "—"}</span>
+              <span className={styles.detailValue}>{[c.user.city, c.user.state].filter(Boolean).join(", ") || "N/A"}</span>
             </div>
             <div className={styles.detailRow}>
               <span className={styles.detailLabel}>Case #</span>
-              <span className={styles.detailValue}>{c.user.caseNumber || "—"}</span>
+              <span className={styles.detailValue}>{c.user.caseNumber || "N/A"}</span>
             </div>
             <div style={{ marginTop: "0.75rem" }}>
               <a

@@ -98,7 +98,7 @@
   width: 100%;
   padding: 0.8rem;
   background-color: var(--adm-blue);
-  color: #fff;
+  color: var(--adm-on-color);
   border: none;
   border-radius: var(--adm-radius-sm);
   font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
@@ -110,7 +110,7 @@
 }
 
 .submitBtn:hover:not(:disabled) {
-  background-color: #2563eb;
+  background-color: var(--adm-blue-lt);
 }
 
 .submitBtn:disabled {

@@ -136,7 +136,7 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--adm-blue) 0%, #6366f1 100%);
+  background: linear-gradient(135deg, var(--adm-blue) 0%, var(--adm-indigo) 100%);
   display: flex;
   align-items: center;
   justify-content: center;

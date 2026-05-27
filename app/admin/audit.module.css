@@ -104,11 +104,11 @@
   letter-spacing: 0;
 }
 
-.colorGreen   { color: #86efac; border-color: rgba(34,197,94,0.4);   background-color: rgba(34,197,94,0.1);   }
+.colorGreen   { color: var(--adm-green-soft); border-color: rgba(34,197,94,0.4);   background-color: rgba(34,197,94,0.1);   }
 .colorRed     { color: var(--adm-red); border-color: rgba(239,68,68,0.35);  background-color: rgba(239,68,68,0.1);   }
 .colorBlue    { color: var(--adm-blue); border-color: rgba(59,130,246,0.4);  background-color: rgba(59,130,246,0.1);  }
 .colorYellow  { color: var(--adm-amber); border-color: rgba(245,158,11,0.4);  background-color: rgba(245,158,11,0.1);  }
-.colorPurple  { color: #c4b5fd; border-color: rgba(167,139,250,0.4); background-color: rgba(167,139,250,0.1); }
+.colorPurple  { color: var(--adm-violet-soft); border-color: rgba(167,139,250,0.4); background-color: rgba(167,139,250,0.1); }
 .colorDefault { color: var(--adm-muted); border-color: var(--adm-border-lt);               background-color: rgba(71,85,105,0.2);   }
 
 .logBody {

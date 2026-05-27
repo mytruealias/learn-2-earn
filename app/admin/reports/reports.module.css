@@ -78,7 +78,7 @@
   font-size: 1.75rem;
   font-weight: 700;
   line-height: 1;
-  color: #c4b5fd;
+  color: var(--adm-violet-soft);
   letter-spacing: -0.02em;
 }
 
@@ -131,7 +131,7 @@
 .rangeBtnActive {
   background: var(--adm-blue);
   border-color: var(--adm-blue);
-  color: #fff;
+  color: var(--adm-on-color);
 }
 
 .chartArea {

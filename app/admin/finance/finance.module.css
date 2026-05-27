@@ -391,7 +391,7 @@
   font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
   font-size: 0.8rem;
   font-weight: 600;
-  color: #fff;
+  color: var(--adm-on-color);
   background-color: var(--adm-blue);
   border: none;
   border-radius: var(--adm-radius-sm);
@@ -401,7 +401,7 @@
 }
 
 .adjustSubmitBtn:hover:not(:disabled) {
-  background-color: #2563eb;
+  background-color: var(--adm-blue-lt);
 }
 
 .adjustSubmitBtn:disabled {
@@ -558,7 +558,7 @@
 
 .statusComplete {
   background-color: rgba(34, 197, 94, 0.12);
-  color: #86efac;
+  color: var(--adm-green-soft);
   border: 1px solid rgba(34, 197, 94, 0.3);
 }
 
@@ -653,7 +653,7 @@
 
 .cfgActive {
   background-color: rgba(34, 197, 94, 0.12);
-  color: #86efac;
+  color: var(--adm-green-soft);
   border: 1px solid rgba(34, 197, 94, 0.3);
 }
 

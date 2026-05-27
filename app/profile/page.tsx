@@ -1128,7 +1128,7 @@ export default function ProfilePage() {
                   {field.label}
                 </div>
                 <div style={{ fontSize: "0.85rem", fontWeight: "600", color: "var(--text-secondary)" }}>
-                  {field.value || "—"}
+                  {field.value || "N/A"}
                 </div>
               </div>
             ))}
@@ -1180,7 +1180,7 @@ export default function ProfilePage() {
                     />
                   ) : (
                     <div style={{ fontSize: "0.9rem", fontWeight: "600", color: currentValue ? "var(--text-primary)" : "var(--text-muted)" }}>
-                      {currentValue || "—"}
+                      {currentValue || "N/A"}
                     </div>
                   )}
                 </div>

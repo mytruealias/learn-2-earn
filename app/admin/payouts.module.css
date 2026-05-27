@@ -52,8 +52,8 @@
 
 .filter_pending.filterBtnActive  { background-color: rgba(245,158,11,0.15); border-color: rgba(245,158,11,0.4); color: var(--adm-amber); }
 .filter_reviewed.filterBtnActive { background-color: rgba(59,130,246,0.15); border-color: rgba(59,130,246,0.4); color: var(--adm-blue); }
-.filter_approved.filterBtnActive { background-color: rgba(34,197,94,0.15);  border-color: rgba(34,197,94,0.4);  color: #86efac; }
-.filter_completed.filterBtnActive { background-color: rgba(34,197,94,0.15); border-color: rgba(34,197,94,0.4);  color: #86efac; }
+.filter_approved.filterBtnActive { background-color: rgba(34,197,94,0.15);  border-color: rgba(34,197,94,0.4);  color: var(--adm-green-soft); }
+.filter_completed.filterBtnActive { background-color: rgba(34,197,94,0.15); border-color: rgba(34,197,94,0.4);  color: var(--adm-green-soft); }
 .filter_rejected.filterBtnActive { background-color: rgba(239,68,68,0.12);  border-color: rgba(239,68,68,0.35); color: var(--adm-red); }
 .filter_all.filterBtnActive      { background-color: var(--adm-border); border-color: var(--adm-border-lt); color: var(--adm-text); }
 
@@ -121,12 +121,12 @@
 
 .confirmBtnApprove {
   background-color: var(--adm-green);
-  color: #052e16;
+  color: var(--adm-green-deep);
 }
 
 .confirmBtnReject {
   background-color: var(--adm-red);
-  color: #fff1f2;
+  color: var(--adm-red-soft);
 }
 
 .confirmBtn:disabled {
@@ -174,7 +174,7 @@
 .exportBtn {
   padding: 0.4rem 0.875rem;
   background-color: var(--adm-blue);
-  color: #fff;
+  color: var(--adm-on-color);
   border: none;
   border-radius: var(--adm-radius-sm);
   font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
@@ -185,7 +185,7 @@
 }
 
 .exportBtn:hover {
-  background-color: #2563eb;
+  background-color: var(--adm-blue-lt);
 }
 
 /* ---- PAYOUT LIST ---- */
@@ -261,7 +261,7 @@
 .statusBlue .statusBadge,
 .statusBadge.statusBlue   { color: var(--adm-blue); border-color: rgba(59,130,246,0.4); background-color: rgba(59,130,246,0.1); }
 .statusGreen .statusBadge,
-.statusBadge.statusGreen  { color: #86efac; border-color: rgba(34,197,94,0.4);  background-color: rgba(34,197,94,0.1);  }
+.statusBadge.statusGreen  { color: var(--adm-green-soft); border-color: rgba(34,197,94,0.4);  background-color: rgba(34,197,94,0.1);  }
 .statusRed .statusBadge,
 .statusBadge.statusRed    { color: var(--adm-red); border-color: rgba(239,68,68,0.35); background-color: rgba(239,68,68,0.1); }
 
@@ -270,7 +270,7 @@
   justify-content: space-between;
   align-items: center;
   padding-top: 0.875rem;
-  border-top: 1px solid #2d3f55;
+  border-top: 1px solid var(--adm-border);
   gap: 1rem;
 }
 
@@ -338,12 +338,12 @@
 
 .actionBtnReview {
   background-color: var(--adm-blue);
-  color: #fff;
+  color: var(--adm-on-color);
 }
 
 .actionBtnApprove {
   background-color: var(--adm-green);
-  color: #052e16;
+  color: var(--adm-green-deep);
 }
 
 .actionBtnDanger {
@@ -369,7 +369,7 @@
 .payLink {
   margin-top: 0.875rem;
   padding-top: 0.875rem;
-  border-top: 1px solid #2d3f55;
+  border-top: 1px solid var(--adm-border);
 }
 
 .payLinkInner {
@@ -412,14 +412,14 @@
 
 .copyBtnCopied {
   background-color: rgba(34, 197, 94, 0.12);
-  color: #86efac;
+  color: var(--adm-green-soft);
 }
 
 .payLinkBtn {
   display: inline-block;
   padding: 0.45rem 1.125rem;
   background-color: var(--adm-green);
-  color: #052e16;
+  color: var(--adm-green-deep);
   border-radius: var(--adm-radius-sm);
   font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
   font-size: 0.8rem;
@@ -441,7 +441,7 @@
 .payoutReviewer {
   margin-top: 0.875rem;
   padding-top: 0.625rem;
-  border-top: 1px solid #2d3f55;
+  border-top: 1px solid var(--adm-border);
   font-size: 0.75rem;
   color: var(--adm-dim);
 }

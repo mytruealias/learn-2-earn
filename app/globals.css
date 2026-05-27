@@ -14,6 +14,16 @@
   --adm-amber:     #7a5b10;
   --adm-red:       #c92626;
   --adm-violet:    #5b3dd1;
+  /* Additional admin accent tokens — added so admin module CSS can avoid raw hex */
+  --adm-on-color:  #ffffff;   /* white text on coloured admin buttons/avatars */
+  --adm-green-soft:  #86efac; /* soft green for status pills (approved/completed) */
+  --adm-red-soft:    #fff1f2; /* soft red surface for reject button text */
+  --adm-green-deep:  #052e16; /* deep green text for approve buttons */
+  --adm-violet-soft: #c4b5fd; /* soft violet for streak/purple stats */
+  --adm-indigo:      #6366f1; /* indigo for avatar/secondary gradients */
+  --adm-purple:      #8b5cf6; /* purple for avatar gradient end */
+  --adm-orange:      #f97316; /* orange accent for stat card borders */
+  --adm-orange-soft: #fdba74; /* soft orange for stat values */
   --adm-font:      var(--font-inter), 'Inter', system-ui, sans-serif;
   --adm-radius:    12px;
   --adm-radius-sm: 8px;

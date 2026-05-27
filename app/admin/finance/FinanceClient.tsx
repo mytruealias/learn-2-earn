@@ -571,7 +571,7 @@ export default function FinanceClient({ initialData }: { initialData: FinanceDat
                   {p.caseNumber && <span className={styles.recentCaseNum}>#{p.caseNumber}</span>}
                 </span>
                 <span className={styles.recentAmount}>{formatDollars(p.dollarAmount)}</span>
-                <span className={styles.recentMethod}>{p.paymentMethod || "—"}</span>
+                <span className={styles.recentMethod}>{p.paymentMethod || "N/A"}</span>
                 <span className={`${styles.recentStatus} ${p.status === "completed" ? styles.statusComplete : styles.statusApproved}`}>
                   {p.status}
                 </span>

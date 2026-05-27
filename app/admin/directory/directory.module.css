@@ -24,7 +24,7 @@
 .addBtn {
   padding: 0.6rem 1.25rem;
   background-color: var(--adm-blue);
-  color: #fff;
+  color: var(--adm-on-color);
   border: none;
   border-radius: var(--adm-radius-sm);
   font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
@@ -36,7 +36,7 @@
 }
 
 .addBtn:hover {
-  background-color: #2563eb;
+  background-color: var(--adm-blue-lt);
 }
 
 /* ---- FILTERS ---- */
@@ -303,7 +303,7 @@
 .saveBtn {
   padding: 0.6rem 1.25rem;
   background-color: var(--adm-blue);
-  color: #fff;
+  color: var(--adm-on-color);
   border: none;
   border-radius: var(--adm-radius-sm);
   font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
@@ -314,7 +314,7 @@
 }
 
 .saveBtn:hover {
-  background-color: #2563eb;
+  background-color: var(--adm-blue-lt);
 }
 
 .saveBtn:disabled {

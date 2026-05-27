@@ -106,7 +106,7 @@
 .colorYellow { border-left-color: var(--adm-amber); }
 .colorPurple { border-left-color: var(--adm-violet); }
 .colorRed    { border-left-color: var(--adm-red); }
-.colorOrange { border-left-color: #f97316; }
+.colorOrange { border-left-color: var(--adm-orange); }
 .colorMuted  { border-left-color: var(--adm-border-lt); }
 
 .statLabel {
@@ -130,9 +130,9 @@
 .colorGreen  .statValue { color: var(--adm-green-lt); }
 .colorBlue   .statValue { color: var(--adm-blue-lt); }
 .colorYellow .statValue { color: var(--adm-amber); }
-.colorPurple .statValue { color: #c4b5fd; }
+.colorPurple .statValue { color: var(--adm-violet-soft); }
 .colorRed    .statValue { color: var(--adm-red); }
-.colorOrange .statValue { color: #fdba74; }
+.colorOrange .statValue { color: var(--adm-orange-soft); }
 
 .statSub {
   font-size: 0.72rem;
