@@ -620,6 +620,23 @@ export default function ProfilePage() {
                   >
                     {payoutLoading ? "Processing..." : `Request $${(xpToRedeem * xpToDollar).toFixed(2)} Payout`}
                   </button>
+
+                  <p style={{
+                    marginTop: "0.65rem",
+                    fontSize: "0.72rem",
+                    color: "var(--text-muted)",
+                    lineHeight: "1.5",
+                    textAlign: "center",
+                  }}>
+                    Submitting a payout means you agree to our{" "}
+                    <a href="/terms" style={{ color: "var(--accent-gold)", fontWeight: 600 }}>
+                      Terms
+                    </a>{" "}
+                    and{" "}
+                    <a href="/privacy" style={{ color: "var(--accent-gold)", fontWeight: 600 }}>
+                      Privacy Policy
+                    </a>. A case worker reviews each request.
+                  </p>
                 </div>
               )}
 

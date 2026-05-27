@@ -334,7 +334,26 @@ export default function SignupPage() {
           </div>
         )}
 
-        <div style={{ display: "flex", gap: "0.75rem", marginTop: "2rem" }}>
+        {step === 3 && (
+          <p style={{
+            marginTop: "1.5rem",
+            fontSize: "0.78rem",
+            color: "var(--text-muted)",
+            lineHeight: "1.55",
+            textAlign: "center",
+          }}>
+            By creating an account you agree to our{" "}
+            <Link href="/terms" style={{ color: "var(--accent-green)", fontWeight: 600 }}>
+              Terms of Service
+            </Link>{" "}
+            and{" "}
+            <Link href="/privacy" style={{ color: "var(--accent-green)", fontWeight: 600 }}>
+              Privacy Policy
+            </Link>.
+          </p>
+        )}
+
+        <div style={{ display: "flex", gap: "0.75rem", marginTop: "1.25rem" }}>
           {step > 1 && (
             <button
               type="button"
