@@ -79,7 +79,7 @@ export default function HomePage() {
         <div className="inv-hero-glow inv-hero-glow-3"></div>
 
         <div className="inv-hero-badge">
-          A Texas Nonprofit · 4 Years in the Community
+          A Texas Nonprofit · 4 Years in the Community · Final Pilot Stage
         </div>
         <h1>
           A Hand Up,<br />
