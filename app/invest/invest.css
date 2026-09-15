@@ -17,16 +17,8 @@
   --cy-purple: #5E35B1;
   --cy-border: rgba(0,70,127,0.10);
   --cy-border-hover: rgba(0,70,127,0.22);
-  /* Additional landing-page tokens — added so rules below can avoid raw hex */
+  /* Additional landing-page tokens */
   --cy-on-color:    #ffffff;   /* white text on coloured buttons/badges */
-  --cy-surface-alt: #f4f6fb;   /* alt surface for nested cards */
-  --cy-divider:     #e2e8f0;   /* hairline divider used in screenshots */
-  --cy-ink:         #1a2433;   /* deep ink for screenshot mock-ups */
-  --cy-ink-medium:  #4f5d72;   /* medium ink for screenshot body copy */
-  --cy-ink-soft:    #56657a;   /* soft ink for screenshot meta text */
-  --cy-ink-dim:     #5d6a7d;   /* dim ink for screenshot captions */
-  --cy-success:     #1f7a31;   /* success accent for mock pills */
-  --cy-amber:       #7a5b10;   /* amber accent for mock pills */
   --cy-mono: var(--font-share-tech-mono), 'Share Tech Mono', 'Courier New', monospace;
   --cy-display: var(--font-rajdhani), 'Rajdhani', 'Inter', sans-serif;
   --cy-body: var(--font-inter), 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -1725,7 +1717,7 @@
   box-shadow:
     0 32px 80px rgba(0, 0, 0, 0.55),
     0 0 0 1px rgba(255, 255, 255, 0.03);
-  background: var(--cy-on-color);
+  background: var(--adm-surface);
 }
 
 /* Browser chrome stays dark like a real macOS browser bar */
@@ -1771,26 +1763,26 @@
   display: grid;
   grid-template-columns: 192px 1fr;
   min-height: 440px;
-  background: var(--cy-surface-alt);
+  background: var(--adm-bg);
 }
 
 /* ---- SIDEBAR (light, mirrors real /admin) ---- */
 .ademo-sidebar {
-  background: var(--cy-on-color);
-  border-right: 1px solid var(--cy-divider);
+  background: var(--adm-surface);
+  border-right: 1px solid var(--adm-border);
   display: flex;
   flex-direction: column;
 }
 
 .ademo-brand {
   padding: 1rem 1rem 0.875rem;
-  border-bottom: 1px solid var(--cy-divider);
+  border-bottom: 1px solid var(--adm-border);
 }
 
 .ademo-brand-wordmark {
   font-size: 0.95rem;
   font-weight: 700;
-  color: var(--cy-ink);
+  color: var(--adm-text);
   letter-spacing: -0.02em;
   line-height: 1;
   margin-bottom: 0.2rem;
@@ -1798,12 +1790,12 @@
 }
 
 .ademo-brand-wordmark span {
-  color: var(--cy-blue-bright);
+  color: var(--adm-blue);
 }
 
 .ademo-brand-sub {
   font-size: 0.65rem;
-  color: var(--cy-ink-dim);
+  color: var(--adm-dim);
   font-weight: 500;
   font-family: Inter, system-ui, sans-serif;
 }
@@ -1820,7 +1812,7 @@
 .ademo-nav-group-label {
   font-size: 0.58rem;
   font-weight: 700;
-  color: var(--cy-ink-dim);
+  color: var(--adm-dim);
   letter-spacing: 0.07em;
   text-transform: uppercase;
   padding: 0.55rem 0.625rem 0.2rem;
@@ -1837,7 +1829,7 @@
   border-left: 2px solid transparent;
   font-size: 0.75rem;
   font-weight: 500;
-  color: var(--cy-ink-medium);
+  color: var(--text-secondary);
   transition: background 0.15s, color 0.15s;
   position: relative;
   cursor: default;
@@ -1850,9 +1842,9 @@
 }
 
 .ademo-nav-active {
-  background: rgba(25, 118, 210, 0.10);
-  border-left-color: var(--cy-blue-bright);
-  color: var(--cy-blue-bright);
+  background: color-mix(in srgb, var(--adm-blue) 10%, transparent);
+  border-left-color: var(--adm-blue);
+  color: var(--adm-blue);
   font-weight: 600;
 }
 
@@ -1869,8 +1861,8 @@
 
 .ademo-badge-dot {
   margin-left: auto;
-  background: var(--cy-red);
-  color: var(--cy-on-color);
+  background: var(--adm-red);
+  color: var(--adm-on-color);
   font-size: 0.58rem;
   font-weight: 700;
   min-width: 16px;
@@ -1884,7 +1876,7 @@
 
 .ademo-sidebar-foot {
   padding: 0.875rem 1rem;
-  border-top: 1px solid var(--cy-divider);
+  border-top: 1px solid var(--adm-border);
   margin-top: auto;
   display: flex;
   align-items: center;
@@ -1895,19 +1887,19 @@
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--cy-blue-bright) 0%, #6845d9 100%);
+  background: linear-gradient(135deg, var(--adm-blue) 0%, var(--accent-purple) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 0.62rem;
   font-weight: 700;
-  color: var(--cy-on-color);
+  color: var(--adm-on-color);
   flex-shrink: 0;
 }
 
 .ademo-admin-name {
   font-size: 0.72rem;
-  color: var(--cy-ink);
+  color: var(--adm-text);
   font-weight: 600;
   line-height: 1.2;
   font-family: Inter, system-ui, sans-serif;
@@ -1915,14 +1907,14 @@
 
 .ademo-admin-role {
   font-size: 0.62rem;
-  color: var(--cy-ink-dim);
+  color: var(--adm-dim);
   font-family: Inter, system-ui, sans-serif;
   text-transform: capitalize;
 }
 
 /* ---- MAIN CONTENT (light) ---- */
 .ademo-main {
-  background: var(--cy-surface-alt);
+  background: var(--adm-bg);
   padding: 1.375rem 1.5rem;
   overflow: hidden;
 }
@@ -1939,7 +1931,7 @@
 .ademo-page-title {
   font-size: 1.15rem;
   font-weight: 700;
-  color: var(--cy-ink);
+  color: var(--adm-text);
   margin-bottom: 1rem;
   letter-spacing: -0.01em;
   font-family: Inter, system-ui, sans-serif;
@@ -1948,7 +1940,7 @@
 .ademo-section-head {
   font-size: 0.65rem;
   font-weight: 700;
-  color: var(--cy-ink-soft);
+  color: var(--adm-muted);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   margin-bottom: 0.4rem;
@@ -1964,22 +1956,22 @@
 }
 
 .ademo-stat-card {
-  background: var(--cy-on-color);
-  border: 1px solid var(--cy-divider);
+  background: var(--adm-surface);
+  border: 1px solid var(--adm-border);
   border-radius: 10px;
   padding: 0.7rem 0.75rem;
   border-left: 3px solid;
-  box-shadow: 0 1px 2px rgba(15, 25, 35, 0.04);
+  box-shadow: var(--shadow-sm);
 }
 
-.ademo-stat-blue   { border-left-color: var(--cy-blue-bright); }
-.ademo-stat-green  { border-left-color: var(--cy-success); }
-.ademo-stat-red    { border-left-color: var(--cy-red); }
-.ademo-stat-gold   { border-left-color: var(--cy-amber); }
+.ademo-stat-blue   { border-left-color: var(--adm-blue); }
+.ademo-stat-green  { border-left-color: var(--adm-green); }
+.ademo-stat-red    { border-left-color: var(--adm-red); }
+.ademo-stat-gold   { border-left-color: var(--adm-amber); }
 
 .ademo-stat-label {
   font-size: 0.58rem;
-  color: var(--cy-ink-soft);
+  color: var(--adm-muted);
   margin-bottom: 0.25rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -1990,17 +1982,17 @@
 .ademo-stat-value {
   font-size: 1.1rem;
   font-weight: 700;
-  color: var(--cy-ink);
+  color: var(--adm-text);
   font-family: Inter, system-ui, sans-serif;
 }
 
 /* Mini cases list in dashboard */
 .ademo-mini-cases {
-  background: var(--cy-on-color);
-  border: 1px solid var(--cy-divider);
+  background: var(--adm-surface);
+  border: 1px solid var(--adm-border);
   border-radius: 10px;
   overflow: hidden;
-  box-shadow: 0 1px 2px rgba(15, 25, 35, 0.04);
+  box-shadow: var(--shadow-sm);
 }
 
 .ademo-mini-case-row {
@@ -2008,7 +2000,7 @@
   align-items: center;
   gap: 0.6rem;
   padding: 0.55rem 0.85rem;
-  border-bottom: 1px solid #eef1f6;
+  border-bottom: 1px solid var(--adm-bg);
   font-family: Inter, system-ui, sans-serif;
 }
 
@@ -2025,14 +2017,14 @@
 
 .ademo-mini-case-name {
   font-size: 0.73rem;
-  color: var(--cy-ink);
+  color: var(--adm-text);
   font-weight: 600;
   flex: 1;
 }
 
 .ademo-mini-case-type {
   font-size: 0.68rem;
-  color: var(--cy-ink-soft);
+  color: var(--adm-muted);
 }
 
 /* Pool health bar */
@@ -2045,20 +2037,20 @@
 .ademo-pool-bar {
   flex: 1;
   height: 8px;
-  background: var(--cy-divider);
+  background: var(--adm-border);
   border-radius: 999px;
   overflow: hidden;
 }
 
 .ademo-pool-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--cy-blue-bright), var(--cy-success));
+  background: linear-gradient(90deg, var(--adm-blue), var(--adm-green));
   border-radius: 999px;
 }
 
 .ademo-pool-pct {
   font-size: 0.65rem;
-  color: var(--cy-ink-medium);
+  color: var(--text-secondary);
   white-space: nowrap;
   font-weight: 600;
   font-family: Inter, system-ui, sans-serif;
@@ -2066,11 +2058,11 @@
 
 /* Table */
 .ademo-table {
-  border: 1px solid var(--cy-divider);
+  border: 1px solid var(--adm-border);
   border-radius: 10px;
   overflow: hidden;
-  background: var(--cy-on-color);
-  box-shadow: 0 1px 2px rgba(15, 25, 35, 0.04);
+  background: var(--adm-surface);
+  box-shadow: var(--shadow-sm);
 }
 
 .ademo-table-head {
@@ -2078,10 +2070,10 @@
   grid-template-columns: 28px 1.4fr 1.1fr 0.9fr;
   gap: 0.5rem;
   padding: 0.55rem 0.875rem;
-  background: var(--cy-surface-alt);
-  border-bottom: 1px solid var(--cy-divider);
+  background: var(--adm-bg);
+  border-bottom: 1px solid var(--adm-border);
   font-size: 0.58rem;
-  color: var(--cy-ink-soft);
+  color: var(--adm-muted);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   font-weight: 700;
@@ -2098,7 +2090,7 @@
   gap: 0.5rem;
   padding: 0.6rem 0.875rem;
   align-items: center;
-  border-bottom: 1px solid #eef1f6;
+  border-bottom: 1px solid var(--adm-bg);
 }
 
 .ademo-table-row.ademo-users-row {
@@ -2111,20 +2103,20 @@
 
 .ademo-user-name {
   font-size: 0.73rem;
-  color: var(--cy-ink);
+  color: var(--adm-text);
   font-weight: 600;
   font-family: Inter, system-ui, sans-serif;
 }
 
 .ademo-dim {
   font-size: 0.67rem;
-  color: var(--cy-ink-soft);
+  color: var(--adm-muted);
   font-family: Inter, system-ui, sans-serif;
 }
 
 .ademo-xp-val {
   font-size: 0.7rem;
-  color: var(--cy-amber);
+  color: var(--adm-amber);
   font-weight: 700;
   font-family: Inter, system-ui, sans-serif;
 }
@@ -2142,34 +2134,34 @@
   font-family: Inter, system-ui, sans-serif;
 }
 
-.ademo-pill-green  { background: #e3f3d8; color: #155523; }
-.ademo-pill-yellow { background: #fbeccb; color: #5a4209; }
+.ademo-pill-green  { background: color-mix(in srgb, var(--adm-green) 14%, var(--adm-surface)); color: var(--adm-green); }
+.ademo-pill-yellow { background: color-mix(in srgb, var(--adm-amber) 14%, var(--adm-surface)); color: var(--adm-amber); }
 
-.ademo-pill-status-open      { background: #d9eafd; color: #1255a3; }
-.ademo-pill-status-in_review { background: #fbeccb; color: #5a4209; }
-.ademo-pill-status-resolved  { background: #e3f3d8; color: #155523; }
+.ademo-pill-status-open      { background: color-mix(in srgb, var(--adm-blue) 14%, var(--adm-surface)); color: var(--adm-blue); }
+.ademo-pill-status-in_review { background: color-mix(in srgb, var(--adm-amber) 14%, var(--adm-surface)); color: var(--adm-amber); }
+.ademo-pill-status-resolved  { background: color-mix(in srgb, var(--adm-green) 14%, var(--adm-surface)); color: var(--adm-green); }
 
 /* Payouts */
 .ademo-payout-card {
-  border: 1px solid var(--cy-divider);
+  border: 1px solid var(--adm-border);
   border-radius: 10px;
   padding: 0.875rem 1rem;
-  background: var(--cy-on-color);
+  background: var(--adm-surface);
   margin-bottom: 0.5rem;
-  box-shadow: 0 1px 2px rgba(15, 25, 35, 0.04);
+  box-shadow: var(--shadow-sm);
   transition: border-color 0.3s, background 0.3s, box-shadow 0.3s;
 }
 
 .ademo-payout-hl {
-  border-color: #d4a72c;
-  background: #fdf6e3;
-  box-shadow: 0 4px 14px rgba(139, 105, 20, 0.15);
+  border-color: color-mix(in srgb, var(--adm-amber) 65%, var(--adm-surface));
+  background: color-mix(in srgb, var(--adm-amber) 8%, var(--adm-surface));
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--adm-amber) 15%, transparent);
 }
 
 .ademo-payout-done {
-  border-color: #5da33a;
-  background: #f1f8ec;
-  box-shadow: 0 4px 14px rgba(45, 122, 19, 0.15);
+  border-color: color-mix(in srgb, var(--adm-green) 65%, var(--adm-surface));
+  background: color-mix(in srgb, var(--adm-green) 8%, var(--adm-surface));
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--adm-green) 15%, transparent);
 }
 
 .ademo-payout-dim {
@@ -2188,14 +2180,14 @@
 
 .ademo-payout-name {
   font-size: 0.75rem;
-  color: var(--cy-ink);
+  color: var(--adm-text);
   font-weight: 700;
   font-family: Inter, system-ui, sans-serif;
 }
 
 .ademo-payout-meta {
   font-size: 0.63rem;
-  color: var(--cy-ink-soft);
+  color: var(--adm-muted);
   margin-top: 0.1rem;
   font-family: Inter, system-ui, sans-serif;
 }
@@ -2203,7 +2195,7 @@
 .ademo-payout-amt {
   font-size: 1rem;
   font-weight: 700;
-  color: #155523;
+  color: var(--adm-green);
   white-space: nowrap;
   font-family: Inter, system-ui, sans-serif;
 }
@@ -2214,38 +2206,38 @@
 
 .ademo-payout-method {
   font-size: 0.7rem;
-  color: var(--cy-blue-bright);
+  color: var(--adm-blue);
   font-weight: 600;
   font-family: Inter, system-ui, sans-serif;
 }
 
 .ademo-approve-btn {
   padding: 0.4rem 0.9rem;
-  background: var(--cy-blue-bright);
-  border: 1px solid #1664b6;
+  background: var(--adm-blue);
+  border: 1px solid color-mix(in srgb, var(--adm-blue) 85%, var(--adm-text));
   border-radius: 8px;
   font-size: 0.65rem;
   font-weight: 700;
-  color: var(--cy-on-color);
+  color: var(--adm-on-color);
   white-space: nowrap;
   letter-spacing: 0.02em;
   transition: background 0.25s, box-shadow 0.25s;
   font-family: Inter, system-ui, sans-serif;
-  box-shadow: 0 2px 6px rgba(25, 118, 210, 0.18);
+  box-shadow: 0 2px 6px color-mix(in srgb, var(--adm-blue) 18%, transparent);
 }
 
 .ademo-approve-busy {
-  background: #1255a3;
-  border-color: #0d4485;
-  box-shadow: 0 2px 10px rgba(25, 118, 210, 0.35);
+  background: color-mix(in srgb, var(--adm-blue) 78%, var(--adm-text));
+  border-color: color-mix(in srgb, var(--adm-blue) 65%, var(--adm-text));
+  box-shadow: 0 2px 10px color-mix(in srgb, var(--adm-blue) 35%, transparent);
 }
 
 .ademo-pay-link {
   margin-top: 0.55rem;
   padding-top: 0.55rem;
-  border-top: 1px solid var(--cy-divider);
+  border-top: 1px solid var(--adm-border);
   font-size: 0.68rem;
-  color: var(--cy-blue-bright);
+  color: var(--adm-blue);
   font-weight: 600;
   display: flex;
   align-items: center;

@@ -23,7 +23,7 @@
   box-shadow:
     0 0 0 1px rgba(255, 255, 255, 0.04),
     0 30px 80px rgba(0, 0, 0, 0.45),
-    0 0 40px rgba(25, 118, 210, 0.12);
+    0 0 40px color-mix(in srgb, var(--accent-blue) 12%, transparent);
 }
 
 .demo-phone-notch {
@@ -78,7 +78,7 @@
   background: var(--bg-secondary);
   border-radius: 10px;
   border: 1px solid var(--border-color);
-  box-shadow: 0 1px 2px rgba(15, 25, 35, 0.04);
+  box-shadow: var(--shadow-sm);
   color: var(--text-primary);
 }
 
@@ -124,19 +124,19 @@
   border-radius: 12px;
   border: 1px solid var(--border-color);
   background: var(--bg-secondary);
-  box-shadow: 0 1px 2px rgba(15, 25, 35, 0.03);
+  box-shadow: var(--shadow-sm);
   transition: all 0.3s;
 }
 
 .demo-node-active {
   background: var(--bg-secondary);
   border-color: var(--accent-blue);
-  box-shadow: 0 4px 12px rgba(25, 118, 210, 0.14);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--accent-blue) 14%, transparent);
 }
 
 .demo-node-done {
-  background: #f1f8ec;
-  border-color: #c8e3b6;
+  background: color-mix(in srgb, var(--accent-green) 8%, var(--bg-secondary));
+  border-color: color-mix(in srgb, var(--accent-green) 28%, var(--bg-secondary));
 }
 
 .demo-node-locked {
@@ -158,9 +158,9 @@
 }
 
 .demo-node-active .demo-node-circle {
-  background: linear-gradient(135deg, var(--accent-blue), #2563eb); /* second stop: brighter blue, no token equivalent */
+  background: linear-gradient(135deg, var(--accent-blue), var(--adm-blue-lt));
   color: var(--bg-secondary);
-  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.3);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--accent-blue) 30%, transparent);
 }
 
 .demo-node-done .demo-node-circle {
@@ -222,7 +222,11 @@
 
 .demo-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--accent-green), #4ea026);
+  background: linear-gradient(
+    90deg,
+    var(--accent-green),
+    color-mix(in srgb, var(--accent-green) 80%, var(--bg-secondary))
+  );
   border-radius: 4px;
   transition: width 0.6s ease;
 }
@@ -239,7 +243,7 @@
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: 12px;
-  box-shadow: 0 1px 2px rgba(15, 25, 35, 0.04);
+  box-shadow: var(--shadow-sm);
 }
 
 .demo-lesson-text {
@@ -251,7 +255,7 @@
 
 .demo-lesson-btn {
   padding: 9px 16px;
-  background: linear-gradient(135deg, var(--accent-blue), #2563eb); /* second stop: brighter blue, no token equivalent */
+  background: linear-gradient(135deg, var(--accent-blue), var(--adm-blue-lt));
   color: var(--bg-secondary);
   font-size: 0.72rem;
   font-weight: 700;
@@ -259,7 +263,7 @@
   border-radius: 10px;
   font-family: 'Rajdhani', sans-serif;
   letter-spacing: 0.02em;
-  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.25);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--accent-blue) 25%, transparent);
 }
 
 .demo-card-container {
@@ -275,10 +279,10 @@
   margin-bottom: 14px;
   padding: 14px;
   background: var(--bg-secondary);
-  border: 1px solid #cfe0f4;
+  border: 1px solid color-mix(in srgb, var(--accent-blue) 22%, var(--bg-secondary));
   border-left: 3px solid var(--accent-blue);
   border-radius: 12px;
-  box-shadow: 0 1px 2px rgba(15, 25, 35, 0.04);
+  box-shadow: var(--shadow-sm);
 }
 
 .demo-card-answers {
@@ -297,14 +301,14 @@
   transition: all 0.3s;
   line-height: 1.4;
   font-weight: 500;
-  box-shadow: 0 1px 2px rgba(15, 25, 35, 0.03);
+  box-shadow: var(--shadow-sm);
 }
 
 .demo-answer-correct {
   border-color: var(--accent-green);
-  background: #f1f8ec;
+  background: color-mix(in srgb, var(--accent-green) 8%, var(--bg-secondary));
   color: var(--accent-green-dark);
-  box-shadow: 0 2px 10px rgba(45, 122, 19, 0.18);
+  box-shadow: 0 2px 10px color-mix(in srgb, var(--accent-green) 18%, transparent);
   font-weight: 700;
 }
 
@@ -327,7 +331,11 @@
   font-family: 'Rajdhani', sans-serif;
   font-size: 2.5rem;
   font-weight: 700;
-  background: linear-gradient(135deg, var(--accent-green), #4ea026);
+  background: linear-gradient(
+    135deg,
+    var(--accent-green),
+    color-mix(in srgb, var(--accent-green) 80%, var(--bg-secondary))
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -363,7 +371,7 @@
   border-radius: 10px;
   font-family: 'Rajdhani', sans-serif;
   letter-spacing: 0.02em;
-  box-shadow: 0 2px 8px rgba(45, 122, 19, 0.25);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--accent-green) 25%, transparent);
 }
 
 .demo-phone-navbar {
@@ -397,8 +405,8 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: rgba(25, 118, 210, 0.22);
-  border: 2px solid rgba(25, 118, 210, 0.55);
+  background: color-mix(in srgb, var(--accent-blue) 22%, transparent);
+  border: 2px solid color-mix(in srgb, var(--accent-blue) 55%, transparent);
   transform: translate(-50%, -50%);
   pointer-events: none;
   z-index: 20;
@@ -465,7 +473,7 @@
   border: 1px solid var(--border-color);
   border-radius: 10px;
   font-size: 0.66rem;
-  box-shadow: 0 1px 2px rgba(15, 25, 35, 0.03);
+  box-shadow: var(--shadow-sm);
 }
 
 .demo-wallet-row-label {
@@ -481,7 +489,11 @@
 
 .demo-cashout-btn {
   padding: 11px 24px;
-  background: linear-gradient(135deg, var(--accent-gold), #6e520f);
+  background: linear-gradient(
+    135deg,
+    var(--accent-gold),
+    color-mix(in srgb, var(--accent-gold) 82%, var(--text-primary))
+  );
   color: var(--bg-secondary);
   font-size: 0.82rem;
   font-weight: 700;
@@ -489,7 +501,7 @@
   border-radius: 12px;
   font-family: 'Rajdhani', sans-serif;
   letter-spacing: 0.02em;
-  box-shadow: 0 4px 14px rgba(139, 105, 20, 0.28);
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--accent-gold) 28%, transparent);
 }
 
 .demo-cashout-icon {
