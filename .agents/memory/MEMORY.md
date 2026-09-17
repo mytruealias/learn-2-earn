@@ -1,0 +1,1 @@
+- [Curriculum content audits](curriculum-content-audits.md) — count cards from the Prisma seed source, never the stale curriculum-full.md snapshot; plus the safety/tone bar for recovery paths.

@@ -1,4 +1,6 @@
 import { PrismaClient } from "@prisma/client";
+import { recoveryExpansions } from "./recovery-expansions";
+import type { ExpansionCard } from "./recovery-expansions/types";
 
 const prisma = new PrismaClient();
 
@@ -99,6 +101,137 @@ async function seedCards(lessonId: string, cards: Array<{ type: string; order: n
   if (count === 0) {
     await prisma.card.createMany({ data: cards.map((c) => ({ lessonId, ...c })) });
   }
+}
+
+async function expandCards(lessonId: string, cards: ExpansionCard[]) {
+  const existing = await prisma.card.findMany({ where: { lessonId }, select: { order: true } });
+  const existingOrders = new Set(existing.map((c) => c.order));
+  const toCreate = cards.filter((c) => !existingOrders.has(c.order));
+  if (toCreate.length === 0) return 0;
+  await prisma.card.createMany({
+    data: toCreate.map((c) => ({
+      lessonId,
+      type: c.type,
+      order: c.order,
+      prompt: c.prompt,
+      body: c.body,
+      choicesJson: c.choices ? JSON.stringify(c.choices) : undefined,
+      answerJson: c.answer !== undefined ? JSON.stringify(c.answer) : undefined,
+      explain: c.explain,
+    })),
+  });
+  return toCreate.length;
+}
+
+// Fail loudly on malformed authored content rather than seeding a broken card
+// that would render as an unanswerable question in the lesson player.
+function validateExpansions() {
+  const errors: string[] = [];
+  for (const [pathSlug, pathExpansion] of Object.entries(recoveryExpansions)) {
+    for (const [lessonKey, cards] of Object.entries(pathExpansion)) {
+      const where = `${pathSlug} → ${lessonKey}`;
+      const keyParts = lessonKey.split("/");
+      if (keyParts.length !== 2 || !keyParts[0] || !keyParts[1]) {
+        errors.push(`${where}: key must be exactly "moduleSlug/lessonSlug"`);
+      }
+      const orders = new Set<number>();
+      for (const card of cards) {
+        const at = `${where} (order ${card.order})`;
+        if (!Number.isInteger(card.order) || card.order < 1) {
+          errors.push(`${at}: order must be a positive integer`);
+        }
+        if (orders.has(card.order)) {
+          errors.push(`${at}: duplicate order within the lesson`);
+        }
+        orders.add(card.order);
+        if (!card.prompt?.trim()) errors.push(`${at}: prompt is required`);
+        if (card.prompt?.includes(" —")) {
+          errors.push(`${at}: prompt uses the prohibited " —" (space + em-dash)`);
+        }
+        if (card.type === "INFO") {
+          if (!card.body?.trim()) errors.push(`${at}: INFO cards need a body`);
+          if (card.choices !== undefined || card.answer !== undefined) {
+            errors.push(`${at}: INFO cards must not have choices/answer`);
+          }
+        } else {
+          if (!card.choices || card.choices.length < 2) {
+            errors.push(`${at}: ${card.type} needs at least 2 choices`);
+          }
+          if (card.answer === undefined) {
+            errors.push(`${at}: ${card.type} needs an answer`);
+          } else if (card.choices && !card.choices.includes(card.answer)) {
+            errors.push(`${at}: answer is not one of the choices`);
+          }
+          if (new Set(card.choices ?? []).size !== (card.choices?.length ?? 0)) {
+            errors.push(`${at}: duplicate choices`);
+          }
+          if (card.type === "TRUE_FALSE") {
+            const isTrueFalse =
+              card.choices?.length === 2 &&
+              card.choices.includes("True") &&
+              card.choices.includes("False");
+            if (!isTrueFalse) errors.push(`${at}: TRUE_FALSE choices must be exactly ["True","False"]`);
+          }
+          if (!card.explain?.trim()) {
+            errors.push(`${at}: every question card needs an explain (the supportive "here's why")`);
+          }
+        }
+      }
+    }
+  }
+  if (errors.length > 0) {
+    throw new Error(`Invalid recovery expansion content:\n  - ${errors.join("\n  - ")}`);
+  }
+}
+
+async function applyRecoveryExpansions() {
+  validateExpansions();
+
+  // Preflight: resolve every target before writing anything, so a bad slug
+  // fails the whole step instead of leaving a half-applied expansion behind.
+  const resolved: Array<{ lessonId: string; cards: ExpansionCard[] }> = [];
+  const missing: string[] = [];
+
+  for (const [pathSlug, pathExpansion] of Object.entries(recoveryExpansions)) {
+    const path = await prisma.path.findUnique({ where: { slug: pathSlug }, select: { id: true } });
+    if (!path) {
+      missing.push(`path ${pathSlug}`);
+      continue;
+    }
+    for (const [lessonKey, cards] of Object.entries(pathExpansion)) {
+      const [moduleSlug, lessonSlug] = lessonKey.split("/");
+      const moduleRow = await prisma.module.findUnique({
+        where: { pathId_slug: { pathId: path.id, slug: moduleSlug } },
+        select: { id: true },
+      });
+      if (!moduleRow) {
+        missing.push(`module ${pathSlug}/${moduleSlug}`);
+        continue;
+      }
+      const lesson = await prisma.lesson.findUnique({
+        where: { moduleId_slug: { moduleId: moduleRow.id, slug: lessonSlug } },
+        select: { id: true },
+      });
+      if (!lesson) {
+        missing.push(`lesson ${pathSlug}/${lessonKey}`);
+        continue;
+      }
+      resolved.push({ lessonId: lesson.id, cards });
+    }
+  }
+
+  if (missing.length > 0) {
+    throw new Error(`Recovery expansion targets not found:\n  - ${missing.join("\n  - ")}`);
+  }
+
+  let created = 0;
+  let lessons = 0;
+  for (const { lessonId, cards } of resolved) {
+    const added = await expandCards(lessonId, cards);
+    if (added > 0) lessons++;
+    created += added;
+  }
+  console.log(`  ↳ Expanded ${lessons} recovery lessons with ${created} new cards`);
 }
 
 async function main() {
@@ -1044,6 +1177,7 @@ async function main() {
     { type: "INFO", order: 5, prompt: "Mission: Your Supporter Plan", body: "Write: 2 boundaries you're committed to, 1 supportive action you'll take this week, 1 self-care practice you'll protect, and 1 resource you'll share with your loved one. You've done the work — now live it." },
   ]);
 
+  await applyRecoveryExpansions();
   await reconcileLessonMetadata();
   console.log("✅ All 6 Recovery Journeys seeded successfully!");
 }
