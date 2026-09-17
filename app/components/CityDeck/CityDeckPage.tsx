@@ -31,10 +31,11 @@ export default function CityDeckPage({ config }: Props) {
     <div className="cd-page" style={theme.themeStyle}>
       <CityDeckNav primary={primary} />
 
-      <section className="cd-hero">
+      <main>
+      <section className="cd-hero" aria-labelledby="hero-heading">
         <div className="cd-hero-badge">{partnerLine}</div>
         <div className="cd-hero-nonprofit-tag">A Texas Nonprofit · 4 Years in the Community</div>
-        <h1>
+        <h1 id="hero-heading">
           Workforce Readiness &amp; Stability
           <em>Through Incentive-Based Learning</em>
         </h1>
@@ -46,39 +47,39 @@ export default function CityDeckPage({ config }: Props) {
         </div>
       </section>
 
-      <div className="cd-stat-highlight">
-        <div className="cd-stat-grid">
-          <div className="cd-stat-item">
+      <section className="cd-stat-highlight" aria-label="Key impact statistics">
+        <ul className="cd-stat-grid" role="list">
+          <li className="cd-stat-item">
             <div className="cd-stat-value">{stats.homeless.value}</div>
             <div className="cd-stat-label">
               {stats.homeless.label}
               {stats.homeless.cite && <sup className="cd-stat-cite">{stats.homeless.cite}</sup>}
             </div>
-          </div>
-          <div className="cd-stat-item">
+          </li>
+          <li className="cd-stat-item">
             <div className="cd-stat-value">{stats.employed.value}</div>
             <div className="cd-stat-label">
               {stats.employed.label}
               {stats.employed.cite && <sup className="cd-stat-cite">{stats.employed.cite}</sup>}
             </div>
-          </div>
-          <div className="cd-stat-item">
+          </li>
+          <li className="cd-stat-item">
             <div className="cd-stat-value">$0</div>
             <div className="cd-stat-label">Participant Cost to Join</div>
-          </div>
-        </div>
-      </div>
+          </li>
+        </ul>
+      </section>
 
-      <section className="cd-section" id="problem">
+      <section className="cd-section" id="problem" aria-labelledby="problem-heading">
         <div className="cd-container">
           <div className="cd-section-header">
             <div className="cd-slide-number">01. The Challenge</div>
             <div className="cd-section-label">Why This Matters</div>
-            <h2 className="cd-section-title">{cityName} Needs a <em>New Approach</em></h2>
+            <h2 className="cd-section-title" id="problem-heading">{cityName} Needs a <em>New Approach</em></h2>
             <p className="cd-section-subtitle">{problemIntro}</p>
           </div>
-          <div className="cd-problem-grid">
-            <div className="cd-problem-card">
+          <ul className="cd-problem-grid" role="list">
+            <li className="cd-problem-card">
               <div className="cd-problem-icon cd-pi-red">
                 <TrendingUpIcon size={28} stroke={RED} />
               </div>
@@ -87,8 +88,8 @@ export default function CityDeckPage({ config }: Props) {
                 Many residents lack the stability and structure to focus on skill-building
                 or workforce readiness. Without consistent engagement, progress stalls.
               </p>
-            </div>
-            <div className="cd-problem-card">
+            </li>
+            <li className="cd-problem-card">
               <div className="cd-problem-icon cd-pi-amber">
                 <TargetIcon size={28} stroke={GOLD} />
               </div>
@@ -97,8 +98,8 @@ export default function CityDeckPage({ config }: Props) {
                 Existing programs struggle with consistent participation. Without clear
                 incentives or structured milestones, learners disengage.
               </p>
-            </div>
-            <div className="cd-problem-card">
+            </li>
+            <li className="cd-problem-card">
               <div className="cd-problem-icon cd-pi-blue">
                 <BarChartIcon size={28} stroke={SKY} />
               </div>
@@ -107,201 +108,201 @@ export default function CityDeckPage({ config }: Props) {
                 Programs often lack real-time visibility into engagement and outcomes,
                 making it difficult to demonstrate impact to stakeholders.
               </p>
-            </div>
-          </div>
+            </li>
+          </ul>
         </div>
       </section>
 
-      <hr className="cd-divider" />
+      <hr className="cd-divider" aria-hidden="true" />
 
-      <section className="cd-section cd-section-alt" id="solution">
+      <section className="cd-section cd-section-alt" id="solution" aria-labelledby="solution-heading">
         <div className="cd-container">
           <div className="cd-section-header">
             <div className="cd-slide-number">02. The Solution</div>
             <div className="cd-section-label">Learn to Earn</div>
-            <h2 className="cd-section-title">Structured Learning, <em>Real Incentives</em></h2>
+            <h2 className="cd-section-title" id="solution-heading">Structured Learning, <em>Real Incentives</em></h2>
             <p className="cd-section-subtitle">
               A mobile-first platform that rewards progress with trackable incentives,
               designed for people experiencing homelessness and instability.
             </p>
           </div>
-          <div className="cd-solution-grid">
-            <div className="cd-solution-item">
+          <ul className="cd-solution-grid" role="list">
+            <li className="cd-solution-item">
               <div className="cd-solution-icon"><SmartphoneIcon size={24} stroke={primary} /></div>
               <div>
-                <h4>Phone-First Micro-Learning</h4>
+                <h3>Phone-First Micro-Learning</h3>
                 <p>248+ bite-sized lessons at a 6th-grade reading level, no app download needed. Works in any browser, on any device.</p>
               </div>
-            </div>
-            <div className="cd-solution-item">
+            </li>
+            <li className="cd-solution-item">
               <div className="cd-solution-icon"><CoinIcon size={24} stroke={primary} /></div>
               <div>
-                <h4>Flexible Cash Incentives</h4>
+                <h3>Flexible Cash Incentives</h3>
                 <p>Participants earn XP for completing lessons and redeem via Zelle, Venmo, PayPal, Cash App, or check, with multi-stage admin approval.</p>
               </div>
-            </div>
-            <div className="cd-solution-item">
+            </li>
+            <li className="cd-solution-item">
               <div className="cd-solution-icon"><BotIcon size={24} stroke={primary} /></div>
               <div>
-                <h4>AI Support Companion</h4>
+                <h3>AI Support Companion</h3>
                 <p>Hubert, a 24/7 AI companion providing trauma-informed emotional support, goal coaching, and automatic crisis escalation.</p>
               </div>
-            </div>
-            <div className="cd-solution-item">
+            </li>
+            <li className="cd-solution-item">
               <div className="cd-solution-icon"><BarChartIcon size={24} stroke={primary} /></div>
               <div>
-                <h4>Real-Time Reporting</h4>
+                <h3>Real-Time Reporting</h3>
                 <p>Live dashboards showing enrollment, engagement, completion rates, and outcomes, exportable for grant and compliance reporting.</p>
               </div>
-            </div>
-          </div>
+            </li>
+          </ul>
         </div>
       </section>
 
-      <section className="cd-section" id="platform">
+      <section className="cd-section" id="platform" aria-labelledby="platform-heading">
         <div className="cd-container">
           <div className="cd-section-header">
             <div className="cd-slide-number">03. Platform</div>
             <div className="cd-section-label">What&apos;s Built</div>
-            <h2 className="cd-section-title">A Complete System, <em>Ready to Deploy</em></h2>
+            <h2 className="cd-section-title" id="platform-heading">A Complete System, <em>Ready to Deploy</em></h2>
             <p className="cd-section-subtitle">
               Not a concept, a working platform with 248+ lessons, an AI companion,
               built-in safety tools, and a full admin layer.
             </p>
           </div>
 
-          <div className="cd-platform-grid">
-            <div className="cd-platform-card">
+          <ul className="cd-platform-grid" role="list">
+            <li className="cd-platform-card">
               <div className="cd-platform-card-icon cd-pci-navy"><BotIcon size={24} stroke={primary} /></div>
-              <h4>Hubert AI Companion</h4>
+              <h3>Hubert AI Companion</h3>
               <p>24/7 emotional support at a 6th-grade reading level. Trauma-informed conversations, goal coaching, and automatic crisis detection that surfaces 988 and emergency resources instantly.</p>
-            </div>
+            </li>
 
-            <div className="cd-platform-card">
+            <li className="cd-platform-card">
               <div className="cd-platform-card-icon cd-pci-red"><HeartPlusIcon size={24} stroke={RED} /></div>
-              <h4>Safety Net &amp; Lifeline</h4>
+              <h3>Safety Net &amp; Lifeline</h3>
               <p>One-tap access to 988 Suicide &amp; Crisis Lifeline, 211, SAMHSA, and domestic violence hotlines. A &ldquo;Stress Signal&rdquo; button lets learners send urgent help requests directly to caseworkers.</p>
-            </div>
+            </li>
 
-            <div className="cd-platform-card">
+            <li className="cd-platform-card">
               <div className="cd-platform-card-icon cd-pci-gold"><RadioIcon size={24} stroke={GOLD} /></div>
-              <h4>Gamification Engine</h4>
+              <h3>Gamification Engine</h3>
               <p>Streaks, hearts, badges, and streak freezes drive daily engagement, modeled on the same mechanics that keep users coming back to top learning apps.</p>
-            </div>
+            </li>
 
-            <div className="cd-platform-card">
+            <li className="cd-platform-card">
               <div className="cd-platform-card-icon cd-pci-green"><LayersIcon size={24} stroke={secondary} /></div>
-              <h4>Structured Content</h4>
+              <h3>Structured Content</h3>
               <p>11 learning paths &rarr; modules &rarr; 248+ lessons &rarr; interactive cards (learn, quiz, reflection). All trauma-informed and written at a 6th-grade reading level.</p>
-            </div>
+            </li>
 
-            <div className="cd-platform-card">
+            <li className="cd-platform-card">
               <div className="cd-platform-card-icon cd-pci-sky"><DollarIcon size={24} stroke={SKY} /></div>
-              <h4>Managed Payouts</h4>
+              <h3>Managed Payouts</h3>
               <p>Three-stage approval workflow: caseworker review &rarr; finance approval &rarr; disbursement via Zelle, Venmo, PayPal, Cash App, or check. Full audit trail on every transaction.</p>
-            </div>
+            </li>
 
-            <div className="cd-platform-card">
+            <li className="cd-platform-card">
               <div className="cd-platform-card-icon cd-pci-navy"><MessageIcon size={24} stroke={primary} /></div>
-              <h4>Casework Hub</h4>
+              <h3>Casework Hub</h3>
               <p>Staff dashboard for managing stress signals, assigning cases, adding notes, and tracking participant progress, with role-based access and compliance logging.</p>
-            </div>
-          </div>
+            </li>
+          </ul>
         </div>
       </section>
 
-      <hr className="cd-divider" />
+      <hr className="cd-divider" aria-hidden="true" />
 
-      <section className="cd-section cd-section-alt" id="how-it-works">
+      <section className="cd-section cd-section-alt" id="how-it-works" aria-labelledby="how-it-works-heading">
         <div className="cd-container">
           <div className="cd-section-header">
             <div className="cd-slide-number">04. Process</div>
             <div className="cd-section-label">How It Works</div>
-            <h2 className="cd-section-title">Five Steps to <em>Measurable Impact</em></h2>
+            <h2 className="cd-section-title" id="how-it-works-heading">Five Steps to <em>Measurable Impact</em></h2>
             <p className="cd-section-subtitle">
               From enrollment to outcome tracking, a clear, repeatable process.
             </p>
           </div>
-          <div className="cd-steps">
-            <div className="cd-step">
-              <div className="cd-step-num">1</div>
+          <ol className="cd-steps" role="list">
+            <li className="cd-step">
+              <div className="cd-step-num" aria-hidden="true">1</div>
               <div className="cd-step-icon"><UsersIcon size={24} stroke={secondary} /></div>
-              <h4>Enroll</h4>
+              <h3>Enroll</h3>
               <p>Participants enroll through partner organizations</p>
-            </div>
-            <div className="cd-step">
-              <div className="cd-step-num">2</div>
+            </li>
+            <li className="cd-step">
+              <div className="cd-step-num" aria-hidden="true">2</div>
               <div className="cd-step-icon"><ClipboardIcon size={24} stroke={primary} /></div>
-              <h4>Learn</h4>
+              <h3>Learn</h3>
               <p>Complete short lessons and milestones at their own pace</p>
-            </div>
-            <div className="cd-step">
-              <div className="cd-step-num">3</div>
+            </li>
+            <li className="cd-step">
+              <div className="cd-step-num" aria-hidden="true">3</div>
               <div className="cd-step-icon"><CoinIcon size={24} stroke={GOLD} /></div>
-              <h4>Earn</h4>
+              <h3>Earn</h3>
               <p>Earn rewards based on verified progress and completion</p>
-            </div>
-            <div className="cd-step">
-              <div className="cd-step-num">4</div>
+            </li>
+            <li className="cd-step">
+              <div className="cd-step-num" aria-hidden="true">4</div>
               <div className="cd-step-icon"><CheckCircleIcon size={24} stroke={SKY} /></div>
-              <h4>Approve</h4>
+              <h3>Approve</h3>
               <p>Admin team reviews and approves incentive payouts</p>
-            </div>
-            <div className="cd-step">
-              <div className="cd-step-num">5</div>
+            </li>
+            <li className="cd-step">
+              <div className="cd-step-num" aria-hidden="true">5</div>
               <div className="cd-step-icon"><BarChartIcon size={24} stroke={RED} /></div>
-              <h4>Track</h4>
+              <h3>Track</h3>
               <p>City tracks engagement and outcomes in real time</p>
-            </div>
-          </div>
+            </li>
+          </ol>
           <p className="cd-steps-note">
             No re-enrollment needed when expanding. New learning paths added instantly.
           </p>
         </div>
       </section>
 
-      <hr className="cd-divider" />
+      <hr className="cd-divider" aria-hidden="true" />
 
-      <section className="cd-section cd-section-alt" id="scope">
+      <section className="cd-section cd-section-alt" id="scope" aria-labelledby="scope-heading">
         <div className="cd-container">
           <div className="cd-section-header">
             <div className="cd-slide-number">05. Pilot Scope</div>
             <div className="cd-section-label">Scope</div>
-            <h2 className="cd-section-title">Defined, Manageable, <em>Measurable</em></h2>
+            <h2 className="cd-section-title" id="scope-heading">Defined, Manageable, <em>Measurable</em></h2>
           </div>
-          <div className="cd-scope-grid">
-            <div className="cd-scope-card">
+          <ul className="cd-scope-grid" role="list">
+            <li className="cd-scope-card">
               <div className="cd-scope-icon"><CalendarIcon size={32} stroke={primary} /></div>
               <div className="cd-scope-value">90 Days</div>
               <div className="cd-scope-label">Duration</div>
-            </div>
-            <div className="cd-scope-card">
+            </li>
+            <li className="cd-scope-card">
               <div className="cd-scope-icon"><UsersIcon size={32} stroke={secondary} /></div>
               <div className="cd-scope-value">Up to 500</div>
               <div className="cd-scope-label">Participants</div>
-            </div>
-            <div className="cd-scope-card">
+            </li>
+            <li className="cd-scope-card">
               <div className="cd-scope-icon"><BriefcaseIcon size={32} stroke={GOLD} /></div>
               <div className="cd-scope-value">1 Pathway</div>
               <div className="cd-scope-label">Workforce Readiness or Life Stability</div>
-            </div>
-            <div className="cd-scope-card">
+            </li>
+            <li className="cd-scope-card">
               <div className="cd-scope-icon"><CheckCircleIcon size={32} stroke={SKY} /></div>
               <div className="cd-scope-value">Full Support</div>
               <div className="cd-scope-label">Onboarding, Admin &amp; Reporting</div>
-            </div>
-          </div>
+            </li>
+          </ul>
         </div>
       </section>
 
-      <section className="cd-section" id="deliverables">
+      <section className="cd-section" id="deliverables" aria-labelledby="deliverables-heading">
         <div className="cd-container">
           <div className="cd-section-header">
             <div className="cd-slide-number">06. Deliverables</div>
             <div className="cd-section-label">What You Receive</div>
-            <h2 className="cd-section-title">Everything Included in the <em>Pilot</em></h2>
+            <h2 className="cd-section-title" id="deliverables-heading">Everything Included in the <em>Pilot</em></h2>
           </div>
-          <div className="cd-deliver-grid">
+          <ul className="cd-deliver-grid" role="list">
             {[
               "Full platform access for all pilot participants",
               "Hubert AI companion with 24/7 crisis detection",
@@ -313,159 +314,159 @@ export default function CityDeckPage({ config }: Props) {
               "Gamification engine (streaks, hearts, badges)",
               "Staff onboarding, training, and ongoing support",
             ].map((item) => (
-              <div className="cd-deliver-item" key={item}>
+              <li className="cd-deliver-item" key={item}>
                 <CheckCircleIcon size={20} stroke={secondary} />
                 <span>{item}</span>
-              </div>
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
       </section>
 
-      <hr className="cd-divider" />
+      <hr className="cd-divider" aria-hidden="true" />
 
-      <section className="cd-section cd-section-alt" id="funding">
+      <section className="cd-section cd-section-alt" id="funding" aria-labelledby="funding-heading">
         <div className="cd-container">
           <div className="cd-section-header">
             <div className="cd-slide-number">07. Investment</div>
             <div className="cd-section-label">Funding</div>
-            <h2 className="cd-section-title">Simple, <em>Transparent</em> Funding</h2>
+            <h2 className="cd-section-title" id="funding-heading">Simple, <em>Transparent</em> Funding</h2>
             <p className="cd-section-subtitle">
               Two separate, clearly defined budgets, no hidden costs.
             </p>
           </div>
-          <div className="cd-funding-grid">
-            <div className="cd-funding-card">
+          <ul className="cd-funding-grid" role="list">
+            <li className="cd-funding-card">
               <div className="cd-funding-badge cd-funding-badge-blue">Budget 1</div>
               <h3>Platform &amp; Support</h3>
               <p className="cd-funding-desc">Fixed monthly fee covering:</p>
-              <ul className="cd-funding-list">
+              <ul className="cd-funding-list" role="list">
                 <li>Software access and hosting</li>
                 <li>Real-time reporting and dashboards</li>
                 <li>Onboarding and staff training</li>
                 <li>Ongoing technical support</li>
               </ul>
-            </div>
-            <div className="cd-funding-card">
+            </li>
+            <li className="cd-funding-card">
               <div className="cd-funding-badge cd-funding-badge-green">Budget 2</div>
               <h3>Participant Incentive Pool</h3>
               <p className="cd-funding-desc">Funded and controlled by the city or partner:</p>
-              <ul className="cd-funding-list">
+              <ul className="cd-funding-list" role="list">
                 <li>Distributed based on milestone completion</li>
                 <li>Fully trackable with approval rules</li>
                 <li>City retains full control over disbursement</li>
                 <li>Transparent audit trail for every payout</li>
               </ul>
-            </div>
-          </div>
+            </li>
+          </ul>
         </div>
       </section>
 
-      <section className="cd-section" id="reporting">
+      <section className="cd-section" id="reporting" aria-labelledby="reporting-heading">
         <div className="cd-container">
           <div className="cd-section-header">
             <div className="cd-slide-number">08. Outcomes</div>
             <div className="cd-section-label">Reporting</div>
-            <h2 className="cd-section-title">Measurable <em>Outcomes</em></h2>
+            <h2 className="cd-section-title" id="reporting-heading">Measurable <em>Outcomes</em></h2>
             <p className="cd-section-subtitle">
               Data available in real time and exportable for grant or compliance reporting.
             </p>
           </div>
-          <div className="cd-metrics-grid">
-            <div className="cd-metric"><UsersIcon size={22} stroke={secondary} /><span>Total participants enrolled</span></div>
-            <div className="cd-metric"><TrendingUpIcon size={22} stroke={primary} /><span>Active users</span></div>
-            <div className="cd-metric"><ClipboardIcon size={22} stroke={GOLD} /><span>Lessons completed</span></div>
-            <div className="cd-metric"><TargetIcon size={22} stroke={SKY} /><span>Milestones achieved</span></div>
-            <div className="cd-metric"><DollarIcon size={22} stroke={secondary} /><span>Incentives earned &amp; approved</span></div>
-            <div className="cd-metric"><BarChartIcon size={22} stroke={primary} /><span>Engagement over time</span></div>
-            <div className="cd-metric"><TrendingUpIcon size={22} stroke={RED} style={{ transform: "scaleY(-1)" }} /><span>Drop-off analysis</span></div>
-            <div className="cd-metric"><FileTextIcon size={22} stroke={GOLD} /><span>Exportable compliance reports</span></div>
-          </div>
+          <ul className="cd-metrics-grid" role="list">
+            <li className="cd-metric"><UsersIcon size={22} stroke={secondary} /><span>Total participants enrolled</span></li>
+            <li className="cd-metric"><TrendingUpIcon size={22} stroke={primary} /><span>Active users</span></li>
+            <li className="cd-metric"><ClipboardIcon size={22} stroke={GOLD} /><span>Lessons completed</span></li>
+            <li className="cd-metric"><TargetIcon size={22} stroke={SKY} /><span>Milestones achieved</span></li>
+            <li className="cd-metric"><DollarIcon size={22} stroke={secondary} /><span>Incentives earned &amp; approved</span></li>
+            <li className="cd-metric"><BarChartIcon size={22} stroke={primary} /><span>Engagement over time</span></li>
+            <li className="cd-metric"><TrendingUpIcon size={22} stroke={RED} style={{ transform: "scaleY(-1)" }} /><span>Drop-off analysis</span></li>
+            <li className="cd-metric"><FileTextIcon size={22} stroke={GOLD} /><span>Exportable compliance reports</span></li>
+          </ul>
         </div>
       </section>
 
-      <hr className="cd-divider" />
+      <hr className="cd-divider" aria-hidden="true" />
 
-      <section className="cd-section cd-section-alt" id="security">
+      <section className="cd-section cd-section-alt" id="security" aria-labelledby="security-heading">
         <div className="cd-container">
           <div className="cd-section-header">
             <div className="cd-slide-number">09. Compliance</div>
             <div className="cd-section-label">Security</div>
-            <h2 className="cd-section-title">Security &amp; <em>Oversight</em></h2>
+            <h2 className="cd-section-title" id="security-heading">Security &amp; <em>Oversight</em></h2>
           </div>
-          <div className="cd-security-grid">
-            <div className="cd-security-item">
+          <ul className="cd-security-grid" role="list">
+            <li className="cd-security-item">
               <LockIcon size={24} stroke={primary} />
-              <div><h4>Encryption</h4><p>Data encrypted in transit and at rest</p></div>
-            </div>
-            <div className="cd-security-item">
+              <div><h3>Encryption</h3><p>Data encrypted in transit and at rest</p></div>
+            </li>
+            <li className="cd-security-item">
               <ShieldIcon size={24} stroke={secondary} />
-              <div><h4>Role-Based Access</h4><p>Staff access controlled by role and permissions</p></div>
-            </div>
-            <div className="cd-security-item">
+              <div><h3>Role-Based Access</h3><p>Staff access controlled by role and permissions</p></div>
+            </li>
+            <li className="cd-security-item">
               <CheckCircleIcon size={24} stroke={GOLD} />
-              <div><h4>Approval Required</h4><p>All incentive payouts require admin approval</p></div>
-            </div>
-            <div className="cd-security-item">
+              <div><h3>Approval Required</h3><p>All incentive payouts require admin approval</p></div>
+            </li>
+            <li className="cd-security-item">
               <FileTextIcon size={24} stroke={SKY} />
-              <div><h4>Full Audit Trail</h4><p>Complete log of participant activity and payouts</p></div>
-            </div>
-          </div>
+              <div><h3>Full Audit Trail</h3><p>Complete log of participant activity and payouts</p></div>
+            </li>
+          </ul>
         </div>
       </section>
 
-      <section className="cd-section" id="timeline">
+      <section className="cd-section" id="timeline" aria-labelledby="timeline-heading">
         <div className="cd-container">
           <div className="cd-section-header">
             <div className="cd-slide-number">10. Timeline</div>
             <div className="cd-section-label">Timeline</div>
-            <h2 className="cd-section-title">Pilot <em>Timeline</em></h2>
+            <h2 className="cd-section-title" id="timeline-heading">Pilot <em>Timeline</em></h2>
           </div>
-          <div className="cd-timeline">
-            <div className="cd-timeline-item">
-              <div className="cd-timeline-marker cd-tl-green" />
+          <ol className="cd-timeline" role="list">
+            <li className="cd-timeline-item">
+              <div className="cd-timeline-marker cd-tl-green" aria-hidden="true" />
               <div className="cd-timeline-content">
                 <div className="cd-timeline-period">Week 1&ndash;2</div>
-                <h4>Setup &amp; Onboarding</h4>
+                <h3>Setup &amp; Onboarding</h3>
                 <p>Platform configuration, admin training, and staff onboarding</p>
               </div>
-            </div>
-            <div className="cd-timeline-item">
-              <div className="cd-timeline-marker cd-tl-blue" />
+            </li>
+            <li className="cd-timeline-item">
+              <div className="cd-timeline-marker cd-tl-blue" aria-hidden="true" />
               <div className="cd-timeline-content">
                 <div className="cd-timeline-period">Week 3&ndash;4</div>
-                <h4>Enrollment &amp; Launch</h4>
+                <h3>Enrollment &amp; Launch</h3>
                 <p>Participant enrollment through partner organizations and program kickoff</p>
               </div>
-            </div>
-            <div className="cd-timeline-item">
-              <div className="cd-timeline-marker cd-tl-gold" />
+            </li>
+            <li className="cd-timeline-item">
+              <div className="cd-timeline-marker cd-tl-gold" aria-hidden="true" />
               <div className="cd-timeline-content">
                 <div className="cd-timeline-period">Month 2</div>
-                <h4>Engagement &amp; Optimization</h4>
+                <h3>Engagement &amp; Optimization</h3>
                 <p>Active learning, milestone tracking, incentive distribution, and process refinement</p>
               </div>
-            </div>
-            <div className="cd-timeline-item">
-              <div className="cd-timeline-marker cd-tl-purple" />
+            </li>
+            <li className="cd-timeline-item">
+              <div className="cd-timeline-marker cd-tl-purple" aria-hidden="true" />
               <div className="cd-timeline-content">
                 <div className="cd-timeline-period">Month 3</div>
-                <h4>Reporting &amp; Outcome Review</h4>
+                <h3>Reporting &amp; Outcome Review</h3>
                 <p>Comprehensive outcome analysis, stakeholder reporting, and expansion planning</p>
               </div>
-            </div>
-          </div>
+            </li>
+          </ol>
         </div>
       </section>
 
-      <hr className="cd-divider" />
+      <hr className="cd-divider" aria-hidden="true" />
 
-      <section className="cd-section cd-section-alt" id="learning-paths">
+      <section className="cd-section cd-section-alt" id="learning-paths" aria-labelledby="learning-paths-heading">
         <div className="cd-container">
           <div className="cd-section-header">
             <div className="cd-slide-number">11. Content Library</div>
             <div className="cd-section-label">Learning Paths</div>
-            <h2 className="cd-section-title">11 Paths Ready to <em>Deploy</em></h2>
+            <h2 className="cd-section-title" id="learning-paths-heading">11 Paths Ready to <em>Deploy</em></h2>
             <p className="cd-section-subtitle">
               Start with one pathway during the pilot, then layer in additional tracks
               as outcomes grow. No re-enrollment required.
@@ -474,7 +475,7 @@ export default function CityDeckPage({ config }: Props) {
 
           <div className="cd-paths-group">
             <h3 className="cd-paths-group-title">Foundational</h3>
-            <ul className="cd-paths-grid">
+            <ul className="cd-paths-grid" role="list">
               <li className="cd-path-card">
                 <div className="cd-path-icon cd-path-icon-navy" aria-hidden="true"><HomeIcon size={20} stroke={primary} /></div>
                 <div><h4>Stability Basics</h4><p>Daily routines, communication, documents, health access, and boundaries</p></div>
@@ -500,7 +501,7 @@ export default function CityDeckPage({ config }: Props) {
 
           <div className="cd-paths-group">
             <h3 className="cd-paths-group-title">Recovery &amp; Support</h3>
-            <ul className="cd-paths-grid">
+            <ul className="cd-paths-grid" role="list">
               <li className="cd-path-card">
                 <div className="cd-path-icon cd-path-icon-navy" aria-hidden="true"><BrainIcon size={20} stroke={primary} /></div>
                 <div><h4>Addiction &amp; Recovery Foundations</h4><p>Self-awareness, craving tools, and personal recovery planning</p></div>
@@ -532,9 +533,9 @@ export default function CityDeckPage({ config }: Props) {
             <div className="cd-custom-paths-badge">+ Custom</div>
             <h3>Custom Paths for {cityName}</h3>
             <p>{customPathsCopy}</p>
-            <div className="cd-custom-examples">
-              {customExamples.map((ex) => (<span key={ex}>{ex}</span>))}
-            </div>
+            <ul className="cd-custom-examples" role="list" aria-label={`Example custom paths for ${cityName}`}>
+              {customExamples.map((ex) => (<li key={ex}>{ex}</li>))}
+            </ul>
             <p className="cd-custom-note">
               Custom paths are built collaboratively with city staff and deployed without additional enrollment.
             </p>
@@ -542,28 +543,28 @@ export default function CityDeckPage({ config }: Props) {
         </div>
       </section>
 
-      <section className="cd-section" id="expansion">
+      <section className="cd-section" id="expansion" aria-labelledby="expansion-heading">
         <div className="cd-container">
           <div className="cd-section-header">
             <div className="cd-slide-number">12. Growth</div>
             <div className="cd-section-label">Expansion</div>
-            <h2 className="cd-section-title">Built to <em>Scale</em></h2>
+            <h2 className="cd-section-title" id="expansion-heading">Built to <em>Scale</em></h2>
             <p className="cd-section-subtitle">
               Start focused, then expand as outcomes prove out.
             </p>
           </div>
-          <div className="cd-expand-grid">
-            <div className="cd-expand-item"><div className="cd-expand-num">1</div><h4>Start Focused</h4><p>Begin with one targeted learning pathway</p></div>
-            <div className="cd-expand-item"><div className="cd-expand-num">2</div><h4>Add Tracks</h4><p>Add more learning paths without re-enrollment</p></div>
-            <div className="cd-expand-item"><div className="cd-expand-num">3</div><h4>Extend Reach</h4><p>Expand to additional organizations or city programs</p></div>
-            <div className="cd-expand-item"><div className="cd-expand-num">4</div><h4>Scale Up</h4><p>Increase participant count in managed tiers</p></div>
-          </div>
+          <ol className="cd-expand-grid" role="list">
+            <li className="cd-expand-item"><div className="cd-expand-num" aria-hidden="true">1</div><h3>Start Focused</h3><p>Begin with one targeted learning pathway</p></li>
+            <li className="cd-expand-item"><div className="cd-expand-num" aria-hidden="true">2</div><h3>Add Tracks</h3><p>Add more learning paths without re-enrollment</p></li>
+            <li className="cd-expand-item"><div className="cd-expand-num" aria-hidden="true">3</div><h3>Extend Reach</h3><p>Expand to additional organizations or city programs</p></li>
+            <li className="cd-expand-item"><div className="cd-expand-num" aria-hidden="true">4</div><h3>Scale Up</h3><p>Increase participant count in managed tiers</p></li>
+          </ol>
         </div>
       </section>
 
-      <section className="cd-cta-section" id="contact">
+      <section className="cd-cta-section" id="contact" aria-labelledby="contact-heading">
         <div className="cd-container">
-          <h2>{ctaTitle}</h2>
+          <h2 id="contact-heading">{ctaTitle}</h2>
           <p>{ctaSub}</p>
           <div className="cd-cta-actions">
             <a href={mailto(emailSubjectPilotPlan)} className="cd-btn-primary">Request Pilot Plan</a>
@@ -580,7 +581,7 @@ export default function CityDeckPage({ config }: Props) {
 
             <div className="cd-cta-print-next">
               <div className="cd-cta-print-label">What happens next</div>
-              <ol className="cd-cta-print-steps">
+              <ol className="cd-cta-print-steps" role="list">
                 <li>
                   <span className="cd-cta-print-step-num">1</span>
                   <div>
@@ -622,7 +623,7 @@ export default function CityDeckPage({ config }: Props) {
       <section className="cd-sources" aria-label="Sources">
         <div className="cd-container">
           <div className="cd-sources-label">Sources</div>
-          <ol className="cd-sources-list">
+           <ol className="cd-sources-list" role="list">
             {sources.map((src, i) => (
               <li key={i}>
                 <span className="cd-sources-num">{i + 1}.</span>
@@ -635,6 +636,7 @@ export default function CityDeckPage({ config }: Props) {
           </p>
         </div>
       </section>
+      </main>
 
       <footer className="cd-footer">
         <div className="cd-container">

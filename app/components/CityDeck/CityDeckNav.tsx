@@ -26,7 +26,7 @@ export default function CityDeckNav({ primary }: Props) {
   };
 
   return (
-    <nav className="cd-nav">
+    <nav className="cd-nav" aria-label="Pilot proposal">
       <Link href="/" className="cd-nav-logo">
         <svg viewBox="0 0 32 32" fill="none">
           <rect x="4" y="18" width="6" height="10" rx="1" fill={primary} opacity="0.5" />
@@ -41,13 +41,14 @@ export default function CityDeckNav({ primary }: Props) {
         onClick={() => setMenuOpen(!menuOpen)}
         aria-label={menuOpen ? "Close menu" : "Open menu"}
         aria-expanded={menuOpen}
+        aria-controls="city-deck-navigation"
       >
         <span />
         <span />
         <span />
       </button>
 
-      <div className={`cd-nav-links ${menuOpen ? "cd-nav-links--open" : ""}`}>
+      <div id="city-deck-navigation" className={`cd-nav-links ${menuOpen ? "cd-nav-links--open" : ""}`}>
         <a href="#problem" onClick={handleLinkClick}>Challenge</a>
         <a href="#solution" onClick={handleLinkClick}>Solution</a>
         <a href="#how-it-works" onClick={handleLinkClick}>Process</a>
@@ -59,7 +60,7 @@ export default function CityDeckNav({ primary }: Props) {
       </div>
 
       {menuOpen && (
-        <div className="cd-nav-overlay" onClick={() => setMenuOpen(false)} />
+        <div className="cd-nav-overlay" aria-hidden="true" onClick={() => setMenuOpen(false)} />
       )}
     </nav>
   );
