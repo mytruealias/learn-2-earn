@@ -32,6 +32,10 @@ The platform has three access layers:
 
 ---
 
+## Upgrade plan and verified baseline
+
+See the [staged upgrade checklist](docs/upgrade-plan.md), [baseline evidence](docs/upgrade-baseline.md), and [stage status](docs/upgrade-status.md) before starting improvement work. The baseline records known setup-documentation differences below.
+
 ## Getting Started
 
 ### Prerequisites
