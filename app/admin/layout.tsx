@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { useModalA11y } from "@/lib/use-modal-a11y";
+import { IconButton } from "@/app/components/ui";
 import { usePathname, useRouter } from "next/navigation";
 import { AdminToastProvider } from "./AdminToastContext";
 import { AdminContext, type AdminUser } from "./AdminContext";
@@ -17,6 +19,8 @@ function getInitials(name: string): string {
 
 function NavIcon({ name }: { name: string }) {
   const iconProps = {
+    "aria-hidden": true as const,
+    focusable: false as const,
     width: 16,
     height: 16,
     viewBox: "0 0 24 24",
@@ -114,6 +118,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const pathname = usePathname();
   const router = useRouter();
   const isLoginPage = pathname === "/admin/login";
+  const modern = pathname === "/admin/directory";
+  const [compact, setCompact] = useState(false);
+  const sidebarRef = useRef<HTMLElement>(null);
+  const closeSidebar = useCallback(() => setSidebarOpen(false), []);
+  useEffect(() => { const query = matchMedia("(max-width: 768px)"); const update = () => setCompact(query.matches); update(); query.addEventListener("change", update); return () => query.removeEventListener("change", update); }, []);
+  useModalA11y(modern && compact && sidebarOpen, sidebarRef, closeSidebar);
 
   useEffect(() => {
     fetch("/api/admin/session", { credentials: "include" })
@@ -230,11 +240,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <AdminContext.Provider value={{ admin, logout }}>
       <AdminToastProvider>
-        <div className={styles.adminShell}>
+        <div className={`${styles.adminShell} ${modern ? styles.designShell : ''}`} data-ui-shell="staff" data-design={modern ? "staff" : undefined}>
+          {modern && <a className="ds-skip-link" href="#staff-content">Skip to directory</a>}
           <button
             className={styles.hamburger}
             onClick={() => setSidebarOpen((o) => !o)}
             aria-label="Toggle sidebar"
+            aria-expanded={sidebarOpen}
+            aria-controls="staff-sidebar"
           >
             {sidebarOpen ? "✕" : "☰"}
           </button>
@@ -246,8 +259,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             />
           )}
 
-          <aside className={`${styles.sidebar} ${sidebarOpen ? styles.sidebarOpen : ""}`}>
+          <aside id="staff-sidebar" ref={sidebarRef} inert={modern && compact && !sidebarOpen} role={modern && compact && sidebarOpen ? "dialog" : undefined} aria-modal={modern && compact && sidebarOpen ? true : undefined} aria-label="Staff navigation" tabIndex={-1} className={`${styles.sidebar} ${sidebarOpen ? styles.sidebarOpen : ""}`}>
             <div className={styles.sidebarBrand}>
+              {modern && compact && sidebarOpen && <IconButton label="Close navigation" onClick={closeSidebar}>×</IconButton>}
               <div className={styles.brandWordmark}>
                 Learn<span>2</span>Earn
               </div>
@@ -265,6 +279,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                       key={item.href}
                       href={item.href}
                       className={`${styles.navLink} ${isActive(item.href) ? styles.navLinkActive : ""}`}
+                      aria-current={isActive(item.href) ? "page" : undefined}
                       onClick={() => setSidebarOpen(false)}
                       style={{ justifyContent: "space-between" }}
                     >
@@ -309,7 +324,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
           </aside>
 
-          <main className={styles.mainContent}>
+          <main id="staff-content" tabIndex={modern ? -1 : undefined} inert={modern && compact && sidebarOpen} className={styles.mainContent}>
             {children}
           </main>
         </div>

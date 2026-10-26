@@ -1,0 +1,308 @@
+.page {
+  min-height: 100vh;
+  background: var(--l2e-canvas);
+  padding-bottom: calc(7rem + env(safe-area-inset-bottom));
+}
+.topbar {
+  border-bottom: 1px solid var(--l2e-border);
+  background: var(--l2e-surface);
+}
+.topbarInner {
+  max-width: 72rem;
+  padding: 0.75rem 1.5rem;
+  margin: auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+.brand {
+  white-space: nowrap;
+  font-size: 1.125rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+.brand span {
+  color: var(--l2e-primary);
+}
+.hero {
+  max-width: 72rem;
+  margin: auto;
+  padding: 3rem 1.5rem 2rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 18rem;
+  gap: 3rem;
+  align-items: center;
+}
+.eyebrow {
+  font-size: var(--l2e-text-sm);
+  font-weight: 650;
+  color: var(--l2e-primary);
+  margin-bottom: 0.75rem;
+}
+.heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.heading h1 {
+  flex: 1 1 16rem;
+  min-width: 0;
+}
+.pathIcon {
+  width: 3.5rem;
+  height: 3.5rem;
+  background: var(--l2e-primary-soft);
+  border: 1px solid var(--l2e-border);
+  border-radius: var(--l2e-radius-control);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  color: var(--l2e-primary);
+}
+.description {
+  color: var(--l2e-muted);
+  font-size: var(--l2e-text-lead);
+  max-width: 55ch;
+}
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+  margin-top: 1.25rem;
+  color: var(--l2e-muted);
+  font-size: var(--l2e-text-sm);
+}
+.companion {
+  border-left: 3px solid var(--l2e-hubert);
+  padding: 1.25rem;
+  background: var(--l2e-hubert-soft);
+  border-radius: var(--l2e-radius-control);
+}
+.companionIcon {
+  color: var(--l2e-hubert);
+  margin-bottom: 0.75rem;
+}
+.companion strong {
+  display: block;
+  margin-bottom: 0.4rem;
+}
+.companion p {
+  font-size: var(--l2e-text-sm);
+  color: var(--l2e-muted);
+}
+.content {
+  max-width: 72rem;
+  margin: auto;
+  padding: 0 1.5rem;
+}
+.learning {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 20rem;
+  gap: 2rem;
+  align-items: start;
+}
+.progressCard {
+  grid-column: 2;
+  grid-row: 1;
+  position: sticky;
+  top: 1.5rem;
+  display: grid;
+  gap: 1.25rem;
+}
+.progressCard h2 {
+  font-size: var(--l2e-text-h3);
+}
+.progressCard p {
+  color: var(--l2e-muted);
+}
+.progressCard a {
+  width: 100%;
+}
+.units {
+  grid-column: 1;
+  grid-row: 1;
+  display: grid;
+  gap: 2rem;
+}
+.unitHeading {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+.unitHeading h2 {
+  font-size: var(--l2e-text-h3);
+}
+.unitNumber {
+  color: var(--l2e-primary);
+  font-size: var(--l2e-text-sm);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.lessonList {
+  list-style: none;
+  border: 1px solid var(--l2e-border);
+  border-radius: var(--l2e-radius-card);
+  background: var(--l2e-surface);
+  overflow: clip;
+}
+.lessonList li + li {
+  border-top: 1px solid var(--l2e-border);
+}
+.lesson {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  padding: 1.15rem;
+  min-height: 5.5rem;
+  transition: background var(--l2e-duration-fast) var(--l2e-ease);
+}
+.lesson:hover {
+  background: var(--l2e-primary-soft);
+}
+.lessonList .lesson:focus-visible {
+  outline-offset: -4px !important;
+  border-radius: var(--l2e-radius-control);
+}
+.lessonCurrent {
+  background: var(--l2e-primary-soft);
+  box-shadow: inset 4px 0 var(--l2e-primary);
+}
+.lessonNumber {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--l2e-control-border);
+  border-radius: 50%;
+  color: var(--l2e-muted);
+  flex-shrink: 0;
+  font-size: var(--l2e-text-sm);
+}
+.done {
+  color: var(--l2e-success);
+  background: var(--l2e-success-soft);
+  border-color: var(--l2e-success);
+}
+.lessonBody {
+  min-width: 0;
+  flex: 1;
+}
+.lessonTitle {
+  font-weight: 650;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+.lessonMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  font-size: var(--l2e-text-sm);
+  color: var(--l2e-muted);
+  align-items: center;
+}
+.arrow {
+  flex-shrink: 0;
+  color: var(--l2e-primary);
+}
+@media (max-width: 64rem) {
+  .learning {
+    grid-template-columns: minmax(0, 1fr) 17rem;
+    gap: 1.5rem;
+  }
+  .hero {
+    grid-template-columns: minmax(0, 1fr) 15rem;
+    gap: 1.5rem;
+  }
+}
+@media (max-width: 40rem) {
+  .topbarInner {
+    padding: 0.5rem 1rem;
+  }
+  .brand {
+    font-size: 1rem;
+  }
+  .hero {
+    grid-template-columns: 1fr;
+    padding: 2rem 1rem 1.5rem;
+    gap: 1.5rem;
+  }
+  .companion {
+    padding: 1rem;
+  }
+  .companionIcon {
+    display: none;
+  }
+  .content {
+    padding: 0 1rem;
+  }
+  .learning {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+  .progressCard {
+    position: static;
+    width: 100%;
+  }
+  .units {
+    width: 100%;
+  }
+  .heading {
+    gap: 0.75rem;
+  }
+  .pathIcon {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+  .lesson {
+    padding: 1rem 0.8rem;
+    gap: 0.75rem;
+  }
+}
+/* Container-relative layout also adapts when users enlarge text without changing viewport width. */
+.content {
+  container-type: inline-size;
+}
+.hero {
+  display: flex;
+  flex-wrap: wrap;
+}
+.hero > div {
+  flex: 1 1 26rem;
+  min-width: 0;
+}
+.companion {
+  flex: 1 1 16rem;
+  max-width: min(100%, 22rem);
+}
+@container (max-width: 52rem) {
+  .learning {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+  .progressCard {
+    position: static;
+    width: 100%;
+  }
+  .units {
+    width: 100%;
+  }
+}
+@container (max-width: 20rem) {
+  .lesson,
+  .unitHeading {
+    flex-wrap: wrap;
+  }
+  .lessonBody {
+    flex-basis: 100%;
+  }
+  .arrow {
+    display: none;
+  }
+}

@@ -2,11 +2,13 @@
 
 This project targets **WCAG 2.2 AA**. Below are the conventions every contributor should follow. The shared primitives in `lib/use-modal-a11y.ts` and `app/globals.css` already cover the most common cases — when in doubt, copy from `HelpButton.tsx`, `FounderModal.tsx`, or the `login`/`signup` pages.
 
+Current scoped design evidence and manual-test limits are in [the design-system guide](design-system/README.md). Older route checkmarks below are historical, not a fresh full-site audit.
+
 ## 1. Focus
 
 - **Visible focus ring.** `app/globals.css` defines a global `:focus-visible` outline (2px solid `--accent-blue`). Do not set `outline: none` on interactive elements. If you must remove the default outline, you must replace it with another visible indicator that meets 3:1 contrast.
 - **Logical tab order.** Render interactive elements in the order they appear visually. Avoid `tabindex` values greater than 0.
-- **Skip-to-content** is implicit via the bottom navigation `aria-label="Primary"` and the page `<main>` wrapper. The single-page app pattern means there is no large header to skip past.
+- **Skip-to-content:** the migrated learner path and staff directory provide explicit keyboard-visible skip links. Bottom navigation is not a skip link; other routes still need bypass review.
 
 ## 2. Modals & dialogs
 
@@ -94,16 +96,15 @@ keyboard-only with focus-visible enabled.
 | `/admin/staff` | ✅ (full name, email, role) | Create modal (see follow-up #57) | ✅ | autoComplete on name/email. |
 | `/admin/cases` | ✅ (search + status + priority filters labelled) | n/a | ✅ | |
 | `/admin/cases/[id]` | ✅ (note textarea + 3 modals: editMeta / dispatch / allocate) | Modals (see follow-up #57) | ✅ | All `<label>` now carry `htmlFor`. |
-| `/admin/directory` | ✅ (search + add/edit modal labelled, autoComplete on phone/address/website) | Add/edit modal (see follow-up #57) | ✅ | |
+| `/admin/directory` | ✅ shared fields and native validation | Native shared dialog + keyboard/focus tests | ✅ | New scoped design audited at 360/768/1440 and 200% root text. |
 | `/admin/finance` | ✅ (adjustment + payout config forms) | n/a | ✅ | |
 
 ### Known follow-ups
 - **#57 — admin/lifeline modal hardening.** The remaining admin overlays
-  (`users` edit, `staff` create, `cases/[id]` editMeta/dispatch/allocate,
-  `directory` add/edit) close on overlay click but do not yet share
+  (`users` edit, `staff` create, `cases/[id]` editMeta/dispatch/allocate) close on overlay click but do not yet share
   `useModalA11y` for focus trap / Escape / focus restore. The user-facing
   `HelpButton`, `FounderModal`, `HubertChat` are all wrapped. Tracked.
-- **#58 — Automated axe scan in CI.** Tracked.
+- **#58 — Automated axe scan in CI.** Implemented for the design showcase, learner path and staff directory through the default test suite; remaining routes still need coverage.
 
 Run `npm run typecheck` and Lighthouse → Accessibility against `/login`,
 `/signup`, `/access`, `/profile`, `/lifeline`, and `/admin/payouts` before

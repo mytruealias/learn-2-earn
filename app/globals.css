@@ -232,3 +232,105 @@ button {
     radial-gradient(circle at 85% 20%, rgba(124, 92, 245, 0.06) 0%, transparent 55%),
     radial-gradient(circle at 50% 85%, rgba(58, 157, 24, 0.05) 0%, transparent 55%);
 }
+
+/* Learn2Earn semantic foundation. Visual adoption is opt-in via [data-design].
+   Media-query literals mirror the breakpoint tokens (CSS variables cannot drive @media). */
+:root {
+  --l2e-canvas: #faf8f3;
+  --l2e-surface: #ffffff;
+  --l2e-surface-muted: #f0f4f3;
+  --l2e-ink: #172f3b;
+  --l2e-muted: #4e6470;
+  --l2e-primary: #075c73;
+  --l2e-primary-hover: #06485b;
+  --l2e-primary-soft: #e7f3f5;
+  --l2e-success: #21623f;
+  --l2e-success-soft: #edf6ef;
+  --l2e-milestone: #805319;
+  --l2e-milestone-soft: #fff4dc;
+  --l2e-hubert: #65459a;
+  --l2e-hubert-soft: #f2eef8;
+  --l2e-danger: #a33139;
+  --l2e-danger-soft: #fff0ef;
+  --l2e-border: #cbd4d5;
+  --l2e-control-border: #70858c;
+  --l2e-on-color: #ffffff;
+  --l2e-overlay: rgb(23 47 59 / .55);
+  --l2e-focus: #076abc;
+  --l2e-font-body: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --l2e-text-xs: .8125rem;
+  --l2e-text-sm: .875rem;
+  --l2e-text-body: 1rem;
+  --l2e-text-lead: 1.125rem;
+  --l2e-text-h3: 1.25rem;
+  --l2e-text-h2: 1.5rem;
+  --l2e-text-h1: clamp(2rem, 1.5rem + 2vw, 2.75rem);
+  --l2e-leading: 1.6;
+  --l2e-space-1: .25rem;
+  --l2e-space-2: .5rem;
+  --l2e-space-3: .75rem;
+  --l2e-space-4: 1rem;
+  --l2e-space-5: 1.5rem;
+  --l2e-space-6: 2rem;
+  --l2e-space-7: 3rem;
+  --l2e-space-8: 4rem;
+  --l2e-radius-control: .75rem;
+  --l2e-radius-card: 1.25rem;
+  --l2e-radius-dialog: 1.5rem;
+  --l2e-radius-pill: 999px;
+  --l2e-shadow-button: 0 3px 0 #043f50;
+  --l2e-shadow-dialog: 0 16px 48px rgb(23 47 59 / .18);
+  --l2e-shadow-raised: 0 3px 12px rgb(23 47 59 / .08);
+  --l2e-focus-width: 3px;
+  --l2e-focus-offset: 3px;
+  --l2e-duration-fast: 150ms;
+  --l2e-duration-normal: 220ms;
+  --l2e-ease: cubic-bezier(.2, .8, .2, 1);
+  --l2e-target: 2.75rem;
+  --l2e-breakpoint-compact: 40rem;
+  --l2e-breakpoint-wide: 64rem;
+  --l2e-breakpoint-reading: 52rem;
+  --l2e-breakpoint-navigation: 48rem;
+}
+[data-design] {
+  overflow-wrap: anywhere;
+  font-family: var(--l2e-font-body);
+  color: var(--l2e-ink);
+  line-height: var(--l2e-leading);
+  --font-display: var(--l2e-font-body);
+  --font-mono: var(--l2e-font-body);
+  --bg-primary: var(--l2e-canvas);
+  --bg-secondary: var(--l2e-surface);
+  --text-primary: var(--l2e-ink);
+  --text-secondary: var(--l2e-muted);
+  --text-muted: var(--l2e-muted);
+  --accent-blue: var(--l2e-primary);
+  --accent-green: var(--l2e-success);
+  --accent-purple: var(--l2e-hubert);
+  --accent-red: var(--l2e-danger);
+  --border-color: var(--l2e-border);
+  --adm-bg: var(--l2e-canvas);
+  --adm-text: var(--l2e-ink);
+  --adm-muted: var(--l2e-muted);
+  --adm-dim: var(--l2e-muted);
+  --adm-blue: var(--l2e-primary);
+  --adm-blue-lt: var(--l2e-primary);
+  --adm-border: var(--l2e-border);
+  --adm-font: var(--l2e-font-body);
+}
+[data-design] :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: var(--l2e-focus-width) solid var(--l2e-focus) !important;
+  outline-offset: var(--l2e-focus-offset) !important;
+  box-shadow: none !important;
+}
+[data-design] :where(button, input, select, textarea) { font: inherit; }
+[data-design] :where(h1, h2, h3, p, a, label, button) { overflow-wrap: anywhere; }
+[data-design] :where(h1, h2, h3) { line-height: 1.25; letter-spacing: -.025em; }
+[data-design] h1 { font-size: var(--l2e-text-h1); }
+[data-design] h2 { font-size: var(--l2e-text-h2); }
+[data-design] h3 { font-size: var(--l2e-text-h3); }
+@media (prefers-reduced-motion: reduce) {
+  [data-design] { --l2e-duration-fast: 0ms; --l2e-duration-normal: 0ms; }
+}
+.ds-skip-link { position: fixed; top: .75rem; left: .75rem; transform: translateY(-200%); padding: .75rem 1rem; background: var(--l2e-surface); color: var(--l2e-primary); border: 2px solid var(--l2e-focus); border-radius: var(--l2e-radius-control); z-index: 5000; min-height: var(--l2e-target); }
+.ds-skip-link:focus { transform: none; }

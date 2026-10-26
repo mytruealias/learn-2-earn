@@ -242,3 +242,13 @@
     display: flex;
   }
 }
+
+/* Opt-in staff shell for the representative directory. */
+.designShell .navLink, .designShell .logoutBtn { min-height: var(--l2e-target); font-size: var(--l2e-text-sm); }
+.designShell .navGroupLabel { text-transform: none; letter-spacing: normal; font-size: var(--l2e-text-sm); }
+.designShell .brandSubtitle, .designShell .adminRole { font-size: var(--l2e-text-sm); }
+.designShell .navLinkActive { background: var(--l2e-primary-soft); border-left-color: var(--l2e-primary); }
+.designShell .hamburger { width: var(--l2e-target); height: var(--l2e-target); }
+.designShell .sidebarFooter { padding: 1rem; }
+.designShell .mainContent { padding: 3rem 2rem; }
+@media (max-width: 768px) { .designShell .mainContent { padding: 5rem 1rem 2rem; } }

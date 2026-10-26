@@ -64,7 +64,7 @@ const organizationJsonLd = {
 
 export default function HomePage() {
   return (
-    <div className="inv-page">
+    <div className="inv-page" data-ui-shell="marketing">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{

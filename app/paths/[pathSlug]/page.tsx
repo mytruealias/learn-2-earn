@@ -1,9 +1,10 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import prisma from "@/lib/prisma";
 import HelpButton from "../../components/HelpButton";
-import LessonList from "../../components/LessonList";
-import PathProgressBar from "../../components/PathProgressBar";
+import PathLearning from "../../components/PathLearning";
+import { ButtonLink } from "../../components/ui";
+import styles from "./path.module.css";
+import { HubertIcon } from "../../components/icons";
 import {
   ShelterIcon,
   ShieldIcon,
@@ -39,7 +40,11 @@ function getPathIcon(emoji: string, color: string, size = 28) {
   return map[emoji] ?? <StarIcon size={size} color={color} />;
 }
 
-export default async function PathPage({ params }: { params: Promise<{ pathSlug: string }> }) {
+export default async function PathPage({
+  params,
+}: {
+  params: Promise<{ pathSlug: string }>;
+}) {
   const { pathSlug } = await params;
 
   const path = await prisma.path.findUnique({
@@ -62,8 +67,6 @@ export default async function PathPage({ params }: { params: Promise<{ pathSlug:
     notFound();
   }
 
-  const allLessonIds = path.modules.flatMap((m) => m.lessons.map((l) => l.id));
-
   const modulesData = path.modules.map((mod) => ({
     id: mod.id,
     title: mod.title,
@@ -72,69 +75,62 @@ export default async function PathPage({ params }: { params: Promise<{ pathSlug:
       id: l.id,
       title: l.title,
       xpReward: l.xpReward,
+      lessonType: l.lessonType,
+      estimatedMinutes: l.estimatedMinutes,
       order: l.order,
     })),
   }));
 
   return (
-    <div className="grid-bg" style={{ minHeight: "100vh", padding: "0 0 6rem 0" }}>
-      <header style={{
-        padding: "1.5rem 1.5rem",
-        background: "linear-gradient(180deg, rgba(59,158,255,0.07) 0%, transparent 100%)",
-        borderBottom: "1px solid var(--border-color)",
-      }}>
-        <div style={{ maxWidth: "700px", margin: "0 auto" }}>
-          <Link href="/app" style={{
-            color: "var(--accent-green)",
-            fontSize: "0.85rem",
-            fontWeight: "600",
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "0.25rem",
-            marginBottom: "1rem",
-          }}>
-            <div style={{ transform: "rotate(180deg)", display: "flex" }}>
-              <ChevronRightIcon size={16} color="var(--accent-green)" />
-            </div>
-            Back to Paths
-          </Link>
-          <div style={{ display: "flex", alignItems: "center", gap: "1.25rem" }}>
-            <div style={{
-              width: "60px",
-              height: "60px",
-              borderRadius: "16px",
-              border: "2px solid var(--accent-green)",
-              backgroundColor: "rgba(59,158,255,0.1)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
-            }}>
-              {getPathIcon(path.icon, "var(--accent-green)", 28)}
-            </div>
-            <div>
-              <h1 style={{
-                fontFamily: "var(--font-display)",
-                fontSize: "1.75rem",
-                fontWeight: "700",
-                marginBottom: "0.25rem",
-                letterSpacing: "0.02em",
-              }}>{path.title}</h1>
-              <p style={{
-                color: "var(--text-secondary)",
-                fontSize: "0.85rem",
-                lineHeight: "1.5",
-              }}>{path.description}</p>
-            </div>
+    <div data-design="learner" data-ui-shell="learner" className={styles.page}>
+      <a className="ds-skip-link" href="#path-content">
+        Skip to lessons
+      </a>
+      <div className={styles.topbar}>
+        <div className={styles.topbarInner}>
+          <div className={styles.brand}>
+            Learn<span>2</span>Earn
+          </div>
+          <ButtonLink href="/app" variant="quiet">
+            <span style={{ transform: "rotate(180deg)", display: "flex" }}>
+              <ChevronRightIcon size={18} />
+            </span>{" "}
+            Back to paths
+          </ButtonLink>
+        </div>
+      </div>
+      <header className={styles.hero}>
+        <div>
+          <p className={styles.eyebrow}>Your learning path</p>
+          <div className={styles.heading}>
+            <span className={styles.pathIcon}>
+              {getPathIcon(path.icon, "currentColor", 28)}
+            </span>
+            <h1>{path.title}</h1>
+          </div>
+          <p className={styles.description}>{path.description}</p>
+          <div className={styles.facts}>
+            <span>{modulesData.length} units</span>
+            <span>
+              {modulesData.reduce((sum, mod) => sum + mod.lessons.length, 0)}{" "}
+              lessons
+            </span>
+            <span>At your own pace</span>
           </div>
         </div>
+        <aside className={styles.companion} aria-label="A reminder from Hubert">
+          <div className={styles.companionIcon}>
+            <HubertIcon size={36} />
+          </div>
+          <strong>Small steps count.</strong>
+          <p>
+            Take this one lesson at a time. You can come back whenever you need.
+          </p>
+        </aside>
       </header>
-
-      <main style={{ maxWidth: "700px", margin: "0 auto", padding: "1.5rem 1.5rem" }}>
-        <PathProgressBar allLessonIds={allLessonIds} />
-        <LessonList modules={modulesData} />
+      <main id="path-content" tabIndex={-1} className={styles.content}>
+        <PathLearning modules={modulesData} />
       </main>
-
       <HelpButton />
     </div>
   );

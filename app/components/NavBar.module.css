@@ -1,0 +1,9 @@
+.modern span {
+  font-size: var(--l2e-text-sm) !important;
+  letter-spacing: normal !important;
+}
+.modern a {
+  min-height: var(--l2e-target);
+  min-width: var(--l2e-target);
+  padding-inline: 0.25rem !important;
+}

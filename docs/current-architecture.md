@@ -11,7 +11,11 @@ No applicable `AGENTS.md` was found in `/` or the workspace/repository. Read REA
 - **Demo-only:** scripted/sample illustration with no real user/payment operation.
 - **Absent:** no corresponding model/route/capability found in this checkout; not a claim about uninspected external systems.
 
-Inventory below covers **34 page routes and 36 API route files** plus generated metadata/static entry points. Every row is **open for later close-out**: its owner stage must record behavior, permissions, loading/empty/error/success, applicable browser checks and regression evidence before marking it verified in upgrade-status. A screenshot alone does not close a route. Source-reviewed routes without browser captures remain unverified visually. Dynamic route checks use synthetic IDs only.
+The original inventory below covers **34 page routes and 36 API route files**; the subsequent design phase adds the development-only page listed next (35 page sources total) plus generated metadata/static entry points. Every row is **open for later close-out**: its owner stage must record behavior, permissions, loading/empty/error/success, applicable browser checks and regression evidence before marking it verified in upgrade-status. A screenshot alone does not close a route. Source-reviewed routes without browser captures remain unverified visually. Dynamic route checks use synthetic IDs only.
+
+## Design foundation addition
+
+`/dev/design-system` → [page](../app/dev/design-system/page.tsx): implemented local component workshop, dynamically guarded to return 404 in production; proof is in [design verification](design-system/verification.md). Learner `/paths/[pathSlug]` and staff `/admin/directory` now use scoped shared primitives and have tested loading/error/retry/CRUD/progress states. Their broader identity/permission/financial baseline limits remain. No new API endpoint/model was added; directory optional null validation was made compatible with clearing existing nullable fields.
 
 ## Page routes
 

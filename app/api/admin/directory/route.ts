@@ -5,7 +5,7 @@ import prisma from "@/lib/prisma";
 import { apiError, apiOk, apiServerError, parseJson, parseQuery, getClientIp } from "@/lib/api-helpers";
 
 const optStr = (max: number) =>
-  z.string().trim().max(max).optional().or(z.literal("").transform(() => undefined));
+  z.string().trim().max(max).nullable().optional().or(z.literal("").transform(() => undefined));
 
 const QuerySchema = z.object({
   category: z.string().max(60).optional().default(""),

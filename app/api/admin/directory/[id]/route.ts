@@ -10,11 +10,11 @@ const optStr = (max: number) =>
 const PatchSchema = z.object({
   name: optStr(200),
   category: optStr(60),
-  address: optStr(500),
-  phone: optStr(60),
-  hours: optStr(200),
-  notes: optStr(2000),
-  website: optStr(500),
+  address: optStr(500).nullable(),
+  phone: optStr(60).nullable(),
+  hours: optStr(200).nullable(),
+  notes: optStr(2000).nullable(),
+  website: optStr(500).nullable(),
 });
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {

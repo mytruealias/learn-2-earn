@@ -1,6 +1,6 @@
 # Upgrade status
 
-Updated 2026-10-26 on `fix/safe-build-release`, based on audit commit `f2e6677`. Safe build/release tooling and the small lint/type prerequisites are implemented; learner redesign, identity fixes and financial concurrency work remain pending. See [current workflow verification](release-workflow-verification.md).
+Updated 2026-10-26 on `feat/scoped-design-system`, based on workflow commit `b061656`. Safe build/release tooling, design foundations and two representative screens are implemented; broader learner redesign, identity fixes and financial concurrency work remain pending. See [current workflow verification](release-workflow-verification.md).
 
 [Current architecture / route inventory](current-architecture.md) · [Staged implementation checklist](upgrade-plan.md) · [Latest baseline evidence](upgrade-baseline.md#audit-pack-refresh) · [20 screenshots](baseline/2026-10-26/README.md)
 
@@ -9,14 +9,24 @@ Updated 2026-10-26 on `fix/safe-build-release`, based on audit commit `f2e6677`.
 | S0 — Documentation, architecture and baseline | Finished locally; external host settings unverified, PR blocked | GitHub API access for PR; actual read-only Replit configuration evidence before deployment work |
 | S0a — Small baseline repairs | Tooling prerequisites implemented/verified | Historical accessibility guidance still needs its separate route/bypass review |
 | S0b — Identity safety | Pending; critical prerequisite | Close B17 unauthenticated identity bootstrap/guest merge; token expiry and staff logout revocation |
-| S1 — Learner progression | Pending; first product priority after safety repairs | Session-based progress and browser regression coverage |
+| Design foundation | Implemented and locally verified on learner path/staff directory | Gradual route migration; manual platform AT/zoom checks |
+| S1 — Learner progression | Partial: path progress/navigation migrated | Home/profile/lesson experience and remaining route close-out |
 | S2 — Lesson feedback/recovery/awards | Pending | Honest XP breakdown, no hearts barrier, atomic writes, server-verifiable bonuses |
 | S3 — Profile/payout/support | Pending | Program-accurate copy, Zelle agreement, resilient support |
 | S4 — Public website/city decks | Pending | Claims/demo provenance, CTA and legal-route host behavior, route close-out |
 | S5 — Staff operations | Pending | Money concurrency/audit integrity, role matrix, explicit partner-boundary decision |
 | S6 — Release/Replit handoff | Safe workflow/CI authored and locally verified; broader handoff pending | Live Replit/remote Actions verification and full accessibility/low-bandwidth matrix |
 
-## Safe workflow report (current change)
+## Design foundation report (current change)
+
+- **Behavior:** semantic CSS tokens, scoped learner/staff/marketing boundaries, Inter typography and usable primitive states; migrated path and directory with real data. Dev workshop is production-404 gated. New native dialogs/drawer behavior and optional-field null clearing preserve practical directory use without changing permissions/incentives.
+- **Files:** [exact scope, conventions and verification](design-system/verification.md), [15 browser screenshots](design-system/screenshots/README.md). Existing icons/Hubert and CSS Modules retained; only new dev tooling is the axe Playwright adapter. No schema/migration, account, balance or authored curriculum change.
+- **Checks:** clean install, lint, types and safe build passed. All 77 tests passed (23 unit, 36 API/release, 6 HTTP, 4 smoke, 8 design). Final design rerun passed. Axe, accessible names, native progress, focus trap/return, 44px targets, long text, reduced motion and 200% root-text simulation verified at 360/768/1440px. Actual built production server returns 404 for the workshop.
+- **Environment/migration:** none beyond existing Node 24 / disposable local PostgreSQL / Chromium. Test fixtures alone were created/changed. No production connection, deployment, provider call or merge.
+- **Limits:** no manual screen-reader speech/native browser-menu zoom/OS contrast/physical-device test; no full-site AA certification. Unmigrated routes, B17/B18/B20, partner boundaries and monetary concurrency remain separate tasks. Screenshots use synthetic resources and real seeded curriculum.
+- **Rollback:** compatible component/style revert; no data reversal. Keep safe workflow and coordinate null-clearing client/API compatibility. Live Replit/remote CI remain unverified; PR may remain blocked by the existing GitHub API restriction.
+
+## Safe workflow report (previous stage)
 
 - **Behavior:** build/start/post-merge no longer migrate, seed, repair history or provision staff. Named release operations confirm server identity/target; content imports preserve existing edits/rewards/IDs/history; first-admin command refuses any existing staff. Historic repair is read-only. Test harness creates fresh DBs/restricted roles and verifies a nonce/ownership/privilege boundary before resets or fixtures.
 - **Files and evidence:** [exact file list and verification](release-workflow-verification.md); README/DEPLOYMENT and examples now match actual ports, names, sessions and commands. Dependencies/lockfile/schema/migration SQL and authored curriculum/economics remain unchanged.

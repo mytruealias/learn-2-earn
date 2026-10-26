@@ -36,6 +36,10 @@ The platform has three access layers:
 
 See the [current architecture and route inventory](docs/current-architecture.md), [staged upgrade checklist](docs/upgrade-plan.md), [baseline evidence](docs/upgrade-baseline.md), and [stage status](docs/upgrade-status.md) before starting improvement work. The baseline records known setup-documentation differences below.
 
+## Design system
+
+[Design conventions and development workshop](docs/design-system/README.md) · [Browser screenshots](docs/design-system/screenshots/README.md) · [Verification and limits](docs/design-system/verification.md). Representative migrations cover learner paths and the staff services directory; remaining routes migrate separately.
+
 ## Getting Started
 
 Use Node.js 24 (the CI runtime), npm and PostgreSQL 14+. Retain `package-lock.json`.
@@ -166,7 +170,8 @@ npm test
 | `npm run test:api:watch` | Same isolated API database retained only for that watch session |
 | `npm run test:e2e` | Existing HTTP city/learner/payout tests; local server port 5050 and `.next-e2e` output |
 | `npm run test:browser` | Actual Chromium: responsive public page, learner UI login/path/lesson, staff UI login/dashboard |
-| `npm test` | Unit → API → HTTP → browser, sequentially |
+| `npm run test:design` | Actual Chromium + axe: design states, real CRUD/progress, keyboard, contrast, reflow and touch targets |
+| `npm test` | Unit → API → HTTP → browser smoke → design, sequentially |
 | `npm run test:e2e:ui` | Legacy admin browser suite; isolated DB but still needs its explicit legacy role fixtures; not a default CI gate |
 
 The harness drops only the resources it created on exit and preserves suite failure status. Separate invocations use separate random databases. If a machine/process is forcibly killed, remove only verified orphan resources from that run; never point cleanup at the development DB. The legacy suite's fixture/assertion limitations remain recorded in the baseline and are not claimed fixed.

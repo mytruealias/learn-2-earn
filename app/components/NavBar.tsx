@@ -1,21 +1,28 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import styles from "./NavBar.module.css";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { HomeIcon, LifelineIcon, UserIcon, SparkleIcon } from "./icons";
 
 export default function NavBar() {
   const pathname = usePathname();
+  const modern = pathname.startsWith("/paths/");
   const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
-    setLoggedIn(localStorage.getItem("l2e_logged_in") === "true");
-  }, []);
+    if (!modern) { setLoggedIn(localStorage.getItem("l2e_logged_in") === "true"); return; }
+    let active = true;
+    fetch('/api/auth/session', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })
+      .then(response => response.json()).then(data => { if (active) setLoggedIn(!!data.ok && !!data.user); })
+      .catch(() => {});
+    return () => { active = false; };
+  }, [modern]);
 
   const cityDeckSlugs = ["/austin", "/dallas", "/houston", "/denver", "/los-angeles", "/san-francisco"];
   const isCityDeck = cityDeckSlugs.some((s) => pathname === s || pathname.startsWith(s + "/"));
-  if (pathname === "/" || pathname.startsWith("/lesson/") || pathname.startsWith("/invest") || pathname.startsWith("/admin") || pathname.startsWith("/access") || isCityDeck) return null;
+  if (pathname === "/" || pathname.startsWith("/lesson/") || pathname.startsWith("/invest") || pathname.startsWith("/admin") || pathname.startsWith("/access") || pathname.startsWith("/dev/") || isCityDeck) return null;
 
   const links = [
     { href: "/app", label: "Home", icon: (color: string) => <HomeIcon size={22} color={color} /> },
@@ -26,7 +33,7 @@ export default function NavBar() {
   ];
 
   return (
-    <nav aria-label="Primary" style={{
+    <nav aria-label="Primary" data-design={modern ? "learner-navigation" : undefined} data-ui-shell="learner" className={modern ? styles.modern : undefined} style={{
       position: "fixed",
       bottom: 0,
       left: 0,
@@ -44,13 +51,13 @@ export default function NavBar() {
         width: "100%",
       }}>
         {links.map((link) => {
-          const active = pathname === link.href;
-          const color = active ? "var(--accent-green)" : "var(--text-muted)";
+          const active = pathname === link.href || (modern && link.href === "/app");
+          const color = active ? (modern ? "var(--l2e-primary)" : "var(--accent-green)") : "var(--text-muted)";
           return (
             <Link
               key={link.href}
               href={link.href}
-              aria-current={active ? "page" : undefined}
+              aria-current={active ? (modern ? "location" : "page") : undefined}
               aria-label={link.label}
               style={{
                 flex: 1,
@@ -60,7 +67,7 @@ export default function NavBar() {
                 gap: "0.2rem",
                 padding: "0.65rem 0.5rem",
                 color,
-                borderTop: active ? "3px solid var(--accent-green)" : "3px solid transparent",
+                borderTop: active ? `3px solid ${color}` : "3px solid transparent",
                 transition: "all 0.2s",
                 background: active ? "rgba(59,158,255,0.08)" : "transparent",
               }}

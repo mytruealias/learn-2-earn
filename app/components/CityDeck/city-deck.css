@@ -1,4 +1,7 @@
 .cd-page {
+  --cy-body: var(--font-inter), system-ui, sans-serif;
+  --cy-display: var(--font-rajdhani), sans-serif;
+  --cy-mono: var(--font-share-tech-mono), monospace;
   /* Per-city brand colors (overridable via .cd-theme-* classes) */
   --cd-primary-rgb: 0, 70, 127;
   --cd-secondary-rgb: 46, 125, 50;
