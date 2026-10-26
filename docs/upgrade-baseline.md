@@ -1,7 +1,7 @@
 # Upgrade baseline
 
 Verified 2026-10-26 against `4f59d419528ae5ff450b339ab1de512554a8094b`.
-This is evidence for the [staged checklist](upgrade-plan.md), not a production audit or WCAG certification.
+This is evidence for the [staged checklist](upgrade-plan.md), not a production audit or WCAG certification. The [audit pack refresh](#audit-pack-refresh) at the end is the latest run and supersedes earlier browser/infrastructure limits.
 
 ## Checkout and guidance
 
@@ -11,7 +11,7 @@ This is evidence for the [staged checklist](upgrade-plan.md), not a production a
 - GitHub is the collaboration point; Replit remains the application host. This cloud checkout is not evidence about the running Replit deployment or its database.
 - Installed: Node 24.19.0, npm 11.9.0, Next 15.5.15, React/React DOM 19.0.0, TypeScript 5.9.3, Prisma/client 6.1.0, Zod 3.25.76, ESLint 9.39.2, Vitest 4.1.4, Playwright 1.58.2. Manifest ranges are not all exact pins; retain `package-lock.json` and use `npm ci` when installing.
 
-## Checks executed in this task
+## Checks executed in the initial S0 task
 
 All repository commands below ran from `/workspace/learn-2-earn`; exit statuses were retained. Raw logs are local artifacts in `/workspace/.onboarding/baseline/`, not committed or needed to understand these results.
 
@@ -58,9 +58,59 @@ Generated `test-results/.last-run.json` was restored to its pre-run tracked cont
 | B13 / review item | [Public admin demo](../app/components/AdminDemo.tsx) contains hard-coded participants/metrics and timed approval scenes; parent labels it a demo, but captions include “Real-time overview”. This is **not** evidence production charts are fabricated. Partner copy and all claims need a provenance review. | S4: clearly labeled illustration throughout; no simulated production action or unsupported impact claim; every primary CTA resolves to its stated destination. |
 | B14 / setup risk | Source-confirmed: earliest tracked migration alters existing tables rather than creating initial schema; README/build deployment assumptions do not describe fresh bootstrap. No production migration history inspected. | S0a: document separate disposable bootstrap and existing-database deployment paths; validate migration baseline on an isolated copy before any migration proposal. |
 
-## Remaining verification and outside requirements
+## Initial verification gaps (superseded where stated in refresh)
 
 - Permit the browser download destination `cdn.playwright.dev` (and review any redirect destination actually reported), then install Chromium in the writable location and run the planned browser checks. No TLS/checksum bypass.
 - GitHub API access is needed for PR creation; no token values requested or printed. Keep local reviewable commits until access works. Do not infer push rights from Git reads.
 - Replit secrets, deploy settings, production data health and external OpenAI/Stripe operations are unverified. Preserve integrations; use test/sandbox bindings for later verification. No credentials are needed for this documentation stage.
 - WCAG 2.2 AA remains a target. Existing checklist claims are historical guidance, not fresh browser evidence.
+
+## Audit pack refresh
+
+This addendum supersedes infrastructure/coverage statements in the initial S0 run above. Application source is unchanged at `4f59d41`; documentation base is `01d39c2`. Full [architecture and route inventory](current-architecture.md) now maps 34 pages, 36 API files, metadata endpoints, 18 models, sessions, roles, cards, external services and environment **names only**. No `.replit` or `replit.nix` exists in the checkout; actual Replit commands/secrets/ports cannot be verified from GitHub docs.
+
+### Refreshed executable evidence
+
+Commands were inspected before execution. `/workspace/.onboarding/audit/safe-run.cjs` parses the ignored test configuration, requires the known local disposable database, sets both DB variables to that target, and launches children with OpenAI/Stripe bindings disabled and ROOT_DOMAIN unset. It never logs connection values. Test suites reset only that verified target; fixture writes and extra source-finding checks also use it. No production/development seed/migration was run. `npm run build` and `scripts/post-merge.sh` were not executed.
+
+| Check | Result | Interpretation |
+| --- | --- | --- |
+| `npm test` through safe runner | PASS, exit 0: 32 API tests in 6 files, 6 HTTP e2e tests in 19.9s | No failed/skipped tests reported; default learner e2e still uses HTTP, not browser |
+| `npm run lint` | FAIL, exit 1: 725 errors, 994 warnings in this generated-output state | `.next-e2e` is not excluded by ESLint and is scanned after tests; counts include generated code |
+| `npx eslint --ignore-pattern '.next-e2e/**'` | FAIL, exit 1: 1 error, 1 warning | Isolates the same source footer error and session unused import; not a passing substitute for the real script |
+| `npx next build` through safe runner | PASS, exit 0 | Compilation against disposable DB; build config still suppresses lint/types; no migration/repair/seed wrapper |
+| `npx tsc --noEmit` through safe runner, after HTTP type generation | FAIL, exit 2: 3 diagnostics, 2 underlying defects | Lesson synchronous params appears in both `.next` and `.next-e2e`; admin `useAdmin` layout export appears in `.next-e2e` |
+| System Chromium launch | PASS | `/usr/bin/chromium`, version 154.0.8037.57; earlier downloadable-browser blockage avoided by installed system browser, not by bypassing network policy |
+| Browser baseline | PASS for capture readiness only | 20 screenshots: 16 core mobile/desktop images plus two request-panel and two homepage-top images; synthetic accounts/data only |
+| Core browser assertions | PASS: 16 route/state captures | HTTP 200, required content visible, no uncaught page errors or horizontal document overflow at 390×844 and 1440×1000; see [results](baseline/2026-10-26/browser-results.json). Does not certify WCAG or all states/routes. |
+| Git read / GitHub API | Git main SHA unchanged; API still `Forbidden` | PR creation blocked; no push/merge/deploy |
+
+Local raw logs remain under `/workspace/.onboarding/audit/`. The [committed evidence index](baseline/2026-10-26/README.md) links every screenshot, fixture limitations and redacted runtime findings. There are no real learner/payment records, passwords, tokens or environment values in the evidence. Viewports do not assert physical-device behavior; reduced motion was requested, not a comprehensive animation audit. Browser screenshot timestamps use the browser's default locale/timezone; no schedule is inferred.
+
+### Named findings verified and prioritized
+
+| Finding | Evidence / verification | Impact / close-out |
+| --- | --- | --- |
+| Payout copy vs getPayoutRules | B09 confirmed: README says $1/3 XP; homepage renders $1 per 3 lessons and Zelle disbursements, while reward amounts vary and active program/default config controls conversion. Fixed-dollar badge copy remains in auth/session/profile. Current profile rate panel does use returned payout rules. | High trust; S3/S4 fix copy/capability agreement, no economics changes |
+| Perfect-run response vs awarded XP | Synthetic request: base 2, awarded 3, actual bonus 1, reported bonus 5. Balance increment 3; [runtime result](baseline/2026-10-26/source-finding-results.json), B03 source lines. | High financial feedback; S2 |
+| Client-supplied completion bonuses | `comboBonus` and `perfectRun` from body determine reward in completion handler; no answer/attempt evidence required. Synthetic request with perfect flag alone received bonus. | High integrity; S2, explicit server-verifiable design |
+| Non-atomic progress/XP | B06 confirmed separate `progress.create` / `user.update`; no transaction. Unique completion key prevents duplicate records but does not make both writes atomic. | High integrity; fault-injection/concurrency failure remains unrun, S2 |
+| Payout balance races | B06 confirmed separate sum/check and `payoutRequest.create`; no locked reservation/transaction. | High money risk; concurrent overspend not reproduced or claimed, S5 |
+| Zelle mismatch (B15) | [Profile](../app/profile/page.tsx) offers Zelle; [schema](../prisma/schema.prisma) enum includes it; [request handler](../app/api/payout/request/route.ts) enum omits it. Valid synthetic Zelle request returns 400; [runtime result](baseline/2026-10-26/source-finding-results.json). | High blocked user action; S3, retain historical methods |
+| Build-time seed/repair | `package.json` chains migration repair/deploy and three seeds into build; fix script updates `_prisma_migrations` completion metadata, seed routines upsert metadata/rewards, create missing cards and reconcile card metadata. No such wrapper run here. `post-merge.sh` also uses schema push with data-loss acceptance. | High operational/history risk; S0a/S6 separate validated compilation/deployment workflows |
+| Partner membership boundaries (B16) | Schema has no membership/organization relationship; staff queries use global user/case/payout sets, while city/rate config and case assignee are not access membership. | High before any isolated partner rollout; S5 needs explicit scope decision and negative tests; no speculative migration here |
+| API-only learner e2e | Default three specs use request contexts and DB helpers. New audit screenshots are browser evidence but **not** a committed learner browser regression suite. | Medium coverage gap; S1/S2 add real interaction tests |
+
+### Additional findings from the expanded audit
+
+| ID | Verified finding | Priority / next stage |
+| --- | --- | --- |
+| B17 | **Unauthenticated existing-account bootstrap:** [user/ensure](../app/api/user/ensure/route.ts) looks up supplied ID, then sets that identity's signed cookie without proof. Reproduced from a fresh anonymous context against a synthetic registered account: ensure 200, session 200, identity matched. Prerequisite is knowledge of an existing ID; no production identity was used. Registration's optional guestId merge similarly lacks ownership validation (source-confirmed, not runtime reproduced). | **Critical**, S0b before redesign. Signed downstream identity is not sufficient while bootstrap can impersonate it. |
+| B18 | [Admin logout](../app/api/admin/session/route.ts) deletes cookie only, leaving the DB token valid until expiry; `adminLogout` helper is not invoked. | Medium session revocation; S0b; replay check still pending |
+| B19 | ESLint ignores `.next` but not `.next-e2e`. Baseline lint result changes after HTTP test output generation. | Medium deterministic checks; S0a fix ignores without weakening source lint |
+| B20 | [Learner session verifier](../lib/user-session.ts) includes timestamp in signed payload but never checks its age. Thirty-day cookie lifetime does not enforce server-side expiry for a replayed signed token. | High lifecycle risk; S0b; source confirmed, expiry replay not yet exercised |
+| B21 | With ROOT_DOMAIN, middleware apex permits only root/city decks before redirecting other page paths, so defined privacy/terms do not render normally on apex; APIs bypass host constraints. | Medium routing correctness; S4; host-specific runtime checks pending |
+
+### Screenshot observations and limits
+
+Inspected captured learner home, path, lesson, profile request/history, help dialog, admin dashboard/review and homepage at recorded sizes. Content and actual synthetic DB figures render; no fabricated production data is needed. Public illustrative demos remain scripted, so their counters/approvals are not operational evidence. The mobile learner first fold has no start/continue card for the fresh fixture; existing code hides it when no completion exists (B01). Profile offers Zelle even though API rejects it (B15). Homepage desktop visibly advertises Zelle and fixed payout copy, reinforcing the source mismatch. Screenshot fixed bottom navigation/SOS and the Next development indicator are capture/runtime artifacts to consider when reviewing long full-page images; do not infer overlap failures solely from stitched screenshots. No contrast ratio, screen-reader, 200% zoom, low-bandwidth/offline, every-city unlock or complete keyboard audit was performed. Those checks remain stage acceptance requirements.

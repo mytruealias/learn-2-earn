@@ -1,0 +1,150 @@
+{
+  "fixture": "Synthetic local database only; no real learners or payment destinations",
+  "browser": "154.0.8037.57",
+  "results": [
+    {
+      "name": "homepage",
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "http": 200,
+      "horizontalOverflow": false,
+      "pageErrors": []
+    },
+    {
+      "name": "learner-home",
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "http": 200,
+      "horizontalOverflow": false,
+      "pageErrors": []
+    },
+    {
+      "name": "path",
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "http": 200,
+      "horizontalOverflow": false,
+      "pageErrors": []
+    },
+    {
+      "name": "lesson",
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "http": 200,
+      "horizontalOverflow": false,
+      "pageErrors": []
+    },
+    {
+      "name": "profile-payout",
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "http": 200,
+      "horizontalOverflow": false,
+      "pageErrors": []
+    },
+    {
+      "name": "help",
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "http": 200,
+      "horizontalOverflow": false,
+      "pageErrors": []
+    },
+    {
+      "name": "admin-dashboard",
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "http": 200,
+      "horizontalOverflow": false,
+      "pageErrors": []
+    },
+    {
+      "name": "payout-review",
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "http": 200,
+      "horizontalOverflow": false,
+      "pageErrors": []
+    },
+    {
+      "name": "homepage",
+      "viewport": "desktop",
+      "width": 1440,
+      "height": 1000,
+      "http": 200,
+      "horizontalOverflow": false,
+      "pageErrors": []
+    },
+    {
+      "name": "learner-home",
+      "viewport": "desktop",
+      "width": 1440,
+      "height": 1000,
+      "http": 200,
+      "horizontalOverflow": false,
+      "pageErrors": []
+    },
+    {
+      "name": "path",
+      "viewport": "desktop",
+      "width": 1440,
+      "height": 1000,
+      "http": 200,
+      "horizontalOverflow": false,
+      "pageErrors": []
+    },
+    {
+      "name": "lesson",
+      "viewport": "desktop",
+      "width": 1440,
+      "height": 1000,
+      "http": 200,
+      "horizontalOverflow": false,
+      "pageErrors": []
+    },
+    {
+      "name": "profile-payout",
+      "viewport": "desktop",
+      "width": 1440,
+      "height": 1000,
+      "http": 200,
+      "horizontalOverflow": false,
+      "pageErrors": []
+    },
+    {
+      "name": "help",
+      "viewport": "desktop",
+      "width": 1440,
+      "height": 1000,
+      "http": 200,
+      "horizontalOverflow": false,
+      "pageErrors": []
+    },
+    {
+      "name": "admin-dashboard",
+      "viewport": "desktop",
+      "width": 1440,
+      "height": 1000,
+      "http": 200,
+      "horizontalOverflow": false,
+      "pageErrors": []
+    },
+    {
+      "name": "payout-review",
+      "viewport": "desktop",
+      "width": 1440,
+      "height": 1000,
+      "http": 200,
+      "horizontalOverflow": false,
+      "pageErrors": []
+    }
+  ]
+}

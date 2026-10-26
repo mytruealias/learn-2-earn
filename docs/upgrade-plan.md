@@ -1,6 +1,6 @@
 # Learn2Earn staged upgrade checklist
 
-This pack turns the product brief into small, reviewable changes against the [verified baseline](upgrade-baseline.md). [Status](upgrade-status.md) distinguishes completed work from pending implementation. The selected first product priority is **learner progression and feedback**. Only S0 documentation is implemented in this PR.
+This pack turns the product brief into small, reviewable changes against the [verified baseline](upgrade-baseline.md). [Status](upgrade-status.md) distinguishes completed work from pending implementation. The selected first product priority is **learner progression and feedback**. Only S0 documentation/evidence is implemented in this branch. The expanded architecture audit adds a required S0b identity-safety stage before learner redesign; actual partner isolation needs a separate membership decision before any multi-partner promise.
 
 ## Constraints for every stage
 
@@ -11,30 +11,44 @@ This pack turns the product brief into small, reviewable changes against the [ve
 - Preserve routes, accounts, curriculum IDs, balances and payment history. No silent payout/scoring economic change. Financial/history schema changes require additive migrations, explicit backfill and reconciliation specifications before implementation; migration names must be chosen from actual reviewed changes, not invented now.
 - Use a feature branch; inspect diffs and applicable instructions again before each stage. Do not overwrite unrelated work. GitHub PRs feed the existing Replit workflow; no automatic merge, deploy, DNS change or production seed.
 - Verify a dedicated disposable DB by parsed host/database identity before tests that reset it. A database name containing `test` alone does not prove safety. Never log secret values or learner records.
-- For each stage update `upgrade-status.md` with behavior, exact changed files, command exit status/test counts, browser evidence, migration/environment needs, blockers and rollback. Future file lists below are bounded implementation targets, not claims they were changed. Reinspect before starting; record any evidence-based scope revision before adding files.
+- For each stage update `upgrade-status.md` with behavior, exact changed files, command exit status/test counts, browser evidence, migration/environment needs, blockers and rollback. Future file lists below are bounded implementation targets, not claims they were changed. Reinspect before starting; record any evidence-based scope revision before adding files. Recheck every row in `docs/current-architecture.md` for each touched route/API and record its close-out result.
 
 ## S0 — Documentation and baseline (this change)
 
-Files: `README.md` (pack entry link only), `docs/upgrade-plan.md` (new), `docs/upgrade-baseline.md` (new), `docs/upgrade-status.md` (new).
+Files for this audit refresh: `README.md`, `docs/current-architecture.md` (new), `docs/upgrade-plan.md`, `docs/upgrade-baseline.md`, `docs/upgrade-status.md`, and the explicitly listed evidence files in `docs/baseline/2026-10-26/README.md`. Earlier S0 commit created the three upgrade documents.
 
 - [x] Inspect clean checkout, branch, guidance, installed versions and remote main SHA.
+- [x] Map all 34 pages, 36 API files, metadata, sessions, roles, 18 data models, curriculum/card types, integrations and environment names.
+- [x] Record the absence of inspectable Replit config, verify the named source-review findings, and capture 20 synthetic-data browser images with source/runtime evidence.
+- [ ] Obtain read-only Replit configuration evidence before claiming host settings verified.
 - [x] Record actual lint/type/build/API/HTTP results, source-confirmed defects and unverified risks.
 - [x] Specify exact file targets, stage dependencies, acceptance checks and rollback.
 - [x] Keep source, dependencies, lockfile, schema and application configuration unchanged.
 - [ ] Publish PR when GitHub API access is available; no auto-merge/deploy.
 
-Acceptance: all repository file links resolve; every existing target exists (new files labeled); defect statements have evidence and distinguish static from runtime findings; document test counts and browser limitations accurately. Diff contains only the four files above and passes `git diff --check`. No migration/environment change required. Rollback: revert the documentation commit.
+Acceptance: all repository file links resolve; every existing target exists (new files labeled); defect statements have evidence and distinguish static from runtime findings; document test counts and browser limitations accurately. Diff contains only the named documentation/evidence files and passes `git diff --check`. No migration/environment change required. Rollback: revert the documentation commit.
 
 ## S0a — Small baseline repairs before product changes
 
-Files: `app/components/LandingFooter.tsx`, `app/api/auth/session/route.ts`, `app/lesson/[lessonId]/page.tsx`, `app/admin/layout.tsx`, `app/admin/AdminContext.tsx` (new), `app/admin/payouts/page.tsx`, `app/admin/staff/page.tsx`, `app/admin/finance/FinanceClient.tsx`, `README.md`, `docs/accessibility.md`, `package.json`, `.env.example` (new), `.env.test.example` (new), `docs/upgrade-status.md`. No dependency/lockfile changes planned. `next.config.ts` remains unchanged until independent gates are reliable.
+Files: `app/components/LandingFooter.tsx`, `app/api/auth/session/route.ts`, `app/lesson/[lessonId]/page.tsx`, `app/admin/layout.tsx`, `app/admin/AdminContext.tsx` (new), `app/admin/payouts/page.tsx`, `app/admin/staff/page.tsx`, `app/admin/finance/FinanceClient.tsx`, `README.md`, `docs/accessibility.md`, `package.json`, `eslint.config.mjs`, `.env.example` (new), `.env.test.example` (new), `docs/upgrade-status.md`. No dependency/lockfile changes planned. `next.config.ts` remains unchanged until independent gates are reliable.
 
+- [ ] Fix B19 by excluding generated `.next-e2e` artifacts from source lint; preserve source rules.
 - [ ] Fix B07/B08 without suppressions; move the admin context/hook to a separate module and update its three consumers, leaving route exports valid. Add an explicit type-check script using the installed TypeScript.
 - [ ] Correct B09 documentation and supply non-secret example variable names; match port 5000 and actual admin seed variable. State that payout rates are program-configured.
 - [ ] Replace stale accessibility route/command/bypass claims with verified instructions.
 - [ ] Explain B14 fresh disposable schema bootstrap separately from existing database migrations; do not “repair” production history or auto-run seeds as a check.
 
 Acceptance: `npm run lint` and `npx tsc --noEmit` exit 0 after fresh Next build and HTTP-server type generation; same 32 API and 6 HTTP baseline tests pass; example files have no credentials and docs commands match scripts. Browser-check footer hash navigation when available. No schema/economic changes. Rollback: revert repair commit; keep local ignored secrets intact.
+
+## S0b — Identity safety before learner redesign
+
+Files: `app/api/user/ensure/route.ts`, `app/api/auth/register/route.ts`, `app/api/admin/session/route.ts`, `lib/user-session.ts`, `lib/admin-auth.ts`, `tests/api/auth.test.ts`, `tests/api/admin-login.test.ts`, `tests/api/guest-identity.test.ts` (new), `docs/upgrade-status.md`.
+
+- [ ] Fix B17: public guest bootstrap must not mint a session for an existing account from an arbitrary supplied ID. Require ownership proof for existing identity/guest merge, generate fresh guest identities on the server, and preserve legitimate guest-to-account continuity.
+- [ ] Verify signed learner token age server-side (B20), reject malformed/future/expired values and define compatible rollout without touching balances or curriculum keys.
+- [ ] Revoke the current staff DB session on logout (B18), preserving other legitimate sessions unless explicitly requested.
+
+Acceptance: an anonymous context knowing a synthetic account ID/guestId cannot read/update that account, change credentials or inherit XP; a legitimate signed guest can migrate once without losing history. Malformed, expired and future learner tokens fail at APIs; deleting an admin session prevents replay of the captured synthetic token. Existing registered login, guest onboarding, sign-out and all baseline tests continue to pass. No new schema assumed; record any compatibility/backfill requirement before expanding scope. Rollback must not reintroduce the vulnerable public behavior: retain the security fix or disable the unsafe bootstrap/merge path while correcting regressions. Do not revert to insecure identity behavior as a normal rollback.
 
 ## S1 — Learner progression and clear next action (first product stage)
 
@@ -62,36 +76,39 @@ Acceptance: replay and simultaneous duplicate completions increase total XP exac
 
 ## S3 — Profile, payout clarity and support continuity
 
-Files: `app/profile/page.tsx`, `app/lifeline/page.tsx`, `app/components/HelpButton.tsx`, `app/components/HubertChat.tsx`, `app/api/auth/session/route.ts`, `app/api/user/profile/route.ts`, `lib/payout-rules.ts`, `tests/api/payout.test.ts`, `tests/api/auth.test.ts`, `e2e/profile-support.spec.ts` (new browser tests), `docs/upgrade-status.md`.
+Files: `app/profile/page.tsx`, `app/lifeline/page.tsx`, `app/components/HelpButton.tsx`, `app/components/HubertChat.tsx`, `app/api/auth/session/route.ts`, `app/api/user/profile/route.ts`, `lib/payout-rules.ts`, `app/api/payout/request/route.ts`, `tests/api/payout.test.ts`, `tests/api/auth.test.ts`, `e2e/profile-support.spec.ts` (new browser tests), `docs/upgrade-status.md`.
 
+- [ ] Close B15 by reconciling Zelle offering, API validation, schema/history and manual workflow explicitly. Preserve existing Zelle records; either support it safely or clearly mark new requests unavailable, with no silent method substitution.
 - [ ] Load profile from signed session even when browser identity hints are absent; retain actual configured minimum, cap, conversion and eligibility.
 - [ ] Distinguish XP earned, redeemable XP, payout requested, approved and paid. Remove fixed-dollar badge claims where program rates differ; never promise immediate payment.
 - [ ] Keep Lifeline and crisis contact actions usable when chat/TTS is slow, unavailable or unconfigured. Preserve Hubert and existing OpenAI integrations; no diagnosis or guaranteed availability claims.
 - [ ] Add accessible field-level failures, submit/pending/empty/success states and account-safe retry; do not store sensitive support conversations as resume drafts.
 
-Acceptance: two synthetic program rate configurations produce exact corresponding copy/amounts without a hard-coded exchange rate; request does not imply payment sent; unauthed/wrong-account writes rejected; error states preserve non-sensitive form input appropriately. Browser offline/slow API checks leave support phone/text links usable, no trapped focus, and retry works. Verify configured chat/TTS with sandbox bindings only when available; otherwise state unverified integration behavior. API tests pass. No financial rule, schema or credential change required for core UI. Rollback: revert S3 without altering payout records.
+Acceptance: Zelle UI/API capability agrees and existing Zelle history renders unchanged. Two synthetic program rate configurations produce exact corresponding copy/amounts without a hard-coded exchange rate; request does not imply payment sent; unauthed/wrong-account writes rejected; error states preserve non-sensitive form input appropriately. Browser offline/slow API checks leave support phone/text links usable, no trapped focus, and retry works. Verify configured chat/TTS with sandbox bindings only when available; otherwise state unverified integration behavior. API tests pass. No financial rule, schema or credential change required for core UI. Rollback: revert S3 without altering payout records.
 
 ## S4 — Credible public website and partner actions
 
-Files: `app/page.tsx`, `app/components/LandingNav.tsx`, `app/components/LandingFooter.tsx`, `app/components/FounderModal.tsx`, `app/components/AppDemo.tsx`, `app/components/AdminDemo.tsx`, `app/components/CityDeck/CityDeckPage.tsx`, `app/invest/invest.css`, `app/invest/demo-phone.css`, `app/layout.tsx`, `app/globals.css`, `e2e/city-pin.spec.ts`, `e2e/public-site.spec.ts` (new browser tests), `docs/public-claims.md` (new), `docs/accessibility.md`, `docs/upgrade-status.md`.
+Files: `app/page.tsx`, `app/components/LandingNav.tsx`, `app/components/LandingFooter.tsx`, `app/components/FounderModal.tsx`, `app/components/AppDemo.tsx`, `app/components/AdminDemo.tsx`, `app/components/CityDeck/CityDeckPage.tsx`, `app/invest/invest.css`, `app/invest/demo-phone.css`, `app/layout.tsx`, `app/globals.css`, `middleware.ts`, `e2e/city-pin.spec.ts`, `e2e/public-site.spec.ts` (new browser tests), `docs/public-claims.md` (new), `docs/accessibility.md`, `docs/upgrade-status.md`.
 
+- [ ] Verify middleware host routing for privacy/terms; any focused routing fix adds `middleware.ts` to this stage, as listed below.
 - [ ] Inventory public claims with source/owner/verification status; remove or qualify unsupported statistics, organizational assertions and availability promises. No fabricated impact metrics.
 - [ ] Resolve B13: label illustrative sample data and timed demos persistently; avoid simulated production controls or approval/payment success claims. Keep real staff actions in authenticated routes.
 - [ ] Make one obvious primary partner action per section, with working links and honest mailto/contact expectations; preserve existing routes and city unlock behavior.
 - [ ] Retain existing identity and illustrations; improve hierarchy, spacing, responsive controls, skip-to-main navigation and semantic landmarks. Keep media from blocking primary text/actions on slow connections.
 
-Acceptance: every primary CTA has a destination assertion; hash links target real IDs, no empty links/dead controls, and contact action is honestly described. Each quantitative impact claim has documented evidence or is removed; demo metrics are unmistakably illustrative at all times. At 320/390/1280px and 200% text zoom, text/actions remain usable; keyboard/modal focus and reduced-motion checks pass; blocking media/fonts still leave usable content. Automated accessibility scan reports no serious/critical findings on changed routes, plus manual checks; this alone is not full WCAG certification. No new contact backend, analytics integration or credentials assumed. Rollback: revert S4; no DNS/deployment/integration changes.
+Acceptance: legal pages resolve on intended host with ROOT_DOMAIN configured. Every primary CTA has a destination assertion; hash links target real IDs, no empty links/dead controls, and contact action is honestly described. Each quantitative impact claim has documented evidence or is removed; demo metrics are unmistakably illustrative at all times. At 320/390/1280px and 200% text zoom, text/actions remain usable; keyboard/modal focus and reduced-motion checks pass; blocking media/fonts still leave usable content. Automated accessibility scan reports no serious/critical findings on changed routes, plus manual checks; this alone is not full WCAG certification. No new contact backend, analytics integration or credentials assumed. Rollback: revert S4; no DNS/deployment/integration changes.
 
 ## S5 — Staff efficiency, permissions and financial auditability
 
 Files: `app/admin/users/page.tsx`, `app/admin/staff/page.tsx`, `app/admin/cases/[id]/page.tsx`, `app/admin/directory/page.tsx`, `app/admin/payouts/page.tsx`, `app/admin/finance/page.tsx`, `app/admin/finance/FinanceClient.tsx`, `app/api/admin/payouts/route.ts`, `app/api/payout/request/route.ts`, `app/api/admin/finance/route.ts`, `app/api/admin/finance/pool/route.ts`, `app/api/admin/finance/payout-config/route.ts`, `lib/audit.ts`, `lib/use-modal-a11y.ts`, `tests/api/payout.test.ts`, `tests/api/admin-payouts.test.ts` (new), `tests/api/admin-finance.test.ts` (new), `e2e/admin.spec.ts`, `e2e/helpers/seed.ts`, `e2e/payout-approval.spec.ts`, `docs/upgrade-status.md`.
 
+- [ ] Resolve B16 before exposing isolated partner portals: record the intended membership/scope model and affected CRUD/export/report flows. No partner schema/migration is authorized by this baseline; map exact additive files/backfills/reconciliation in a focused proposal before implementation. Until then, describe staff data as shared, not partner-isolated.
 - [ ] Use shared modal behavior with stable handlers for staff overlays; preserve role-specific workflows, filters and selection; show explicit failure/empty/loading states.
 - [ ] Close B06/B11 with atomic balance reservation/transition checks and durable audit writes. Preserve payment history and existing economics. Do not label approved requests as completed disbursements.
 - [ ] Reconcile finance totals against synthetic payout statuses, actual pool adjustments and optional Stripe sandbox data; no fake fallback charts.
 - [ ] Replace B12 weak assertions with seeded admin/caseworker/finance fixtures and mandatory state/permission assertions. Split this stage into UI and financial PRs using subsets of the listed files.
 
-Acceptance: direct API requests obey role matrix (review: admin/caseworker; approve/complete: admin/finance; reject: existing permitted roles); forbidden actions cause no state change. Two competing transitions produce one valid transition/audit; forced audit failure rolls back financial mutation. Concurrent requests cannot over-reserve balance/cap. Fixture totals match status-specific liabilities/disbursements exactly; approval alone sends no payment. Keyboard focus remains trapped/restored and Escape closes overlays. Regression and mandatory browser assertions pass. Schema/history changes, if required, need separate additive migration/backfill/reconciliation design before expanding file scope; no production execution. Rollback: revert code with compatible schema retained; reconcile anomalies rather than delete payment/audit history.
+Acceptance: partner isolation is either explicitly deferred with no isolation promise, or a separately approved membership design has cross-partner negative tests for every affected API/report/export. Direct API requests obey role matrix (review: admin/caseworker; approve/complete: admin/finance; reject: existing permitted roles); forbidden actions cause no state change. Two competing transitions produce one valid transition/audit; forced audit failure rolls back financial mutation. Concurrent requests cannot over-reserve balance/cap. Fixture totals match status-specific liabilities/disbursements exactly; approval alone sends no payment. Keyboard focus remains trapped/restored and Escape closes overlays. Regression and mandatory browser assertions pass. Schema/history changes, if required, need separate additive migration/backfill/reconciliation design before expanding file scope; no production execution. Rollback: revert code with compatible schema retained; reconcile anomalies rather than delete payment/audit history.
 
 ## S6 — Release verification and Replit handoff
 
