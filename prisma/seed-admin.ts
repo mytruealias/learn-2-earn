@@ -1,34 +1,25 @@
-import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcryptjs";
+import { Prisma, PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
+import { z } from 'zod';
+import { assertDatabaseOperation } from '../scripts/database-operation';
 
 const prisma = new PrismaClient();
-
 async function main() {
-  const defaultPassword = process.env.ADMIN_DEFAULT_PASSWORD;
-  if (!defaultPassword) {
-    throw new Error("ADMIN_DEFAULT_PASSWORD environment variable is required to seed the admin account.");
-  }
-  const passwordHash = await bcrypt.hash(defaultPassword, 10);
-
-  await prisma.adminUser.upsert({
-    where: { email: "admin@learn2earn.org" },
-    update: {},
-    create: {
-      email: "admin@learn2earn.org",
-      passwordHash,
-      fullName: "System Administrator",
-      role: "admin",
-    },
-  });
-
-  console.log("✅ Default admin account created");
-  console.log("   Email: admin@learn2earn.org");
-  console.log("   ⚠️  Change the default password immediately after first login!");
+  await assertDatabaseOperation(prisma, 'bootstrap-admin');
+  const email = z.string().trim().toLowerCase().email().parse(process.env.ADMIN_BOOTSTRAP_EMAIL);
+  const password = z.string().min(16).max(200).parse(process.env.ADMIN_DEFAULT_PASSWORD);
+  // No upsert, default email, password reset or account recreation on deployment.
+  await prisma.$transaction(async tx => {
+    await tx.$queryRaw`SELECT pg_advisory_xact_lock(74219932)::text`;
+    if (await tx.adminUser.count()) throw new Error('Staff already exists; use authenticated staff management or reviewed recovery.');
+    await tx.adminUser.create({ data: {
+      email, passwordHash: await bcrypt.hash(password, 12),
+      fullName: 'System Administrator', role: 'admin',
+    } });
+  }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable, timeout: 15000 });
+  console.log('First administrator provisioned. Remove bootstrap credentials from runtime settings.');
 }
-
-main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  })
-  .finally(() => prisma.$disconnect());
+main().catch(() => {
+  console.error('First-admin provisioning refused or failed. Requires an empty staff table, explicit database confirmation, email and a password of at least 16 characters. No credentials are logged.');
+  process.exitCode = 1;
+}).finally(() => prisma.$disconnect());

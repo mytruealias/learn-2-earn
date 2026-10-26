@@ -1,22 +1,32 @@
 # Upgrade status
 
-Updated 2026-10-26 on `docs/upgrade-baseline`. Documentation base: `01d39c2`; application baseline remains `4f59d419528ae5ff450b339ab1de512554a8094b`. Source and runtime findings are documented; no application redesign or security/financial fixes are implemented in this stage.
+Updated 2026-10-26 on `fix/safe-build-release`, based on audit commit `f2e6677`. Safe build/release tooling and the small lint/type prerequisites are implemented; learner redesign, identity fixes and financial concurrency work remain pending. See [current workflow verification](release-workflow-verification.md).
 
 [Current architecture / route inventory](current-architecture.md) · [Staged implementation checklist](upgrade-plan.md) · [Latest baseline evidence](upgrade-baseline.md#audit-pack-refresh) · [20 screenshots](baseline/2026-10-26/README.md)
 
 | Stage | Status | Required next gate |
 | --- | --- | --- |
 | S0 — Documentation, architecture and baseline | Finished locally; external host settings unverified, PR blocked | GitHub API access for PR; actual read-only Replit configuration evidence before deployment work |
-| S0a — Small baseline repairs | Pending | Source lint/type defects, generated-output lint exclusion, setup/build docs |
+| S0a — Small baseline repairs | Tooling prerequisites implemented/verified | Historical accessibility guidance still needs its separate route/bypass review |
 | S0b — Identity safety | Pending; critical prerequisite | Close B17 unauthenticated identity bootstrap/guest merge; token expiry and staff logout revocation |
 | S1 — Learner progression | Pending; first product priority after safety repairs | Session-based progress and browser regression coverage |
 | S2 — Lesson feedback/recovery/awards | Pending | Honest XP breakdown, no hearts barrier, atomic writes, server-verifiable bonuses |
 | S3 — Profile/payout/support | Pending | Program-accurate copy, Zelle agreement, resilient support |
 | S4 — Public website/city decks | Pending | Claims/demo provenance, CTA and legal-route host behavior, route close-out |
 | S5 — Staff operations | Pending | Money concurrency/audit integrity, role matrix, explicit partner-boundary decision |
-| S6 — Release/Replit handoff | Pending | Deterministic independent checks, browser/accessibility matrix, verified deploy settings |
+| S6 — Release/Replit handoff | Safe workflow/CI authored and locally verified; broader handoff pending | Live Replit/remote Actions verification and full accessibility/low-bandwidth matrix |
 
-## S0 audit-pack report
+## Safe workflow report (current change)
+
+- **Behavior:** build/start/post-merge no longer migrate, seed, repair history or provision staff. Named release operations confirm server identity/target; content imports preserve existing edits/rewards/IDs/history; first-admin command refuses any existing staff. Historic repair is read-only. Test harness creates fresh DBs/restricted roles and verifies a nonce/ownership/privilege boundary before resets or fixtures.
+- **Files and evidence:** [exact file list and verification](release-workflow-verification.md); README/DEPLOYMENT and examples now match actual ports, names, sessions and commands. Dependencies/lockfile/schema/migration SQL and authored curriculum/economics remain unchanged.
+- **Checks:** clean npm ci and safe build passed; populated local canary's 18 model snapshots unchanged by build. Lint/type checks passed with build suppressions removed. Unit 8, API/release 36, HTTP 6 and actual Chromium browser 4 tests passed. Remote GitHub Actions has not run here.
+- **Browser:** responsive public page at 390/1440px, learner form login to profile then home/path/lesson, and staff form login/dashboard pass in real Chromium. These are smoke tests, not complete accessibility/security assertions. No visual redesign was performed.
+- **Environment/migration:** no schema/data migration for this change, no production operation/deployment. Replit files/settings remain unavailable; repository binding stays 0.0.0.0:5000. Configure/test a local maintenance connection for disposable suites, install Chromium, and inspect actual Replit custom build/run settings before a separately authorized deploy.
+- **Blockers:** missing original init migration still prevents claiming a fresh production baseline; verified recovery/backup/restore instructions are in DEPLOYMENT.md. GitHub API access/remote CI/PR remain unverified. Critical B17/B18/B20 and financial risks are explicitly unchanged.
+- **Rollback:** retain removal of unsafe build side effects when correcting regressions; code rollback must remain schema-compatible. Do not delete curriculum/accounts/payments or reintroduce silent history repair. No database reversal is needed for this patch.
+
+## S0 audit-pack report (historical baseline)
 
 - **Implemented behavior:** documentation of all 34 page routes, 36 API files, metadata/static routes, sessions, roles, 18 models, card/lesson modes, external services, environment names, payout transitions and observed setup mismatches. Implemented/partial/demo-only/absent classifications distinguish real code from claims and scripted examples. Each route inventory row is open and assigned to later close-out stages.
 - **Exact files changed:** `README.md`, `docs/current-architecture.md`, `docs/upgrade-plan.md`, `docs/upgrade-baseline.md`, `docs/upgrade-status.md`; exact screenshot/JSON evidence filenames are linked in `docs/baseline/2026-10-26/README.md`. No application source, tests, schema, manifest, lockfile, runtime configuration or secrets changed.

@@ -1,25 +1,10 @@
 "use client";
 
-import { useState, useEffect, createContext, useContext } from "react";
+import { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { AdminToastProvider } from "./AdminToastContext";
+import { AdminContext, type AdminUser } from "./AdminContext";
 import styles from "./layout.module.css";
-
-interface AdminUser {
-  id: string;
-  email: string;
-  fullName: string;
-  role: string;
-}
-
-const AdminContext = createContext<{ admin: AdminUser | null; logout: () => void }>({
-  admin: null,
-  logout: () => {},
-});
-
-export function useAdmin() {
-  return useContext(AdminContext);
-}
 
 function getInitials(name: string): string {
   return name

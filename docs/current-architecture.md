@@ -1,6 +1,6 @@
 # Current architecture and implementation baseline
 
-Inspected 2026-10-26 on `docs/upgrade-baseline`, starting commit `01d39c2` (application code remains `4f59d419528ae5ff450b339ab1de512554a8094b`). This describes the checked-out source and a disposable local runtime, **not** Replit production state. Read [baseline evidence](upgrade-baseline.md), [implementation checklist](upgrade-plan.md), [status](upgrade-status.md) and [screenshots](baseline/2026-10-26/README.md) together.
+Inspected 2026-10-26 on `docs/upgrade-baseline`, starting commit `01d39c2` (application code remains `4f59d419528ae5ff450b339ab1de512554a8094b`). This records the audit snapshot and a disposable local runtime, **not** Replit production state. The build/release sections were updated by the subsequent safe-workflow change; see [release verification](release-workflow-verification.md) for current command/test behavior. Read [baseline evidence](upgrade-baseline.md), [implementation checklist](upgrade-plan.md), [status](upgrade-status.md) and [screenshots](baseline/2026-10-26/README.md) together.
 
 No applicable `AGENTS.md` was found in `/` or the workspace/repository. Read README, DEPLOYMENT.md, package scripts, middleware, test setup, accessibility guidance and both `.agents/memory` documents before edits. Preserve the existing stack, identity, integrations, curriculum keys and all money/history. This stage changes documentation/evidence only.
 
@@ -178,7 +178,7 @@ Curriculum is source-seeded by [seed.ts](../prisma/seed.ts), [seed-recovery.ts](
 
 ## External services and environment names
 
-No environment values, auth tokens, cookie contents, private connection URLs or learner records are included here. Presence/configuration in Replit is unknown. The audit server explicitly disabled external AI/payment bindings.
+No private environment values, auth tokens, cookie contents, private connection URLs or learner records are included here. Presence/configuration in Replit is unknown. The audit server explicitly disabled external AI/payment bindings.
 
 | Service | Source and actual usage | Classification |
 | --- | --- | --- |
@@ -197,10 +197,13 @@ No environment values, auth tokens, cookie contents, private connection URLs or 
 | Variable names (names only) | Read by / purpose |
 | --- | --- |
 | `DATABASE_URL` | Prisma datasource; require verified disposable connection for reset/seeding/tests |
-| `DATABASE_URL_TEST` | API/e2e global setup and helpers; destructive test target |
+| `TEST_DATABASE_ADMIN_URL` | Local maintenance binding for creating/dropping fresh test databases/roles |
+| `DATABASE_URL_TEST`, `TEST_DATABASE_NONCE` | Transient harness bindings; reset/fixtures verify ownership and server marker |
+| `RELEASE_OPERATION`, `RELEASE_DATABASE_NAME` | Internal transient release-child intent, derived from explicit command/confirmation |
+| `PLAYWRIGHT_CHROMIUM_EXECUTABLE` | Optional local system Chromium executable |
 | `SESSION_SECRET`, `DEMO_ACCESS_CODE` | Learner HMAC, demo gate; session secret preferred |
 | `AUSTIN_ACCESS_PIN`, `CITY_ACCESS_PIN` | Dynamic city PIN lookups in city-access and middleware; shared PIN for non-Austin cities |
-| `ADMIN_DEFAULT_PASSWORD` | Admin seed script only; README's `ADMIN_USERNAME`/`ADMIN_PASSWORD` are not consumed there |
+| `ADMIN_BOOTSTRAP_EMAIL`, `ADMIN_DEFAULT_PASSWORD` | Explicit first-admin command only; neither is consumed by ordinary builds/start |
 | `ROOT_DOMAIN`, `ALLOWED_DEV_ORIGINS` | Host/cookie routing and Next allowed origins |
 | `NEXT_PUBLIC_SITE_URL` | Metadata/layout/page/robots/sitemap |
 | `OPENAI_API_KEY`, `TTS_DAILY_CHAR_CAP` | Chat/TTS binding and daily character quota |
@@ -218,17 +221,17 @@ No `.replit` or `replit.nix` is tracked or present in this checkout; [.gitignore
 | Source | Executable behavior / mismatch | Impact and next action |
 | --- | --- | --- |
 | [package scripts](../package.json) | `dev`: Next dev; `start`: Next start; both bind 0.0.0.0:5000. README says 3000. | Fix docs; verify Replit selected scripts/port separately |
-| `build` | Prisma generation → `tsx prisma/fix-migration.ts` → migrate deploy → Next build → curriculum/recovery/admin seeds | Potential DB/history mutation during a build; do not run against unverified DB |
-| [migration repair](../prisma/fix-migration.ts) | Marks one specifically named incomplete migration as finished via SQL; `.catch` logs without setting nonzero exit | Historical workaround needs reconciliation/explicit deployment handling, not blanket adoption |
-| [post-merge helper](../scripts/post-merge.sh) | `npm install` then `prisma db push --accept-data-loss` | Unsafe automatic production upgrade path; not executed in audit |
+| `build` | Prisma generation → isolated Next build; unusable build-only DB binding; default lint/types enabled | Fixed repository workflow; `release:migrate`, `release:content` and `release:bootstrap-admin` are separate confirmed operations |
+| [historic migration script](../prisma/fix-migration.ts) | Now read-only count/state inspection; no history mutation; failure exits nonzero | Exact original artifacts/effects and restore verification required before any separate migrate resolve operation |
+| [post-merge helper](../scripts/post-merge.sh) | Now `npm ci` and Prisma generation only | No schema/content/account writes |
 | Tracked migrations | Earliest migration ALTERs tables; initial schema creation missing; later Zelle and config migrations are additive | Fresh DB baseline differs from deployed history; no repair/seed against production |
-| README/admin seed | Missing env example files; admin variable names differ; seed fixes an email instead of reading ADMIN_USERNAME | Document actual setup; never print seed credentials |
-| README/payout copy | $1/3 XP default vs `getPayoutRules` fallback $0.05/XP; badges/demos embed additional fixed-dollar claims | S3/S4 copy must reflect configured rules; no silent economics changes |
-| [DEPLOYMENT](../DEPLOYMENT.md) | Calls admin secret JWT signing and cookie `admin_session`; code uses DB token `l2e_admin_session` | Correct operational/security explanation |
-| [Next config](../next.config.ts) | `ignoreBuildErrors` and `ignoreDuringBuilds` true | Successful compilation is not lint/type success |
-| [ESLint config](../eslint.config.mjs) | Ignores `.next` but not `.next-e2e` | After e2e generates output, `npm run lint` scans generated JS; isolate source findings explicitly |
-| Test setup | API permits DATABASE_URL fallback; guards test-like DB name only; e2e parse error can include URL | Add explicit disposable target guard; never expose URLs in errors |
-| [accessibility doc](accessibility.md) | Nonexistent typecheck script, historical route aliases, bottom nav described as implicit bypass | Correct guidance and reverify; old checkmarks are not fresh browser evidence |
+| README/admin seed | Examples now tracked; deliberate bootstrap requires ADMIN_BOOTSTRAP_EMAIL / ADMIN_DEFAULT_PASSWORD and empty staff table | No implicit admin creation/reset; existing staff require authenticated management/reviewed recovery |
+| Payout copy | README now describes configured conversion/fallback; public page/badges/demos still embed fixed-dollar claims | Remaining S3/S4 work; economics unchanged |
+| [DEPLOYMENT](../DEPLOYMENT.md) | Now documents DB-backed `l2e_admin_session` and HMAC learner tokens, actual names/ports and release sequence | Live Replit setting verification still external |
+| [Next config](../next.config.ts) | Build suppressions removed; type and lint defects repaired | Build + independent lint/type gates now required |
+| [ESLint config](../eslint.config.mjs) | Ignores both `.next` and `.next-e2e` output | Source lint remains enforced, generated-output false positives fixed |
+| Test setup | Harness creates a random DB/restricted role and nonce marker; helpers/reset require matching bindings + server ownership/capability checks | No application URL fallback, remote targets refused, per-suite cleanup; no production credentials in CI |
+| [accessibility doc](accessibility.md) | Typecheck script now exists; historical route aliases/implicit bypass claims still need correction | Full WCAG/browser audit remains separate; old checkmarks are not new evidence |
 
 ## Risk priority before redesign
 
@@ -238,6 +241,6 @@ Prioritize identity and money correctness, then truthful feedback/resilience, th
 2. **High financial integrity:** client claims change XP, progress/XP writes are separate, balance reservation/approval transitions can race, audit write can fail independently. These are not cosmetic tasks. Fault/concurrency reproduction remains required; do not claim observed production loss.
 3. **High trust/recovery:** perfect-run breakdown disagreement, replay award fallback, heart barrier and silent failures; Zelle offered but rejected; rates vary by configured program.
 4. **High boundary decision:** no explicit partner membership isolation. Appropriate for a single shared program only if that is intentional; must be designed before promising isolated partner portals. No speculative tenancy migration in this stage.
-5. **Medium engineering/operations:** type/lint gates, generated-output lint noise, build-time mutations, production host legal-route behavior and misleading test coverage claims.
+5. **Medium engineering/operations:** repository type/lint gates, generated-output exclusion and build-time mutation issues are fixed in the workflow stage. Production host legal-route behavior and broader coverage remain pending. New Chromium smoke tests cover learner login/path/lesson and staff login/dashboard, not a complete UX/security/accessibility suite.
 
 Current safety/quality work does not change balances, rewrite curriculum, replace styling, fabricate impact or ship simulated actions. New schemas and historical reconciliations require focused, additive designs after the baseline.

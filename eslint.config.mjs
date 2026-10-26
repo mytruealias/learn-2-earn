@@ -13,6 +13,7 @@ const eslintConfig = [
   {
     ignores: [
       ".next/**",
+      ".next-e2e/**",
       "out/**",
       "build/**",
       ".local/**",

@@ -28,12 +28,6 @@ const nextConfig: NextConfig = {
       ...(allAllowedOrigins.length > 0 && { allowedOrigins: allAllowedOrigins }),
     },
   },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   async headers() {
     return [
       {

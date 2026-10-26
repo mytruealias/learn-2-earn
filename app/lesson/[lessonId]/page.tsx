@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 export default async function LessonPage({
   params,
 }: {
-  params: { lessonId: string };
+  params: Promise<{ lessonId: string }>;
 }) {
   const { lessonId } = await params;
 

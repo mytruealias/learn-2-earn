@@ -1,3 +1,4 @@
+import { assertTestDatabase, getTestDatabaseUrl } from "../../lib/test-database-safety";
 /**
  * E2E test helpers. These talk to the dedicated test database
  * (DATABASE_URL_TEST), the same one the Playwright webServer is pointed at.
@@ -9,18 +10,14 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
-const testDbUrl = process.env.DATABASE_URL_TEST;
-if (!testDbUrl) {
-  throw new Error(
-    "DATABASE_URL_TEST is not set. e2e helpers refuse to run against the dev DB.",
-  );
-}
+const testDbUrl = getTestDatabaseUrl();
 
 const prisma = new PrismaClient({
   datasources: { db: { url: testDbUrl } },
 });
 
 export async function findAnyLessonId(): Promise<string> {
+  await assertTestDatabase(prisma);
   const lesson = await prisma.lesson.findFirst({
     where: { isActive: true },
     select: { id: true },
@@ -37,6 +34,7 @@ export async function ensureTestAdmin(
   email: string,
   password: string,
 ): Promise<void> {
+  await assertTestDatabase(prisma);
   const passwordHash = await bcrypt.hash(password, 4);
   await prisma.adminUser.upsert({
     where: { email },
@@ -57,6 +55,7 @@ export async function ensureTestAdmin(
 }
 
 export async function deleteUserByEmail(email: string): Promise<void> {
+  await assertTestDatabase(prisma);
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) return;
   await prisma.payoutRequest.deleteMany({ where: { userId: user.id } });
@@ -67,6 +66,7 @@ export async function deleteUserByEmail(email: string): Promise<void> {
 }
 
 export async function setUserXp(email: string, totalXp: number): Promise<void> {
+  await assertTestDatabase(prisma);
   await prisma.user.update({ where: { email }, data: { totalXp } });
 }
 

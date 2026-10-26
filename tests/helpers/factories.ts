@@ -1,6 +1,8 @@
+import { assertTestDatabase, getTestDatabaseUrl } from "../../lib/test-database-safety";
 import bcrypt from "bcryptjs";
 import prisma from "@/lib/prisma";
 
+getTestDatabaseUrl();
 let counter = 0;
 function uniq(prefix: string) {
   counter += 1;
@@ -8,6 +10,7 @@ function uniq(prefix: string) {
 }
 
 export async function clearDb() {
+  await assertTestDatabase(prisma);
   await prisma.auditLog.deleteMany();
   await prisma.payoutRequest.deleteMany();
   await prisma.consentRecord.deleteMany();
@@ -30,6 +33,7 @@ export async function clearDb() {
 export async function createUser(
   overrides: { email?: string; password?: string; fullName?: string; totalXp?: number; city?: string } = {}
 ) {
+  await assertTestDatabase(prisma);
   const email = overrides.email ?? `${uniq("user")}@example.com`;
   const password = overrides.password ?? "password123";
   const passwordHash = await bcrypt.hash(password, 4);
@@ -48,6 +52,7 @@ export async function createUser(
 export async function createAdmin(
   overrides: { email?: string; password?: string; role?: string } = {}
 ) {
+  await assertTestDatabase(prisma);
   const email = overrides.email ?? `${uniq("admin")}@example.com`;
   const password = overrides.password ?? "adminpass";
   const passwordHash = await bcrypt.hash(password, 4);
@@ -65,6 +70,7 @@ export async function createAdmin(
 export async function createLesson(
   overrides: { xpReward?: number } = {}
 ) {
+  await assertTestDatabase(prisma);
   const path = await prisma.path.create({
     data: { title: "Test Path", slug: uniq("path") },
   });

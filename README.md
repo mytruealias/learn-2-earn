@@ -38,58 +38,49 @@ See the [current architecture and route inventory](docs/current-architecture.md)
 
 ## Getting Started
 
-### Prerequisites
-
-- Node.js 20+
-- PostgreSQL 14+ (local or hosted)
-- `npm` or `pnpm`
-
-### Installation
+Use Node.js 24 (the CI runtime), npm and PostgreSQL 14+. Retain `package-lock.json`.
 
 ```bash
-git clone https://github.com/mytruealias/learn-2-earn.git
-cd learn-2-earn
-npm install
-```
-
-### Environment variables
-
-Copy `.env.example` to `.env` and fill in the values:
-
-```bash
+npm ci --include=dev
+npm run prisma:generate
 cp .env.example .env
 ```
 
-Required variables:
+Fill `.env` privately with `DATABASE_URL`, a strong `SESSION_SECRET`, and your desired `DEMO_ACCESS_CODE`. City proposals use `AUSTIN_ACCESS_PIN` / `CITY_ACCESS_PIN`. Optional AI and Stripe bindings are described in [deployment guidance](DEPLOYMENT.md). Do not commit filled environment files or print credentials.
 
-```
-DATABASE_URL      PostgreSQL connection string
-SESSION_SECRET    Long random string for signing session tokens
-DEMO_ACCESS_CODE  Learner app access code (default: LEARN2EARN)
-ADMIN_USERNAME    Initial admin account username
-ADMIN_PASSWORD    Initial admin account password
-```
-
-### Database setup
+For a **new local development database only**, set DATABASE_URL to that loopback database, then explicitly confirm its name:
 
 ```bash
-# Apply migrations
-npx prisma migrate deploy
-
-# Seed curriculum content
-npx ts-node prisma/seed.ts
-
-# Seed admin user
-npx ts-node prisma/seed-admin.ts
-```
-
-### Run in development
-
-```bash
+npm run db:prepare-dev -- --confirm-database your_local_database
+npm run release:content -- --confirm-database your_local_database
 npm run dev
 ```
 
-The app will be available at `http://localhost:3000`.
+The application binds **0.0.0.0:5000**. `db:prepare-dev` is a non-production, loopback schema push with no reset or data-loss acceptance; it must not replace production migrations. The tracked migrations lack the original initial schema, so a completely fresh production database requires the verified baseline procedure in DEPLOYMENT.md.
+
+### Build and release are separate
+
+```bash
+npm run lint
+npm run build
+npm run typecheck
+npm start
+```
+
+`build` generates Prisma client and runs Next with an unreachable build-only database binding and provider/bootstrap bindings disabled. It performs no migration, history repair, content synchronization or admin provisioning. Lint/type errors are no longer suppressed during Next build. `start` only starts the built server on 0.0.0.0:5000 using runtime settings.
+
+Database changes require an operator-reviewed target, a tested backup/restore plan, and separate explicit commands:
+
+| Command | Effect |
+| --- | --- |
+| `npm run release:migrate -- --confirm-database reviewed_database_name` | Apply tracked migrations to a verified existing migration baseline; no seeds/repair |
+| `npm run release:content -- --confirm-database reviewed_database_name` | Insert missing curriculum/slots; preserve existing content, IDs, rewards, user progress and payment history |
+| `npm run release:bootstrap-admin -- --confirm-database reviewed_database_name` | Create first admin only when **no staff rows exist**; requires `ADMIN_BOOTSTRAP_EMAIL` and `ADMIN_DEFAULT_PASSWORD` (16+ characters) supplied securely |
+| `npm run recovery:inspect` | Read-only status of the historic init migration; never changes migration history |
+
+Do not set bootstrap variables in ordinary build/start settings; remove them immediately after deliberate first provisioning. Existing staff must be managed through authenticated staff management or a separately reviewed recovery procedure. Content sync does not overwrite existing metadata or rewards; corrections to existing content require an explicit reviewed backfill. No payout-rate change occurs here.
+
+See [the release runbook](DEPLOYMENT.md) for development/deployment settings, migration sequencing, recovery prerequisites and rollback compatibility. Replit's actual configuration is not present in this checkout; verify its selected commands before deploying. No deployment was performed by this change.
 
 ---
 
@@ -117,7 +108,7 @@ The app will be available at `http://localhost:3000`.
 
 ## Curriculum
 
-11 learning journeys — 139 lessons:
+The seed sources define learning journeys across life skills and recovery. Measure current lesson/card counts from those sources rather than this list or the curriculum snapshot:
 
 **Life Skills**
 - Stability Basics
@@ -139,7 +130,7 @@ All content is trauma-informed and written at a 6th-grade reading level.
 
 ## Incentive System
 
-Learners earn XP for completing lessons. XP converts to cash at a configurable rate (default: $1 = 3 XP). Payout requests flow through an admin approval workflow before disbursement.
+Learners earn XP for completing lessons. XP converts to cash at a configurable rate (fallback: $0.05 per XP; active program configuration takes precedence). Payout requests flow through an admin approval workflow before disbursement.
 
 ---
 
@@ -157,67 +148,32 @@ Role levels: `admin`, `caseworker`, `finance`.
 
 ## Running the tests
 
-The project ships with two test suites:
-
-| Suite | Tooling | Scope |
-|---|---|---|
-| API integration tests | [Vitest](https://vitest.dev/) | Calls Next.js route handlers directly against a dedicated Postgres test DB |
-| End-to-end tests | [Playwright](https://playwright.dev/) | Drives a Next.js server (spawned by Playwright) over real HTTP against the dedicated test DB |
-
-Both suites use the **same dedicated test database** (`DATABASE_URL_TEST`) and never touch the dev DB.
-
-### One-time setup
-
-1. Create a separate, throw-away Postgres database for tests. The database **name** (URL path) must contain the word `test` — the runner refuses to wipe a DB that doesn't look like a test DB.
-2. Copy the example env file and fill it in:
-   ```bash
-   cp .env.test.example .env.test
-   # edit DATABASE_URL_TEST (required), and DATABASE_URL (optional — see below)
-   ```
-   `.env.test` is loaded automatically by both Vitest and Playwright.
-3. (Optional) If you also set `DATABASE_URL` in `.env.test` to the same test DB, the Playwright-spawned Next server will use it directly. Otherwise Playwright passes `DATABASE_URL_TEST` through as `DATABASE_URL` for the spawned server.
-
-The API test runner resets the test database (`prisma db push --force-reset`) at the start of every Vitest run; the Playwright global setup does the same and seeds lessons + recovery content. Both refuse to run if the DB name doesn't contain `test`.
-
-### Commands
+The harness provisions a **new database and restricted role for each suite** on a local PostgreSQL instance. It never resets a pre-existing application database. Test fixtures and reset commands require matching injected bindings, a random server-side capability marker, verified database ownership and a role without superuser/CREATE DATABASE/CREATE ROLE privileges. A name containing `test` is not enough. Remote database targets and remote/pre-existing HTTP servers are refused.
 
 ```bash
-npm run test:api        # Vitest API tests (default part of `npm test`)
-npm run test:api:watch  # Vitest in watch mode
-npm run test:e2e        # Playwright e2e — spawns its own Next server on port 5050
-                        # against the test DB, with an isolated `.next-e2e` build dir
-npm test                # API tests + e2e
-npm run test:e2e:ui     # Browser-driven e2e (e2e/admin.spec.ts) — requires Chromium
-                        # system libraries (libglib2.0 etc.) to be installed
-npm run test:all        # Everything above
+cp .env.test.example .env.test
+# Privately configure TEST_DATABASE_ADMIN_URL for local /postgres with provisioning permissions.
+npx playwright install chromium
+npm test
 ```
 
-The e2e specs in `npm run test:e2e` (`city-pin`, `learner-flow`, `payout-approval`) use Playwright's `APIRequestContext` (no browser launch), so they run anywhere Node + Postgres are available. The legacy browser-driven admin suite is kept under `test:e2e:ui` for environments with a real browser.
+`.env.test` supplies only the maintenance connection used to create/drop fresh databases/roles and an optional `PLAYWRIGHT_CHROMIUM_EXECUTABLE` path. It cannot override the child suite's isolated application bindings. No production credentials are required. For a preinstalled browser, export `PLAYWRIGHT_CHROMIUM_EXECUTABLE` with its local executable path. The bundled Playwright browser is the CI default.
 
-### What's covered
+| Command | Scope |
+| --- | --- |
+| `npm run test:unit` | Isolation guard tests; no database needed |
+| `npm run test:api` | API integration + release safety tests on a fresh isolated DB |
+| `npm run test:api:watch` | Same isolated API database retained only for that watch session |
+| `npm run test:e2e` | Existing HTTP city/learner/payout tests; local server port 5050 and `.next-e2e` output |
+| `npm run test:browser` | Actual Chromium: responsive public page, learner UI login/path/lesson, staff UI login/dashboard |
+| `npm test` | Unit → API → HTTP → browser, sequentially |
+| `npm run test:e2e:ui` | Legacy admin browser suite; isolated DB but still needs its explicit legacy role fixtures; not a default CI gate |
 
-- `tests/api/auth.test.ts` — register / login / session including duplicate-email, bad password, invalid JSON, tampered cookie
-- `tests/api/payout.test.ts` — auth gate, supported payment methods, balance + weekly cap, body/session userId mismatch
-- `tests/api/progress.test.ts` — XP award, idempotent re-completion, unknown lesson, session mismatch
-- `tests/api/admin-login.test.ts` — wrong credentials, audit log writes on success and failure
-- `tests/api/city-access.test.ts` — wrong PIN, correct PIN, per-IP+city lockout after 10 wrong attempts, different-IP isolation
-- `tests/api/access.test.ts` — demo gate code (case-insensitive), 15-attempt lockout
-- `e2e/city-pin.spec.ts` — deterministic PIN lockout, correct-PIN cookie issuance, landing CTA via SSR HTML
-- `e2e/learner-flow.spec.ts` — demo gate → register → complete real seeded lesson → totalXp visible via session API
-- `e2e/payout-approval.spec.ts` — register learner, submit payout, admin login, review → approve transitions, payout reflected in admin list
-- `e2e/admin.spec.ts` (browser-only, `test:e2e:ui`) — admin dashboard UI flows
-
----
+The harness drops only the resources it created on exit and preserves suite failure status. Separate invocations use separate random databases. If a machine/process is forcibly killed, remove only verified orphan resources from that run; never point cleanup at the development DB. The legacy suite's fixture/assertion limitations remain recorded in the baseline and are not claimed fixed.
 
 ## Deployment
 
-The app runs on any Node.js host. Ensure the following before deploying to production:
-
-1. `DATABASE_URL` points to a production PostgreSQL instance
-2. `SESSION_SECRET` is a strong, unique secret (not shared with dev)
-3. `DEMO_ACCESS_CODE` is set to your desired access code
-4. Run `npx prisma migrate deploy` after each release
-5. Set `ALLOWED_DEV_ORIGINS` to blank (not needed in production)
+[DEPLOYMENT.md](DEPLOYMENT.md) is the release/recovery runbook. [GitHub CI](.github/workflows/checks.yml) uses an ephemeral PostgreSQL 17 service, fresh restricted suite roles, no repository/production secrets, and independent lint/type/build/test gates. The existing Replit runtime remains the hosting target. A passing CI check does not authorize deployment or prove live Replit settings.
 
 ---
 

@@ -8,7 +8,7 @@ export default defineConfig({
     },
   },
   test: {
-    include: ["tests/**/*.test.ts"],
+    include: ["tests/api/**/*.test.ts"],
     exclude: ["e2e/**", "node_modules/**"],
     globals: false,
     environment: "node",

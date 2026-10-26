@@ -4,15 +4,24 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 5000 -H 0.0.0.0",
-    "build": "prisma generate && npx tsx prisma/fix-migration.ts && prisma migrate deploy && next build && npx tsx prisma/seed.ts && npx tsx prisma/seed-recovery.ts && npx tsx prisma/seed-admin.ts",
+    "build": "npm run prisma:generate && tsx scripts/build.ts",
     "start": "next start -p 5000 -H 0.0.0.0",
     "lint": "eslint",
-    "test": "npm run test:api && npm run test:e2e",
-    "test:api": "vitest run",
-    "test:api:watch": "vitest",
-    "test:e2e": "playwright test e2e/city-pin.spec.ts e2e/learner-flow.spec.ts e2e/payout-approval.spec.ts",
-    "test:e2e:ui": "playwright test e2e/admin.spec.ts",
-    "test:all": "npm run test && npm run test:e2e:ui"
+    "test": "npm run test:unit && npm run test:api && npm run test:e2e && npm run test:browser",
+    "test:api": "tsx scripts/run-tests.ts api",
+    "test:api:watch": "tsx scripts/run-tests.ts api-watch",
+    "test:e2e": "tsx scripts/run-tests.ts http",
+    "test:e2e:ui": "tsx scripts/run-tests.ts legacy",
+    "test:all": "npm test && npm run test:e2e:ui",
+    "prisma:generate": "prisma generate",
+    "typecheck": "tsc --noEmit",
+    "test:unit": "vitest run --config vitest.unit.config.ts",
+    "test:browser": "tsx scripts/run-tests.ts browser",
+    "release:migrate": "tsx scripts/release.ts migrate",
+    "release:content": "tsx scripts/release.ts content-sync",
+    "release:bootstrap-admin": "tsx scripts/release.ts bootstrap-admin",
+    "db:prepare-dev": "tsx scripts/release.ts prepare-dev",
+    "recovery:inspect": "tsx prisma/fix-migration.ts"
   },
   "dependencies": {
     "@octokit/rest": "^22.0.0",
@@ -39,9 +48,6 @@
     "eslint-config-next": "^15.5.15",
     "typescript": "^5",
     "vitest": "^4.1.4"
-  },
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
   },
   "overrides": {
     "minimatch@3": "3.1.4",

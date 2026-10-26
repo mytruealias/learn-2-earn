@@ -2,7 +2,7 @@ import { z } from "zod";
 import prisma from "@/lib/prisma";
 import { getUserIdFromRequest } from "@/lib/user-session";
 import { getPayoutRules } from "@/lib/payout-rules";
-import { apiError, apiOk, apiServerError, parseJson } from "@/lib/api-helpers";
+import { apiError, apiOk, apiServerError } from "@/lib/api-helpers";
 
 interface BadgeDefinition {
   id: string;

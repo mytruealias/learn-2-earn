@@ -1,3 +1,4 @@
+import Link from "next/link";
 import FounderModal from "./FounderModal";
 
 const CITIES = [
@@ -69,7 +70,7 @@ export default function LandingFooter() {
                 </a>
               </li>
               <li>
-                <a href="/#contact">Request a Pilot Plan</a>
+                <Link href="/#contact">Request a Pilot Plan</Link>
               </li>
               <li>
                 <a

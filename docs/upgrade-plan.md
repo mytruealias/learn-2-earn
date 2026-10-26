@@ -1,6 +1,6 @@
 # Learn2Earn staged upgrade checklist
 
-This pack turns the product brief into small, reviewable changes against the [verified baseline](upgrade-baseline.md). [Status](upgrade-status.md) distinguishes completed work from pending implementation. The selected first product priority is **learner progression and feedback**. Only S0 documentation/evidence is implemented in this branch. The expanded architecture audit adds a required S0b identity-safety stage before learner redesign; actual partner isolation needs a separate membership decision before any multi-partner promise.
+This pack turns the product brief into small, reviewable changes against the [verified baseline](upgrade-baseline.md). [Status](upgrade-status.md) distinguishes completed work from pending implementation. The selected first product priority is **learner progression and feedback**. S0 documentation/evidence was committed first. A subsequent safe build/release stage implements the workflow subset of S0a/S6; see [release verification](release-workflow-verification.md) and status for the exact scope. The expanded architecture audit adds a required S0b identity-safety stage before learner redesign; actual partner isolation needs a separate membership decision before any multi-partner promise.
 
 ## Constraints for every stage
 
@@ -32,11 +32,11 @@ Acceptance: all repository file links resolve; every existing target exists (new
 
 Files: `app/components/LandingFooter.tsx`, `app/api/auth/session/route.ts`, `app/lesson/[lessonId]/page.tsx`, `app/admin/layout.tsx`, `app/admin/AdminContext.tsx` (new), `app/admin/payouts/page.tsx`, `app/admin/staff/page.tsx`, `app/admin/finance/FinanceClient.tsx`, `README.md`, `docs/accessibility.md`, `package.json`, `eslint.config.mjs`, `.env.example` (new), `.env.test.example` (new), `docs/upgrade-status.md`. No dependency/lockfile changes planned. `next.config.ts` remains unchanged until independent gates are reliable.
 
-- [ ] Fix B19 by excluding generated `.next-e2e` artifacts from source lint; preserve source rules.
-- [ ] Fix B07/B08 without suppressions; move the admin context/hook to a separate module and update its three consumers, leaving route exports valid. Add an explicit type-check script using the installed TypeScript.
-- [ ] Correct B09 documentation and supply non-secret example variable names; match port 5000 and actual admin seed variable. State that payout rates are program-configured.
+- [x] Fix B19 by excluding generated `.next-e2e` artifacts from source lint; preserve source rules.
+- [x] Fix B07/B08 without suppressions; move the admin context/hook to a separate module and update its three consumers, leaving route exports valid. Add an explicit type-check script using the installed TypeScript.
+- [x] Correct B09 documentation and supply non-secret example variable names; match port 5000 and actual admin seed variable. State that payout rates are program-configured.
 - [ ] Replace stale accessibility route/command/bypass claims with verified instructions.
-- [ ] Explain B14 fresh disposable schema bootstrap separately from existing database migrations; do not “repair” production history or auto-run seeds as a check.
+- [x] Explain B14 fresh disposable schema bootstrap separately from existing database migrations; do not “repair” production history or auto-run seeds as a check.
 
 Acceptance: `npm run lint` and `npx tsc --noEmit` exit 0 after fresh Next build and HTTP-server type generation; same 32 API and 6 HTTP baseline tests pass; example files have no credentials and docs commands match scripts. Browser-check footer hash navigation when available. No schema/economic changes. Rollback: revert repair commit; keep local ignored secrets intact.
 
@@ -114,8 +114,8 @@ Acceptance: partner isolation is either explicitly deferred with no isolation pr
 
 Files: `package.json`, `next.config.ts`, `playwright.config.ts`, `tests/global-setup.ts`, `e2e/global-setup.ts`, `e2e/global-teardown.ts`, `e2e/helpers/seed.ts`, `lib/test-database-safety.ts` (new), `tests/unit/test-database-safety.test.ts` (new), `vitest.config.ts`, `.github/workflows/checks.yml` (new; no workflow directory currently tracked), `e2e/accessibility.spec.ts` (new), `README.md`, `DEPLOYMENT.md`, `docs/accessibility.md`, `docs/upgrade-status.md`.
 
-- [ ] Consolidate test DB guards: require explicit disposable target, reject fallback to an arbitrary development connection and avoid logging URLs in parse errors. Unit-test malformed/remote/non-test/production-like targets without connecting.
-- [ ] Establish independent lint/type/compilation/test gates. After baseline defects are fixed, remove build suppression deliberately; keep validation builds separate from deployment migrations/seeds.
+- [x] Consolidate test DB guards: require explicit disposable target, reject fallback to an arbitrary development connection and avoid logging URLs in parse errors. Unit-test malformed/remote/non-test/production-like targets without connecting.
+- [x] Establish independent lint/type/compilation/test gates. After baseline defects are fixed, remove build suppression deliberately; keep validation builds separate from deployment migrations/seeds.
 - [ ] Add meaningful browser/accessibility coverage using the existing Playwright stack; inspect dependency needs before adding an axe integration (any manifest/lockfile change requires an explicit justified scope update).
 - [ ] Document Replit runtime names, port, protected deployment steps, verified migration prerequisites, external-service sandbox requirements, rollback and smoke-test ownership. Never copy secrets or publish automatically.
 

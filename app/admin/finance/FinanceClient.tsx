@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { useAdmin } from "../layout";
+import { useAdmin } from "../AdminContext";
 import { useToast } from "../AdminToastContext";
 import styles from "./finance.module.css";
 

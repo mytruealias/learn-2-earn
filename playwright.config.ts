@@ -1,18 +1,13 @@
 import { defineConfig, devices } from "@playwright/test";
-import { config as loadDotEnv } from "dotenv";
-import path from "node:path";
-import fs from "node:fs";
+import { getTestDatabaseUrl } from "./lib/test-database-safety";
 
-// Load the dedicated test env BEFORE the webServer config block is evaluated
-// so DATABASE_URL_TEST is available when the spawned Next process inherits
-// env vars below. global-setup re-validates and resets the schema.
-const envTestPath = path.resolve(process.cwd(), ".env.test");
-if (fs.existsSync(envTestPath)) {
-  loadDotEnv({ path: envTestPath, override: true });
-}
-
+const testUrl = getTestDatabaseUrl();
 const E2E_PORT = Number(process.env.E2E_PORT || 5050);
-const baseURL = process.env.PLAYWRIGHT_BASE_URL || `http://localhost:${E2E_PORT}`;
+if (!Number.isInteger(E2E_PORT) || E2E_PORT < 1024 || E2E_PORT > 65535) throw new Error("Invalid local e2e port.");
+const baseURL = `http://127.0.0.1:${E2E_PORT}`;
+if (process.env.PLAYWRIGHT_BASE_URL && process.env.PLAYWRIGHT_BASE_URL !== baseURL) {
+  throw new Error("Remote or pre-existing test servers are refused.");
+}
 
 export default defineConfig({
   testDir: "./e2e",
@@ -29,6 +24,7 @@ export default defineConfig({
   use: {
     baseURL,
     screenshot: "only-on-failure",
+    launchOptions: { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE || undefined },
   },
   projects: [
     {
@@ -46,7 +42,10 @@ export default defineConfig({
     reuseExistingServer: false,
     timeout: 120_000,
     env: {
-      DATABASE_URL: process.env.DATABASE_URL_TEST || "",
+      DATABASE_URL: testUrl,
+      DATABASE_URL_TEST: testUrl,
+      TEST_DATABASE_NONCE: process.env.TEST_DATABASE_NONCE!,
+      ROOT_DOMAIN: "", OPENAI_API_KEY: "", STRIPE_SECRET_KEY: "",
       SESSION_SECRET:
         process.env.E2E_SESSION_SECRET || "e2e-session-secret-do-not-use-in-prod",
       DEMO_ACCESS_CODE: process.env.DEMO_ACCESS_CODE || "LEARN2EARN",
