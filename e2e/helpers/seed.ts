@@ -77,3 +77,26 @@ export function uniqEmail(prefix: string): string {
 export async function disconnect(): Promise<void> {
   await prisma.$disconnect();
 }
+
+// Every helper repeats the server-side isolation proof before writing fixtures.
+export async function journeyLesson() {
+  await assertTestDatabase(prisma);
+  const path = await prisma.path.create({ data: { slug: `journey-fixture-${Date.now()}`, title: "Synthetic learning path", order: -10000, modules: { create: { slug: "welcome", title: "A small step", lessons: { create: { slug: "first-step", title: "A safe first step (synthetic)", xpReward: 7, cards: { create: { type: "INFO", prompt: "A small step counts", body: "This is a synthetic browser-test lesson.", order: 0 } } } } } } }, include: { modules: { include: { lessons: true } } } });
+  return { pathSlug: path.slug, lessonId: path.modules[0].lessons[0].id };
+}
+export async function learnerRecord(email: string) {
+  await assertTestDatabase(prisma);
+  return prisma.user.findUnique({ where: { email }, include: { progress: true } });
+}
+export async function expireLearnerSessions(userId: string) {
+  await assertTestDatabase(prisma);
+  await prisma.learnerSession.updateMany({ where: { userId }, data: { expiresAt: new Date(0) } });
+}
+export async function accountCount(email: string) {
+  await assertTestDatabase(prisma);
+  return prisma.user.count({ where: { email } });
+}
+export async function guestRecord(id: string) {
+  await assertTestDatabase(prisma);
+  return prisma.user.findUnique({ where: { id }, include: { progress: true } });
+}

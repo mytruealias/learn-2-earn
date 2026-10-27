@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createAccessToken } from "@/lib/access-token";
+import { setDemoAccessCookie } from "@/lib/access-token";
 import {
   apiError,
   apiOk,
@@ -10,7 +10,8 @@ import {
   rateLimitResponse,
 } from "@/lib/api-helpers";
 
-const DEMO_CODE = process.env.DEMO_ACCESS_CODE || "LEARN2EARN";
+const DEMO_CODE = process.env.DEMO_ACCESS_CODE;
+import { sameOriginError } from "@/lib/user-session";
 
 // 15 attempts per 10 min per IP — generous for shared demo devices but
 // enough to throttle automated guessing of the demo gate code.
@@ -22,6 +23,8 @@ const Schema = z.object({
 
 export async function POST(req: Request) {
   try {
+    const origin = sameOriginError(req); if (origin) return origin;
+    if (!DEMO_CODE || !process.env.SESSION_SECRET) return apiError("service_unavailable", "Program access is not configured. Ask your program staff for help.", 503);
     const ip = getClientIp(req);
     const gate = limiter.check(`access:${ip}`);
     if (!gate.allowed) {
@@ -41,17 +44,8 @@ export async function POST(req: Request) {
 
     limiter.reset(`access:${ip}`);
 
-    const token = createAccessToken();
     const response = apiOk();
-    const rootDomain = process.env.ROOT_DOMAIN;
-    response.cookies.set("l2e_demo_access", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 60 * 60 * 24 * 30,
-      path: "/",
-      ...(rootDomain && { domain: `app.${rootDomain}` }),
-    });
+    setDemoAccessCookie(response);
     return response;
   } catch (error) {
     return apiServerError("access", error);

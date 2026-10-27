@@ -1,4 +1,6 @@
 "use client";
+import { Alert, Button, ButtonLink } from "@/app/components/ui";
+import { useLearnerSession } from "@/app/components/learner/LearnerSession";
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
@@ -187,6 +189,7 @@ function findNextLesson(lesson: Lesson, completedIds: Set<string>): { id: string
 }
 
 export default function LessonPlayer({ lesson }: { lesson: Lesson }) {
+  const { user: sessionUser } = useLearnerSession();
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [hearts, setHearts] = useState(5);
   const [initialHearts] = useState(5);
@@ -195,6 +198,7 @@ export default function LessonPlayer({ lesson }: { lesson: Lesson }) {
   const [isCorrect, setIsCorrect] = useState(false);
   const [completed, setCompleted] = useState(false);
   const [signupRequired, setSignupRequired] = useState(false);
+  const [completionError, setCompletionError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [earnedXp, setEarnedXp] = useState(0);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -221,8 +225,10 @@ export default function LessonPlayer({ lesson }: { lesson: Lesson }) {
   const [nextLesson, setNextLesson] = useState<{ id: string; title: string; moduleTitle: string } | null>(null);
 
   useEffect(() => {
-    setIsLoggedIn(localStorage.getItem("l2e_logged_in") === "true");
-  }, []);
+    setIsLoggedIn(sessionUser?.kind === "account");
+  }, [sessionUser]);
+
+  const completionFeedback = completionError ? <div data-design="lesson-account-feedback" style={{ padding: "1rem" }}><Alert tone="error">{completionError}</Alert><div style={{ display: "flex", flexWrap: "wrap", gap: "1rem", marginTop: "1rem" }}><ButtonLink href={`/login?reason=expired&next=${encodeURIComponent(`/lesson/${lesson.id}`)}`}>Sign in</ButtonLink><Button variant="secondary" onClick={() => void handleComplete()} busy={isSubmitting} disabledReason="Checking whether this completion was saved. Please wait.">Try saving again</Button></div></div> : null;
 
   const currentCard = lesson.cards[currentCardIndex];
   const progress = ((currentCardIndex) / lesson.cards.length) * 100;
@@ -272,18 +278,12 @@ export default function LessonPlayer({ lesson }: { lesson: Lesson }) {
 
   const handleComplete = async () => {
     setIsSubmitting(true);
+    setCompletionError("");
     try {
-      let userId = localStorage.getItem("l2e_user_id");
-      if (!userId) {
-        userId = crypto.randomUUID();
-        localStorage.setItem("l2e_user_id", userId);
-      }
-
-      await fetch("/api/user/ensure", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId }),
-      });
+      const identity = await fetch("/api/auth/session", { cache: "no-store" });
+      const session = await identity.json();
+      if (!identity.ok || !session.user) throw new Error("session_ended");
+      const userId = session.user.id;
 
       const perfectRun = hearts === initialHearts;
 
@@ -332,9 +332,9 @@ export default function LessonPlayer({ lesson }: { lesson: Lesson }) {
         }
       } else if (progressRes.status === 403 && data.error?.code === "signup_required") {
         setSignupRequired(true);
-      }
+      } else { setCompletionError(data.error?.message || "Your completion could not be confirmed. Try again."); }
     } catch (err) {
-      console.error("Failed to complete lesson:", err);
+      setCompletionError(err instanceof Error && err.message === "session_ended" ? "Your session ended. Sign in to save this lesson, then return here." : "Your completion could not be confirmed. Check your connection and try again; repeating a saved completion does not award it twice.");
     } finally {
       setIsSubmitting(false);
     }
@@ -999,7 +999,9 @@ export default function LessonPlayer({ lesson }: { lesson: Lesson }) {
 
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "var(--bg-primary)" }}>
+      {completionFeedback}
       <header style={{
+        flexWrap: "wrap",
         padding: "0.85rem 1.5rem",
         display: "flex",
         alignItems: "center",
@@ -1007,6 +1009,7 @@ export default function LessonPlayer({ lesson }: { lesson: Lesson }) {
         borderBottom: "1px solid var(--border-color)",
         background: "var(--bg-secondary)",
       }}>
+        <span data-design="lesson-help"><ButtonLink href="/lifeline" variant="quiet">Help</ButtonLink></span>
         <Link
           href={`/paths/${lesson.module.path.slug}`}
           style={{

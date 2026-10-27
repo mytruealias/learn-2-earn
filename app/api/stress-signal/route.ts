@@ -11,7 +11,7 @@ const Schema = z.object({
 
 export async function POST(req: Request) {
   try {
-    const userId = getUserIdFromRequest(req);
+    const userId = await getUserIdFromRequest(req);
     if (!userId) {
       return apiError("unauthorized", "Please log in to send a signal", 401);
     }

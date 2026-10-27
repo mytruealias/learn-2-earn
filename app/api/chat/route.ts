@@ -52,7 +52,7 @@ const Schema = z.object({
 });
 
 export async function POST(req: Request) {
-  const userId = getUserIdFromRequest(req);
+  const userId = await getUserIdFromRequest(req);
   if (!userId) {
     return apiError("unauthorized", "Please log in to talk to Hubert.", 401);
   }

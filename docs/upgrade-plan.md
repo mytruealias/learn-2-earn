@@ -42,13 +42,16 @@ Acceptance: `npm run lint` and `npx tsc --noEmit` exit 0 after fresh Next build 
 
 ## S0b — Identity safety before learner redesign
 
+Learner identity and the entry/shell portion of S1 are implemented by the [learner-journey stage](learner-journey/README.md); its [exact file/verification record](learner-journey/verification.md) supersedes the original learner file assumptions below. The additive session migration, compatible legacy guest handling and registered re-entry are explicit rollout requirements. B18 staff logout remains pending.
+
+
 Files: `app/api/user/ensure/route.ts`, `app/api/auth/register/route.ts`, `app/api/admin/session/route.ts`, `lib/user-session.ts`, `lib/admin-auth.ts`, `tests/api/auth.test.ts`, `tests/api/admin-login.test.ts`, `tests/api/guest-identity.test.ts` (new), `docs/upgrade-status.md`.
 
-- [ ] Fix B17: public guest bootstrap must not mint a session for an existing account from an arbitrary supplied ID. Require ownership proof for existing identity/guest merge, generate fresh guest identities on the server, and preserve legitimate guest-to-account continuity.
-- [ ] Verify signed learner token age server-side (B20), reject malformed/future/expired values and define compatible rollout without touching balances or curriculum keys.
+- [x] Fix B17: public guest bootstrap must not mint a session for an existing account from an arbitrary supplied ID. Require ownership proof for existing identity/guest merge, generate fresh guest identities on the server, and preserve legitimate guest-to-account continuity.
+- [x] Verify signed learner token age server-side (B20), reject malformed/future/expired values and define compatible rollout without touching balances or curriculum keys.
 - [ ] Revoke the current staff DB session on logout (B18), preserving other legitimate sessions unless explicitly requested.
 
-Acceptance: an anonymous context knowing a synthetic account ID/guestId cannot read/update that account, change credentials or inherit XP; a legitimate signed guest can migrate once without losing history. Malformed, expired and future learner tokens fail at APIs; deleting an admin session prevents replay of the captured synthetic token. Existing registered login, guest onboarding, sign-out and all baseline tests continue to pass. No new schema assumed; record any compatibility/backfill requirement before expanding scope. Rollback must not reintroduce the vulnerable public behavior: retain the security fix or disable the unsafe bootstrap/merge path while correcting regressions. Do not revert to insecure identity behavior as a normal rollback.
+Acceptance: an anonymous context knowing a synthetic account ID/guestId cannot read/update that account, change credentials or inherit XP; a legitimate signed guest can migrate once without losing history. Malformed, expired and future learner tokens fail at APIs; deleting an admin session prevents replay of the captured synthetic token. Existing registered login, guest onboarding, sign-out and all baseline tests continue to pass. The learner-journey stage adds the documented session/onboarding migration; no financial/content backfill. Staff changes remain separate. Rollback must not reintroduce the vulnerable public behavior: retain the security fix or disable the unsafe bootstrap/merge path while correcting regressions. Do not revert to insecure identity behavior as a normal rollback.
 
 ## S1 — Learner progression and clear next action (first product stage)
 

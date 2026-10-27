@@ -1,5 +1,8 @@
 # Accessibility (WCAG 2.2 AA) — Patterns & Conventions
 
+The latest [learner journey verification](learner-journey/verification.md) covers shared navigation, entry/onboarding/home, named errors, keyboard/focus, target geometry and root-text reflow. The older route table below remains historical; the full legacy profile/lesson/help interface is not certified by the new shell.
+
+
 This project targets **WCAG 2.2 AA**. Below are the conventions every contributor should follow. The shared primitives in `lib/use-modal-a11y.ts` and `app/globals.css` already cover the most common cases — when in doubt, copy from `HelpButton.tsx`, `FounderModal.tsx`, or the `login`/`signup` pages.
 
 Current scoped design evidence and manual-test limits are in [the design-system guide](design-system/README.md). Older route checkmarks below are historical, not a fresh full-site audit.

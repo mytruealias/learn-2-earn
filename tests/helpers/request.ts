@@ -1,3 +1,4 @@
+import { createAccessToken } from "@/lib/access-token";
 /**
  * Helpers for invoking Next.js route handlers directly with mock Requests.
  * No HTTP server is started — the handler is called like a regular function.
@@ -58,8 +59,12 @@ export function getSetCookies(res: Response): string[] {
 export function readCookie(setCookies: string[], name: string): string | null {
   for (const c of setCookies) {
     const [pair] = c.split(";");
-    const [k, v] = pair.split("=");
-    if (k.trim() === name) return v;
+    const index = pair.indexOf("=");
+    if (pair.slice(0, index).trim() === name) return decodeURIComponent(pair.slice(index + 1));
   }
   return null;
+}
+
+export function makeInvitedRequest(url: string, opts: MakeRequestOpts = {}) {
+  return makeRequest(url, { ...opts, cookies: { l2e_demo_access: createAccessToken(), ...opts.cookies } });
 }

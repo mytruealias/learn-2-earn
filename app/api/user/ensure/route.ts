@@ -1,49 +1,60 @@
 import { z } from "zod";
 import prisma from "@/lib/prisma";
-import { setUserSessionCookie } from "@/lib/user-session";
-import { apiOk, apiServerError, parseJson } from "@/lib/api-helpers";
-
-// Public bootstrap endpoint: a brand-new guest doesn't have a session
-// cookie yet — they POST a client-generated guestId here and we create
-// (or fetch) the user record and issue a signed session cookie.
-const Schema = z.object({
-  userId: z.string().trim().min(1, "Missing userId").max(120),
-});
-
+import {
+  createUserSession,
+  getUserIdFromRequest,
+  readCookie,
+  sameOriginError,
+  writeUserSessionCookie,
+} from "@/lib/user-session";
+import { hasProgramAccess } from "@/lib/access-token";
+import {
+  apiError,
+  apiOk,
+  apiServerError,
+  createRateLimiter,
+  getClientIp,
+  parseJson,
+  rateLimitResponse,
+} from "@/lib/api-helpers";
+const limiter = createRateLimiter({ max: 20, windowMs: 60 * 60 * 1000 });
+// Caller IDs are never credentials. Older clients must reload instead of claiming a record.
+const Schema = z.object({}).strict();
 export async function POST(req: Request) {
   try {
+    const origin = sameOriginError(req);
+    if (origin) return origin;
     const parsed = await parseJson(req, Schema);
     if (!parsed.ok) return parsed.response;
-    const { userId } = parsed.data;
-
-    let resolvedId = userId;
-    const existing = await prisma.user.findUnique({ where: { id: userId } });
-
-    if (existing) {
-      await prisma.user.update({
-        where: { id: userId },
-        data: { lastActiveAt: new Date() },
-      });
-    } else {
-      const guestUser = await prisma.user.findUnique({ where: { guestId: userId } });
-      if (guestUser) {
-        await prisma.user.update({
-          where: { id: guestUser.id },
-          data: { lastActiveAt: new Date() },
-        });
-        resolvedId = guestUser.id;
-        const res = apiOk({ actualUserId: guestUser.id });
-        setUserSessionCookie(res, guestUser.id);
-        return res;
-      }
-
-      await prisma.user.create({ data: { id: userId, guestId: userId } });
-    }
-
-    const res = apiOk();
-    setUserSessionCookie(res, resolvedId);
+    const current = await getUserIdFromRequest(req);
+    if (current) return apiOk({ actualUserId: current });
+    if (readCookie(req, "l2e_user_session"))
+      return apiError(
+        "unauthorized",
+        "Your session ended. Sign in to resume your saved progress.",
+        401,
+      );
+    if (!hasProgramAccess(req))
+      return apiError(
+        "forbidden",
+        "Enter your program access code before exploring.",
+        403,
+      );
+    const ip = getClientIp(req),
+      gate = limiter.check(ip);
+    if (!gate.allowed) return rateLimitResponse(gate.retryAfterSec);
+    limiter.record(ip);
+    const result = await prisma.$transaction(async (tx) => {
+      const user = await tx.user.create({ data: {} });
+      return { id: user.id, token: await createUserSession(user.id, tx) };
+    });
+    const res = apiOk({ actualUserId: result.id });
+    writeUserSessionCookie(res, result.token);
     return res;
-  } catch (error) {
-    return apiServerError("user/ensure", error);
+  } catch {
+    return apiServerError(
+      "user/ensure",
+      new Error("Guest session could not be created."),
+    );
   }
 }

@@ -1,13 +1,13 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { POST as progressPOST } from "@/app/api/progress/complete/route";
 import { POST as registerPOST } from "@/app/api/auth/register/route";
-import { makeRequest, readJson, getSetCookies, readCookie } from "../helpers/request";
+import { makeInvitedRequest, makeRequest, readJson, getSetCookies, readCookie } from "../helpers/request";
 import { clearDb, createLesson } from "../helpers/factories";
 import prisma from "@/lib/prisma";
 
 async function signupAndGet(email: string): Promise<{ cookie: string; userId: string }> {
   const res = await registerPOST(
-    makeRequest("http://test/api/auth/register", {
+    makeInvitedRequest("http://test/api/auth/register", {
       body: { email, password: "password123", fullName: "PG" },
       ip: "10.8.0.1",
     })

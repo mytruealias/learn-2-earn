@@ -1,0 +1,119 @@
+.page {
+  max-width: 68rem;
+  margin: auto;
+  padding: clamp(1rem, 3vw, 2.5rem);
+  display: grid;
+  gap: 2rem;
+}
+.intro {
+  max-width: 46rem;
+  display: grid;
+  gap: 0.75rem;
+}
+.muted {
+  color: var(--l2e-muted);
+}
+.eyebrow {
+  font-size: var(--l2e-text-sm);
+  font-weight: 650;
+  color: var(--l2e-primary);
+}
+.summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 1rem;
+}
+.summary > :first-child {
+  flex: 2 1 24rem;
+}
+.summary > :last-child {
+  flex: 1 1 14rem;
+}
+.next {
+  display: grid;
+  justify-items: start;
+  gap: 0.75rem;
+}
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  background: var(--l2e-primary-soft);
+  padding: 1.5rem;
+  border-radius: var(--l2e-radius-card);
+}
+.stats dt {
+  color: var(--l2e-muted);
+  font-size: var(--l2e-text-sm);
+}
+.stats dd {
+  font-size: var(--l2e-text-h2);
+  color: var(--l2e-primary);
+  font-weight: 750;
+}
+.paths {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+  list-style: none;
+  padding: 0;
+}
+.path {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  min-height: 44px;
+  padding: 1.25rem;
+  background: var(--l2e-surface);
+  border: 1px solid var(--l2e-border);
+  border-radius: var(--l2e-radius-card);
+}
+.path:hover {
+  border-color: var(--l2e-primary);
+}
+.icon {
+  color: var(--l2e-primary);
+  background: var(--l2e-primary-soft);
+  width: 3rem;
+  height: 3rem;
+  display: grid;
+  place-items: center;
+  border-radius: var(--l2e-radius-control);
+  flex-shrink: 0;
+}
+.pathText {
+  flex: 1;
+  min-width: 0;
+}
+.path h3 {
+  margin-bottom: 0.4rem;
+}
+.path p {
+  color: var(--l2e-muted);
+}
+.counts {
+  color: var(--l2e-primary);
+  font-size: var(--l2e-text-sm);
+  margin-top: 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+}
+.accountNote {
+  display: grid;
+  gap: 0.75rem;
+  justify-items: start;
+  border-left: 3px solid var(--l2e-hubert);
+  padding: 1.25rem;
+  background: var(--l2e-hubert-soft);
+  border-radius: var(--l2e-radius-control);
+}
+@media (max-width: 28rem) {
+  .path {
+    flex-wrap: wrap;
+  }
+  .pathText {
+    flex-basis: 100%;
+  }
+}

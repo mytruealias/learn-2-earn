@@ -98,6 +98,7 @@ async function staff(page: Page) {
   expect(response.ok()).toBe(true);
 }
 async function learner(page: Page) {
+  expect((await page.request.post("/api/access", { data: { code: process.env.DEMO_ACCESS_CODE || "LEARN2EARN" } })).ok()).toBe(true);
   const response = await page.request.post("/api/auth/register", {
     data: {
       email: `design-${Date.now()}@example.test`,
@@ -106,8 +107,11 @@ async function learner(page: Page) {
     },
   });
   expect(response.ok()).toBe(true);
+  expect((await page.request.post("/api/user/onboarding", { data: { goal: null } })).ok()).toBe(true);
   await page.goto("/app");
   await page.locator('a[href^="/paths/"]').first().click();
+  await expect(page).toHaveURL(/\/paths\/[^/?]+$/);
+  await expect(page.locator('[data-design="learner"]')).toBeVisible();
   await expect(
     page.getByRole("link", { name: "Start learning", exact: true }),
   ).toBeVisible();
@@ -159,7 +163,7 @@ for (const width of widths) {
     await checkLayout(page);
     await audit(page);
     // Reflow must preserve readable words, not merely hide horizontal overflow.
-    for (const label of [page.locator("h1"), page.getByRole("navigation", { name: "Primary" }).getByText("Lifeline", { exact: true })]) {
+    for (const label of [page.locator("h1"), page.getByRole("navigation", { name: "Primary" }).getByText("Help", { exact: true })]) {
       expect(await label.evaluate((element) => {
         const node = element.firstChild!;
         const range = document.createRange();

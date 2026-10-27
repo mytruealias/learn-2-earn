@@ -40,6 +40,10 @@ See the [current architecture and route inventory](docs/current-architecture.md)
 
 [Design conventions and development workshop](docs/design-system/README.md) · [Browser screenshots](docs/design-system/screenshots/README.md) · [Verification and limits](docs/design-system/verification.md). Representative migrations cover learner paths and the staff services directory; remaining routes migrate separately.
 
+## Learner access and onboarding
+
+[Journey, session safety and rollout](docs/learner-journey/README.md) · [Browser evidence](docs/learner-journey/screenshots/README.md). Program invitations lead to minimal signup, two short welcome steps or explicit guest exploration. Identity and guest association come from server sessions. No localStorage flag proves login. Recovery delivery is unconfigured, so `/recover` gives honest staff-assisted instructions and sends nothing. Apply the additive learner-session migration before running this version; see DEPLOYMENT.md. Learn/Rewards/Profile/Help navigation uses real routes; no standalone Practice route is advertised.
+
 ## Getting Started
 
 Use Node.js 24 (the CI runtime), npm and PostgreSQL 14+. Retain `package-lock.json`.
@@ -171,7 +175,8 @@ npm test
 | `npm run test:e2e` | Existing HTTP city/learner/payout tests; local server port 5050 and `.next-e2e` output |
 | `npm run test:browser` | Actual Chromium: responsive public page, learner UI login/path/lesson, staff UI login/dashboard |
 | `npm run test:design` | Actual Chromium + axe: design states, real CRUD/progress, keyboard, contrast, reflow and touch targets |
-| `npm test` | Unit → API → HTTP → browser smoke → design, sequentially |
+| `npm run test:journey` | Actual Chromium: invitation/signup/login/onboarding/home/logout, signed guest association, expiry and interruption recovery |
+| `npm test` | Unit → API → HTTP → browser smoke → design → learner journey, sequentially |
 | `npm run test:e2e:ui` | Legacy admin browser suite; isolated DB but still needs its explicit legacy role fixtures; not a default CI gate |
 
 The harness drops only the resources it created on exit and preserves suite failure status. Separate invocations use separate random databases. If a machine/process is forcibly killed, remove only verified orphan resources from that run; never point cleanup at the development DB. The legacy suite's fixture/assertion limitations remain recorded in the baseline and are not claimed fixed.

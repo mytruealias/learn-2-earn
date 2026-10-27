@@ -54,7 +54,7 @@ function computeStreakWithFreeze(
 }
 
 const Schema = z.object({
-  userId: z.string().min(1).max(120),
+  userId: z.string().min(1).max(120).optional(),
   lessonId: z.string().min(1).max(120),
   comboBonus: z.number().int().min(0).max(1000).optional(),
   perfectRun: z.boolean().optional(),
@@ -62,16 +62,17 @@ const Schema = z.object({
 
 export async function POST(req: Request) {
   try {
-    const sessionUserId = getUserIdFromRequest(req);
+    const sessionUserId = await getUserIdFromRequest(req);
     if (!sessionUserId) {
       return apiError("unauthorized", "Please sign in before completing lessons.", 401);
     }
 
     const parsed = await parseJson(req, Schema);
     if (!parsed.ok) return parsed.response;
-    const { userId, lessonId, comboBonus, perfectRun } = parsed.data;
+    const { userId: bodyUserId, lessonId, comboBonus, perfectRun } = parsed.data;
+    const userId = sessionUserId;
 
-    if (userId !== sessionUserId) {
+    if (bodyUserId && bodyUserId !== sessionUserId) {
       return apiError("forbidden", "You can only record progress for yourself.", 403);
     }
 

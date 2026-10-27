@@ -108,10 +108,25 @@ model User {
   consentGiven  Boolean  @default(false)
   consentAt     DateTime?
   earnedBadges  String   @default("[]")
+  onboardingState String?
+  learningGoal    String?
+  sessions      LearnerSession[]
   progress      Progress[]
   payoutRequests PayoutRequest[]
   consents      ConsentRecord[]
   cases         Case[]
+}
+
+model LearnerSession {
+  tokenHash String   @id
+  userId    String
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+  revokedAt DateTime?
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
 }
 
 model Progress {

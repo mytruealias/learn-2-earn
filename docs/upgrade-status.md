@@ -1,6 +1,6 @@
 # Upgrade status
 
-Updated 2026-10-26 on `feat/scoped-design-system`, based on workflow commit `b061656`. Safe build/release tooling, design foundations and two representative screens are implemented; broader learner redesign, identity fixes and financial concurrency work remain pending. See [current workflow verification](release-workflow-verification.md).
+Updated 2026-10-27 on `feat/learner-access-journey`, based on design-system commit `8e34d84`. Learner identity, entry/onboarding, home and navigation are implemented locally. Broader lesson/profile redesign, staff revocation and financial concurrency work remain pending. See [learner journey and rollout](learner-journey/README.md).
 
 [Current architecture / route inventory](current-architecture.md) · [Staged implementation checklist](upgrade-plan.md) · [Latest baseline evidence](upgrade-baseline.md#audit-pack-refresh) · [20 screenshots](baseline/2026-10-26/README.md)
 
@@ -8,16 +8,26 @@ Updated 2026-10-26 on `feat/scoped-design-system`, based on workflow commit `b06
 | --- | --- | --- |
 | S0 — Documentation, architecture and baseline | Finished locally; external host settings unverified, PR blocked | GitHub API access for PR; actual read-only Replit configuration evidence before deployment work |
 | S0a — Small baseline repairs | Tooling prerequisites implemented/verified | Historical accessibility guidance still needs its separate route/bypass review |
-| S0b — Identity safety | Pending; critical prerequisite | Close B17 unauthenticated identity bootstrap/guest merge; token expiry and staff logout revocation |
+| S0b — Identity safety | Learner ownership/expiry/revocation implemented; staff work pending | Additive session migration / registered legacy re-entry; B18 admin logout still open |
 | Design foundation | Implemented and locally verified on learner path/staff directory | Gradual route migration; manual platform AT/zoom checks |
-| S1 — Learner progression | Partial: path progress/navigation migrated | Home/profile/lesson experience and remaining route close-out |
+| S1 — Learner progression | Entry/onboarding/home/shell/path implemented locally; broader route work partial | Manual platform checks, dedicated Practice, remaining lesson/profile close-out |
 | S2 — Lesson feedback/recovery/awards | Pending | Honest XP breakdown, no hearts barrier, atomic writes, server-verifiable bonuses |
 | S3 — Profile/payout/support | Pending | Program-accurate copy, Zelle agreement, resilient support |
 | S4 — Public website/city decks | Pending | Claims/demo provenance, CTA and legal-route host behavior, route close-out |
 | S5 — Staff operations | Pending | Money concurrency/audit integrity, role matrix, explicit partner-boundary decision |
 | S6 — Release/Replit handoff | Safe workflow/CI authored and locally verified; broader handoff pending | Live Replit/remote Actions verification and full accessibility/low-bandwidth matrix |
 
-## Design foundation report (current change)
+## Learner journey report (current change)
+
+- **Behavior:** invitation → minimal signup/login or explicit server guest → two welcome steps → real learner home. Server-authoritative identity replaces browser flags/arbitrary-ID bootstrap; guest promotion keeps the same record/history. Sessions now enforce age, active account and DB expiry/revocation. Logout is real and current-device scoped. Pending signup/onboarding resumes without creating another same-email account. Help remains public; recovery truthfully uses trusted program staff because delivery/reset is unconfigured.
+- **Navigation/design:** shared semantic tokens, short adult copy, accessible validation/pending/failure states, mobile bottom bar, desktop sidebar and persistent Help. Learn/Rewards/Profile/Help have implemented destinations. No dead Practice tab. Existing profile earnings/payout UI is retained behind the session boundary; lesson changes are limited to identity/help/save recovery.
+- **Files/evidence:** [exact changed files and executed verification](learner-journey/verification.md), [browser screenshots](learner-journey/screenshots/README.md), [conventions and recovery/rollout](learner-journey/README.md).
+- **Checks:** clean install, lint, safe build and types passed. Final complete `npm test`: **131 passed** (48 unit, 54 API/release, 6 HTTP, 4 browser smoke, 8 design, 11 journey). All eight local production checks passed without an app DB, including initial Help HTML and production-only gating. Evidence: 26 actual PNGs, 28 successful browser observations; no full-site accessibility certification.
+- **Requirements:** additive `20261027000000_learner_sessions_onboarding` migration and private `SESSION_SECRET`; no data/content backfill or new provider secret. Existing accounts/curriculum/rewards/history are preserved. Apply migration before the new artifact only after the existing baseline/backup/restore/target review in DEPLOYMENT.md.
+- **Limits/blockers:** Replit/production/remote CI remain unverified. No verified email/SMS reset delivery exists. Manual screen-reader speech, physical keyboard/notch behavior, browser-menu zoom and full legacy-route AA audit remain follow-ups. B18 staff revocation, B02/B03/B04/B06/bonus authority, Zelle/financial races and partner boundaries remain separate.
+- **Rollback:** retain additive schema and corrected ownership/expiry/revocation. Revert presentation independently or forward-fix; never restore arbitrary-ID identity claims or delete guest/payment history. No deployment or merge.
+
+## Design foundation report (previous stage)
 
 - **Behavior:** semantic CSS tokens, scoped learner/staff/marketing boundaries, Inter typography and usable primitive states; migrated path and directory with real data. Dev workshop is production-404 gated. New native dialogs/drawer behavior and optional-field null clearing preserve practical directory use without changing permissions/incentives.
 - **Files:** [exact scope, conventions and verification](design-system/verification.md), [15 browser screenshots](design-system/screenshots/README.md). Existing icons/Hubert and CSS Modules retained; only new dev tooling is the axe Playwright adapter. No schema/migration, account, balance or authored curriculum change.

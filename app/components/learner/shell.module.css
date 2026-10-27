@@ -1,0 +1,83 @@
+.shell {
+  min-height: 100dvh;
+  background: var(--l2e-canvas);
+  --learner-nav-height: 5rem;
+}
+.workspace {
+  min-width: 0;
+}
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 950;
+  background: var(--l2e-surface);
+  border-bottom: 1px solid var(--l2e-border);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  padding: max(0.75rem, env(safe-area-inset-top))
+    max(1rem, env(safe-area-inset-right)) 0.75rem
+    max(1rem, env(safe-area-inset-left));
+}
+.brand {
+  font-size: var(--l2e-text-h3);
+  font-weight: 800;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  letter-spacing: -0.04em;
+}
+.brand span {
+  color: var(--l2e-primary);
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+.header .actions {
+  gap: var(--l2e-space-1);
+}
+.header .actions :global(a),
+.header .actions :global(button) {
+  padding-inline: var(--l2e-space-2);
+}
+.content {
+  min-width: 0;
+  padding-bottom: calc(
+    var(--learner-nav-height) + env(safe-area-inset-bottom) + 1rem
+  );
+}
+.sessionState {
+  max-width: 40rem;
+  padding: 2rem 1rem;
+  margin: auto;
+}
+.shell :global(button[aria-label^="SOS,"]) {
+  bottom: calc(
+    var(--learner-nav-height) + env(safe-area-inset-bottom) + 1rem
+  ) !important;
+}
+.shell[data-keyboard-open] .content {
+  padding-bottom: 1rem;
+}
+.shell[data-keyboard-open] :global(nav[aria-label="Primary"]) {
+  position: static;
+}
+.shell[data-keyboard-open] :global(button[aria-label^="SOS,"]) {
+  display: none !important;
+}
+@media (min-width: 64rem) {
+  .workspace {
+    margin-left: 15rem;
+  }
+  .content {
+    padding-bottom: 2rem;
+  }
+  .shell :global(button[aria-label^="SOS,"]) {
+    bottom: 1.5rem !important;
+  }
+}

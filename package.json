@@ -7,7 +7,7 @@
     "build": "npm run prisma:generate && tsx scripts/build.ts",
     "start": "next start -p 5000 -H 0.0.0.0",
     "lint": "eslint",
-    "test": "npm run test:unit && npm run test:api && npm run test:e2e && npm run test:browser && npm run test:design",
+    "test": "npm run test:unit && npm run test:api && npm run test:e2e && npm run test:browser && npm run test:design && npm run test:journey",
     "test:api": "tsx scripts/run-tests.ts api",
     "test:api:watch": "tsx scripts/run-tests.ts api-watch",
     "test:e2e": "tsx scripts/run-tests.ts http",
@@ -22,7 +22,8 @@
     "release:bootstrap-admin": "tsx scripts/release.ts bootstrap-admin",
     "db:prepare-dev": "tsx scripts/release.ts prepare-dev",
     "recovery:inspect": "tsx prisma/fix-migration.ts",
-    "test:design": "tsx scripts/run-tests.ts design"
+    "test:design": "tsx scripts/run-tests.ts design",
+    "test:journey": "tsx scripts/run-tests.ts journey"
   },
   "dependencies": {
     "@octokit/rest": "^22.0.0",

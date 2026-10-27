@@ -2,7 +2,7 @@
 
 Inspected 2026-10-26 on `docs/upgrade-baseline`, starting commit `01d39c2` (application code remains `4f59d419528ae5ff450b339ab1de512554a8094b`). This records the audit snapshot and a disposable local runtime, **not** Replit production state. The build/release sections were updated by the subsequent safe-workflow change; see [release verification](release-workflow-verification.md) for current command/test behavior. Read [baseline evidence](upgrade-baseline.md), [implementation checklist](upgrade-plan.md), [status](upgrade-status.md) and [screenshots](baseline/2026-10-26/README.md) together.
 
-No applicable `AGENTS.md` was found in `/` or the workspace/repository. Read README, DEPLOYMENT.md, package scripts, middleware, test setup, accessibility guidance and both `.agents/memory` documents before edits. Preserve the existing stack, identity, integrations, curriculum keys and all money/history. This stage changes documentation/evidence only.
+No applicable `AGENTS.md` was found in `/` or the workspace/repository. Read README, DEPLOYMENT.md, package scripts, middleware, test setup, accessibility guidance and both `.agents/memory` documents before edits. Preserve the existing stack, identity, integrations, curriculum keys and all money/history. The original audit changed documentation/evidence only; subsequent implemented stages are called out below.
 
 ## Classification and inventory contract
 
@@ -11,19 +11,23 @@ No applicable `AGENTS.md` was found in `/` or the workspace/repository. Read REA
 - **Demo-only:** scripted/sample illustration with no real user/payment operation.
 - **Absent:** no corresponding model/route/capability found in this checkout; not a claim about uninspected external systems.
 
-The original inventory below covers **34 page routes and 36 API route files**; the subsequent design phase adds the development-only page listed next (35 page sources total) plus generated metadata/static entry points. Every row is **open for later close-out**: its owner stage must record behavior, permissions, loading/empty/error/success, applicable browser checks and regression evidence before marking it verified in upgrade-status. A screenshot alone does not close a route. Source-reviewed routes without browser captures remain unverified visually. Dynamic route checks use synthetic IDs only.
+The original inventory below covers **34 page routes and 36 API route files**; the subsequent design phase adds the development-only page listed next (35 page sources total) plus generated metadata/static entry points. The learner-journey stage adds `/onboarding`, `/recover`, one API route and one model: current totals are **37 page routes, 37 API route files and 19 models**. Every row is **open for later close-out**: its owner stage must record behavior, permissions, loading/empty/error/success, applicable browser checks and regression evidence before marking it verified in upgrade-status. A screenshot alone does not close a route. Source-reviewed routes without browser captures remain unverified visually. Dynamic route checks use synthetic IDs only.
 
 ## Design foundation addition
 
 `/dev/design-system` → [page](../app/dev/design-system/page.tsx): implemented local component workshop, dynamically guarded to return 404 in production; proof is in [design verification](design-system/verification.md). Learner `/paths/[pathSlug]` and staff `/admin/directory` now use scoped shared primitives and have tested loading/error/retry/CRUD/progress states. Their broader identity/permission/financial baseline limits remain. No new API endpoint/model was added; directory optional null validation was made compatible with clearing existing nullable fields.
 
+## Learner access addition (2026-10-27)
+
+[Current learner journey and rollout](learner-journey/README.md) supersedes the original identity/access findings below. Server-issued, database-revocable learner sessions replace arbitrary-ID bootstrap and localStorage login flags. Existing guest records are upgraded in place from signed ownership proof; registered legacy sessions require sign-in. New onboarding fields are nullable for old accounts. `/recover` is an honest staff-assisted path because no verified delivery/reset integration exists. Broader financial, lesson and staff risks remain open.
+
 ## Page routes
 
-`app/.../page.tsx` defines each route. Gate abbreviations: public = no account gate; learner = middleware demo-access or presence of learner cookie, with actual API identity checked separately; staff = client admin layout checks session plus server API authorization; city = signed city PIN cookie. An admin page shell is not itself a data permission boundary.
+`app/.../page.tsx` defines each route. Gate abbreviations: public = no account gate; learner = signed age-valid middleware token plus a valid active DB session checked by server pages/APIs; staff = client admin layout checks session plus server API authorization; city = signed city PIN cookie. An admin page shell is not itself a data permission boundary.
 
 | Route | Source | Gate / feature status | Close-out owner |
 | --- | --- | --- | --- |
-| `/access` | [app/access/page.tsx](../app/access/page.tsx) | Public; implemented gate/login UI; auth lifecycle partial | S0b / S1 |
+| `/access` | [app/access/page.tsx](../app/access/page.tsx) | Public; implemented reassuring entry/login with tested validation and continuity | S0b / S1 |
 | `/admin/audit` | [app/admin/audit/page.tsx](../app/admin/audit/page.tsx) | Staff; partial: real staff workflow, global dataset and recovery/audit gaps | S0b / S5 |
 | `/admin/cases/[id]` | [app/admin/cases/[id]/page.tsx](../app/admin/cases/[id]/page.tsx) | Staff; partial: real staff workflow, global dataset and recovery/audit gaps | S0b / S5 |
 | `/admin/cases` | [app/admin/cases/page.tsx](../app/admin/cases/page.tsx) | Staff; partial: real staff workflow, global dataset and recovery/audit gaps | S0b / S5 |
@@ -45,8 +49,8 @@ The original inventory below covers **34 page routes and 36 API route files**; t
 | `/houston` | [app/houston/page.tsx](../app/houston/page.tsx) | City; implemented proposal deck, not partner account membership | S4 |
 | `/houston/unlock` | [app/houston/unlock/page.tsx](../app/houston/unlock/page.tsx) | Public; implemented city PIN form | S4 |
 | `/lesson/[lessonId]` | [app/lesson/[lessonId]/page.tsx](../app/lesson/[lessonId]/page.tsx) | Learner; partial: real curriculum/progress/profile/support with baseline gaps | S1 / S2 / S3 |
-| `/lifeline` | [app/lifeline/page.tsx](../app/lifeline/page.tsx) | Learner; partial: real curriculum/progress/profile/support with baseline gaps | S1 / S2 / S3 |
-| `/login` | [app/login/page.tsx](../app/login/page.tsx) | Public; implemented gate/login UI; auth lifecycle partial | S0b / S1 |
+| `/lifeline` | [app/lifeline/page.tsx](../app/lifeline/page.tsx) | Public crisis resources; signed session for submissions; partial: real curriculum/progress/profile/support with baseline gaps | S1 / S2 / S3 |
+| `/login` | [app/login/page.tsx](../app/login/page.tsx) | Public; implemented reassuring entry/login with tested validation and continuity | S0b / S1 |
 | `/los-angeles` | [app/los-angeles/page.tsx](../app/los-angeles/page.tsx) | City; implemented proposal deck, not partner account membership | S4 |
 | `/los-angeles/unlock` | [app/los-angeles/unlock/page.tsx](../app/los-angeles/unlock/page.tsx) | Public; implemented city PIN form | S4 |
 | `/` | [app/page.tsx](../app/page.tsx) | Public; partial: real landing plus scripted demos/claims review | S4 |
@@ -55,12 +59,14 @@ The original inventory below covers **34 page routes and 36 API route files**; t
 | `/profile` | [app/profile/page.tsx](../app/profile/page.tsx) | Learner; partial: real curriculum/progress/profile/support with baseline gaps | S1 / S2 / S3 |
 | `/san-francisco` | [app/san-francisco/page.tsx](../app/san-francisco/page.tsx) | City; implemented proposal deck, not partner account membership | S4 |
 | `/san-francisco/unlock` | [app/san-francisco/unlock/page.tsx](../app/san-francisco/unlock/page.tsx) | Public; implemented city PIN form | S4 |
-| `/signup` | [app/signup/page.tsx](../app/signup/page.tsx) | Learner gate; partial: registration/guest merge ownership risk | S0b / S1 |
+| `/signup` | [app/signup/page.tsx](../app/signup/page.tsx) | Invitation or current session; implemented minimal signup with server-proven guest promotion | S0b / S1 |
+| `/onboarding` | [app/onboarding/page.tsx](../app/onboarding/page.tsx) | New signed account; implemented program/privacy/optional-goal steps and reload recovery | S1 |
+| `/recover` | [app/recover/page.tsx](../app/recover/page.tsx) | Public; implemented honest staff-assisted instructions; automated delivery/reset absent | S0b / S1 |
 | `/terms` | [app/terms/page.tsx](../app/terms/page.tsx) | Public; implemented static policy text; legal accuracy unverified | S4 |
 
 ## API endpoints
 
-Each source link is the exact handler. L = signed learner session (`l2e_user_session`); A = valid active staff DB session (`l2e_admin_session`); public routes have no such session requirement. Rate limiting is in-process, not a distributed identity or partner boundary. No API is scoped by host/subdomain in middleware.
+Each source link is the exact handler. L = signed, unexpired, active and unrevoked DB learner session (`l2e_user_session`); A = valid active staff DB session (`l2e_admin_session`); public routes have no such session requirement. Rate limiting is in-process, not a distributed identity or partner boundary. No API is scoped by host/subdomain in middleware.
 
 | Endpoint | Methods | Source | Access / behavior / status | Owner |
 | --- | --- | --- | --- | --- |
@@ -89,16 +95,17 @@ Each source link is the exact handler. L = signed learner session (`l2e_user_ses
 | `/api/admin/users/[userId]` | GET, PATCH | [handler](../app/api/admin/users/[userId]/route.ts) | A (any active staff role), no partner filter; real query/CRUD, partial isolation | S5 |
 | `/api/admin/users` | GET | [handler](../app/api/admin/users/route.ts) | A (any active staff role), no partner filter; real query/CRUD, partial isolation | S5 |
 | `/api/auth/login` | POST | [handler](../app/api/auth/login/route.ts) | Public email/password; learner + demo cookies; implemented, lifecycle partial | S0b |
-| `/api/auth/register` | POST | [handler](../app/api/auth/register/route.ts) | Public registration; optional guest merge without ownership proof; partial | S0b |
-| `/api/auth/session` | POST | [handler](../app/api/auth/session/route.ts) | L; profile, progress/badges/payout rules; partial hard-coded badge copy | S3 / S5 |
+| `/api/auth/register` | POST | [handler](../app/api/auth/register/route.ts) | Invitation or proven session; minimal credentials; guest upgrade/session rotation/audit atomic; implemented | S0b |
+| `/api/auth/session` | GET, POST, DELETE | [handler](../app/api/auth/session/route.ts) | GET: minimal no-store identity/null; DELETE: current-session revocation; POST: L profile/progress/payout rules, legacy badge-copy gaps | S3 / S5 |
 | `/api/chat` | POST | [handler](../app/api/chat/route.ts) | L + OpenAI binding; Hubert SSE; implemented integration, external operation unverified | S3 / S5 |
 | `/api/city-access/[slug]` | POST | [handler](../app/api/city-access/[slug]/route.ts) | Public PIN validation; city-specific cookie and lockout; implemented | S4 |
 | `/api/payout/request` | POST | [handler](../app/api/payout/request/route.ts) | L; rules/balance checks then insert; partial race and Zelle mismatch | S3 / S5 |
-| `/api/progress/complete` | POST | [handler](../app/api/progress/complete/route.ts) | L + matching body ID; XP/progress; partial bonus authority/atomicity | S2 |
-| `/api/progress/list` | POST | [handler](../app/api/progress/list/route.ts) | L; optional matching body ID, no session returns empty list; implemented | S2 |
+| `/api/progress/complete` | POST | [handler](../app/api/progress/complete/route.ts) | L + optional matching body ID; XP/progress; partial bonus authority/atomicity | S2 |
+| `/api/progress/list` | POST | [handler](../app/api/progress/list/route.ts) | L; optional matching body ID; missing/expired session returns 401, never false zero progress; implemented | S2 |
 | `/api/stress-signal` | POST | [handler](../app/api/stress-signal/route.ts) | L; creates high-priority case + best-effort audit; partial, no external dispatch | S3 / S5 |
 | `/api/tts` | POST | [handler](../app/api/tts/route.ts) | L + OpenAI binding; MP3 stream + quota; implemented integration, external operation unverified | S3 / S5 |
-| `/api/user/ensure` | POST | [handler](../app/api/user/ensure/route.ts) | Public guest bootstrap; can issue identity for existing user ID; partial/critical | S0b |
+| `/api/user/ensure` | POST | [handler](../app/api/user/ensure/route.ts) | Invitation for fresh server guest; current signed session resumes; caller IDs rejected; implemented | S0b |
+| `/api/user/onboarding` | POST | [handler](../app/api/user/onboarding/route.ts) | L account; idempotent completion and fixed optional goal; implemented | S1 |
 | `/api/user/profile` | POST | [handler](../app/api/user/profile/route.ts) | L; profile update; implemented, no partner membership | S3 / S5 |
 
 ### Metadata, assets and absent route aliases
@@ -115,18 +122,18 @@ City deck rendering is shared through [CityDeckPage](../app/components/CityDeck/
 
 ## Runtime, hosts, sessions and roles
 
-[Middleware](../middleware.ts) uses optional `ROOT_DOMAIN`: www → apex; apex sends learner/admin paths to app/admin hosts; app/admin roots route to `/app`/`/admin`; city decks remain on apex. Redirects use 301 for host routing. API paths bypass host restrictions. Without the variable, host splitting is a no-op. On the apex, unknown non-city/non-learner/non-admin page paths redirect to `/`; therefore even defined `/privacy` and `/terms` are not served normally with this policy. This is a source-confirmed routing mismatch requiring later host-header browser checks, not a verified production symptom.
+[Middleware](../middleware.ts) uses optional `ROOT_DOMAIN`: www → apex; apex sends learner/admin paths to app/admin hosts; app/admin roots route to `/app`/`/admin`; city decks remain on apex. Redirects use 301 for host routing. API paths bypass host restrictions. Without the variable, host splitting is a no-op. Legal `/privacy` and `/terms` now remain reachable on each recognized host for the account journey. Unknown non-city/non-learner/non-admin paths still follow the existing host policy. Actual host/DNS settings remain unverified.
 
 | Mechanism | Actual behavior / source | Status |
 | --- | --- | --- |
-| Learner credentials | bcrypt register/login; [login](../app/api/auth/login/route.ts), [register](../app/api/auth/register/route.ts) | Partial: ordinary credentials work, guest binding flaw remains |
-| Learner identity | [user-session](../lib/user-session.ts): HMAC of user ID + timestamp; `l2e_user_session`, HttpOnly, SameSite Lax, Secure in production, cookie max-age 30 days. Verifier checks signature but **does not enforce timestamp age** or DB session revocation. | Partial |
-| Learner page gate | Middleware verifies demo cookie or accepts a learner-cookie string longer than ten characters; API session verification is separate. Gate is not learner authorization. | Partial |
-| Demo access | [access token](../lib/access-token.ts), [access API](../app/api/access/route.ts): code gate, signed timestamp with 30-day validation; `l2e_demo_access`, optional app-host domain. Secret fallback exists if settings are missing. | Implemented gate; hardening pending |
+| Learner credentials | bcrypt register/login; [login](../app/api/auth/login/route.ts), [register](../app/api/auth/register/route.ts) | Implemented credentials and signed guest continuity; automated recovery delivery absent |
+| Learner identity | [user-session](../lib/user-session.ts): HMAC of user ID + timestamp + random nonce; `l2e_user_session`, HttpOnly, SameSite Lax, Secure in production, cookie max-age 30 days. Verifier enforces age and checks the new hashed `LearnerSession` row, active account, DB expiry and revocation. Legacy guest compatibility is bounded; registered legacy cookies require sign-in. | Implemented |
+| Learner page gate | Middleware verifies age/signature; private server pages require DB session and resume pending onboarding. APIs independently authorize the session. Help remains public. | Implemented |
+| Demo access | [access token](../lib/access-token.ts), [access API](../app/api/access/route.ts): code gate, signed timestamp with 30-day validation; `l2e_demo_access`, optional app-host domain. Private SESSION_SECRET is required; unconfigured program access fails honestly. | Implemented |
 | City access | [city-access](../lib/city-access.ts): six `l2e_<slug>_access` cookies, HMAC with 30-day verification; Austin PIN separate, five other cities share PIN variable. | Implemented proposal gate; no membership |
 | Staff identity | [admin-auth](../lib/admin-auth.ts): bcrypt, five failed attempts → 15-minute account lock, random token in `AdminSession`, eight-hour DB expiry, inactive accounts rejected. Cookie is **`l2e_admin_session`**, not documentation's `admin_session`; opaque session, not JWT. | Implemented |
 | Staff logout | [session DELETE](../app/api/admin/session/route.ts) clears cookie, but does not call the available `adminLogout` helper to delete its DB session. | Partial |
-| Client hints | `l2e_user_id`, `l2e_logged_in` local storage drives multiple page loads and routing. Not an authoritative session; stale/empty hints can hide valid server data. | Partial |
+| Client hints | Legacy identity flags are never read as proof; only removed on logout. Small private session GET and server queries drive navigation/progress. | Implemented |
 | Partner/organization membership | No Partner, Organization, ProgramMembership or staff-to-partner relation in schema. `User.city` is free text, `PayoutConfig.programSlug` is rate selection, case assignment is workflow assignment. No scoped partner filter on staff queries. | Absent |
 
 Staff `role` is a string defaulting to `caseworker`; staff creation accepts `admin`, `caseworker`, `finance`. `requireRole` is exact membership, not hierarchical. Audit/staff management is admin-only; finance/config/pool accepts admin/finance; other user/case/directory/stats APIs generally accept any active staff. Navigation hides some actions, but the API rules above are the actual boundary. No assumption that hidden navigation supplies missing isolation.
@@ -144,6 +151,7 @@ All models below come from [schema.prisma](../prisma/schema.prisma). PostgreSQL 
 | User | Optional unique email/guestId, bcrypt password, profile/consent, XP/hearts/streak and badges; no partner FK | Partial identity/tenancy |
 | Progress | User+lesson FK, unique `(userId, lessonId)`, XP/crown/completedAt plus score/time/reflection/missed-card fields | Partial; not a durable attempt/checkpoint system |
 | PayoutRequest | User FK; XP/dollar snapshot, nullable method/handle, string status; staff reviewer/approver and timestamps/decision note | Partial money/audit concurrency |
+| LearnerSession | Hashed nonce-bearing cookie, user relation, original expiry/revocation, user/expiry indexes | Implemented learner identity; additive migration required |
 | AdminUser | Unique email, password, role, active/lockout fields; sessions/cases/audit relations | Implemented staff identity |
 | AdminSession | Unique opaque token, admin FK, expiresAt | Partial logout revocation |
 | Case | User FK, optional staff assignee; status/priority/message/location | Implemented shared case queue |
@@ -205,7 +213,7 @@ No private environment values, auth tokens, cookie contents, private connection 
 | `DATABASE_URL_TEST`, `TEST_DATABASE_NONCE` | Transient harness bindings; reset/fixtures verify ownership and server marker |
 | `RELEASE_OPERATION`, `RELEASE_DATABASE_NAME` | Internal transient release-child intent, derived from explicit command/confirmation |
 | `PLAYWRIGHT_CHROMIUM_EXECUTABLE` | Optional local system Chromium executable |
-| `SESSION_SECRET`, `DEMO_ACCESS_CODE` | Learner HMAC, demo gate; session secret preferred |
+| `SESSION_SECRET`, `DEMO_ACCESS_CODE` | Private learner/demo signing key (required) and program invitation code (not a signing key) |
 | `AUSTIN_ACCESS_PIN`, `CITY_ACCESS_PIN` | Dynamic city PIN lookups in city-access and middleware; shared PIN for non-Austin cities |
 | `ADMIN_BOOTSTRAP_EMAIL`, `ADMIN_DEFAULT_PASSWORD` | Explicit first-admin command only; neither is consumed by ordinary builds/start |
 | `ROOT_DOMAIN`, `ALLOWED_DEV_ORIGINS` | Host/cookie routing and Next allowed origins |
@@ -241,7 +249,7 @@ No `.replit` or `replit.nix` is tracked or present in this checkout; [.gitignore
 
 Prioritize identity and money correctness, then truthful feedback/resilience, then visual polish. The baseline's B01–B14 remain open. Newly verified items and source-review details are tracked in [baseline audit addendum](upgrade-baseline.md#audit-pack-refresh).
 
-1. **Critical identity:** public `/api/user/ensure` signs an existing user ID without ownership proof; registration can merge by guestId without checking current session. Verify/fix in S0b before broad rollout.
+1. **Learner identity fixes implemented locally:** B17 arbitrary-ID bootstrap/merge and B20 age/revocation are addressed by the learner-journey stage. Rollout still needs the additive migration and legacy registered re-entry. B18 staff logout revocation remains open.
 2. **High financial integrity:** client claims change XP, progress/XP writes are separate, balance reservation/approval transitions can race, audit write can fail independently. These are not cosmetic tasks. Fault/concurrency reproduction remains required; do not claim observed production loss.
 3. **High trust/recovery:** perfect-run breakdown disagreement, replay award fallback, heart barrier and silent failures; Zelle offered but rejected; rates vary by configured program.
 4. **High boundary decision:** no explicit partner membership isolation. Appropriate for a single shared program only if that is intentional; must be designed before promising isolated partner portals. No speculative tenancy migration in this stage.

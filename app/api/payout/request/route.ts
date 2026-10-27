@@ -42,7 +42,7 @@ export async function POST(req: Request) {
     // Identity comes ONLY from the signed session cookie. A body userId, if
     // present, must match — never treated as a fallback so an unauthenticated
     // request cannot create a payout for an arbitrary user ID.
-    const sessionUserId = getUserIdFromRequest(req);
+    const sessionUserId = await getUserIdFromRequest(req);
     if (!sessionUserId) {
       return apiError("unauthorized", "Please sign in to request a payout.", 401);
     }

@@ -1,8 +1,8 @@
-import { z } from "zod";
+import { loginSchema } from "@/lib/learner-auth-schema";
 import bcrypt from "bcryptjs";
 import prisma from "@/lib/prisma";
 import { logAudit } from "@/lib/audit";
-import { setUserSessionCookie } from "@/lib/user-session";
+import { setUserSessionCookie, sameOriginError, revokeUserSession } from "@/lib/user-session";
 import { setDemoAccessCookie } from "@/lib/access-token";
 import {
   apiError,
@@ -17,13 +17,11 @@ import {
 // 10 failed login attempts per IP per 10 minutes.
 const loginLimiter = createRateLimiter({ max: 10, windowMs: 10 * 60 * 1000 });
 
-const Schema = z.object({
-  email: z.string().trim().toLowerCase().email("Enter a valid email address.").max(255),
-  password: z.string().min(1, "Password is required").max(200),
-});
+const Schema = loginSchema;
 
 export async function POST(req: Request) {
   try {
+    const origin = sameOriginError(req); if (origin) return origin;
     const ip = getClientIp(req);
     const gate = loginLimiter.check(`login:${ip}`);
     if (!gate.allowed) {
@@ -38,7 +36,7 @@ export async function POST(req: Request) {
     const { email, password } = parsed.data;
 
     const user = await prisma.user.findUnique({ where: { email } });
-    if (!user || !user.passwordHash) {
+    if (!user || !user.passwordHash || !user.isActive) {
       loginLimiter.record(`login:${ip}`);
       return apiError("unauthorized", "Invalid email or password", 401);
     }
@@ -69,7 +67,9 @@ export async function POST(req: Request) {
       data: { lastActiveAt: new Date() },
     });
 
+    await revokeUserSession(req);
     const res = apiOk({
+      onboardingRequired: user.onboardingState === "pending-v1",
       user: {
         id: user.id,
         email: user.email,
@@ -80,7 +80,7 @@ export async function POST(req: Request) {
       },
     });
 
-    setUserSessionCookie(res, user.id);
+    await setUserSessionCookie(res, user.id);
     setDemoAccessCookie(res);
     return res;
   } catch (error) {

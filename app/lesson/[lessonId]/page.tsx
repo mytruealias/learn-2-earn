@@ -1,3 +1,4 @@
+import { requireLearner } from "@/lib/learner-server";
 import { notFound } from "next/navigation";
 import prisma from "@/lib/prisma";
 import LessonPlayer from "./LessonPlayer";
@@ -10,6 +11,7 @@ export default async function LessonPage({
   params: Promise<{ lessonId: string }>;
 }) {
   const { lessonId } = await params;
+  await requireLearner(`/lesson/${lessonId}`);
 
   const lesson = await prisma.lesson.findUnique({
     where: { id: lessonId },

@@ -10,11 +10,11 @@ const Schema = z.object({
 export async function POST(req: Request) {
   try {
     // Identity comes from the signed session cookie. A body userId is only
-    // accepted as a sanity check and must match the cookie. Brand-new
-    // visitors with no session get an empty list (no data leak possible).
-    const sessionUserId = getUserIdFromRequest(req);
+    // accepted as a sanity check and must match the cookie. Missing/expired
+    // sessions return 401 so a failed read cannot look like zero progress.
+    const sessionUserId = await getUserIdFromRequest(req);
     if (!sessionUserId) {
-      return apiOk({ completedLessonIds: [], recentProgress: [] });
+      return apiError("unauthorized", "Your session ended. Sign in to load saved progress.", 401);
     }
 
     const parsed = await parseJson(req, Schema);

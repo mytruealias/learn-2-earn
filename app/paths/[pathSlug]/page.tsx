@@ -1,3 +1,4 @@
+import { requireLearner } from "@/lib/learner-server";
 import { notFound } from "next/navigation";
 import prisma from "@/lib/prisma";
 import HelpButton from "../../components/HelpButton";
@@ -18,7 +19,6 @@ import {
   WarningIcon,
   HeartCareIcon,
   StarIcon,
-  ChevronRightIcon,
 } from "../../components/icons";
 
 export const dynamic = "force-dynamic";
@@ -46,6 +46,7 @@ export default async function PathPage({
   params: Promise<{ pathSlug: string }>;
 }) {
   const { pathSlug } = await params;
+  await requireLearner(`/paths/${pathSlug}`);
 
   const path = await prisma.path.findUnique({
     where: { slug: pathSlug },
@@ -86,19 +87,9 @@ export default async function PathPage({
       <a className="ds-skip-link" href="#path-content">
         Skip to lessons
       </a>
-      <div className={styles.topbar}>
-        <div className={styles.topbarInner}>
-          <div className={styles.brand}>
-            Learn<span>2</span>Earn
-          </div>
-          <ButtonLink href="/app" variant="quiet">
-            <span style={{ transform: "rotate(180deg)", display: "flex" }}>
-              <ChevronRightIcon size={18} />
-            </span>{" "}
-            Back to paths
-          </ButtonLink>
-        </div>
-      </div>
+      <div className={styles.topbar}><div className={styles.topbarInner}>
+        <ButtonLink href="/app" variant="quiet">Back to paths</ButtonLink>
+      </div></div>
       <header className={styles.hero}>
         <div>
           <p className={styles.eyebrow}>Your learning path</p>

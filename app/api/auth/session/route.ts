@@ -1,6 +1,6 @@
 import { z } from "zod";
 import prisma from "@/lib/prisma";
-import { getUserIdFromRequest } from "@/lib/user-session";
+import { getUserIdFromRequest, revokeUserSession, clearLearnerCookies, sameOriginError } from "@/lib/user-session";
 import { getPayoutRules } from "@/lib/payout-rules";
 import { apiError, apiOk, apiServerError } from "@/lib/api-helpers";
 
@@ -40,13 +40,31 @@ const BADGE_DEFS: BadgeDefinition[] = [
 
 const Schema = z.object({ userId: z.string().min(1).max(120).optional() });
 
+/** Navigation needs a small session description, never payout/contact records. */
+export async function GET(req: Request) {
+  try {
+    const id = await getUserIdFromRequest(req);
+    const user = id ? await prisma.user.findUnique({ where: { id }, select: { id: true, email: true } }) : null;
+    return apiOk({ user: user ? { id: user.id, kind: user.email ? "account" : "guest" } : null }, { headers: { "Cache-Control": "private, no-store" } });
+  } catch { return apiServerError("auth/session-read", new Error("Session could not be checked.")); }
+}
+export async function DELETE(req: Request) {
+  try {
+    const origin = sameOriginError(req); if (origin) return origin;
+    await revokeUserSession(req);
+    const res = apiOk({}, { headers: { "Cache-Control": "private, no-store" } });
+    clearLearnerCookies(res);
+    return res;
+  } catch { return apiServerError("auth/logout", new Error("Sign out could not be confirmed. Please try again.")); }
+}
+
 export async function POST(req: Request) {
   try {
     // Identity comes ONLY from the signed session cookie. A body userId, if
     // sent, is treated as a sanity check — it must match the cookie. We do
     // NOT accept a body userId as a fallback identity, since that would let
     // anyone read any user's profile just by guessing the userId.
-    const sessionUserId = getUserIdFromRequest(req);
+    const sessionUserId = await getUserIdFromRequest(req);
     if (!sessionUserId) {
       return apiError("unauthorized", "Not signed in.", 401);
     }

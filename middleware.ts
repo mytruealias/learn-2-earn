@@ -1,26 +1,28 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { parseSessionPayload } from "./lib/session-policy";
+import { safeLearnerDestination } from "./lib/learner-navigation";
 
-const PROTECTED_PATHS = ["/app", "/paths", "/lesson", "/profile", "/lifeline", "/signup"];
+const PROTECTED_PATHS = ["/app", "/paths", "/lesson", "/profile", "/signup", "/onboarding"];
 
 const LEARNER_PATHS = [
   "/app", "/paths", "/lesson", "/profile",
-  "/lifeline", "/signup", "/login", "/access",
+  "/lifeline", "/signup", "/login", "/access", "/onboarding", "/recover",
 ];
 
 async function verifyHmacToken(
   token: string,
   secret: string,
-  prefix: string,
+  prefix: string | null,
 ): Promise<boolean> {
   try {
     const parts = token.split(".");
     if (parts.length !== 2) return false;
 
     const [encodedPayload, signature] = parts;
-    const payload = atob(encodedPayload);
+    const payload = atob(encodedPayload.replace(/-/g, "+").replace(/_/g, "/"));
 
-    if (!payload.startsWith(prefix)) return false;
+    if (prefix !== null && !payload.startsWith(prefix)) return false;
 
     const encoder = new TextEncoder();
     const key = await crypto.subtle.importKey(
@@ -37,10 +39,13 @@ async function verifyHmacToken(
 
     if (signature !== expectedSig) return false;
 
-    const timestamp = parseInt(payload.slice(prefix.length), 10);
+    if (prefix === null) return !!parseSessionPayload(payload);
+    const rawTime = payload.slice(prefix.length);
+    if (!/^\d{13}$/.test(rawTime)) return false;
+    const timestamp = Number(rawTime);
     if (!Number.isFinite(timestamp)) return false;
     const thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
-    if (Date.now() - timestamp > thirtyDaysMs) return false;
+    if (timestamp > Date.now() + 60_000 || Date.now() - timestamp >= thirtyDaysMs) return false;
 
     return true;
   } catch {
@@ -86,6 +91,15 @@ function redirect301(url: string): NextResponse {
   return NextResponse.redirect(url, { status: 301 });
 }
 
+function passThrough(pathname: string) {
+  const response = NextResponse.next();
+  if (LEARNER_PATHS.some(p => pathname === p || pathname.startsWith(p + "/")) || pathname.startsWith("/api/auth/") || pathname.startsWith("/api/user/")) {
+    response.headers.set("Cache-Control", "private, no-store");
+    response.headers.set("X-Robots-Tag", "noindex, nofollow");
+  }
+  return response;
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const search = request.nextUrl.search;
@@ -117,6 +131,7 @@ export async function middleware(request: NextRequest) {
 
       // API routes always pass through — no subdomain restriction on the API layer
       if (!isApiPath) {
+        if (pathname === "/privacy" || pathname === "/terms") return passThrough(pathname);
         if (isRoot) {
           // Root domain serves / and the city-partnership decks (each PIN-gated)
           if (!isRootPath && !isCityPagePath) {
@@ -168,7 +183,7 @@ export async function middleware(request: NextRequest) {
       url.searchParams.set("next", pathname);
       return NextResponse.redirect(url);
     }
-    return NextResponse.next();
+    return passThrough(pathname);
   }
 
   // ── DEMO ACCESS GATE ───────────────────────────────────────────────────────
@@ -177,30 +192,31 @@ export async function middleware(request: NextRequest) {
   );
 
   if (!isProtected) {
-    return NextResponse.next();
+    return passThrough(pathname);
   }
 
   // Allow through if they have a valid demo access token
   const accessToken = request.cookies.get("l2e_demo_access")?.value;
   if (accessToken) {
-    const secret = process.env.SESSION_SECRET || process.env.DEMO_ACCESS_CODE || "l2e-fallback-secret";
-    const valid = await verifyToken(accessToken, secret);
+    const secret = process.env.SESSION_SECRET;
+    const valid = secret ? await verifyToken(accessToken, secret) : false;
     if (valid) {
-      return NextResponse.next();
+      return passThrough(pathname);
     }
   }
 
-  // Also allow through if they have a user session cookie (logged-in users)
-  // This ensures registered users are never blocked by the demo gate.
-  // The actual session validity is enforced on every API call.
+  // Only signed, age-valid user tokens bypass the invitation gate. The server
+  // pages and APIs also check DB revocation, expiry, active account and onboarding.
   const userSession = request.cookies.get("l2e_user_session")?.value;
-  if (userSession && userSession.length > 10) {
-    return NextResponse.next();
+  if (userSession && process.env.SESSION_SECRET && await verifyHmacToken(userSession, process.env.SESSION_SECRET, null)) {
+    return passThrough(pathname);
   }
 
   const url = request.nextUrl.clone();
   url.pathname = "/access";
-  url.searchParams.set("next", pathname);
+  url.search = "";
+  if (userSession) { url.pathname = "/login"; url.searchParams.set("reason", "expired"); }
+  url.searchParams.set("next", safeLearnerDestination(pathname + search));
   return NextResponse.redirect(url);
 }
 

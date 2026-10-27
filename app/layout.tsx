@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Share_Tech_Mono, Rajdhani } from "next/font/google";
 import "./globals.css";
-import NavBar from "./components/NavBar";
+import LearnerShell from "./components/learner/LearnerShell";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -89,8 +89,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${shareTechMono.variable} ${rajdhani.variable}`}>
       <body>
-        {children}
-        <NavBar />
+        <LearnerShell>{children}</LearnerShell>
       </body>
     </html>
   );

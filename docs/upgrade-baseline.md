@@ -1,5 +1,8 @@
 # Upgrade baseline
 
+Historical evidence below is preserved. The [learner-journey stage](learner-journey/README.md) now fixes B17 arbitrary-ID ownership and B20 learner expiry/revocation, removes identity-hint gating and implements the home next action. Its verified migration/rollout requirements supersede those source findings for the new branch. Staff revocation and financial/lesson risks remain open.
+
+
 Verified 2026-10-26 against `4f59d419528ae5ff450b339ab1de512554a8094b`.
 This is evidence for the [staged checklist](upgrade-plan.md), not a production audit or WCAG certification. The [audit pack refresh](#audit-pack-refresh) at the end is the latest run and supersedes earlier browser/infrastructure limits.
 

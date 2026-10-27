@@ -1,9 +1,101 @@
-.modern span {
-  font-size: var(--l2e-text-sm) !important;
-  letter-spacing: normal !important;
+.navigation {
+  position: fixed;
+  z-index: 900;
+  bottom: 0;
+  inset-inline: 0;
+  background: var(--l2e-surface);
+  border-top: 1px solid var(--l2e-border);
+  padding: 0.35rem max(0.25rem, env(safe-area-inset-right))
+    env(safe-area-inset-bottom) max(0.25rem, env(safe-area-inset-left));
+  container-type: inline-size;
 }
-.modern a {
-  min-height: var(--l2e-target);
-  min-width: var(--l2e-target);
-  padding-inline: 0.25rem !important;
+.links {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  max-width: 36rem;
+  margin: auto;
+}
+.link {
+  min-height: 56px;
+  min-width: 44px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  padding: 0.5rem 0.25rem;
+  border-radius: var(--l2e-radius-control);
+  color: var(--l2e-muted);
+  font-size: 0.8125rem;
+  font-weight: 650;
+  line-height: 1.4;
+  text-align: center;
+}
+.link[aria-current] {
+  color: var(--l2e-primary);
+  background: var(--l2e-primary-soft);
+  box-shadow: inset 0 3px var(--l2e-primary);
+}
+.link:hover {
+  background: var(--l2e-surface-muted);
+}
+.brand,
+.note {
+  display: none;
+}
+@container (max-width: 20rem) {
+  .links {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 64rem) {
+  .navigation {
+    width: 15rem;
+    top: 0;
+    right: auto;
+    border-top: 0;
+    border-right: 1px solid var(--l2e-border);
+    padding: 2rem 1rem;
+    overflow-y: auto;
+  }
+  .links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .link {
+    flex-direction: row;
+    justify-content: flex-start;
+    text-align: left;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    font-size: 1rem;
+  }
+  .link[aria-current] {
+    box-shadow: inset 3px 0 var(--l2e-primary);
+  }
+  .brand {
+    display: block;
+    font-size: var(--l2e-text-h3);
+    font-weight: 800;
+    margin-bottom: 2rem;
+  }
+  .brand span {
+    color: var(--l2e-primary);
+  }
+  .note {
+    display: block;
+    color: var(--l2e-muted);
+    font-size: var(--l2e-text-sm);
+    margin-top: 3rem;
+  }
+  .note a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    text-decoration: underline;
+    color: var(--l2e-primary);
+  }
 }

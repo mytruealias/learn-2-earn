@@ -9,6 +9,7 @@ const suites: Record<string, string[]> = {
   'api-watch': ['node_modules/vitest/vitest.mjs', '--config', 'vitest.config.ts', '--watch'],
   http: ['node_modules/@playwright/test/cli.js', 'test', 'e2e/city-pin.spec.ts', 'e2e/learner-flow.spec.ts', 'e2e/payout-approval.spec.ts'],
   browser: ['node_modules/@playwright/test/cli.js', 'test', 'e2e/release-smoke.spec.ts'],
+  journey: ['node_modules/@playwright/test/cli.js', 'test', 'e2e/learner-journey.spec.ts'],
   design: ['node_modules/@playwright/test/cli.js', 'test', 'e2e/design-system.spec.ts'],
   legacy: ['node_modules/@playwright/test/cli.js', 'test', 'e2e/admin.spec.ts'],
 };
@@ -53,6 +54,7 @@ async function main() {
       OPENAI_API_KEY: '', STRIPE_SECRET_KEY: '', GITHUB_TOKEN: '',
       DEMO_ACCESS_CODE: 'LEARN2EARN', AUSTIN_ACCESS_PIN: '1234', CITY_ACCESS_PIN: '9999',
       NODE_ENV: 'test', NEXT_TELEMETRY_DISABLED: '1',
+      JOURNEY_EVIDENCE_DIR: process.env.JOURNEY_EVIDENCE_DIR || '',
       DESIGN_EVIDENCE_DIR: process.env.DESIGN_EVIDENCE_DIR || '',
       PLAYWRIGHT_CHROMIUM_EXECUTABLE: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE || local.PLAYWRIGHT_CHROMIUM_EXECUTABLE || '',
     };

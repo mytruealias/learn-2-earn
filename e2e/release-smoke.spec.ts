@@ -16,15 +16,14 @@ for (const width of [390, 1440]) {
 }
 test('learner signs in through the real UI and opens a seeded path and lesson', async ({ page, request }) => {
   await deleteUserByEmail(email);
+  expect((await request.post("/api/access", { data: { code: process.env.DEMO_ACCESS_CODE || "LEARN2EARN" } })).ok()).toBe(true);
   const registration = await request.post('/api/auth/register', { data: { email, password, fullName: 'Synthetic release learner' } });
   expect(registration.ok()).toBe(true);
+  expect((await request.post("/api/user/onboarding", { data: { goal: null } })).ok()).toBe(true);
   await page.goto('/login');
   await page.locator('input[type=email]').fill(email);
   await page.locator('input[type=password]').fill(password);
   await page.getByRole('button', { name: /log in|sign in/i }).click();
-  await expect(page).toHaveURL(/\/profile$/);
-  await expect(page.getByText('Synthetic release learner', { exact: true })).toBeVisible();
-  await page.getByRole('link', { name: /back to home/i }).click();
   await expect(page).toHaveURL(/\/app$/);
   const path = page.locator('a[href^="/paths/"]').first();
   await expect(path).toBeVisible(); await path.click();
