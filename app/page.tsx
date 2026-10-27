@@ -111,7 +111,7 @@ export default function HomePage() {
           </div>
           <div className="inv-trust-item">
             <div className="inv-trust-check">&#x2713;</div>
-            $1 per 3 lessons completed (configurable)
+            Rewards follow your program’s XP terms
           </div>
           <div className="inv-trust-item">
             <div className="inv-trust-check">&#x2713;</div>
@@ -123,7 +123,7 @@ export default function HomePage() {
           </div>
           <div className="inv-trust-item">
             <div className="inv-trust-check">&#x2713;</div>
-            24/7 crisis resources + Zelle disbursements
+            Crisis resources and reviewed reward requests
           </div>
           <div className="inv-trust-item">
             <div className="inv-trust-check">&#x2713;</div>
@@ -185,8 +185,7 @@ export default function HomePage() {
               <h3>Lessons turn into small payouts</h3>
               <p>
                 Completed lessons earn XP. Learners can convert that XP into
-                a small cash payout through Zelle, Venmo, PayPal, Cash App,
-                or check.
+                a program-approved reward through a supported manual method.
               </p>
             </li>
 
@@ -257,7 +256,7 @@ export default function HomePage() {
               <h3>Incentive System</h3>
               <ul className="inv-pillar-list">
                 <li>Micro-incentives tied to verified completion</li>
-                <li>Disbursements via Zelle, Venmo, PayPal, Cash App, or check</li>
+                <li>Program-enabled manual payments; approvals and payments tracked separately</li>
                 <li>Configurable payout rules per program</li>
                 <li>Built for oversight, not automatic cash</li>
               </ul>

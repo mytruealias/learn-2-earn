@@ -24,9 +24,13 @@ export async function GET(req: Request) {
         orderBy: { createdAt: "asc" },
       }),
       prisma.payoutRequest.findMany({
-        where: { status: { in: ["completed"] }, updatedAt: { gte: twelveWeeksAgo } },
-        select: { dollarAmount: true, updatedAt: true },
-        orderBy: { updatedAt: "asc" },
+        where: {
+          status: "completed",
+          paidAt: { gte: twelveWeeksAgo },
+          amountCents: { not: null },
+        },
+        select: { amountCents: true, paidAt: true },
+        orderBy: { paidAt: "asc" },
       }),
     ]);
 
@@ -40,7 +44,10 @@ export async function GET(req: Request) {
       const key = u.createdAt.toISOString().slice(0, 10);
       if (key in userGrowthMap) userGrowthMap[key]++;
     }
-    const userGrowth = Object.entries(userGrowthMap).map(([date, count]) => ({ date, count }));
+    const userGrowth = Object.entries(userGrowthMap).map(([date, count]) => ({
+      date,
+      count,
+    }));
 
     const payoutVolumeMap: Record<string, number> = {};
     for (let i = 0; i < 12; i++) {
@@ -49,7 +56,7 @@ export async function GET(req: Request) {
       payoutVolumeMap[weekStart.toISOString().slice(0, 10)] = 0;
     }
     for (const p of recentPayouts) {
-      const d = new Date(p.updatedAt);
+      const d = new Date(p.paidAt!);
       let assignedWeek = twelveWeeksAgo.toISOString().slice(0, 10);
       for (let i = 0; i < 12; i++) {
         const ws = new Date(twelveWeeksAgo);
@@ -62,13 +69,15 @@ export async function GET(req: Request) {
         }
       }
       if (assignedWeek in payoutVolumeMap) {
-        payoutVolumeMap[assignedWeek] += p.dollarAmount;
+        payoutVolumeMap[assignedWeek] += p.amountCents!;
       }
     }
-    const payoutVolume = Object.entries(payoutVolumeMap).map(([week, dollars]) => ({
-      week,
-      dollars: Math.round(dollars * 100) / 100,
-    }));
+    const payoutVolume = Object.entries(payoutVolumeMap).map(
+      ([week, dollars]) => ({
+        week,
+        dollars: dollars / 100,
+      }),
+    );
 
     return apiOk({ trends: { userGrowth, payoutVolume } });
   } catch (error) {

@@ -1,4 +1,7 @@
-import { assertTestDatabase, getTestDatabaseUrl } from "../../lib/test-database-safety";
+import {
+  assertTestDatabase,
+  getTestDatabaseUrl,
+} from "../../lib/test-database-safety";
 /**
  * E2E test helpers. These talk to the dedicated test database
  * (DATABASE_URL_TEST), the same one the Playwright webServer is pointed at.
@@ -58,6 +61,8 @@ export async function deleteUserByEmail(email: string): Promise<void> {
   await assertTestDatabase(prisma);
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) return;
+  await prisma.rewardEntry.deleteMany({ where: { userId: user.id } });
+  await prisma.rewardAccount.deleteMany({ where: { userId: user.id } });
   await prisma.payoutRequest.deleteMany({ where: { userId: user.id } });
   await prisma.progress.deleteMany({ where: { userId: user.id } });
   await prisma.consentRecord.deleteMany({ where: { userId: user.id } });
@@ -67,7 +72,34 @@ export async function deleteUserByEmail(email: string): Promise<void> {
 
 export async function setUserXp(email: string, totalXp: number): Promise<void> {
   await assertTestDatabase(prisma);
-  await prisma.user.update({ where: { email }, data: { totalXp } });
+  await prisma.$transaction(async (tx) => {
+    const user = await tx.user.findUniqueOrThrow({
+      where: { email },
+      include: { rewardAccount: true },
+    });
+    const delta = totalXp - user.totalXp;
+    await tx.user.update({ where: { id: user.id }, data: { totalXp } });
+    if (user.rewardAccount && delta) {
+      await tx.rewardAccount.update({
+        where: { userId: user.id },
+        data: {
+          learningXp: { increment: delta },
+          creditedXp: { increment: delta },
+          availableXp: { increment: delta },
+        },
+      });
+      await tx.rewardEntry.create({
+        data: {
+          userId: user.id,
+          sourceKey: `fixture:${crypto.randomUUID()}`,
+          kind: "synthetic-fixture-credit",
+          availableDelta: delta,
+          creditedDelta: delta,
+          metadata: '{"scope":"disposable-test-only"}',
+        },
+      });
+    }
+  });
 }
 
 export function uniqEmail(prefix: string): string {
@@ -81,16 +113,50 @@ export async function disconnect(): Promise<void> {
 // Every helper repeats the server-side isolation proof before writing fixtures.
 export async function journeyLesson() {
   await assertTestDatabase(prisma);
-  const path = await prisma.path.create({ data: { slug: `journey-fixture-${Date.now()}`, title: "Synthetic learning path", order: -10000, modules: { create: { slug: "welcome", title: "A small step", lessons: { create: { slug: "first-step", title: "A safe first step (synthetic)", xpReward: 7, cards: { create: { type: "INFO", prompt: "A small step counts", body: "This is a synthetic browser-test lesson.", order: 0 } } } } } } }, include: { modules: { include: { lessons: true } } } });
+  const path = await prisma.path.create({
+    data: {
+      slug: `journey-fixture-${Date.now()}`,
+      title: "Synthetic learning path",
+      order: -10000,
+      modules: {
+        create: {
+          slug: "welcome",
+          title: "A small step",
+          lessons: {
+            create: {
+              slug: "first-step",
+              title: "A safe first step (synthetic)",
+              xpReward: 7,
+              cards: {
+                create: {
+                  type: "INFO",
+                  prompt: "A small step counts",
+                  body: "This is a synthetic browser-test lesson.",
+                  order: 0,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    include: { modules: { include: { lessons: true } } },
+  });
   return { pathSlug: path.slug, lessonId: path.modules[0].lessons[0].id };
 }
 export async function learnerRecord(email: string) {
   await assertTestDatabase(prisma);
-  return prisma.user.findUnique({ where: { email }, include: { progress: true } });
+  return prisma.user.findUnique({
+    where: { email },
+    include: { progress: true },
+  });
 }
 export async function expireLearnerSessions(userId: string) {
   await assertTestDatabase(prisma);
-  await prisma.learnerSession.updateMany({ where: { userId }, data: { expiresAt: new Date(0) } });
+  await prisma.learnerSession.updateMany({
+    where: { userId },
+    data: { expiresAt: new Date(0) },
+  });
 }
 export async function accountCount(email: string) {
   await assertTestDatabase(prisma);

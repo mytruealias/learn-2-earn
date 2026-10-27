@@ -1,4 +1,5 @@
 "use client";
+import { usd } from "@/lib/rewards/money";
 
 import { useState, useEffect } from "react";
 import { useToast } from "../AdminToastContext";
@@ -39,12 +40,17 @@ interface UserDetail {
     id: string;
     xpEarned: number;
     completedAt: string;
-    lesson: { title: string; module: { title: string; path: { title: string } } };
+    lesson: {
+      title: string;
+      module: { title: string; path: { title: string } };
+    };
   }>;
+  rewards?: { availableXp: number };
   payoutRequests: Array<{
     id: string;
     xpAmount: number;
     dollarAmount: number;
+    amountCents?: number | null;
     status: string;
     createdAt: string;
   }>;
@@ -58,11 +64,20 @@ interface EditForm {
 }
 
 function formatDate(d: string) {
-  return new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  return new Date(d).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
 }
 
 function formatDateTime(d: string) {
-  return new Date(d).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+  return new Date(d).toLocaleString("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
 }
 
 function getInitials(name: string | null): string {
@@ -85,13 +100,22 @@ export default function AdminUsersPage() {
   const [selectedUser, setSelectedUser] = useState<UserDetail | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
-  const [editForm, setEditForm] = useState<EditForm>({ caseNumber: "", xpAdjustment: "", xpReason: "", isActive: true });
+  const [editForm, setEditForm] = useState<EditForm>({
+    caseNumber: "",
+    xpAdjustment: "",
+    xpReason: "",
+    isActive: true,
+  });
   const [editError, setEditError] = useState("");
   const [editSaving, setEditSaving] = useState(false);
+  const [editKey, setEditKey] = useState("");
 
   const fetchUsers = () => {
     setLoading(true);
-    fetch(`/api/admin/users?search=${encodeURIComponent(search)}&page=${page}`, { credentials: "include" })
+    fetch(
+      `/api/admin/users?search=${encodeURIComponent(search)}&page=${page}`,
+      { credentials: "include" },
+    )
       .then((r) => r.json())
       .then((data) => {
         if (data.ok) {
@@ -104,7 +128,7 @@ export default function AdminUsersPage() {
 
   useEffect(() => {
     fetchUsers();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
 
   const handleSearch = (e: React.FormEvent) => {
@@ -132,6 +156,7 @@ export default function AdminUsersPage() {
       isActive: selectedUser.isActive,
     });
     setEditError("");
+    setEditKey(crypto.randomUUID());
     setShowEdit(true);
   };
 
@@ -154,6 +179,7 @@ export default function AdminUsersPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           caseNumber: editForm.caseNumber,
+          requestKey: editKey,
           xpAdjustment: xpAdj || undefined,
           xpReason: editForm.xpReason || undefined,
           isActive: editForm.isActive,
@@ -163,13 +189,16 @@ export default function AdminUsersPage() {
       const data = await res.json();
       if (data.ok) {
         setSelectedUser((prev) =>
-          prev ? {
-            ...prev,
-            caseNumber: data.user.caseNumber,
-            totalXp: data.user.totalXp,
-            isActive: data.user.isActive ?? prev.isActive,
-            consentGiven: data.user.consentGiven,
-          } : prev
+          prev
+            ? {
+                ...prev,
+                caseNumber: data.user.caseNumber,
+                totalXp: data.user.totalXp,
+                rewards: data.user.rewards ?? prev.rewards,
+                isActive: data.user.isActive ?? prev.isActive,
+                consentGiven: data.user.consentGiven,
+              }
+            : prev,
         );
         setShowEdit(false);
         showToast("User updated successfully", "success");
@@ -189,74 +218,126 @@ export default function AdminUsersPage() {
 
   if (selectedUser) {
     const totalPayoutXp = selectedUser.payoutRequests
-      .filter((p) => p.status !== "rejected")
+      .filter((p) => !["rejected", "cancelled"].includes(p.status))
       .reduce((sum, p) => sum + p.xpAmount, 0);
-    const availableXp = selectedUser.totalXp - totalPayoutXp;
+    const availableXp =
+      selectedUser.rewards?.availableXp ?? selectedUser.totalXp - totalPayoutXp;
     const initials = getInitials(selectedUser.fullName);
     const isGuest = !selectedUser.fullName;
 
     return (
       <div>
-        <button onClick={() => setSelectedUser(null)} className={styles.backBtn}>
+        <button
+          onClick={() => setSelectedUser(null)}
+          className={styles.backBtn}
+        >
           ← Back to users
         </button>
 
         {showEdit && (
-          <div className={styles.modalOverlay} onClick={(e) => e.target === e.currentTarget && setShowEdit(false)}>
+          <div
+            className={styles.modalOverlay}
+            onClick={(e) => e.target === e.currentTarget && setShowEdit(false)}
+          >
             <div className={styles.modal}>
               <h2 className={styles.modalTitle}>Edit User</h2>
-              {editError && <div className={styles.modalError}>{editError}</div>}
+              {editError && (
+                <div className={styles.modalError}>{editError}</div>
+              )}
               <form onSubmit={handleSaveEdit}>
                 <div className={styles.modalField}>
-                  <label className={styles.modalLabel} htmlFor="edit-case-number">Case Number</label>
+                  <label
+                    className={styles.modalLabel}
+                    htmlFor="edit-case-number"
+                  >
+                    Case Number
+                  </label>
                   <input
                     id="edit-case-number"
                     className={styles.modalInput}
                     value={editForm.caseNumber}
-                    onChange={(e) => setEditForm((f) => ({ ...f, caseNumber: e.target.value }))}
+                    onChange={(e) =>
+                      setEditForm((f) => ({ ...f, caseNumber: e.target.value }))
+                    }
                     placeholder="e.g. CASE-12345"
                   />
                 </div>
                 <div className={styles.modalRow}>
                   <div className={styles.modalField}>
-                    <label className={styles.modalLabel} htmlFor="edit-xp-adjustment">XP Adjustment</label>
+                    <label
+                      className={styles.modalLabel}
+                      htmlFor="edit-xp-adjustment"
+                    >
+                      Reward entitlement correction (lifetime learning XP stays
+                      unchanged)
+                    </label>
                     <input
                       id="edit-xp-adjustment"
                       type="number"
                       className={styles.modalInput}
                       value={editForm.xpAdjustment}
-                      onChange={(e) => setEditForm((f) => ({ ...f, xpAdjustment: e.target.value }))}
+                      onChange={(e) =>
+                        setEditForm((f) => ({
+                          ...f,
+                          xpAdjustment: e.target.value,
+                        }))
+                      }
                       placeholder="e.g. +50 or -20"
                     />
                   </div>
                   <div className={styles.modalField}>
-                    <label className={styles.modalLabel} htmlFor="edit-xp-reason">Reason (required for XP)</label>
+                    <label
+                      className={styles.modalLabel}
+                      htmlFor="edit-xp-reason"
+                    >
+                      Reason (required for XP)
+                    </label>
                     <input
                       id="edit-xp-reason"
                       className={styles.modalInput}
                       value={editForm.xpReason}
-                      onChange={(e) => setEditForm((f) => ({ ...f, xpReason: e.target.value }))}
+                      onChange={(e) =>
+                        setEditForm((f) => ({ ...f, xpReason: e.target.value }))
+                      }
                       placeholder="Why?"
                     />
                   </div>
                 </div>
                 <div className={styles.modalField}>
-                  <label className={styles.modalLabel} htmlFor="edit-account-status">Account Status</label>
+                  <label
+                    className={styles.modalLabel}
+                    htmlFor="edit-account-status"
+                  >
+                    Account Status
+                  </label>
                   <select
                     id="edit-account-status"
                     className={styles.modalSelect}
                     value={editForm.isActive ? "active" : "inactive"}
-                    onChange={(e) => setEditForm((f) => ({ ...f, isActive: e.target.value === "active" }))}
+                    onChange={(e) =>
+                      setEditForm((f) => ({
+                        ...f,
+                        isActive: e.target.value === "active",
+                      }))
+                    }
                   >
                     <option value="active">Active</option>
                     <option value="inactive">Inactive / Deactivated</option>
                   </select>
                 </div>
                 <div className={styles.modalActions}>
-                  <button type="submit" disabled={editSaving} className={styles.modalSaveBtn}>
+                  <button
+                    type="submit"
+                    disabled={editSaving}
+                    className={styles.modalSaveBtn}
+                  >
                     {editSaving ? "Saving..." : "Save changes"}
                   </button>
-                  <button type="button" className={styles.modalCancelBtn} onClick={() => setShowEdit(false)}>
+                  <button
+                    type="button"
+                    className={styles.modalCancelBtn}
+                    onClick={() => setShowEdit(false)}
+                  >
                     Cancel
                   </button>
                 </div>
@@ -268,47 +349,70 @@ export default function AdminUsersPage() {
         <div className={styles.detailCard}>
           <div className={styles.detailHeader}>
             <div className={styles.detailHeaderLeft}>
-              <div className={`${styles.detailAvatar} ${isGuest ? styles.detailAvatarGuest : ""}`}>
+              <div
+                className={`${styles.detailAvatar} ${isGuest ? styles.detailAvatarGuest : ""}`}
+              >
                 {initials}
               </div>
               <div>
-                <h1 className={styles.detailName}>{selectedUser.fullName || "Guest User"}</h1>
+                <h1 className={styles.detailName}>
+                  {selectedUser.fullName || "Guest User"}
+                </h1>
                 <div className={styles.detailEmail}>
-                  {selectedUser.email || "No email"} {selectedUser.caseNumber && `• Case: ${selectedUser.caseNumber}`}
+                  {selectedUser.email || "No email"}{" "}
+                  {selectedUser.caseNumber &&
+                    `• Case: ${selectedUser.caseNumber}`}
                 </div>
                 <div className={styles.detailLocation}>
-                  {selectedUser.city && `${selectedUser.city}, `}{selectedUser.state} {selectedUser.zipCode}
+                  {selectedUser.city && `${selectedUser.city}, `}
+                  {selectedUser.state} {selectedUser.zipCode}
                 </div>
               </div>
             </div>
             <div className={styles.detailHeaderActions}>
-              <span className={`${styles.consentBadge} ${selectedUser.consentGiven ? styles.consentYes : styles.consentNo}`}>
+              <span
+                className={`${styles.consentBadge} ${selectedUser.consentGiven ? styles.consentYes : styles.consentNo}`}
+              >
                 {selectedUser.consentGiven ? "Consent given" : "No consent"}
               </span>
-              <button className={styles.editBtn} onClick={openEdit}>Edit</button>
+              <button className={styles.editBtn} onClick={openEdit}>
+                Edit
+              </button>
             </div>
           </div>
 
           <div className={styles.detailStats}>
             <div className={styles.statItem}>
               <span className={styles.statItemLabel}>Total XP</span>
-              <span className={`${styles.statItemValue} ${styles.xpColor}`}>{selectedUser.totalXp}</span>
+              <span className={`${styles.statItemValue} ${styles.xpColor}`}>
+                {selectedUser.totalXp}
+              </span>
             </div>
             <div className={styles.statItem}>
               <span className={styles.statItemLabel}>Available XP</span>
-              <span className={`${styles.statItemValue} ${styles.availColor}`}>{availableXp}</span>
+              <span className={`${styles.statItemValue} ${styles.availColor}`}>
+                {availableXp}
+              </span>
             </div>
             <div className={styles.statItem}>
               <span className={styles.statItemLabel}>Lessons</span>
-              <span className={`${styles.statItemValue} ${styles.lessonsColor}`}>{selectedUser.progress.length}</span>
+              <span
+                className={`${styles.statItemValue} ${styles.lessonsColor}`}
+              >
+                {selectedUser.progress.length}
+              </span>
             </div>
             <div className={styles.statItem}>
               <span className={styles.statItemLabel}>Streak</span>
-              <span className={`${styles.statItemValue} ${styles.streakColor}`}>{selectedUser.streak}</span>
+              <span className={`${styles.statItemValue} ${styles.streakColor}`}>
+                {selectedUser.streak}
+              </span>
             </div>
             <div className={styles.statItem}>
               <span className={styles.statItemLabel}>Joined</span>
-              <span className={`${styles.statItemValue} ${styles.joinedValue}`}>{formatDate(selectedUser.createdAt)}</span>
+              <span className={`${styles.statItemValue} ${styles.joinedValue}`}>
+                {formatDate(selectedUser.createdAt)}
+              </span>
             </div>
           </div>
         </div>
@@ -327,7 +431,9 @@ export default function AdminUsersPage() {
                   </div>
                   <div className={styles.historyMeta}>
                     <span className={styles.xpTag}>+{p.xpEarned} XP</span>
-                    <span className={styles.dateTag}>{formatDateTime(p.completedAt)}</span>
+                    <span className={styles.dateTag}>
+                      {formatDateTime(p.completedAt)}
+                    </span>
                   </div>
                 </div>
               ))}
@@ -340,13 +446,33 @@ export default function AdminUsersPage() {
             <h2 className={styles.historyTitle}>Payout History</h2>
             <div className={styles.historyList}>
               {selectedUser.payoutRequests.map((p) => {
-                const statusCls = ({ pending: "statusYellow", reviewed: "statusBlue", approved: "statusGreen", completed: "statusGreen", rejected: "statusRed" } as Record<string, string>)[p.status] || "statusDefault";
+                const statusCls =
+                  (
+                    {
+                      pending: "statusYellow",
+                      reviewed: "statusBlue",
+                      approved: "statusGreen",
+                      completed: "statusGreen",
+                      rejected: "statusRed",
+                    } as Record<string, string>
+                  )[p.status] || "statusDefault";
                 return (
                   <div key={p.id} className={styles.historyItem}>
-                    <span className={styles.payoutHistoryAmount}>{p.xpAmount} XP → ${p.dollarAmount.toFixed(2)}</span>
+                    <span className={styles.payoutHistoryAmount}>
+                      {p.xpAmount} XP →{" "}
+                      {p.amountCents == null
+                        ? "Needs reconciliation"
+                        : usd(p.amountCents)}
+                    </span>
                     <div className={styles.historyMeta}>
-                      <span className={`${styles.statusBadge} ${styles[statusCls]}`}>{p.status}</span>
-                      <span className={styles.dateTag}>{formatDate(p.createdAt)}</span>
+                      <span
+                        className={`${styles.statusBadge} ${styles[statusCls]}`}
+                      >
+                        {p.status}
+                      </span>
+                      <span className={styles.dateTag}>
+                        {formatDate(p.createdAt)}
+                      </span>
                     </div>
                   </div>
                 );
@@ -365,7 +491,9 @@ export default function AdminUsersPage() {
       </div>
 
       <form onSubmit={handleSearch} className={styles.searchForm} role="search">
-        <label htmlFor="users-search" className="sr-only">Search users</label>
+        <label htmlFor="users-search" className="sr-only">
+          Search users
+        </label>
         <input
           id="users-search"
           type="search"
@@ -375,7 +503,9 @@ export default function AdminUsersPage() {
           className={styles.searchInput}
           aria-label="Search users by name, email, or case number"
         />
-        <button type="submit" className={styles.searchBtn}>Search</button>
+        <button type="submit" className={styles.searchBtn}>
+          Search
+        </button>
       </form>
 
       {loading ? (
@@ -393,22 +523,31 @@ export default function AdminUsersPage() {
                   className={styles.userRow}
                 >
                   <div className={styles.userRowLeft}>
-                    <div className={`${styles.avatar} ${isGuest ? styles.avatarGuest : ""}`}>
+                    <div
+                      className={`${styles.avatar} ${isGuest ? styles.avatarGuest : ""}`}
+                    >
                       {initials}
                     </div>
                     <div>
-                      <div className={styles.userName}>{user.fullName || "Guest User"}</div>
+                      <div className={styles.userName}>
+                        {user.fullName || "Guest User"}
+                      </div>
                       <div className={styles.userMeta}>
-                        {user.email || "No email"} {user.caseNumber && `• Case: ${user.caseNumber}`}
+                        {user.email || "No email"}{" "}
+                        {user.caseNumber && `• Case: ${user.caseNumber}`}
                       </div>
                     </div>
                   </div>
                   <div className={styles.userStats}>
                     <div className={styles.xpDisplay}>
                       <div className={styles.xpAmount}>{user.totalXp} XP</div>
-                      <div className={styles.lessonCount}>{user._count.progress} lessons</div>
+                      <div className={styles.lessonCount}>
+                        {user._count.progress} lessons
+                      </div>
                     </div>
-                    <div className={styles.lastActive}>{formatDate(user.lastActiveAt)}</div>
+                    <div className={styles.lastActive}>
+                      {formatDate(user.lastActiveAt)}
+                    </div>
                     <span className={styles.chevron}>›</span>
                   </div>
                 </div>
@@ -422,13 +561,19 @@ export default function AdminUsersPage() {
                 onClick={() => setPage(Math.max(1, page - 1))}
                 disabled={page <= 1}
                 className={styles.pageBtn}
-              >Prev</button>
-              <span className={styles.pageInfo}>{page} / {totalPages}</span>
+              >
+                Prev
+              </button>
+              <span className={styles.pageInfo}>
+                {page} / {totalPages}
+              </span>
               <button
                 onClick={() => setPage(Math.min(totalPages, page + 1))}
                 disabled={page >= totalPages}
                 className={styles.pageBtn}
-              >Next</button>
+              >
+                Next
+              </button>
             </div>
           )}
         </>

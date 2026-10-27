@@ -7,7 +7,7 @@
     "build": "npm run prisma:generate && tsx scripts/build.ts",
     "start": "next start -p 5000 -H 0.0.0.0",
     "lint": "eslint",
-    "test": "npm run test:unit && npm run test:api && npm run test:e2e && npm run test:browser && npm run test:design && npm run test:journey && npm run test:progression && npm run test:lesson",
+    "test": "npm run test:unit && npm run test:api && npm run test:e2e && npm run test:browser && npm run test:design && npm run test:journey && npm run test:progression && npm run test:lesson && npm run test:rewards",
     "test:api": "tsx scripts/run-tests.ts api",
     "test:api:watch": "tsx scripts/run-tests.ts api-watch",
     "test:e2e": "tsx scripts/run-tests.ts http",
@@ -26,7 +26,9 @@
     "test:journey": "tsx scripts/run-tests.ts journey",
     "test:progression": "tsx scripts/run-tests.ts progression",
     "test:lesson": "tsx scripts/run-tests.ts lesson",
-    "audit:cards": "tsx scripts/audit-lesson-cards.ts"
+    "audit:cards": "tsx scripts/audit-lesson-cards.ts",
+    "rewards:reconcile": "tsx scripts/reconcile-rewards.ts",
+    "test:rewards": "tsx scripts/run-tests.ts rewards"
   },
   "dependencies": {
     "@octokit/rest": "^22.0.0",

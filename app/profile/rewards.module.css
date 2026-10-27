@@ -1,0 +1,91 @@
+.page {
+  max-width: 78rem;
+  margin: auto;
+  display: grid;
+  gap: 1.5rem;
+  padding: clamp(1rem, 3vw, 2.5rem);
+  overflow-wrap: anywhere;
+}
+.page header {
+  max-width: 48rem;
+  display: grid;
+  gap: 0.75rem;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+.page h2 {
+  margin-bottom: 0.75rem;
+}
+.page p {
+  margin-block: 0.5rem;
+  line-height: 1.65;
+}
+.label {
+  color: var(--l2e-primary);
+  font-weight: 650;
+}
+.amount {
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+.form {
+  display: grid;
+  gap: 1rem;
+  margin-block: 1rem;
+  max-width: 42rem;
+}
+.form label {
+  display: grid;
+  gap: 0.5rem;
+}
+.form :is(input:not([type="checkbox"]), select, textarea) {
+  font: inherit;
+  color: var(--l2e-ink);
+  background: var(--l2e-surface);
+  width: 100%;
+  min-height: 48px;
+  padding: 0.75rem;
+  border: 2px solid var(--l2e-control-border);
+  border-radius: var(--l2e-radius-control);
+}
+.form fieldset {
+  border: 1px solid var(--l2e-border);
+  padding: 1rem;
+  border-radius: var(--l2e-radius-control);
+}
+.check {
+  display: flex !important;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 44px;
+  margin-block: 0.75rem;
+  cursor: pointer;
+}
+.check input {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+}
+.list {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 1rem;
+}
+.list li ol {
+  padding-left: 1.5rem;
+  margin-block: 1rem;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+@media (max-width: 45rem) {
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

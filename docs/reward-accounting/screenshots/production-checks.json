@@ -1,0 +1,158 @@
+[
+  {
+    "route": "/recover",
+    "status": 200,
+    "mode": "production",
+    "applicationDatabaseAvailable": false
+  },
+  {
+    "route": "/lifeline",
+    "status": 200,
+    "mode": "production",
+    "applicationDatabaseAvailable": false
+  },
+  {
+    "route": "/dev/design-system",
+    "status": 404,
+    "mode": "production",
+    "applicationDatabaseAvailable": false
+  },
+  {
+    "route": "/api/access",
+    "status": 503,
+    "mode": "production",
+    "applicationDatabaseAvailable": false
+  },
+  {
+    "route": "/profile",
+    "status": 307,
+    "mode": "production",
+    "applicationDatabaseAvailable": false
+  },
+  {
+    "route": "/app",
+    "status": 307,
+    "mode": "production",
+    "applicationDatabaseAvailable": false
+  },
+  {
+    "route": "/api/auth/session",
+    "status": 401,
+    "mode": "production",
+    "applicationDatabaseAvailable": false
+  },
+  {
+    "route": "/api/auth/session",
+    "status": 200,
+    "mode": "production",
+    "applicationDatabaseAvailable": false
+  },
+  {
+    "route": "/api/user/learning-plan?zone=UTC",
+    "status": 401,
+    "mode": "production",
+    "applicationDatabaseAvailable": false
+  },
+  {
+    "route": "/api/progress/open",
+    "status": 401,
+    "mode": "production",
+    "applicationDatabaseAvailable": false
+  },
+  {
+    "route": "/practice",
+    "status": 307,
+    "mode": "production",
+    "applicationDatabaseAvailable": false
+  },
+  {
+    "route": "/api/practice",
+    "status": 401,
+    "mode": "production",
+    "applicationDatabaseAvailable": false
+  },
+  {
+    "route": "/api/lesson/attempt",
+    "status": 401,
+    "mode": "production",
+    "applicationDatabaseAvailable": false
+  },
+  {
+    "route": "/api/lesson/answer",
+    "status": 401,
+    "mode": "production",
+    "applicationDatabaseAvailable": false
+  },
+  {
+    "route": "/api/lesson/next",
+    "status": 401,
+    "mode": "production",
+    "applicationDatabaseAvailable": false
+  },
+  {
+    "route": "/api/progress/complete",
+    "status": 401,
+    "mode": "production",
+    "applicationDatabaseAvailable": false
+  },
+  {
+    "route": "/api/rewards",
+    "status": 401,
+    "mode": "production",
+    "applicationDatabaseAvailable": false
+  },
+  {
+    "route": "/api/payout/request",
+    "status": 401,
+    "mode": "production",
+    "applicationDatabaseAvailable": false
+  },
+  {
+    "route": "/api/payout/cancel",
+    "status": 401,
+    "mode": "production",
+    "applicationDatabaseAvailable": false
+  },
+  {
+    "route": "/api/admin/finance/pool",
+    "status": 401,
+    "mode": "production",
+    "applicationDatabaseAvailable": false
+  },
+  {
+    "route": "/api/admin/rewards/program",
+    "status": 401,
+    "mode": "production",
+    "applicationDatabaseAvailable": false
+  },
+  {
+    "route": "/api/admin/payouts/synthetic/payment-details",
+    "status": 401,
+    "mode": "production",
+    "applicationDatabaseAvailable": false
+  },
+  {
+    "route": "/api/admin/payouts",
+    "status": 401,
+    "mode": "production",
+    "applicationDatabaseAvailable": false
+  },
+  {
+    "route": "/api/admin/payouts",
+    "status": 401,
+    "mode": "production",
+    "applicationDatabaseAvailable": false
+  },
+  {
+    "route": "/api/admin/finance",
+    "status": 401,
+    "mode": "production",
+    "applicationDatabaseAvailable": false
+  },
+  {
+    "route": "/api/admin/finance/payout-config",
+    "status": 401,
+    "mode": "production",
+    "applicationDatabaseAvailable": false
+  }
+]

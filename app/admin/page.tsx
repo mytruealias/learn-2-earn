@@ -24,7 +24,7 @@ interface Stats {
     pending: number;
     approved: number;
     completed: number;
-    totalDollars: number;
+    totalDollars: number | null;
   };
   cases: {
     openTotal: number;
@@ -35,7 +35,7 @@ interface Stats {
   };
   pool: {
     balanceCents: number;
-    pendingLiabilityCents: number;
+    pendingLiabilityCents: number | null;
     pendingCount: number;
   };
 }
@@ -54,13 +54,13 @@ interface ActivityEvent {
 }
 
 const COLOR_TO_CLASS: Record<string, string> = {
-  green:  "colorGreen",
-  blue:   "colorBlue",
+  green: "colorGreen",
+  blue: "colorBlue",
   yellow: "colorYellow",
   purple: "colorPurple",
-  red:    "colorRed",
+  red: "colorRed",
   orange: "colorOrange",
-  muted:  "colorMuted",
+  muted: "colorMuted",
 };
 
 function StatCard({
@@ -109,10 +109,18 @@ function SparkLine({
   });
 
   const polyline = points.join(" ");
-  const areaPoints = [`${pad},${h - pad}`, ...points, `${w - pad},${h - pad}`].join(" ");
+  const areaPoints = [
+    `${pad},${h - pad}`,
+    ...points,
+    `${w - pad},${h - pad}`,
+  ].join(" ");
 
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} className={styles.chartArea} preserveAspectRatio="none">
+    <svg
+      viewBox={`0 0 ${w} ${h}`}
+      className={styles.chartArea}
+      preserveAspectRatio="none"
+    >
       <polygon points={areaPoints} fill={color} fillOpacity="0.1" />
       <polyline
         points={polyline}
@@ -131,9 +139,9 @@ function SparkLine({
 }
 
 const ACTIVITY_ICON: Record<string, string> = {
-  user:   "👤",
+  user: "👤",
   payout: "💸",
-  case:   "📋",
+  case: "📋",
   stress: "🚨",
   lesson: "📖",
 };
@@ -163,17 +171,23 @@ export default function AdminDashboard() {
   useEffect(() => {
     fetch("/api/admin/stats", { credentials: "include" })
       .then((r) => r.json())
-      .then((data) => { if (data.ok) setStats(data.stats); })
+      .then((data) => {
+        if (data.ok) setStats(data.stats);
+      })
       .finally(() => setLoading(false));
 
     fetch("/api/admin/stats/trends", { credentials: "include" })
       .then((r) => r.json())
-      .then((data) => { if (data.ok) setTrends(data.trends); })
+      .then((data) => {
+        if (data.ok) setTrends(data.trends);
+      })
       .finally(() => setTrendsLoading(false));
 
     fetch("/api/admin/stats/activity", { credentials: "include" })
       .then((r) => r.json())
-      .then((data) => { if (data.ok) setActivity(data.activity); })
+      .then((data) => {
+        if (data.ok) setActivity(data.activity);
+      })
       .finally(() => setActivityLoading(false));
   }, []);
 
@@ -186,7 +200,7 @@ export default function AdminDashboard() {
 
   const poolAtRisk =
     stats.pool.balanceCents > 0 &&
-    stats.pool.pendingLiabilityCents >= stats.pool.balanceCents * 0.8;
+    (stats.pool.pendingLiabilityCents ?? 0) >= stats.pool.balanceCents * 0.8;
 
   const quickActions: { label: string; href: string; variant: string }[] = [];
   if (stats.payouts.pending > 0) {
@@ -230,10 +244,16 @@ export default function AdminDashboard() {
               className={`${styles.quickAction} ${styles[`quickAction_${a.variant}`]}`}
             >
               {a.variant === "danger" && (
-                <span className={styles.quickDot} style={{ background: "#ef4444" }} />
+                <span
+                  className={styles.quickDot}
+                  style={{ background: "#ef4444" }}
+                />
               )}
               {a.variant === "warning" && (
-                <span className={styles.quickDot} style={{ background: "#f59e0b" }} />
+                <span
+                  className={styles.quickDot}
+                  style={{ background: "#f59e0b" }}
+                />
               )}
               {a.label}
               <span className={styles.quickArrow}>→</span>
@@ -250,15 +270,27 @@ export default function AdminDashboard() {
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>Users</h2>
         <div className={styles.statGrid}>
-          <StatCard label="Total Users" value={stats.users.total} color="green" />
+          <StatCard
+            label="Total Users"
+            value={stats.users.total}
+            color="green"
+          />
           <StatCard
             label="Registered"
             value={stats.users.registered}
             sub={`${stats.users.guests} guests`}
             color="blue"
           />
-          <StatCard label="Active (7 days)" value={stats.users.activeWeek} color="yellow" />
-          <StatCard label="Active (30 days)" value={stats.users.activeMonth} color="yellow" />
+          <StatCard
+            label="Active (7 days)"
+            value={stats.users.activeWeek}
+            color="yellow"
+          />
+          <StatCard
+            label="Active (30 days)"
+            value={stats.users.activeMonth}
+            color="yellow"
+          />
         </div>
       </div>
 
@@ -266,8 +298,16 @@ export default function AdminDashboard() {
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>Learning</h2>
         <div className={styles.statGrid}>
-          <StatCard label="Journeys" value={stats.learning.totalPaths} color="green" />
-          <StatCard label="Total Lessons" value={stats.learning.totalLessons} color="blue" />
+          <StatCard
+            label="Journeys"
+            value={stats.learning.totalPaths}
+            color="green"
+          />
+          <StatCard
+            label="Total Lessons"
+            value={stats.learning.totalLessons}
+            color="blue"
+          />
           <StatCard
             label="Lessons Completed"
             value={stats.learning.lessonsCompleted}
@@ -282,7 +322,13 @@ export default function AdminDashboard() {
             label="Engagement Rate"
             value={`${stats.learning.engagementRate}%`}
             sub="active users with ≥1 lesson"
-            color={stats.learning.engagementRate >= 50 ? "green" : stats.learning.engagementRate >= 25 ? "yellow" : "red"}
+            color={
+              stats.learning.engagementRate >= 50
+                ? "green"
+                : stats.learning.engagementRate >= 25
+                  ? "yellow"
+                  : "red"
+            }
           />
           <StatCard
             label="Avg Lessons / Active User"
@@ -315,7 +361,11 @@ export default function AdminDashboard() {
                 value={stats.cases.medium}
                 color={stats.cases.medium > 0 ? "orange" : "muted"}
               />
-              <StatCard label="Low Priority" value={stats.cases.low} color="muted" />
+              <StatCard
+                label="Low Priority"
+                value={stats.cases.low}
+                color="muted"
+              />
             </div>
           </div>
           <Link href="/admin/cases" className={styles.casesLink}>
@@ -333,22 +383,40 @@ export default function AdminDashboard() {
             value={stats.payouts.pending}
             color={stats.payouts.pending > 0 ? "red" : "muted"}
           />
-          <StatCard label="Approved" value={stats.payouts.approved} color="yellow" />
-          <StatCard label="Completed" value={stats.payouts.completed} color="green" />
           <StatCard
-            label="Total Paid Out"
-            value={`$${stats.payouts.totalDollars.toFixed(2)}`}
+            label="Approved"
+            value={stats.payouts.approved}
+            color="yellow"
+          />
+          <StatCard
+            label="Completed"
+            value={stats.payouts.completed}
+            color="green"
+          />
+          <StatCard
+            label="Recorded paid"
+            value={
+              stats.payouts.totalDollars === null
+                ? "Needs reconciliation"
+                : `$${stats.payouts.totalDollars.toFixed(2)}`
+            }
             color="green"
           />
           <div
             className={`${styles.statCard} ${styles[poolAtRisk ? "colorRed" : "colorGreen"]}`}
           >
             <div className={styles.statLabel}>Pool Balance</div>
-            <div className={styles.statValue}>{formatCents(stats.pool.balanceCents)}</div>
-            {stats.pool.pendingLiabilityCents > 0 && (
-              <div className={`${styles.statSub} ${poolAtRisk ? styles.poolWarning : ""}`}>
+            <div className={styles.statValue}>
+              {formatCents(stats.pool.balanceCents)}
+            </div>
+            {stats.pool.pendingLiabilityCents === null && <p className={styles.statSub}>Pending reward value needs reconciliation.</p>}
+            {(stats.pool.pendingLiabilityCents ?? 0) > 0 && (
+              <div
+                className={`${styles.statSub} ${poolAtRisk ? styles.poolWarning : ""}`}
+              >
                 {poolAtRisk ? "⚠ " : ""}
-                {formatCents(stats.pool.pendingLiabilityCents)} pending liability
+                {formatCents(stats.pool.pendingLiabilityCents ?? 0)} pending
+                liability
               </div>
             )}
           </div>
@@ -365,12 +433,24 @@ export default function AdminDashboard() {
             ) : trends ? (
               <div className={styles.chartsStack}>
                 <div className={styles.chartCard}>
-                  <div className={styles.chartTitle}>New Registrations, Past 30 Days</div>
-                  <SparkLine data={trends.userGrowth} color="#22c55e" valueKey="count" />
+                  <div className={styles.chartTitle}>
+                    New Registrations, Past 30 Days
+                  </div>
+                  <SparkLine
+                    data={trends.userGrowth}
+                    color="#22c55e"
+                    valueKey="count"
+                  />
                 </div>
                 <div className={styles.chartCard}>
-                  <div className={styles.chartTitle}>Payout Volume (USD), Past 12 Weeks</div>
-                  <SparkLine data={trends.payoutVolume} color="#f59e0b" valueKey="dollars" />
+                  <div className={styles.chartTitle}>
+                    Payout Volume (USD), Past 12 Weeks
+                  </div>
+                  <SparkLine
+                    data={trends.payoutVolume}
+                    color="#f59e0b"
+                    valueKey="dollars"
+                  />
                 </div>
               </div>
             ) : (
@@ -390,7 +470,9 @@ export default function AdminDashboard() {
               <div className={styles.activityFeed}>
                 {activity.map((ev) => (
                   <div key={ev.id} className={styles.activityItem}>
-                    <span className={styles.activityIcon}>{ACTIVITY_ICON[ev.type]}</span>
+                    <span className={styles.activityIcon}>
+                      {ACTIVITY_ICON[ev.type]}
+                    </span>
                     <div className={styles.activityBody}>
                       {ev.link ? (
                         <a href={ev.link} className={styles.activityLabel}>
@@ -399,7 +481,9 @@ export default function AdminDashboard() {
                       ) : (
                         <span className={styles.activityLabel}>{ev.label}</span>
                       )}
-                      <span className={styles.activityTime}>{timeAgo(ev.timestamp)}</span>
+                      <span className={styles.activityTime}>
+                        {timeAgo(ev.timestamp)}
+                      </span>
                     </div>
                   </div>
                 ))}

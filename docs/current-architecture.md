@@ -11,7 +11,26 @@ No applicable `AGENTS.md` was found in `/` or the workspace/repository. Read REA
 - **Demo-only:** scripted/sample illustration with no real user/payment operation.
 - **Absent:** no corresponding model/route/capability found in this checkout; not a claim about uninspected external systems.
 
-The original inventory below covers **34 page routes and 36 API route files**; the subsequent design phase adds the development-only page listed next (35 page sources total) plus generated metadata/static entry points. The learner-journey stage adds `/onboarding`, `/recover`, one API route and one model: that checkpoint totals **37 page routes, 37 API route files and 19 models**. The subsequent learning-progression stage adds two APIs/two models: that checkpoint totals **37 pages, 39 API route files and 21 models**. The lesson/Practice stage adds one page, four API routes and three models: current totals are **38 pages, 43 API route files and 24 models**. Every row is **open for later close-out**: its owner stage must record behavior, permissions, loading/empty/error/success, applicable browser checks and regression evidence before marking it verified in upgrade-status. A screenshot alone does not close a route. Source-reviewed routes without browser captures remain unverified visually. Dynamic route checks use synthetic IDs only.
+The original inventory below covers **34 page routes and 36 API route files**; the subsequent design phase adds the development-only page listed next (35 page sources total) plus generated metadata/static entry points. The learner-journey stage adds `/onboarding`, `/recover`, one API route and one model: that checkpoint totals **37 page routes, 37 API route files and 19 models**. The subsequent learning-progression stage adds two APIs/two models: that checkpoint totals **37 pages, 39 API route files and 21 models**. The lesson/Practice stage adds one page, four API routes and three models: that checkpoint totals **38 pages, 43 API route files and 24 models**. Reward accounting adds four APIs and two models, retaining page routes: current totals are **38 pages, 47 APIs and 26 models**. Every row is **open for later close-out**: its owner stage must record behavior, permissions, loading/empty/error/success, applicable browser checks and regression evidence before marking it verified in upgrade-status. A screenshot alone does not close a route. Source-reviewed routes without browser captures remain unverified visually. Dynamic route checks use synthetic IDs only.
+
+## Reward accounting addition (2026-10-27)
+
+[Financial contract, invariants and release gates](reward-accounting/README.md) supersede the original payout/copy findings below. RewardAccount and append-only RewardEntry separate lifetime XP, entitlement, available/reserved/spent XP and corrections. Existing Float amounts remain compatibility originals; exact cents and immutable request rule snapshots are authoritative after explicit reconciliation. A migration alone does not initialize legacy money. Production records/rounding/program assignments/pool funding still require reviewed reconciliation.
+
+| Route | Current behavior / classification |
+| --- | --- |
+| GET `/api/rewards` (new) | Implemented private own-account quote, separated balances, masked history and state timeline |
+| POST `/api/payout/cancel` (new) | Implemented owner-only pending cancellation with one reservation release |
+| POST `/api/admin/payouts/[payoutId]/payment-details` (new) | Implemented audited reveal for admin/finance, approved requests only |
+| POST `/api/admin/rewards/program` (new) | Implemented reasoned, idempotent verified financial assignment; self-edited city has no financial authority |
+| Existing payout request/admin payouts | Strict quoted/idempotent request, transactional balance/cap/reservation/audit, documented state transitions, role checks, optional independent reviewer; manual payment evidence and one pool debit |
+| Existing finance page/API/config/pool | Shared exact reads; approvals stay liability; actual paid timestamps drive windows; legacy unknown dates separate; versioned terms and safe reasoned pool entries |
+| Existing admin user correction/detail | Private contacts masked; entitlement corrections ledgered without erasing lifetime learning/Progress; reason/idempotency/role enforcement |
+| Existing session/profile/stats/reports/trends | Masked and separated paid/pending/available values from exact cents; Rewards UI at the preserved profile earnings route |
+
+New signup/guest insertion creates an empty account/opening entry atomically, so first-use users do not get a false historical-reconciliation warning. Legacy accounts are imported only explicitly. New lesson credit joins the existing atomic attempt completion. Practice creates no new entitlement. Program configuration/financial decisions have mandatory transactional audit rather than the old best-effort logger. Typed rules/method instructions are shared; public copy removes fixed reward dollars and automatic transfer claims, and demos identify illustrative data.
+
+No transfer provider is added. Stripe still reads balances only. Actual external bank proof/settlement, production migration/backfill/restore, full partner/staff tenant isolation and the separate staff logout defect remain unverified/pending. No new environment names or deployment-port change; TypeScript ES2020 permits exact BigInt arithmetic in the established Next.js browser baseline.
 
 ## Lesson engine and Practice addition (2026-10-27)
 

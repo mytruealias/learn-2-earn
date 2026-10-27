@@ -1,3 +1,4 @@
+import { usd } from "@/lib/rewards/money";
 import { getAdminFromRequest } from "@/lib/admin-auth";
 import prisma from "@/lib/prisma";
 import { apiError, apiOk, apiServerError } from "@/lib/api-helpers";
@@ -18,53 +19,58 @@ export async function GET(req: Request) {
     const admin = await getAdminFromRequest(req);
     if (!admin) return apiError("unauthorized", "Not signed in", 401);
 
-    const [recentUsers, recentPayouts, recentCases, stressSignals, recentProgress] =
-      await Promise.all([
-        prisma.user.findMany({
-          orderBy: { createdAt: "desc" },
-          take: FETCH_PER_SOURCE,
-          select: { id: true, fullName: true, email: true, createdAt: true },
-        }),
-        prisma.payoutRequest.findMany({
-          orderBy: { createdAt: "desc" },
-          take: FETCH_PER_SOURCE,
-          select: {
-            id: true,
-            dollarAmount: true,
-            status: true,
-            createdAt: true,
-            user: { select: { fullName: true, email: true } },
-          },
-        }),
-        prisma.case.findMany({
-          orderBy: { createdAt: "desc" },
-          take: FETCH_PER_SOURCE,
-          select: {
-            id: true,
-            title: true,
-            priority: true,
-            createdAt: true,
-            user: { select: { fullName: true } },
-          },
-        }),
-        prisma.auditLog.findMany({
-          where: { action: "CASE_CREATE_STRESS_SIGNAL" },
-          orderBy: { createdAt: "desc" },
-          take: FETCH_PER_SOURCE,
-          select: { id: true, entityId: true, details: true, createdAt: true },
-        }),
-        prisma.progress.findMany({
-          orderBy: { completedAt: "desc" },
-          take: FETCH_PER_SOURCE,
-          select: {
-            id: true,
-            completedAt: true,
-            xpEarned: true,
-            user: { select: { fullName: true } },
-            lesson: { select: { title: true } },
-          },
-        }),
-      ]);
+    const [
+      recentUsers,
+      recentPayouts,
+      recentCases,
+      stressSignals,
+      recentProgress,
+    ] = await Promise.all([
+      prisma.user.findMany({
+        orderBy: { createdAt: "desc" },
+        take: FETCH_PER_SOURCE,
+        select: { id: true, fullName: true, email: true, createdAt: true },
+      }),
+      prisma.payoutRequest.findMany({
+        orderBy: { createdAt: "desc" },
+        take: FETCH_PER_SOURCE,
+        select: {
+          id: true,
+          amountCents: true,
+          status: true,
+          createdAt: true,
+          user: { select: { fullName: true, email: true } },
+        },
+      }),
+      prisma.case.findMany({
+        orderBy: { createdAt: "desc" },
+        take: FETCH_PER_SOURCE,
+        select: {
+          id: true,
+          title: true,
+          priority: true,
+          createdAt: true,
+          user: { select: { fullName: true } },
+        },
+      }),
+      prisma.auditLog.findMany({
+        where: { action: "CASE_CREATE_STRESS_SIGNAL" },
+        orderBy: { createdAt: "desc" },
+        take: FETCH_PER_SOURCE,
+        select: { id: true, entityId: true, details: true, createdAt: true },
+      }),
+      prisma.progress.findMany({
+        orderBy: { completedAt: "desc" },
+        take: FETCH_PER_SOURCE,
+        select: {
+          id: true,
+          completedAt: true,
+          xpEarned: true,
+          user: { select: { fullName: true } },
+          lesson: { select: { title: true } },
+        },
+      }),
+    ]);
 
     const events: ActivityEvent[] = [];
 
@@ -83,7 +89,7 @@ export async function GET(req: Request) {
       events.push({
         id: `payout-${p.id}`,
         type: "payout",
-        label: `Payout request $${p.dollarAmount.toFixed(2)} from ${name}`,
+        label: `Reward request ${p.amountCents === null ? "awaiting reconciliation" : usd(p.amountCents)} from ${name}`,
         timestamp: p.createdAt.toISOString(),
         link: "/admin/payouts",
       });
@@ -120,7 +126,10 @@ export async function GET(req: Request) {
       });
     }
 
-    events.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+    events.sort(
+      (a, b) =>
+        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+    );
 
     return apiOk({ activity: events.slice(0, RESULT_LIMIT) });
   } catch (error) {

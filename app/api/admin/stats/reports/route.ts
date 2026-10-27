@@ -1,3 +1,4 @@
+import { sumCents } from "@/lib/rewards/money";
 import { getAdminFromRequest } from "@/lib/admin-auth";
 import prisma from "@/lib/prisma";
 import { apiError, apiOk, apiServerError } from "@/lib/api-helpers";
@@ -51,27 +52,37 @@ export async function GET(req: Request) {
       prisma.user.count(),
       prisma.user.count({ where: { email: { not: null } } }),
       prisma.user.count({
-        where: { lastActiveAt: { gte: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000) } },
+        where: {
+          lastActiveAt: {
+            gte: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000),
+          },
+        },
       }),
       prisma.user.count({
-        where: { lastActiveAt: { gte: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000) } },
+        where: {
+          lastActiveAt: {
+            gte: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000),
+          },
+        },
       }),
       prisma.progress.aggregate({ _sum: { xpEarned: true } }),
       prisma.progress.count(),
-      prisma.payoutRequest.aggregate({
-        _sum: { dollarAmount: true },
-        _count: { id: true },
-        where: { status: { in: ["pending", "reviewed", "approved", "completed"] } },
+      prisma.payoutRequest.findMany({
+        where: {
+          status: { in: ["pending", "reviewed", "approved", "completed"] },
+        },
+        select: { amountCents: true },
       }),
-      prisma.payoutRequest.aggregate({
-        _sum: { dollarAmount: true },
-        _count: { id: true },
+      prisma.payoutRequest.findMany({
         where: { status: "completed" },
+        select: { amountCents: true },
       }),
     ]);
 
     const engagement = engagementRaw.map((row) => ({
-      date: (row.day instanceof Date ? row.day : new Date(row.day)).toISOString().slice(0, 10),
+      date: (row.day instanceof Date ? row.day : new Date(row.day))
+        .toISOString()
+        .slice(0, 10),
       count: Number(row.count),
     }));
 
@@ -97,7 +108,7 @@ export async function GET(req: Request) {
       const pathStarters = new Set<string>();
       const pathCompleters = new Set<string>();
       let pathTotalLessons = 0;
-      const moduleStats: typeof dropoff[0]["modules"] = [];
+      const moduleStats: (typeof dropoff)[0]["modules"] = [];
 
       for (const mod of path.modules) {
         const modStarters = new Set<string>();
@@ -110,7 +121,10 @@ export async function GET(req: Request) {
           for (const p of lesson.progress) {
             modStarters.add(p.userId);
             pathStarters.add(p.userId);
-            userCompletedLessons.set(p.userId, (userCompletedLessons.get(p.userId) || 0) + 1);
+            userCompletedLessons.set(
+              p.userId,
+              (userCompletedLessons.get(p.userId) || 0) + 1,
+            );
           }
         }
 
@@ -127,9 +141,10 @@ export async function GET(req: Request) {
           totalLessons: modLessonCount,
           uniqueStarters: modStarters.size,
           uniqueCompleters: modCompleters.size,
-          completionRate: modStarters.size > 0
-            ? Math.round((modCompleters.size / modStarters.size) * 100)
-            : 0,
+          completionRate:
+            modStarters.size > 0
+              ? Math.round((modCompleters.size / modStarters.size) * 100)
+              : 0,
         });
       }
 
@@ -137,7 +152,10 @@ export async function GET(req: Request) {
       for (const mod of path.modules) {
         for (const lesson of mod.lessons) {
           for (const p of lesson.progress) {
-            userTotalLessonsInPath.set(p.userId, (userTotalLessonsInPath.get(p.userId) || 0) + 1);
+            userTotalLessonsInPath.set(
+              p.userId,
+              (userTotalLessonsInPath.get(p.userId) || 0) + 1,
+            );
           }
         }
       }
@@ -154,9 +172,10 @@ export async function GET(req: Request) {
         totalLessons: pathTotalLessons,
         uniqueStarters: pathStarters.size,
         uniqueCompleters: pathCompleters.size,
-        completionRate: pathStarters.size > 0
-          ? Math.round((pathCompleters.size / pathStarters.size) * 100)
-          : 0,
+        completionRate:
+          pathStarters.size > 0
+            ? Math.round((pathCompleters.size / pathStarters.size) * 100)
+            : 0,
       });
     }
 
@@ -177,10 +196,17 @@ export async function GET(req: Request) {
           activeMonth,
           totalXpDistributed: totalXp._sum.xpEarned || 0,
           totalLessonsCompleted,
-          totalPayoutRequests: payoutSummary._count.id,
-          totalPayoutDollars: payoutSummary._sum.dollarAmount || 0,
-          completedPayouts: completedPayoutSum._count.id,
-          completedPayoutDollars: completedPayoutSum._sum.dollarAmount || 0,
+          totalPayoutRequests: payoutSummary.length,
+          totalPayoutDollars:
+            sumCents(payoutSummary.map((p) => p.amountCents)) === null
+              ? null
+              : Number(sumCents(payoutSummary.map((p) => p.amountCents))) / 100,
+          completedPayouts: completedPayoutSum.length,
+          completedPayoutDollars:
+            sumCents(completedPayoutSum.map((p) => p.amountCents)) === null
+              ? null
+              : Number(sumCents(completedPayoutSum.map((p) => p.amountCents))) /
+                100,
           pathCompletions: totalPathCompletions,
           moduleCompletions: totalModuleCompletions,
         },

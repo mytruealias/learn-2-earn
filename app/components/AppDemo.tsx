@@ -88,6 +88,7 @@ export default function AppDemo() {
   if (!mounted) {
     return (
       <div className="demo-phone-container">
+      <p role="note">Illustration only. Sample records and XP do not create learner credit, approvals or payments.</p>
         <div className="demo-phone">
           <div className="demo-phone-notch"></div>
           <div className="demo-phone-screen">
@@ -102,6 +103,7 @@ export default function AppDemo() {
 
   return (
     <div className="demo-phone-container">
+      <p role="note">Illustration only. Sample records and XP do not create learner credit, approvals or payments.</p>
       <div className="demo-phone">
         <div className="demo-phone-notch"></div>
 
@@ -178,7 +180,7 @@ export default function AppDemo() {
               <div className="demo-xp-reward">
                 <div className="demo-xp-burst">+10 XP</div>
                 <div className="demo-xp-message">Lesson Complete!</div>
-                <div className="demo-xp-earning">$0.50 earned</div>
+                <div className="demo-xp-earning">Program terms apply</div>
                 <div className="demo-xp-continue">Continue</div>
               </div>
             </div>
@@ -189,7 +191,7 @@ export default function AppDemo() {
               <div className="demo-xp-reward">
                 <div className="demo-xp-burst" style={{ fontSize: "2rem" }}>&#x1F389;</div>
                 <div className="demo-xp-message">2 Lessons Done!</div>
-                <div className="demo-xp-earning">{totalXp} XP Total, $1.00 earned</div>
+                <div className="demo-xp-earning">{totalXp} sample XP · no cash credited</div>
                 <div className="demo-xp-continue">Keep Going</div>
               </div>
             </div>
@@ -199,21 +201,21 @@ export default function AppDemo() {
             <div className="demo-screen-content demo-fade-in">
               <div className="demo-wallet-header">
                 <div className="demo-wallet-title">My Wallet</div>
-                <div className="demo-wallet-balance-label">Available Balance</div>
-                <div className="demo-wallet-balance">$1.00</div>
+                <div className="demo-wallet-balance-label">Example rewards view</div>
+                <div className="demo-wallet-balance">Program quote</div>
                 <div className="demo-wallet-subtext">{totalXp} XP earned this session</div>
               </div>
               <div className="demo-wallet-history">
                 <div className="demo-wallet-row">
                   <span className="demo-wallet-row-label">Daily Routines</span>
-                  <span className="demo-wallet-row-amount">+$0.50</span>
+                  <span className="demo-wallet-row-amount">Sample XP</span>
                 </div>
                 <div className="demo-wallet-row">
                   <span className="demo-wallet-row-label">Keeping Documents Safe</span>
-                  <span className="demo-wallet-row-amount">+$0.50</span>
+                  <span className="demo-wallet-row-amount">Sample XP</span>
                 </div>
               </div>
-              <div className="demo-cashout-btn">Cash Out</div>
+              <div className="demo-cashout-btn">Review request</div>
             </div>
           )}
 
@@ -221,9 +223,9 @@ export default function AppDemo() {
             <div className="demo-screen-content demo-fade-in">
               <div className="demo-xp-reward">
                 <div className="demo-cashout-icon">&#x2705;</div>
-                <div className="demo-xp-message">Payout Requested!</div>
-                <div className="demo-cashout-amount">$1.00</div>
-                <div className="demo-cashout-subtext">sent to your account</div>
+                <div className="demo-xp-message">Example request</div>
+                <div className="demo-cashout-amount">Illustration only</div>
+                <div className="demo-cashout-subtext">Staff review is not a payment</div>
               </div>
             </div>
           )}
@@ -258,10 +260,10 @@ export default function AppDemo() {
           {phase === "lesson" && "Each lesson opens with a quick intro"}
           {phase === "card" && "Interactive cards test knowledge"}
           {phase === "correct" && "Instant feedback on answers"}
-          {phase === "xp" && "XP and cash earned for each completion"}
+          {phase === "xp" && "Sample XP; reward eligibility follows program terms"}
           {phase === "complete" && "Progress tracked, every lesson counts"}
-          {phase === "wallet" && "Tap Cash Out to withdraw real earnings instantly"}
-          {phase === "cashout" && "Payout confirmed, money sent to their account"}
+          {phase === "wallet" && "Tap Review request to withdraw real earnings instantly"}
+          {phase === "cashout" && "Example request saved for review; no payment is sent"}
         </p>
       </div>
     </div>

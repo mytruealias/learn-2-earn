@@ -11,6 +11,8 @@ function uniq(prefix: string) {
 
 export async function clearDb() {
   await assertTestDatabase(prisma);
+  await prisma.rewardEntry.deleteMany();
+  await prisma.rewardAccount.deleteMany();
   await prisma.auditLog.deleteMany();
   await prisma.payoutRequest.deleteMany();
   await prisma.consentRecord.deleteMany();

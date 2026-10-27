@@ -1,3 +1,5 @@
+import type { Prisma } from "@prisma/client";
+import { readCookie } from "./request-cookie";
 import { cookies } from "next/headers";
 import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
@@ -61,10 +63,10 @@ export async function adminLogin(email: string, password: string) {
   };
 }
 
-export async function getAdminSessionFromToken(token: string) {
+export async function getAdminSessionFromToken(token: string, db: Prisma.TransactionClient = prisma) {
   if (!token) return null;
 
-  const session = await prisma.adminSession.findUnique({
+  const session = await db.adminSession.findUnique({
     where: { token },
     include: {
       admin: {
@@ -76,7 +78,7 @@ export async function getAdminSessionFromToken(token: string) {
   if (!session) return null;
 
   if (session.expiresAt < new Date()) {
-    await prisma.adminSession.delete({ where: { id: session.id } }).catch(() => {});
+    // Financial authorization checks expiry without an unrelated best-effort write.
     return null;
   }
 
@@ -96,9 +98,9 @@ export async function getAdminSession() {
   }
 }
 
-export async function getAdminFromRequest(_req: Request) {
-  const admin = await getAdminSession();
-  return admin;
+export async function getAdminFromRequest(req: Request, db: Prisma.TransactionClient = prisma) {
+  const token = readCookie(req, SESSION_COOKIE);
+  return token ? getAdminSessionFromToken(token, db) : null;
 }
 
 export async function adminLogout(token: string) {

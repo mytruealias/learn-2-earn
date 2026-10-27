@@ -240,14 +240,14 @@ for (const width of [360, 768, 1440]) {
     await nav.getByRole("link", { name: "Rewards", exact: true }).click();
     await expect(page).toHaveURL(/\/profile\?tab=earnings$/);
     await expect(
-      page.getByRole("link", {
-        name: "Review payout eligibility",
+      page.getByRole("heading", {
+        name: "Current program terms",
         exact: true,
       }),
     ).toBeVisible();
     await expect(
       page.getByText(
-        "No payout requests yet. Keep earning XP and request your first payout!",
+        "No reward requests yet. Learning stays available whether you request a reward or not.",
       ),
     ).toBeVisible();
     await expect(
@@ -256,10 +256,13 @@ for (const width of [360, 768, 1440]) {
         .getByRole("link", { name: "Rewards", exact: true }),
     ).toHaveAttribute("aria-current", "page");
     if (width === 360) {
+      await expect(
+        page.getByRole("button", { name: "Review request", exact: true }),
+      ).toBeDisabled();
       await page
-        .getByRole("link", { name: "Review payout eligibility", exact: true })
+        .getByRole("navigation", { name: "Primary" })
+        .getByRole("link", { name: "Profile", exact: true })
         .click();
-      await expect(page.getByText(/more XP to request a payout/)).toBeVisible();
       await page.getByRole("button", { name: "Info", exact: true }).click();
       await page.getByRole("button", { name: "Edit", exact: true }).click();
       const name = page.getByLabel("Full Name", { exact: true });

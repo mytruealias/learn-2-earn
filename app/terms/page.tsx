@@ -56,17 +56,17 @@ export default function TermsPage() {
               15 XP, and capstones are worth 25 XP.
             </p>
             <ul>
-              <li>The default conversion rate is 5 cents per XP, which works out to $1 for every 20 XP redeemed. Your city or shelter partner may configure a different rate.</li>
-              <li>There is a minimum balance to request a payout (currently 20 XP, or $1.00) and a weekly cap on how much XP can be redeemed (currently 500 XP, or $25.00). These can be adjusted per program.</li>
+              <li>Your current program rate is shown in Rewards. Each accepted request saves that rate and its terms; later changes do not reprice it.</li>
+              <li>Your program minimum and rolling seven-day cap are shown in Rewards before confirmation. Pending, reviewed, approved and completed requests count in that window; valid rejection or cancellation releases reserved XP.</li>
               <li>XP must be earned by you, by actually completing the lessons. Sharing accounts, scripting answers, or any other attempt to fake completion will result in cancellation of XP and the account.</li>
               <li>Earned XP has no cash value until it is approved for payout by a case worker or admin. We may reverse XP awards if we discover an error or abuse.</li>
             </ul>
 
             <h2>How payouts work</h2>
             <ul>
-              <li>You request a payout from your profile, choose a method (Zelle, Venmo, PayPal, Cash App, or check), and provide the handle, account email, phone number, or mailing address we need to send it</li>
+              <li>You request a payout from your profile, choose a method enabled for your program’s manual workflow, and provide the handle, account email, phone number, or mailing address we need to send it</li>
               <li>A case worker or admin reviews each request before it is approved</li>
-              <li>Approved payouts are sent through the method you selected. Delivery times depend on that service.</li>
+              <li>Approval authorizes a manual payment; it is not a completed transfer. Authorized staff separately records a verified external reference and timestamp. Learn2Earn does not automatically send these payments.</li>
               <li>We are not responsible for delays, fees, or errors caused by third-party payment services, or for payouts sent to an incorrect handle that you provided</li>
               <li>If a payout is reversed by a payment processor, we may reverse the corresponding XP redemption</li>
             </ul>

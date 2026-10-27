@@ -1,124 +1,126 @@
 import { z } from "zod";
-import { getAdminFromRequest, requireRole } from "@/lib/admin-auth";
-import { logAudit } from "@/lib/audit";
 import prisma from "@/lib/prisma";
-import { apiError, apiOk, apiServerError, parseJson, getClientIp } from "@/lib/api-helpers";
-
-const ALLOWED_ROLES = ["admin", "finance"];
-
-const PostSchema = z.object({
-  programSlug: z.string().trim().min(1, "Program slug is required").max(60),
-  programName: z.string().trim().min(1, "Program name is required").max(200),
-  xpToDollar: z.number().positive("XP-to-dollar rate must be a positive number"),
-  minimumXp: z.number().int().min(1, "Minimum XP must be a positive integer").max(1_000_000),
-  weeklyXpCap: z.number().int().min(1, "Weekly XP cap must be a positive integer").max(10_000_000),
-}).refine((d) => d.weeklyXpCap >= d.minimumXp, {
-  message: "Weekly XP cap must be greater than or equal to minimum XP",
-  path: ["weeklyXpCap"],
-});
-
-const PutSchema = z.object({
-  id: z.string().min(1, "Config ID is required").max(120),
-  programName: z.string().trim().min(1).max(200).optional(),
-  xpToDollar: z.number().positive().optional(),
-  minimumXp: z.number().int().min(1).max(1_000_000).optional(),
-  weeklyXpCap: z.number().int().min(1).max(10_000_000).optional(),
-  isActive: z.boolean().optional(),
-});
-
+import { getAdminFromRequest } from "@/lib/admin-auth";
+import { apiError, apiOk } from "@/lib/api-helpers";
+import { staffWrite, rewardError } from "@/lib/rewards/http";
+import { audit, RewardIssue } from "@/lib/rewards/accounting";
+import { fraction, methodDefinitions } from "@/lib/rewards/money";
+const rate = z
+  .union([z.string().max(100), z.number().finite().positive()])
+  .transform(String)
+  .refine((s) => {
+    try {
+      return fraction(s).n > 0n;
+    } catch {
+      return false;
+    }
+  }, "Enter an exact positive decimal rate.");
+const fields = {
+  programName: z.string().trim().min(1).max(200),
+  xpToDollar: rate,
+  minimumXp: z.number().int().min(1).max(1000000),
+  weeklyXpCap: z.number().int().min(1).max(10000000),
+  methods: z
+    .array(z.enum(["venmo", "paypal", "cashapp", "check", "zelle"]))
+    .max(5),
+  separateApprover: z.boolean(),
+  manualWorkflowConfirmed: z.literal(true),
+};
+const create = z
+  .object({ ...fields, programSlug: z.string().regex(/^[a-z0-9-]{1,60}$/) })
+  .strict();
+const update = z
+  .object({
+    ...fields,
+    id: z.string().min(1).max(120),
+    version: z.number().int().positive(),
+    isActive: z.boolean(),
+  })
+  .strict();
 export async function GET(req: Request) {
   try {
-    const admin = await getAdminFromRequest(req);
-    if (!admin) return apiError("unauthorized", "Not signed in", 401);
-    if (!requireRole(admin.role, ALLOWED_ROLES)) {
-      return apiError("forbidden", "Admin or finance role required", 403);
-    }
-
-    const configs = await prisma.payoutConfig.findMany({ orderBy: { programName: "asc" } });
-    return apiOk({ configs });
-  } catch (error) {
-    return apiServerError("admin/finance/payout-config/get", error);
+    const a = await getAdminFromRequest(req);
+    if (!a) return apiError("unauthorized", "Sign in as staff.", 401);
+    if (!["admin", "finance"].includes(a.role))
+      return apiError("forbidden", "Finance access required.", 403);
+    return apiOk(
+      {
+        configs: await prisma.payoutConfig.findMany({
+          orderBy: { programName: "asc" },
+        }),
+        methodDefinitions,
+      },
+      { headers: { "Cache-Control": "private, no-store" } },
+    );
+  } catch (e) {
+    return rewardError(e);
   }
 }
-
+async function save(req: Request, editing: boolean) {
+  return staffWrite(
+    req,
+    editing ? update : create,
+    ["admin", "finance"],
+    async (tx, admin, data) => {
+      await tx.$queryRaw`SELECT pg_advisory_xact_lock(74219932)::text`;
+      if (data.weeklyXpCap < data.minimumXp)
+        throw new RewardIssue(
+          "validation_error",
+          "Cap must be at least the minimum.",
+          400,
+        );
+      const values = {
+        programName: data.programName,
+        xpToDollar: Number(data.xpToDollar),
+        rateExact: data.xpToDollar,
+        minimumXp: data.minimumXp,
+        weeklyXpCap: data.weeklyXpCap,
+        paymentMethods: JSON.stringify([...new Set(data.methods)]),
+        separateApprover: data.separateApprover,
+      };
+      let config;
+      if ("id" in data) {
+        const old = await tx.payoutConfig.findUnique({
+          where: { id: data.id },
+        });
+        if (!old || old.version !== data.version)
+          throw new RewardIssue(
+            "conflict",
+            "These program terms changed. Reload before saving.",
+          );
+        config = await tx.payoutConfig.update({
+          where: { id: data.id },
+          data: {
+            ...values,
+            isActive: data.isActive,
+            version: { increment: 1 },
+          },
+        });
+      } else {
+        if (
+          await tx.payoutConfig.findUnique({
+            where: { programSlug: data.programSlug },
+          })
+        )
+          throw new RewardIssue(
+            "conflict",
+            "A program with this slug already exists.",
+          );
+        config = await tx.payoutConfig.create({
+          data: { ...values, programSlug: data.programSlug },
+        });
+      }
+      await audit(tx, "PAYOUT_CONFIG_VERSIONED", config.id, admin.id, {
+        version: config.version,
+        ...values,
+      });
+      return { config };
+    },
+  );
+}
 export async function POST(req: Request) {
-  try {
-    const admin = await getAdminFromRequest(req);
-    if (!admin) return apiError("unauthorized", "Not signed in", 401);
-    if (!requireRole(admin.role, ALLOWED_ROLES)) {
-      return apiError("forbidden", "Admin or finance role required", 403);
-    }
-
-    const parsed = await parseJson(req, PostSchema);
-    if (!parsed.ok) return parsed.response;
-    const { programName, xpToDollar, minimumXp, weeklyXpCap } = parsed.data;
-    const slug = parsed.data.programSlug.toLowerCase().replace(/[^a-z0-9-]/g, "-");
-
-    const existing = await prisma.payoutConfig.findUnique({ where: { programSlug: slug } });
-    if (existing) {
-      return apiError("conflict", "A config with this program slug already exists", 409);
-    }
-
-    const config = await prisma.payoutConfig.create({
-      data: { programSlug: slug, programName, xpToDollar, minimumXp, weeklyXpCap },
-    });
-
-    await logAudit({
-      adminId: admin.id,
-      action: "PAYOUT_CONFIG_CREATED",
-      entity: "PayoutConfig",
-      entityId: config.id,
-      details: JSON.stringify({ programSlug: slug, xpToDollar, minimumXp, weeklyXpCap }),
-      ipAddress: getClientIp(req),
-    });
-
-    return apiOk({ config });
-  } catch (error) {
-    return apiServerError("admin/finance/payout-config/post", error);
-  }
+  return save(req, false);
 }
-
 export async function PUT(req: Request) {
-  try {
-    const admin = await getAdminFromRequest(req);
-    if (!admin) return apiError("unauthorized", "Not signed in", 401);
-    if (!requireRole(admin.role, ALLOWED_ROLES)) {
-      return apiError("forbidden", "Admin or finance role required", 403);
-    }
-
-    const parsed = await parseJson(req, PutSchema);
-    if (!parsed.ok) return parsed.response;
-    const { id, programName, xpToDollar, minimumXp, weeklyXpCap, isActive } = parsed.data;
-
-    const existing = await prisma.payoutConfig.findUnique({ where: { id } });
-    if (!existing) return apiError("not_found", "Config not found", 404);
-
-    const updateData: Record<string, unknown> = {};
-    if (programName !== undefined) updateData.programName = programName;
-    if (xpToDollar !== undefined) updateData.xpToDollar = xpToDollar;
-    if (minimumXp !== undefined) updateData.minimumXp = minimumXp;
-    if (weeklyXpCap !== undefined) updateData.weeklyXpCap = weeklyXpCap;
-    if (isActive !== undefined) updateData.isActive = isActive;
-
-    const effectiveMin = (updateData.minimumXp as number) ?? existing.minimumXp;
-    const effectiveCap = (updateData.weeklyXpCap as number) ?? existing.weeklyXpCap;
-    if (effectiveCap < effectiveMin) {
-      return apiError("bad_request", "Weekly XP cap must be greater than or equal to minimum XP", 400);
-    }
-
-    const config = await prisma.payoutConfig.update({ where: { id }, data: updateData });
-
-    await logAudit({
-      adminId: admin.id,
-      action: "PAYOUT_CONFIG_UPDATED",
-      entity: "PayoutConfig",
-      entityId: config.id,
-      details: JSON.stringify(updateData),
-      ipAddress: getClientIp(req),
-    });
-
-    return apiOk({ config });
-  } catch (error) {
-    return apiServerError("admin/finance/payout-config/put", error);
-  }
+  return save(req, true);
 }

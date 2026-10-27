@@ -1,6 +1,7 @@
 import { requireLearner } from "@/lib/learner-server";
 import prisma from "@/lib/prisma";
 import ProfileClient from "./ProfileClient";
+import Rewards from "./Rewards";
 import { ButtonLink, Card } from "../components/ui";
 export const dynamic = "force-dynamic";
 export default async function ProfilePage({
@@ -31,6 +32,7 @@ export default async function ProfilePage({
       </main>
     );
   }
+  if (params.tab === "earnings") return <main><Rewards /></main>;
   const tab =
     params.tab === "earnings" ||
     params.tab === "achievements" ||

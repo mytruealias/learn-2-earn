@@ -1,417 +1,487 @@
 "use client";
-
-import { useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAdmin } from "../AdminContext";
-import { useToast } from "../AdminToastContext";
-import styles from "../payouts.module.css";
-
-interface Payout {
-  id: string;
-  xpAmount: number;
-  dollarAmount: number;
-  status: string;
-  note: string | null;
-  paymentMethod: string | null;
-  paymentHandle: string | null;
-  reviewNote: string | null;
-  decisionNote: string | null;
-  createdAt: string;
-  updatedAt: string;
-  reviewedAt: string | null;
-  approvedAt: string | null;
-  user: { id: string; fullName: string | null; email: string | null; totalXp: number; caseNumber: string | null };
-  reviewedBy: { fullName: string } | null;
-  approvedBy: { fullName: string } | null;
-}
-
-const statusColorClass: Record<string, string> = {
-  pending: "statusYellow",
-  reviewed: "statusBlue",
-  approved: "statusGreen",
-  completed: "statusGreen",
-  rejected: "statusRed",
+import {
+  Alert,
+  Button,
+  ButtonLink,
+  Card,
+  Dialog,
+  ErrorState,
+  Skeleton,
+} from "@/app/components/ui";
+import { usd, methodDefinitions } from "@/lib/rewards/money";
+import type { payoutDto } from "@/lib/rewards/accounting";
+import styles from "../../profile/rewards.module.css";
+type Payout = ReturnType<typeof payoutDto> & {
+  user: { fullName: string | null };
 };
-
-function formatDate(d: string) {
-  return new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-}
-
-function buildPayLink(method: string, handle: string, amount: number): string | null {
-  const clean = handle.trim();
-  const amt = amount.toFixed(2);
-  switch (method.toLowerCase()) {
-    case "zelle":
-      return null;
-    case "paypal":
-      return `https://paypal.me/${clean.replace(/^@+/, "")}/${amt}`;
-    case "venmo":
-      return `venmo://paycharge?txn=pay&recipients=${encodeURIComponent(clean.replace(/^@+/, ""))}&amount=${amt}&note=Learn2Earn%20Payout`;
-    case "cashapp":
-      return `https://cash.app/${clean.startsWith("$") ? clean : "$" + clean}/${amt}`;
-    default:
-      return null;
-  }
-}
-
-function exportCSV(selected: Payout[]) {
-  const headers = ["User Name", "Case Number", "Amount", "Payment Method", "Payment Handle", "Completed Date", "Decision Note"];
-  const rows = selected.map((p) => [
-    p.user.fullName || "Unknown",
-    p.user.caseNumber || "",
-    p.dollarAmount.toFixed(2),
-    p.paymentMethod || "",
-    p.paymentHandle || "",
-    formatDate(p.updatedAt),
-    p.decisionNote || "",
-  ]);
-  const csv = [headers, ...rows].map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
-  const blob = new Blob([csv], { type: "text/csv" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `payouts_export_${new Date().toISOString().slice(0, 10)}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-export default function AdminPayoutsPage() {
+const labels: Record<string, string> = {
+  pending: "Awaiting review",
+  reviewed: "Reviewed; awaiting approval",
+  approved: "Approved; not recorded paid",
+  completed: "Payment recorded",
+  rejected: "Rejected; reservation released",
+  cancelled: "Cancelled; reservation released",
+};
+export default function Page() {
   const { admin } = useAdmin();
-  const { showToast } = useToast();
-  const [payouts, setPayouts] = useState<Payout[]>([]);
-  const [statusFilter, setStatusFilter] = useState("pending");
-  const [loading, setLoading] = useState(true);
-  const [decisionNote, setDecisionNote] = useState("");
-  const [activeAction, setActiveAction] = useState<{ payoutId: string; action: string } | null>(null);
-  const [processing, setProcessing] = useState(false);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [total, setTotal] = useState(0);
-  const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-
-  const fetchPayouts = (p = page) => {
+  const [items, setItems] = useState<Payout[]>([]),
+    [status, setStatus] = useState("pending"),
+    [page, setPage] = useState(1),
+    [pages, setPages] = useState(1),
+    [loading, setLoading] = useState(true),
+    [error, setError] = useState(""),
+    [message, setMessage] = useState(""),
+    [busy, setBusy] = useState(false);
+  const [action, setAction] = useState<{
+      id: string;
+      action: string;
+      key: string;
+    } | null>(null),
+    [note, setNote] = useState(""),
+    [reference, setReference] = useState(""),
+    [paidAt, setPaidAt] = useState(""),
+    [confirmed, setConfirmed] = useState(false),
+    [details, setDetails] = useState<{
+      id: string;
+      handle: string | null;
+    } | null>(null);
+  const loadGeneration = useRef(0);
+  const filter = useRef({ page, status });
+  filter.current = { page, status };
+  const lock = useRef(false),
+    retry = useRef<object | null>(null);
+  const canFinance = !!admin && ["admin", "finance"].includes(admin.role),
+    canReview = !!admin && ["admin", "caseworker"].includes(admin.role);
+  async function load(p = filter.current.page, s = filter.current.status) {
+    const generation = ++loadGeneration.current;
     setLoading(true);
-    fetch(`/api/admin/payouts?status=${statusFilter}&page=${p}`, { credentials: "include" })
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.ok) {
-          setPayouts(data.payouts);
-          setTotalPages(data.pagination.totalPages);
-          setTotal(data.pagination.total);
-          setSelectedIds(new Set());
-        }
-      })
-      .finally(() => setLoading(false));
-  };
-
-  useEffect(() => {
-    setPage(1);
-    fetchPayouts(1);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [statusFilter]);
-
-  useEffect(() => {
-    fetchPayouts(page);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
-
-  const handleAction = async () => {
-    if (!activeAction) return;
-    setProcessing(true);
-
+    setError("");
     try {
-      const res = await fetch("/api/admin/payouts", {
+      const r = await fetch(`/api/admin/payouts?status=${s}&page=${p}`, {
+        cache: "no-store",
+        signal: AbortSignal.timeout(20000),
+      });
+      const d = await r.json();
+      if (
+        generation !== loadGeneration.current ||
+        s !== filter.current.status ||
+        p !== filter.current.page
+      )
+        return;
+      if (!r.ok)
+        throw new Error(d.error?.message || "Requests could not load.");
+      setItems(d.payouts);
+      setPages(d.pagination.totalPages);
+    } catch (e) {
+      if (generation === loadGeneration.current)
+        setError(e instanceof Error ? e.message : "Requests could not load.");
+    } finally {
+      if (generation === loadGeneration.current) setLoading(false);
+    }
+  }
+  useEffect(() => {
+    void load(page, status);
+    setDetails(null);
+  }, [page, status]);
+  function open(p: Payout, verb: string) {
+    setAction({ id: p.id, action: verb, key: crypto.randomUUID() });
+    setNote("");
+    setReference("");
+    setPaidAt("");
+    setConfirmed(false);
+    retry.current = null;
+    setError("");
+  }
+  async function decide() {
+    if (!action || lock.current) return;
+    lock.current = true;
+    setBusy(true);
+    setError("");
+    try {
+      const body = retry.current || {
+        payoutId: action.id,
+        action: action.action,
+        requestKey: action.key,
+        decisionNote: note,
+        ...(action.action === "complete"
+          ? {
+              paymentReference: reference,
+              paidAt: new Date(paidAt).toISOString(),
+            }
+          : {}),
+      };
+      retry.current = body;
+      const r = await fetch("/api/admin/payouts", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          payoutId: activeAction.payoutId,
-          action: activeAction.action,
-          decisionNote: decisionNote || undefined,
-        }),
-        credentials: "include",
+        body: JSON.stringify(body),
+        signal: AbortSignal.timeout(20000),
       });
-
-      const data = await res.json();
-      if (data.ok) {
-        const actionLabels: Record<string, string> = {
-          review: "Payout marked as reviewed",
-          approve: "Payout approved",
-          reject: "Payout rejected",
-          complete: "Payout marked as paid",
-        };
-        showToast(actionLabels[activeAction.action] || "Action completed", "success");
-        setActiveAction(null);
-        setDecisionNote("");
-        fetchPayouts();
-      } else {
-        showToast(data.error?.message || "Action failed", "error");
-      }
-    } catch {
-      showToast("Connection error", "error");
+      const d = await r.json();
+      if (!r.ok)
+        throw new Error(d.error?.message || "Decision could not be confirmed.");
+      setMessage(
+        `Saved: ${labels[d.payout.status] || d.payout.status}. No external transfer was initiated.`,
+      );
+      setAction(null);
+      retry.current = null;
+      setDetails(null);
+      await load();
+    } catch (e) {
+      setError(
+        e instanceof Error && !(e instanceof TypeError)
+          ? e.message
+          : "Decision could not be confirmed. Retry unchanged details; do not send a payment again.",
+      );
     } finally {
-      setProcessing(false);
+      lock.current = false;
+      setBusy(false);
     }
-  };
-
-  const toggleSelect = (id: string) => {
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  };
-
-  const handleExport = () => {
-    const selected = payouts.filter((p) => selectedIds.has(p.id));
-    if (!selected.length) return;
-    exportCSV(selected);
-    showToast(`Exported ${selected.length} payout(s) to CSV`, "success");
-  };
-
-  const canReview = admin && ["admin", "caseworker"].includes(admin.role);
-  const canApprove = admin && ["admin", "finance"].includes(admin.role);
-  const isCompletedFilter = statusFilter === "completed";
-
+  }
+  async function reveal(p: Payout) {
+    if (lock.current) return;
+    lock.current = true;
+    setBusy(true);
+    setError("");
+    try {
+      const r = await fetch(`/api/admin/payouts/${p.id}/payment-details`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: "{}",
+        signal: AbortSignal.timeout(20000),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error?.message || "Details unavailable.");
+      setDetails({ id: p.id, handle: d.paymentHandle });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Details unavailable.");
+    } finally {
+      lock.current = false;
+      setBusy(false);
+    }
+  }
+  function exportMasked() {
+    const rows = [
+      [
+        "Request ID",
+        "Amount cents",
+        "Status",
+        "Method",
+        "Masked contact",
+        "Paid timestamp",
+      ],
+      ...items.map((p) => [
+        p.id,
+        String(p.amountCents ?? "unreconciled"),
+        p.status,
+        p.paymentMethod || "",
+        p.paymentHandle,
+        p.paidAt ? new Date(p.paidAt).toISOString() : "",
+      ]),
+    ];
+    const csv = rows
+      .map((row) =>
+        row
+          .map(
+            (v) =>
+              `"${String(v)
+                .replace(/^[=+@-]/, "'$&")
+                .replaceAll('"', '""')}"`,
+          )
+          .join(","),
+      )
+      .join("\n");
+    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "masked-reward-requests.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  }
   return (
-    <div className={styles.page}>
-      <div className={styles.pageHeader}>
-        <h1 className={styles.pageTitle}>Payouts</h1>
-      </div>
-
-      <div className={styles.filterRow}>
-        {["pending", "reviewed", "approved", "completed", "rejected", "all"].map((s) => (
-          <button
-            key={s}
-            onClick={() => setStatusFilter(s)}
-            className={`${styles.filterBtn} ${styles[`filter_${s}`] || ""} ${statusFilter === s ? styles.filterBtnActive : ""}`}
-          >
-            {s.charAt(0).toUpperCase() + s.slice(1)}
-          </button>
-        ))}
-      </div>
-
-      {activeAction && (
-        <div className={styles.actionPanel}>
-          <div className={styles.actionTitle}>
-            Confirm: {activeAction.action}
-          </div>
-          <label htmlFor="payout-decision-note" className="sr-only">
-            Decision note (optional)
-          </label>
-          <textarea
-            id="payout-decision-note"
-            value={decisionNote}
-            onChange={(e) => setDecisionNote(e.target.value.slice(0, 500))}
-            placeholder="Decision note (optional, max 500 chars)..."
-            className={styles.actionNote}
-            aria-describedby="payout-decision-count"
-          />
-          <div id="payout-decision-count" className={styles.actionNoteCount}>{decisionNote.length}/500</div>
-          <div className={styles.actionBtns}>
-            <button
-              onClick={handleAction}
-              disabled={processing}
-              className={`${styles.confirmBtn} ${activeAction.action === "reject" ? styles.confirmBtnReject : styles.confirmBtnApprove}`}
-            >
-              {processing ? "Processing..." : "Confirm"}
-            </button>
-            <button
-              onClick={() => { setActiveAction(null); setDecisionNote(""); }}
-              className={styles.cancelBtn}
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
-
-      {isCompletedFilter && selectedIds.size > 0 && (
-        <div className={styles.bulkBar}>
-          <span className={styles.bulkInfo}>{selectedIds.size} payout(s) selected</span>
-          <button className={styles.exportBtn} onClick={handleExport}>Export CSV</button>
-        </div>
-      )}
-
+    <section
+      aria-label="Reward request operations"
+      data-design="admin"
+      className={styles.page}
+    >
+      <h1>Reward requests</h1>
+      <p>
+        Review, approval and manual payment are different steps. Payment
+        contacts are masked until an authorized payer opens an approved request.
+      </p>
+      <label className={styles.form}>
+        Status
+        <select
+          aria-label="Status"
+          value={status}
+          onChange={(e) => {
+            setStatus(e.target.value);
+            setPage(1);
+          }}
+        >
+          {[
+            "pending",
+            "reviewed",
+            "approved",
+            "completed",
+            "rejected",
+            "cancelled",
+            "all",
+          ].map((s) => (
+            <option key={s} value={s}>
+              {s === "all" ? "All records" : labels[s]}
+            </option>
+          ))}
+        </select>
+      </label>
+      {message && <p role="status">{message}</p>}
+      {error && !action && <Alert tone="error">{error}</Alert>}
       {loading ? (
-        <div className={styles.loading}>Loading...</div>
-      ) : payouts.length === 0 ? (
-        <div className={styles.emptyState}>No {statusFilter} payouts found</div>
+        <Skeleton label="Loading reward requests" />
+      ) : error && !items.length ? (
+        <ErrorState onRetry={() => void load()}>
+          Requests could not load.
+        </ErrorState>
+      ) : !items.length ? (
+        <Card>
+          <h2>No requests in this view</h2>
+          <p>Choose another status or return later.</p>
+        </Card>
       ) : (
-        <div className={styles.payoutList}>
-          {payouts.map((p) => {
-            const colorClass = statusColorClass[p.status] || "statusDefault";
-            return (
-              <div key={p.id} className={`${styles.payoutCard} ${styles[colorClass]}`}>
-                <div className={styles.payoutCardHeader}>
-                  <div className={styles.payoutCardLeft}>
-                    {isCompletedFilter && (
-                      <div className={styles.selectCell} onClick={() => toggleSelect(p.id)}>
-                        <input
-                          type="checkbox"
-                          className={styles.checkboxInput}
-                          aria-label={`Select payout for ${p.user.fullName || p.user.email}`}
-                          checked={selectedIds.has(p.id)}
-                          onChange={() => toggleSelect(p.id)}
-                        />
-                      </div>
-                    )}
-                    <div>
-                      <div className={styles.payoutUser}>{p.user.fullName || "Unknown"}</div>
-                      <div className={styles.payoutUserMeta}>
-                        {p.user.email} {p.user.caseNumber && `• Case: ${p.user.caseNumber}`}
-                      </div>
-                    </div>
-                  </div>
-                  <span className={`${styles.statusBadge} ${styles[colorClass]}`}>{p.status}</span>
-                </div>
-
-                <div className={styles.payoutBody}>
-                  <div className={styles.payoutFields}>
-                    <div className={styles.payoutField}>
-                      <span className={styles.payoutFieldLabel}>XP</span>
-                      <span className={`${styles.payoutFieldValue} ${styles.xpValue}`}>{p.xpAmount}</span>
-                    </div>
-                    <div className={styles.payoutField}>
-                      <span className={styles.payoutFieldLabel}>Amount</span>
-                      <span className={`${styles.payoutFieldValue} ${styles.amountValue}`}>${p.dollarAmount.toFixed(2)}</span>
-                    </div>
-                    <div className={styles.payoutField}>
-                      <span className={styles.payoutFieldLabel}>Date</span>
-                      <span className={styles.payoutFieldValueSm}>{formatDate(p.createdAt)}</span>
-                    </div>
-                    {p.paymentMethod && (
-                      <div className={styles.payoutField}>
-                        <span className={styles.payoutFieldLabel}>Pay via</span>
-                        <span className={`${styles.payoutFieldValueSm} ${styles.payMethodValue}`}>{p.paymentMethod}</span>
-                      </div>
-                    )}
-                    {p.paymentHandle && (
-                      <div className={styles.payoutField}>
-                        <span className={styles.payoutFieldLabel}>Handle</span>
-                        <span className={styles.payoutFieldValueSm}>{p.paymentHandle}</span>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className={styles.payoutActions}>
-                    {p.status === "pending" && canReview && (
-                      <>
-                        <button
-                          onClick={() => setActiveAction({ payoutId: p.id, action: "review" })}
-                          className={`${styles.actionBtn} ${styles.actionBtnReview}`}
-                        >Review</button>
-                        <button
-                          onClick={() => setActiveAction({ payoutId: p.id, action: "reject" })}
-                          className={styles.actionBtnDanger}
-                        >Reject</button>
-                      </>
-                    )}
-                    {p.status === "reviewed" && canApprove && (
-                      <>
-                        <button
-                          onClick={() => setActiveAction({ payoutId: p.id, action: "approve" })}
-                          className={`${styles.actionBtn} ${styles.actionBtnApprove}`}
-                        >Approve</button>
-                        <button
-                          onClick={() => setActiveAction({ payoutId: p.id, action: "reject" })}
-                          className={styles.actionBtnDanger}
-                        >Reject</button>
-                      </>
-                    )}
-                    {p.status === "approved" && canApprove && (
-                      <button
-                        onClick={() => setActiveAction({ payoutId: p.id, action: "complete" })}
-                        className={`${styles.actionBtn} ${styles.actionBtnApprove}`}
-                      >Mark paid</button>
-                    )}
-                  </div>
-                </div>
-
-                {p.status === "approved" && p.paymentMethod && p.paymentHandle && (() => {
-                  const payLink = buildPayLink(p.paymentMethod, p.paymentHandle, p.dollarAmount);
-                  const isCheck = p.paymentMethod.toLowerCase() === "check";
-                  const isZelle = p.paymentMethod.toLowerCase() === "zelle";
-                  const isVenmo = p.paymentMethod.toLowerCase() === "venmo";
-                  const isCopied = copiedId === p.id;
-                  return (
-                    <div className={styles.payLink}>
-                      {isZelle ? (
-                        <div className={styles.payLinkInner}>
-                          <span className={styles.payLinkMailLabel}>Send via Zelle</span>
-                          <span className={styles.payLinkAddress}>{p.paymentHandle}</span>
-                          <span className={styles.payLinkHint}>Amount: ${p.dollarAmount.toFixed(2)} · Memo: Learn2Earn Payout</span>
-                          <button
-                            onClick={() => {
-                              navigator.clipboard.writeText(p.paymentHandle!);
-                              setCopiedId(p.id);
-                              setTimeout(() => setCopiedId(null), 2000);
-                            }}
-                            className={`${styles.copyBtn} ${isCopied ? styles.copyBtnCopied : ""}`}
-                          >{isCopied ? "Copied!" : "Copy Zelle contact"}</button>
-                        </div>
-                      ) : isCheck ? (
-                        <div className={styles.payLinkInner}>
-                          <span className={styles.payLinkMailLabel}>Mail check to</span>
-                          <span className={styles.payLinkAddress}>{p.paymentHandle}</span>
-                          <button
-                            onClick={() => {
-                              navigator.clipboard.writeText(p.paymentHandle!);
-                              setCopiedId(p.id);
-                              setTimeout(() => setCopiedId(null), 2000);
-                            }}
-                            className={`${styles.copyBtn} ${isCopied ? styles.copyBtnCopied : ""}`}
-                          >{isCopied ? "Copied!" : "Copy address"}</button>
-                        </div>
-                      ) : payLink ? (
-                        <div className={styles.payLinkInner}>
-                          <a href={payLink} target="_blank" rel="noopener noreferrer" className={styles.payLinkBtn}>
-                            Pay ${p.dollarAmount.toFixed(2)} via {p.paymentMethod} →
-                          </a>
-                          {isVenmo && (
-                            <span className={styles.payLinkHint}>Opens Venmo app on mobile</span>
-                          )}
-                        </div>
-                      ) : null}
-                    </div>
-                  );
-                })()}
-
-                {(p.reviewedBy || p.approvedBy || p.decisionNote) && (
-                  <div className={styles.payoutReviewer}>
-                    {p.reviewedBy && <span>Reviewed by {p.reviewedBy.fullName} </span>}
-                    {p.approvedBy && <span>• Approved by {p.approvedBy.fullName}</span>}
-                    {p.reviewNote && <div className={styles.reviewNote}>Note: {p.reviewNote}</div>}
-                    {p.decisionNote && (
-                      <div className={styles.decisionNote}>Decision note: {p.decisionNote}</div>
-                    )}
-                  </div>
+        <ul className={styles.list}>
+          {items.map((p) => (
+            <li key={p.id}>
+              <Card>
+                <h2>
+                  {p.amountCents === null
+                    ? "Needs reconciliation"
+                    : usd(p.amountCents)}{" "}
+                  · {p.xpAmount} XP
+                </h2>
+                <p>
+                  {p.user.fullName || "Learner"} · Record {p.userId}
+                </p>
+                <p>
+                  {labels[p.status] || "Unknown status; needs reconciliation"}
+                </p>
+                <p>
+                  {p.paymentMethod
+                    ? methodDefinitions[p.paymentMethod].label
+                    : "Method unavailable"}{" "}
+                  · {p.paymentHandle}
+                </p>
+                <p>
+                  Request {p.id} · {new Date(p.createdAt).toLocaleString()}
+                </p>
+                <p>
+                  {p.rulesSnapshot?.source === "legacy-record"
+                    ? "Historical amount preserved; original rule terms unknown."
+                    : p.rulesSnapshot
+                      ? `Accepted rate: USD ${p.rulesSnapshot.rate} / XP; independent approver ${p.rulesSnapshot.separateApprover ? "required" : "not required by this version"}.`
+                      : "Reconcile this record before changing it."}
+                </p>
+                <ol>
+                  {p.events.map((e, n) => (
+                    <li key={n}>
+                      {e.action === "legacy-import"
+                        ? "Imported historical status (not original payment date)"
+                        : labels[e.status || ""] || e.action}{" "}
+                      · {new Date(e.at).toLocaleString()}
+                    </li>
+                  ))}
+                </ol>
+                {p.paidAt && (
+                  <p>
+                    External payment timestamp:{" "}
+                    {new Date(p.paidAt).toLocaleString()} · Reference:{" "}
+                    {p.paymentReference}
+                  </p>
                 )}
-              </div>
-            );
-          })}
-        </div>
+                {p.status === "completed" && !p.paidAt && (
+                  <p>
+                    Legacy completed record; original payment timestamp
+                    unavailable.
+                  </p>
+                )}
+                <div className={styles.actions}>
+                  {p.status === "pending" && canReview && (
+                    <Button busy={busy} onClick={() => open(p, "review")}>
+                      Record review
+                    </Button>
+                  )}
+                  {p.status === "reviewed" && canFinance && (
+                    <Button busy={busy} onClick={() => open(p, "approve")}>
+                      Approve request
+                    </Button>
+                  )}
+                  {["pending", "reviewed"].includes(p.status) && (
+                    <Button
+                      variant="secondary"
+                      busy={busy}
+                      onClick={() => open(p, "reject")}
+                    >
+                      Reject and release XP
+                    </Button>
+                  )}
+                  {p.status === "approved" && canFinance && (
+                    <>
+                      <Button
+                        variant="secondary"
+                        busy={busy}
+                        onClick={() => void reveal(p)}
+                      >
+                        Open private payment details
+                      </Button>
+                      <Button busy={busy} onClick={() => open(p, "complete")}>
+                        Record manual payment
+                      </Button>
+                    </>
+                  )}
+                </div>
+                {details?.id === p.id && (
+                  <Alert tone="warning">
+                    <p>
+                      Private payment contact:{" "}
+                      {details.handle || "Not recorded"}. Opening these details
+                      was audited. Verify the recipient and send through your
+                      approved external process. This page sends nothing.
+                    </p>
+                    <Button variant="quiet" onClick={() => setDetails(null)}>
+                      Hide payment contact
+                    </Button>
+                  </Alert>
+                )}
+              </Card>
+            </li>
+          ))}
+        </ul>
       )}
-
-      {totalPages > 1 && (
-        <div className={styles.paginationBar}>
-          <div className={styles.paginationInfo}>
-            {total} total · page {page} of {totalPages}
-          </div>
-          <div className={styles.paginationBtns}>
-            <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page === 1}
-              className={styles.paginationBtn}
-            >← Prev</button>
-            <button
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={page === totalPages}
-              className={styles.paginationBtn}
-            >Next →</button>
-          </div>
-        </div>
-      )}
-    </div>
+      <div className={styles.actions}>
+        <Button
+          variant="secondary"
+          disabled={page <= 1}
+          disabledReason="This is the first page."
+          onClick={() => setPage((n) => n - 1)}
+        >
+          Previous page
+        </Button>
+        <p>
+          Page {page} of {Math.max(1, pages)}
+        </p>
+        <Button
+          variant="secondary"
+          disabled={page >= pages}
+          disabledReason="There are no more records."
+          onClick={() => setPage((n) => n + 1)}
+        >
+          Next page
+        </Button>
+        <Button
+          variant="quiet"
+          onClick={exportMasked}
+          disabled={!items.length}
+          disabledReason="No records to export."
+        >
+          Export masked records
+        </Button>
+      </div>
+      <ButtonLink href="/admin/finance" variant="secondary">
+        Finance and program terms
+      </ButtonLink>
+      <Dialog
+        open={!!action}
+        title={
+          action?.action === "complete"
+            ? "Record an external payment"
+            : "Confirm staff decision"
+        }
+        onClose={() => {
+          if (!busy) setAction(null);
+        }}
+        closeDisabledReason={busy ? "Wait for the decision result." : undefined}
+      >
+        <form
+          className={styles.form}
+          onSubmit={(e) => {
+            e.preventDefault();
+            void decide();
+          }}
+        >
+          <p>
+            {action?.action === "complete"
+              ? "Only record a payment already made and verified in your external bank, wallet or check workflow. Never send again because this save times out."
+              : "This records a staff decision and its audit event. Approval does not send money."}
+          </p>
+          <label>
+            Decision reason
+            <textarea
+              required
+              maxLength={500}
+              value={note}
+              disabled={busy || !!retry.current}
+              onChange={(e) => setNote(e.target.value)}
+            />
+          </label>
+          {action?.action === "complete" && (
+            <>
+              <label>
+                External payment reference
+                <input
+                  required
+                  minLength={3}
+                  maxLength={120}
+                  value={reference}
+                  disabled={busy || !!retry.current}
+                  onChange={(e) => setReference(e.target.value)}
+                />
+              </label>
+              <label>
+                Actual payment date and time
+                <input
+                  type="datetime-local"
+                  step="1"
+                  required
+                  value={paidAt}
+                  disabled={busy || !!retry.current}
+                  onChange={(e) => setPaidAt(e.target.value)}
+                />
+              </label>
+              <label className={styles.check}>
+                <input
+                  type="checkbox"
+                  required
+                  checked={confirmed}
+                  disabled={busy}
+                  onChange={(e) => setConfirmed(e.target.checked)}
+                />
+                I verified this external payment. Learn2Earn will only record
+                it.
+              </label>
+            </>
+          )}
+          {error && <Alert tone="error">{error}</Alert>}
+          <Button type="submit" busy={busy}>
+            {retry.current
+              ? "Retry unchanged decision"
+              : action?.action === "complete"
+                ? "Save payment record"
+                : "Save decision"}
+          </Button>
+          {!!retry.current && (
+            <Button
+              variant="quiet"
+              onClick={() => {
+                setAction(null);
+                void load();
+              }}
+            >
+              Check current status before another action
+            </Button>
+          )}
+        </form>
+      </Dialog>
+    </section>
   );
 }

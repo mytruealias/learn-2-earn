@@ -64,7 +64,7 @@ export default function CityDeckPage({ config }: Props) {
             </div>
           </li>
           <li className="cd-stat-item">
-            <div className="cd-stat-value">$0</div>
+            <div className="cd-stat-value">Free</div>
             <div className="cd-stat-label">Participant Cost to Join</div>
           </li>
         </ul>
@@ -138,7 +138,7 @@ export default function CityDeckPage({ config }: Props) {
               <div className="cd-solution-icon"><CoinIcon size={24} stroke={primary} /></div>
               <div>
                 <h3>Flexible Cash Incentives</h3>
-                <p>Participants earn XP for completing lessons and redeem via Zelle, Venmo, PayPal, Cash App, or check, with multi-stage admin approval.</p>
+                <p>Participants earn XP for completing lessons and request rewards through program-enabled manual methods, with review and approval before a separately recorded payment.</p>
               </div>
             </li>
             <li className="cd-solution-item">
@@ -199,7 +199,7 @@ export default function CityDeckPage({ config }: Props) {
             <li className="cd-platform-card">
               <div className="cd-platform-card-icon cd-pci-sky"><DollarIcon size={24} stroke={SKY} /></div>
               <h3>Managed Payouts</h3>
-              <p>Three-stage approval workflow: caseworker review &rarr; finance approval &rarr; disbursement via Zelle, Venmo, PayPal, Cash App, or check. Full audit trail on every transaction.</p>
+              <p>Three-stage approval workflow: caseworker review &rarr; finance approval &rarr; a separately recorded manual payment through enabled methods. Financial decisions and reservations have audit records.</p>
             </li>
 
             <li className="cd-platform-card">

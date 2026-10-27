@@ -42,9 +42,9 @@ interface ReportsData {
     totalXpDistributed: number;
     totalLessonsCompleted: number;
     totalPayoutRequests: number;
-    totalPayoutDollars: number;
+    totalPayoutDollars: number | null;
     completedPayouts: number;
-    completedPayoutDollars: number;
+    completedPayoutDollars: number | null;
     pathCompletions: number;
     moduleCompletions: number;
   };
@@ -66,14 +66,22 @@ function groupByWeek(data: EngagementPoint[]): EngagementPoint[] {
     .sort((a, b) => a.date.localeCompare(b.date));
 }
 
-function EngagementChart({ data, range }: { data: EngagementPoint[]; range: Range }) {
+function EngagementChart({
+  data,
+  range,
+}: {
+  data: EngagementPoint[];
+  range: Range;
+}) {
   const days = parseInt(range);
   const now = new Date();
   const cutoff = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
   const filtered = data.filter((d) => new Date(d.date) >= cutoff);
 
   if (filtered.length === 0) {
-    return <div className={styles.noData}>No engagement data for this period</div>;
+    return (
+      <div className={styles.noData}>No engagement data for this period</div>
+    );
   }
 
   const chartData = days > 30 ? groupByWeek(filtered) : filtered;
@@ -92,10 +100,18 @@ function EngagementChart({ data, range }: { data: EngagementPoint[]; range: Rang
   });
 
   const polyline = points.join(" ");
-  const areaPoints = [`${pad},${h - pad}`, ...points, `${w - pad},${h - pad}`].join(" ");
+  const areaPoints = [
+    `${pad},${h - pad}`,
+    ...points,
+    `${w - pad},${h - pad}`,
+  ].join(" ");
 
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} className={styles.chartArea} preserveAspectRatio="none">
+    <svg
+      viewBox={`0 0 ${w} ${h}`}
+      className={styles.chartArea}
+      preserveAspectRatio="none"
+    >
       <polygon points={areaPoints} fill="#22c55e" fillOpacity="0.1" />
       <polyline
         points={polyline}
@@ -110,7 +126,9 @@ function EngagementChart({ data, range }: { data: EngagementPoint[]; range: Rang
         return (
           <g key={i}>
             <circle cx={px} cy={py} r="3" fill="#22c55e" />
-            <title>{chartData[i].date}: {v} lessons</title>
+            <title>
+              {chartData[i].date}: {v} lessons
+            </title>
           </g>
         );
       })}
@@ -119,8 +137,18 @@ function EngagementChart({ data, range }: { data: EngagementPoint[]; range: Rang
 }
 
 function RateBar({ rate }: { rate: number }) {
-  const colorClass = rate >= 60 ? styles.rateGreen : rate >= 30 ? styles.rateYellow : styles.rateRed;
-  const textColor = rate >= 60 ? "var(--adm-green)" : rate >= 30 ? "var(--adm-amber)" : "var(--adm-red)";
+  const colorClass =
+    rate >= 60
+      ? styles.rateGreen
+      : rate >= 30
+        ? styles.rateYellow
+        : styles.rateRed;
+  const textColor =
+    rate >= 60
+      ? "var(--adm-green)"
+      : rate >= 30
+        ? "var(--adm-amber)"
+        : "var(--adm-red)";
 
   return (
     <div className={styles.rateBar}>
@@ -130,14 +158,20 @@ function RateBar({ rate }: { rate: number }) {
           style={{ width: `${Math.min(rate, 100)}%` }}
         />
       </div>
-      <span className={styles.rateText} style={{ color: textColor }}>{rate}%</span>
+      <span className={styles.rateText} style={{ color: textColor }}>
+        {rate}%
+      </span>
     </div>
   );
 }
 
 function csvEscape(value: string): string {
   const escaped = value.replace(/"/g, '""');
-  if (escaped.includes(",") || escaped.includes('"') || escaped.includes("\n")) {
+  if (
+    escaped.includes(",") ||
+    escaped.includes('"') ||
+    escaped.includes("\n")
+  ) {
     return `"${escaped}"`;
   }
   return escaped;
@@ -168,9 +202,13 @@ function exportReportCSV(data: ReportsData) {
 
   lines.push("PAYOUTS");
   lines.push(`Total Payout Requests,${s.totalPayoutRequests}`);
-  lines.push(`Total Payout Value,$${s.totalPayoutDollars.toFixed(2)}`);
+  lines.push(
+    `Total Payout Value,$${s.totalPayoutDollars === null ? "Needs reconciliation" : s.totalPayoutDollars.toFixed(2)}`,
+  );
   lines.push(`Completed Payouts,${s.completedPayouts}`);
-  lines.push(`Completed Payout Value,$${s.completedPayoutDollars.toFixed(2)}`);
+  lines.push(
+    `Completed Payout Value,$${s.completedPayoutDollars === null ? "Needs reconciliation" : s.completedPayoutDollars.toFixed(2)}`,
+  );
   lines.push("");
 
   lines.push("ENGAGEMENT BY DAY (Past 90 Days)");
@@ -183,9 +221,13 @@ function exportReportCSV(data: ReportsData) {
   lines.push("DROP-OFF ANALYSIS BY PATH");
   lines.push("Path,Total Lessons,Starters,Completers,Starter Completion Rate");
   for (const p of data.dropoff) {
-    lines.push(`${csvEscape(p.pathTitle)},${p.totalLessons},${p.uniqueStarters},${p.uniqueCompleters},${p.completionRate}%`);
+    lines.push(
+      `${csvEscape(p.pathTitle)},${p.totalLessons},${p.uniqueStarters},${p.uniqueCompleters},${p.completionRate}%`,
+    );
     for (const m of p.modules) {
-      lines.push(`${csvEscape("  " + m.title)},${m.totalLessons},${m.uniqueStarters},${m.uniqueCompleters},${m.completionRate}%`);
+      lines.push(
+        `${csvEscape("  " + m.title)},${m.totalLessons},${m.uniqueStarters},${m.uniqueCompleters},${m.completionRate}%`,
+      );
     }
   }
 
@@ -224,13 +266,17 @@ export default function ReportsPage() {
   };
 
   if (loading) return <div className={styles.loading}>Loading reports...</div>;
-  if (!data) return <div className={styles.error}>Failed to load report data</div>;
+  if (!data)
+    return <div className={styles.error}>Failed to load report data</div>;
 
   return (
     <div className={styles.page}>
       <div className={styles.pageHeader}>
         <h1 className={styles.pageTitle}>Reports</h1>
-        <button className={styles.exportBtn} onClick={() => exportReportCSV(data)}>
+        <button
+          className={styles.exportBtn}
+          onClick={() => exportReportCSV(data)}
+        >
           ↓ Download Full Report (CSV)
         </button>
       </div>
@@ -240,15 +286,21 @@ export default function ReportsPage() {
         <div className={styles.milestonesGrid}>
           <div className={`${styles.milestoneCard} ${styles.milestoneGreen}`}>
             <div className={styles.milestoneLabel}>Lessons Completed</div>
-            <div className={styles.milestoneValue}>{data.milestones.lessonsCompleted.toLocaleString()}</div>
+            <div className={styles.milestoneValue}>
+              {data.milestones.lessonsCompleted.toLocaleString()}
+            </div>
           </div>
           <div className={styles.milestoneCard}>
             <div className={styles.milestoneLabel}>Module Completions</div>
-            <div className={styles.milestoneValue}>{data.milestones.moduleCompletions.toLocaleString()}</div>
+            <div className={styles.milestoneValue}>
+              {data.milestones.moduleCompletions.toLocaleString()}
+            </div>
           </div>
           <div className={`${styles.milestoneCard} ${styles.milestoneBlue}`}>
             <div className={styles.milestoneLabel}>Path Completions</div>
-            <div className={styles.milestoneValue}>{data.milestones.pathCompletions.toLocaleString()}</div>
+            <div className={styles.milestoneValue}>
+              {data.milestones.pathCompletions.toLocaleString()}
+            </div>
           </div>
         </div>
       </div>
@@ -296,21 +348,29 @@ export default function ReportsPage() {
                   style={{ cursor: "pointer" }}
                 >
                   <td>
-                    {expandedPaths.has(path.pathTitle) ? "▾" : "▸"} {path.pathTitle}
+                    {expandedPaths.has(path.pathTitle) ? "▾" : "▸"}{" "}
+                    {path.pathTitle}
                   </td>
                   <td>{path.totalLessons}</td>
                   <td>{path.uniqueStarters}</td>
                   <td>{path.uniqueCompleters}</td>
-                  <td><RateBar rate={path.completionRate} /></td>
+                  <td>
+                    <RateBar rate={path.completionRate} />
+                  </td>
                 </tr>
                 {expandedPaths.has(path.pathTitle) &&
                   path.modules.map((mod) => (
-                    <tr key={`${path.pathTitle}-${mod.title}`} className={styles.moduleRow}>
+                    <tr
+                      key={`${path.pathTitle}-${mod.title}`}
+                      className={styles.moduleRow}
+                    >
                       <td>{mod.title}</td>
                       <td>{mod.totalLessons}</td>
                       <td>{mod.uniqueStarters}</td>
                       <td>{mod.uniqueCompleters}</td>
-                      <td><RateBar rate={mod.completionRate} /></td>
+                      <td>
+                        <RateBar rate={mod.completionRate} />
+                      </td>
                     </tr>
                   ))}
               </Fragment>

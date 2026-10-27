@@ -1,3 +1,4 @@
+import { sumCents } from "@/lib/rewards/money";
 import { getAdminFromRequest } from "@/lib/admin-auth";
 import prisma from "@/lib/prisma";
 import { apiError, apiOk, apiServerError } from "@/lib/api-helpers";
@@ -43,21 +44,31 @@ export async function GET(req: Request) {
       prisma.payoutRequest.count({ where: { status: "pending" } }),
       prisma.payoutRequest.count({ where: { status: "approved" } }),
       prisma.payoutRequest.count({ where: { status: "completed" } }),
-      prisma.payoutRequest.aggregate({
-        where: { status: { in: ["approved", "completed"] } },
-        _sum: { dollarAmount: true },
+      prisma.payoutRequest.findMany({
+        where: { status: "completed" },
+        select: { amountCents: true },
       }),
       prisma.path.count({ where: { isActive: true } }),
       prisma.lesson.count({ where: { isActive: true } }),
-      prisma.case.count({ where: { status: { notIn: ["closed", "resolved"] } } }),
-      prisma.case.count({ where: { status: { notIn: ["closed", "resolved"] }, priority: "high" } }),
-      prisma.case.count({ where: { status: { notIn: ["closed", "resolved"] }, priority: "medium" } }),
-      prisma.case.count({ where: { status: { notIn: ["closed", "resolved"] }, priority: "low" } }),
+      prisma.case.count({
+        where: { status: { notIn: ["closed", "resolved"] } },
+      }),
+      prisma.case.count({
+        where: { status: { notIn: ["closed", "resolved"] }, priority: "high" },
+      }),
+      prisma.case.count({
+        where: {
+          status: { notIn: ["closed", "resolved"] },
+          priority: "medium",
+        },
+      }),
+      prisma.case.count({
+        where: { status: { notIn: ["closed", "resolved"] }, priority: "low" },
+      }),
       prisma.case.count({ where: { createdAt: { gte: sevenDaysAgo } } }),
-      prisma.payoutRequest.aggregate({
-        where: { status: { in: ["pending", "reviewed"] } },
-        _sum: { dollarAmount: true },
-        _count: { id: true },
+      prisma.payoutRequest.findMany({
+        where: { status: { in: ["pending", "reviewed", "approved"] } },
+        select: { amountCents: true },
       }),
       prisma.poolBalance.findUnique({ where: { id: "singleton" } }),
       prisma.progress.groupBy({
@@ -74,7 +85,8 @@ export async function GET(req: Request) {
     const activeUsersWithAtLeastOneLesson = activeUsersWithProgress.length;
     const avgLessonsPerActiveUser =
       activeUsersMonth > 0
-        ? Math.round((avgProgressPerUser._count.id / activeUsersMonth) * 10) / 10
+        ? Math.round((avgProgressPerUser._count.id / activeUsersMonth) * 10) /
+          10
         : 0;
     const engagementRate =
       activeUsersMonth > 0
@@ -102,7 +114,11 @@ export async function GET(req: Request) {
           pending: pendingPayouts,
           approved: approvedPayouts,
           completed: completedPayouts,
-          totalDollars: totalPayoutDollars._sum.dollarAmount || 0,
+          totalDollars:
+            sumCents(totalPayoutDollars.map((p) => p.amountCents)) === null
+              ? null
+              : Number(sumCents(totalPayoutDollars.map((p) => p.amountCents))) /
+                100,
         },
         cases: {
           openTotal: openCasesTotal,
@@ -113,8 +129,11 @@ export async function GET(req: Request) {
         },
         pool: {
           balanceCents: poolBalance?.balanceCents ?? 0,
-          pendingLiabilityCents: Math.round((pendingLiability._sum.dollarAmount ?? 0) * 100),
-          pendingCount: pendingLiability._count.id,
+          pendingLiabilityCents:
+            sumCents(pendingLiability.map((p) => p.amountCents)) === null
+              ? null
+              : Number(sumCents(pendingLiability.map((p) => p.amountCents))),
+          pendingCount: pendingLiability.length,
         },
       },
     });

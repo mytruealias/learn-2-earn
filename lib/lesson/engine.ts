@@ -1,3 +1,4 @@
+import { creditLearningReward, RewardIssue } from "../rewards/accounting";
 import { createHash } from "node:crypto";
 import type { Prisma } from "@prisma/client";
 import { z } from "zod";
@@ -63,6 +64,8 @@ export async function lessonEndpoint<S extends z.ZodTypeAny>(
     );
     return apiOk(result, { headers: { "Cache-Control": "private, no-store" } });
   } catch (error) {
+    if (error instanceof RewardIssue)
+      return apiError(error.code, error.message, error.status);
     if (error instanceof LessonIssue)
       return apiError(error.code, error.message, error.status, {
         headers: { "Cache-Control": "private, no-store" },
@@ -298,6 +301,12 @@ export async function completeAttempt(tx: Tx, userId: string, id: string) {
         missedCardIds: JSON.stringify(missed),
       },
     });
+  if (!practice) {
+    const savedProgress = await tx.progress.findUniqueOrThrow({
+      where: { userId_lessonId: { userId, lessonId: lesson.id } },
+    });
+    await creditLearningReward(tx, user, award.xpAwarded, savedProgress.id);
+  }
   const completed = new Set([
     ...user.progress.map((p) => p.lessonId),
     ...(!practice ? [lesson.id] : []),

@@ -1,4 +1,7 @@
-import { assertTestDatabase, getTestDatabaseUrl } from "../lib/test-database-safety";
+import {
+  assertTestDatabase,
+  getTestDatabaseUrl,
+} from "../lib/test-database-safety";
 /**
  * Playwright global teardown. Removes the test admin fixture so no e2e
  * artifact persists between runs. Per-spec cleanup handles learner rows.
@@ -14,15 +17,26 @@ export default async function globalTeardown(): Promise<void> {
   });
   try {
     await assertTestDatabase(prisma);
-    const admin = await prisma.adminUser.findUnique({ where: { email: ADMIN_EMAIL } });
+    const admin = await prisma.adminUser.findUnique({
+      where: { email: ADMIN_EMAIL },
+    });
     if (admin) {
+      await prisma.rewardEntry.deleteMany({ where: { adminId: admin.id } });
+      await prisma.poolAdjustment.deleteMany({ where: { adminId: admin.id } });
+      await prisma.payoutRequest.updateMany({
+        where: { paidById: admin.id },
+        data: { paidById: null },
+      });
       await prisma.auditLog.deleteMany({ where: { adminId: admin.id } });
       await prisma.adminSession.deleteMany({ where: { adminId: admin.id } });
       await prisma.payoutRequest.updateMany({
         where: { reviewedById: admin.id },
         data: { reviewedById: null },
       });
-      await prisma.payoutRequest.updateMany({ where: { approvedById: admin.id }, data: { approvedById: null } });
+      await prisma.payoutRequest.updateMany({
+        where: { approvedById: admin.id },
+        data: { approvedById: null },
+      });
       await prisma.adminUser.delete({ where: { id: admin.id } });
     }
   } finally {

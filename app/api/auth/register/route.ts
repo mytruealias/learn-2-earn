@@ -1,3 +1,4 @@
+import { newRewardRelations } from "@/lib/rewards/new-account";
 import { registrationSchema } from "@/lib/learner-auth-schema";
 import bcrypt from "bcryptjs";
 import { Prisma } from "@prisma/client";
@@ -75,7 +76,7 @@ export async function POST(req: Request) {
       };
       const user = current
         ? await tx.user.update({ where: { id: current.id }, data })
-        : await tx.user.create({ data });
+        : await tx.user.create({ data: { ...data, ...newRewardRelations() } });
       await tx.learnerSession.updateMany({
         where: { userId: user.id, revokedAt: null },
         data: { revokedAt: new Date() },

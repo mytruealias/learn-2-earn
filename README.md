@@ -52,6 +52,10 @@ See the [current architecture and route inventory](docs/current-architecture.md)
 
 [Server lesson engine, review rules and rollout](docs/lesson-flow/README.md) · [Card inventory](docs/lesson-flow/card-inventory.md) · [Browser evidence](docs/lesson-flow/screenshots/README.md) · [Verification](docs/lesson-flow/verification.md). Checked answers and position resume across devices. Completion and XP are atomic and derive from server evidence; repeat practice never adds monetary credit. Practice includes missed-question review, topics and explained 1/3/7/14-day scheduling. Daily goals/streaks use a saved timezone, then optional `PROGRAM_TIMEZONE`, then UTC. Apply the additive attempt/review migration before running this version. `npm run audit:cards` validates authored formats without a database; `npm run test:lesson` runs the real browser lesson/practice sequence in an isolated database.
 
+## Reward accounting and manual payments
+
+[Audited rules, ledger and state machine](docs/reward-accounting/README.md) · [Baseline findings](docs/reward-accounting/audit.md) · [Verification and exact files](docs/reward-accounting/verification.md) · [Browser evidence](docs/reward-accounting/screenshots/README.md). Rewards uses one versioned program contract, exact cents and audited XP reservations; approvals are distinct from recorded payments. Financial program assignment is separate from editable contact city. Apply the additive accounting migration and complete the explicit hash-reviewed legacy reconciliation **before enabling financial writes**. No build/start command performs a backfill, sends money or silently repairs history. See DEPLOYMENT.md for gates and rollback restrictions.
+
 ## Getting Started
 
 Use Node.js 24 (the CI runtime), npm and PostgreSQL 14+. Retain `package-lock.json`.

@@ -1,0 +1,156 @@
+[
+  {
+    "screen": "learner-rewards",
+    "width": 360,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "request-confirmation",
+    "width": 360,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "reserved-request",
+    "width": 360,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "staff-review",
+    "width": 360,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "manual-payment-record",
+    "width": 360,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "finance",
+    "width": 360,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "learner-paid-history",
+    "width": 360,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "learner-rewards",
+    "width": 768,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "request-confirmation",
+    "width": 768,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "reserved-request",
+    "width": 768,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "staff-review",
+    "width": 768,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "manual-payment-record",
+    "width": 768,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "finance",
+    "width": 768,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "learner-paid-history",
+    "width": 768,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "learner-rewards",
+    "width": 1440,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "request-confirmation",
+    "width": 1440,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "reserved-request",
+    "width": 1440,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "staff-review",
+    "width": 1440,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "manual-payment-record",
+    "width": 1440,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "finance",
+    "width": 1440,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "learner-paid-history",
+    "width": 1440,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "rewards-text-200",
+    "width": 360,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  }
+]

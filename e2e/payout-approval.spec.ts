@@ -1,3 +1,5 @@
+import { randomUUID } from "node:crypto";
+import { reconcileRewardFixtures } from "./helpers/rewards";
 import { test, expect } from "@playwright/test";
 import {
   ensureTestAdmin,
@@ -11,7 +13,8 @@ const DEMO_CODE = process.env.DEMO_ACCESS_CODE || "LEARN2EARN";
 const ADMIN_EMAIL = process.env.E2E_ADMIN_EMAIL || "e2e-admin@learn2earn.test";
 const ADMIN_PASSWORD = process.env.E2E_ADMIN_PASSWORD || "e2e-admin-pw-1";
 
-test.describe.serial("Learner payout request → admin approval → status reflected", () => {
+test.describe
+  .serial("Learner payout request → admin approval → status reflected", () => {
   let learnerEmail: string;
 
   test.beforeAll(async () => {
@@ -33,11 +36,17 @@ test.describe.serial("Learner payout request → admin approval → status refle
     // test always hits the dedicated e2e webServer and never the dev DB.
     const learnerCtx = await playwright.request.newContext({ baseURL });
 
-    const accessRes = await learnerCtx.post("/api/access", { data: { code: DEMO_CODE } });
+    const accessRes = await learnerCtx.post("/api/access", {
+      data: { code: DEMO_CODE },
+    });
     expect(accessRes.status(), "demo gate").toBe(200);
 
     const reg = await learnerCtx.post("/api/auth/register", {
-      data: { email: learnerEmail, password: "learner-pw-1", fullName: "Payout Learner" },
+      data: {
+        email: learnerEmail,
+        password: "learner-pw-1",
+        fullName: "Payout Learner",
+      },
     });
     expect(reg.status(), "learner registered").toBe(200);
 
@@ -45,8 +54,16 @@ test.describe.serial("Learner payout request → admin approval → status refle
     // or per-program rule changes.
     await setUserXp(learnerEmail, 1000);
 
+    await reconcileRewardFixtures();
+    const quote = await (await learnerCtx.get("/api/rewards")).json();
     const payoutRes = await learnerCtx.post("/api/payout/request", {
-      data: { xpAmount: 60, paymentMethod: "venmo", paymentHandle: "@payout-e2e" },
+      data: {
+        requestKey: randomUUID(),
+        ruleVersion: quote.rules.version,
+        xpAmount: 60,
+        paymentMethod: "venmo",
+        paymentHandle: "@payout-e2e",
+      },
     });
     expect(payoutRes.status(), "learner payout request submitted").toBe(200);
     const payoutBody = await payoutRes.json();
@@ -64,13 +81,23 @@ test.describe.serial("Learner payout request → admin approval → status refle
     expect(login.status(), "admin login").toBe(200);
 
     const review = await adminCtx.patch("/api/admin/payouts", {
-      data: { payoutId, action: "review", decisionNote: "E2E review" },
+      data: {
+        requestKey: randomUUID(),
+        payoutId,
+        action: "review",
+        decisionNote: "E2E review",
+      },
     });
     expect(review.status(), "review transition").toBe(200);
     expect((await review.json()).payout.status).toBe("reviewed");
 
     const approve = await adminCtx.patch("/api/admin/payouts", {
-      data: { payoutId, action: "approve", decisionNote: "E2E approve" },
+      data: {
+        requestKey: randomUUID(),
+        payoutId,
+        action: "approve",
+        decisionNote: "E2E approve",
+      },
     });
     expect(approve.status(), "approve transition").toBe(200);
     expect((await approve.json()).payout.status).toBe("approved");
@@ -79,7 +106,10 @@ test.describe.serial("Learner payout request → admin approval → status refle
     const list = await adminCtx.get("/api/admin/payouts?status=approved");
     expect(list.status()).toBe(200);
     const listBody = await list.json();
-    const payouts = (listBody.payouts ?? []) as Array<{ id: string; status: string }>;
+    const payouts = (listBody.payouts ?? []) as Array<{
+      id: string;
+      status: string;
+    }>;
     const found = payouts.find((p) => p.id === payoutId);
     expect(found, "approved payout appears in admin list").toBeTruthy();
     expect(found?.status).toBe("approved");

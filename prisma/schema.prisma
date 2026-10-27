@@ -124,6 +124,8 @@ model User {
   sessions      LearnerSession[]
   progress      Progress[]
   payoutRequests PayoutRequest[]
+  rewardAccount RewardAccount?
+  rewardEntries RewardEntry[]
   consents      ConsentRecord[]
   cases         Case[]
 }
@@ -192,6 +194,17 @@ model PayoutRequest {
   userId        String
   xpAmount      Int
   dollarAmount  Float
+  amountCents Int?
+  rulesSnapshot String?
+  requestKey String?
+  payloadHash String?
+  paymentReference String?
+  paidAt DateTime?
+  paidById String?
+  rewardEntries RewardEntry[]
+  paidBy AdminUser? @relation("PayoutPayer", fields: [paidById], references: [id])
+  @@unique([userId, requestKey])
+  @@unique([paymentMethod, paymentReference])
   status        String         @default("pending")
   note          String?
   paymentMethod PaymentMethod?
@@ -222,6 +235,8 @@ model AdminUser {
   loginFailures   Int       @default(0)
   lockedUntil     DateTime?
 
+  paidPayouts PayoutRequest[] @relation("PayoutPayer")
+  rewardEntries RewardEntry[]
   reviewedPayouts  PayoutRequest[]    @relation("PayoutReviewer")
   approvedPayouts  PayoutRequest[]    @relation("PayoutApprover")
   auditLogs        AuditLog[]
@@ -347,6 +362,10 @@ model PayoutConfig {
   programSlug   String   @unique
   programName   String
   xpToDollar    Float    @default(0.05)
+  rateExact String?
+  version Int @default(1)
+  paymentMethods String?
+  separateApprover Boolean @default(false)
   minimumXp     Int      @default(20)
   weeklyXpCap   Int      @default(500)
   isActive      Boolean  @default(true)
@@ -362,6 +381,8 @@ model PoolBalance {
 }
 
 model PoolAdjustment {
+  requestKey String? @unique
+  payoutId String? @unique
   id          String   @id @default(cuid())
   adminId     String
   amountCents Int
@@ -412,4 +433,41 @@ model LessonReview {
  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
  @@id([userId, lessonId])
  @@index([userId, dueAt])
+}
+
+// Lifetime credit = available + reserved + spent. User.totalXp remains lifetime learning XP.
+model RewardAccount {
+ userId String @id
+ learningXp Int @default(0)
+ programSlug String?
+ creditedXp Int
+ availableXp Int
+ reservedXp Int @default(0)
+ spentXp Int @default(0)
+ openingAdjustmentXp Int @default(0)
+ createdAt DateTime @default(now())
+ user User @relation(fields: [userId], references: [id], onDelete: Restrict)
+}
+// Append-only evidence. Source key makes credits, reservations and decisions idempotent.
+model RewardEntry {
+ id String @id @default(cuid())
+ userId String
+ sourceKey String
+ kind String
+ payoutId String?
+ adminId String?
+ availableDelta Int @default(0)
+ reservedDelta Int @default(0)
+ spentDelta Int @default(0)
+ creditedDelta Int @default(0)
+ amountCents Int?
+ fromStatus String?
+ toStatus String?
+ metadata String @default("{}")
+ createdAt DateTime @default(now())
+ user User @relation(fields: [userId], references: [id], onDelete: Restrict)
+ payout PayoutRequest? @relation(fields: [payoutId], references: [id], onDelete: Restrict)
+ admin AdminUser? @relation(fields: [adminId], references: [id], onDelete: Restrict)
+ @@unique([userId, sourceKey])
+ @@index([payoutId, createdAt])
 }

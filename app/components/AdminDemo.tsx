@@ -20,7 +20,7 @@ const DEMO_PAYOUT = {
   name: "Marcus T.",
   case: "2024-0041",
   xp: 120,
-  amount: "$4.00",
+  amount: "Example quote",
   method: "Venmo",
   handle: "@marcus-t",
 };
@@ -80,6 +80,7 @@ export default function AdminDemo() {
   if (!mounted) {
     return (
       <div className="ademo-wrap">
+      <p role="note">Illustration only. Sample records and XP do not create learner credit, approvals or payments.</p>
         <div className="ademo-loading">Loading admin demo…</div>
       </div>
     );
@@ -89,6 +90,7 @@ export default function AdminDemo() {
 
   return (
     <div className="ademo-wrap">
+      <p role="note">Illustration only. Sample records and XP do not create learner credit, approvals or payments.</p>
       <div className="ademo-browser">
         <div className="ademo-chrome">
           <div className="ademo-dots">
@@ -181,7 +183,7 @@ export default function AdminDemo() {
                   </div>
                   <div className="ademo-stat-card ademo-stat-gold">
                     <div className="ademo-stat-label">Pool Balance</div>
-                    <div className="ademo-stat-value">$840</div>
+                    <div className="ademo-stat-value">Sample</div>
                   </div>
                 </div>
 
@@ -292,7 +294,7 @@ export default function AdminDemo() {
                       <div className="ademo-payout-name">Deja W.</div>
                       <div className="ademo-payout-meta">2024-0038 · 90 XP</div>
                     </div>
-                    <div className="ademo-payout-amt">$3.00</div>
+                    <div className="ademo-payout-amt">Program terms</div>
                     <div className="ademo-payout-method-wrap">
                       <div className="ademo-payout-method">PayPal</div>
                       <div className="ademo-dim">deja.w</div>
@@ -313,7 +315,7 @@ export default function AdminDemo() {
         {view === "users"     && "Participant management with case numbers, XP earned, and lesson progress"}
         {view === "payouts"   && "Pending payout queue: review each request before approving disbursement"}
         {view === "approving" && "One-click approval with a full audit trail of who approved and when"}
-        {view === "done"      && "Deep-link to Venmo, PayPal, or Cash App opens instantly. No copy-paste needed."}
+        {view === "done"      && "Authorized staff records a verified external payment separately from approval."}
       </div>
     </div>
   );

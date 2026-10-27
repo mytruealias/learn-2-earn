@@ -59,7 +59,7 @@ export default function PrivacyPage() {
             <h3>Payout information</h3>
             <ul>
               <li>The amount of XP you choose to redeem and the date you requested it</li>
-              <li>Your payout method (Zelle, Venmo, PayPal, Cash App, or check) and the handle, account email, phone number, or mailing address required to send it</li>
+              <li>Your program-enabled manual payout method and the handle, account email, phone number, or mailing address required to send it</li>
               <li>The case worker or admin who reviewed and approved your request</li>
             </ul>
             <h3>Hubert chat</h3>
@@ -97,7 +97,7 @@ export default function PrivacyPage() {
               </li>
               <li>
                 Payment processors and money-transfer services (for example
-                Zelle, Venmo, PayPal, Cash App, or our check-issuing
+                a payment provider enabled for your program, or the check-issuing
                 provider) receive only the information they need to send
                 your payout.
               </li>

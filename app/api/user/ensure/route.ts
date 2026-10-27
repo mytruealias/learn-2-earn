@@ -1,3 +1,4 @@
+import { newRewardRelations } from "@/lib/rewards/new-account";
 import { z } from "zod";
 import prisma from "@/lib/prisma";
 import {
@@ -45,7 +46,7 @@ export async function POST(req: Request) {
     if (!gate.allowed) return rateLimitResponse(gate.retryAfterSec);
     limiter.record(ip);
     const result = await prisma.$transaction(async (tx) => {
-      const user = await tx.user.create({ data: {} });
+      const user = await tx.user.create({ data: newRewardRelations() });
       return { id: user.id, token: await createUserSession(user.id, tx) };
     });
     const res = apiOk({ actualUserId: result.id });

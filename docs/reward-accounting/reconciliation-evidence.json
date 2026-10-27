@@ -1,0 +1,33 @@
+{
+  "fixture": "nonce-attested disposable PostgreSQL",
+  "schemaMigration": "exact additive SQL applied to old shape",
+  "openingXp": 100,
+  "availableXp": 80,
+  "reservedXp": 0,
+  "spentXp": 20,
+  "legacyRecordedDollars": 1.005,
+  "importedCents": 101,
+  "paidTimestampInferred": false,
+  "moneyTotals": {
+    "lifetimeXp": 100,
+    "reservedXp": 0,
+    "spentXp": 20,
+    "recordedRequestCents": "101",
+    "pendingCents": "0",
+    "paidCents": "101",
+    "originalRecordedUsd": "1.005",
+    "roundedRequests": 1
+  },
+  "reconciledAccounts": 1,
+  "uninitialized": 0,
+  "legacyRequests": 0,
+  "issues": [],
+  "appendOnlyCheckPassed": true,
+  "immutableTermsCheckPassed": true,
+  "conservationCheckPassed": true,
+  "immutableStateMachineCheckPassed": true,
+  "mandatoryPaymentReferenceCheckPassed": true,
+  "balancedLedgerEntryCheckPassed": true,
+  "transactionRolledBack": true,
+  "originalRowsPreserved": true
+}
