@@ -48,6 +48,10 @@ Actual Replit settings, remote Actions, production baseline/backup/restore/impor
 
 [Rollback requirements](README.md#rollback): preserve additive schema, immutable evidence, snapshots and historical Float originals. Keep compatible hardened financial/credit writers, or disable them during rollback. Never re-enable pre-ledger writers or erase later payments/awards.
 
+## Collaboration result
+
+Implementation commit `40467a8` is pushed on `feat/reward-accounting`, stacked on `feat/server-backed-lessons`. Draft PR creation was attempted with the prepared review description; GitHub GraphQL returned `Forbidden`, so no PR was created. Git push succeeded; remote Actions remains unverified. No merge/deployment. The prepared PR body remains at `/workspace/.onboarding/rewards-pr-body.md`.
+
 ## Exact changed files
 
 The list below includes this stage only, relative to the repository root. Screenshot PNGs and browser JSON are indexed separately in [screenshots](screenshots/README.md). No authored curriculum, dependency lockfile or previous migration changed.

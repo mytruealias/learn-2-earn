@@ -27,6 +27,8 @@ Updated 2026-10-27 on `feat/reward-accounting`, based on `329d7d7`. Reward rules
 - **Release blockers:** verify actual target/baseline/backups/restore; reconcile original XP/amounts/rounding/program assignments and pool funding; resolve unknown/overspent/unpayable records; confirm real staff delivery workflows. Full partner/tenant boundaries, staff logout revocation and manual platform assistive-technology checks remain separate pending work.
 - **Rollback:** keep additive ledger/snapshots and hardened credit/accounting APIs; disable financial writes during an incompatible rollback. Never erase subsequent awards or payments, restore nontransactional checks, or re-enable client-selected completion bonuses. [Detailed rollback](reward-accounting/README.md#rollback).
 
+- **Collaboration:** Implementation commit `40467a8` is pushed on `feat/reward-accounting`, stacked on `feat/server-backed-lessons`. Draft PR creation was attempted with the prepared review description; GitHub GraphQL returned `Forbidden`, so no PR was created. Git push succeeded; remote Actions remains unverified. No merge/deployment.
+
 ## Lesson engine and Practice report (preceding checkpoint)
 
 - **Implemented behavior:** typed validated adapters preserve every authored format; server-owned first/practice attempts and immutable answers resume across reload/devices. No initial answer keys, client bonus claims, hearts barrier or sensitive reflection persistence. One transactional receipt covers Progress, XP, badges, streak and review state; repeats cannot add credit. A single completion panel replaces badge/modal stacks.
