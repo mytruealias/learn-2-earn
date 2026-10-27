@@ -101,3 +101,5 @@ All **190 test cases** passed across the independently executed suites: 67 unit,
 Screenshot review included desktop Practice, phone feedback and phone reflection at 200% text. The last review caught and fixed header label wrapping with flex reflow; fixed-action scroll margins and measured content clearance preserve reachable controls. Automated checks do not replace the manual/platform limits listed above.
 
 The stage is complete locally. Branch push / draft PR outcome is recorded in the status report and final handoff; no production migration, seed, deployment or merge was run. [Release and rollback compatibility](README.md#release-recovery-and-rollback) is required for any later operator release.
+
+Implementation commit `4757e0c` was pushed successfully to `origin/feat/server-backed-lessons`. `gh pr create --draft --base feat/learning-progression --head feat/server-backed-lessons` failed with GitHub GraphQL `Forbidden`; no PR was created and remote CI was not observed. The separate PR body is prepared locally for a manual handoff.
