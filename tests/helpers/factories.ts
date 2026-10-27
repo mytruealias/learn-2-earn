@@ -83,6 +83,7 @@ export async function createLesson(
       title: "Test Lesson",
       slug: uniq("lesson"),
       xpReward: overrides.xpReward ?? 10,
+      cards: { create: { type: "INFO", prompt: "Synthetic test lesson", body: "Test content only." } },
     },
   });
   return { path, module: mod, lesson };

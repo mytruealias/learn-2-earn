@@ -1,12 +1,12 @@
 .page {
-  max-width: 68rem;
+  max-width: 78rem;
   margin: auto;
-  padding: clamp(1rem, 3vw, 2.5rem);
+  padding: clamp(1rem, 3vw, 3rem);
   display: grid;
   gap: 2rem;
 }
 .intro {
-  max-width: 46rem;
+  max-width: 48rem;
   display: grid;
   gap: 0.75rem;
 }
@@ -18,59 +18,143 @@
   font-weight: 650;
   color: var(--l2e-primary);
 }
-.summary {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  gap: 1rem;
-}
-.summary > :first-child {
-  flex: 2 1 24rem;
-}
-.summary > :last-child {
-  flex: 1 1 14rem;
+.heroGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(17rem, 1fr);
+  gap: 1.5rem;
+  align-items: start;
 }
 .next {
   display: grid;
   justify-items: start;
+  align-content: start;
+  gap: 1rem;
+  padding: clamp(1.25rem, 3vw, 2.5rem);
+  border-top: 4px solid var(--l2e-primary);
+}
+.next h2 {
+  font-size: clamp(1.5rem, 1.25rem + 1vw, 2rem);
+}
+.reason {
+  color: var(--l2e-muted);
+  max-width: 48ch;
+}
+.rail {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+}
+.goal {
+  display: grid;
+  gap: 0.85rem;
+  padding: 1.25rem;
+}
+.goal h2 {
+  font-size: var(--l2e-text-h3);
+}
+.goalActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.goalActions button[aria-pressed="true"] {
+  background: var(--l2e-primary-soft);
+  border-color: var(--l2e-primary);
+}
+.guide {
+  display: flex;
+  flex-wrap: wrap;
   gap: 0.75rem;
+  border-left: 3px solid var(--l2e-hubert);
+  border-radius: var(--l2e-radius-control);
+  padding: 1.25rem;
+  background: var(--l2e-hubert-soft);
+}
+.guide > svg {
+  color: var(--l2e-hubert);
+  flex-shrink: 0;
+}
+.guide > div {
+  flex: 1 1 12rem;
+}
+.guide p {
+  font-size: var(--l2e-text-sm);
+  color: var(--l2e-muted);
+  margin-top: 0.5rem;
 }
 .stats {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
-  background: var(--l2e-primary-soft);
-  padding: 1.5rem;
-  border-radius: var(--l2e-radius-card);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem 3rem;
+  padding: 1.25rem 0;
+  border-block: 1px solid var(--l2e-border);
 }
-.stats dt {
-  color: var(--l2e-muted);
-  font-size: var(--l2e-text-sm);
+.stats > div {
+  flex: 1 1 17rem;
 }
-.stats dd {
-  font-size: var(--l2e-text-h2);
+.stats strong {
+  color: var(--l2e-ink);
+  font-size: var(--l2e-text-lead);
+}
+.stats a {
   color: var(--l2e-primary);
-  font-weight: 750;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  text-decoration: underline;
+}
+.fine {
+  font-size: var(--l2e-text-sm);
+  color: var(--l2e-muted);
+}
+.selectedPaths {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+.selectedPaths a {
+  display: inline-flex;
+  gap: 0.5rem;
+  align-items: center;
+  min-height: 44px;
+  padding: 0.65rem 1rem;
+  border: 1px solid var(--l2e-control-border);
+  border-radius: var(--l2e-radius-control);
+  color: var(--l2e-primary);
+  background: var(--l2e-surface);
+}
+.selectedPaths svg {
+  flex-shrink: 0;
 }
 .paths {
   display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem;
   margin-top: 1rem;
   list-style: none;
   padding: 0;
 }
-.path {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-  min-height: 44px;
-  padding: 1.25rem;
+.pathCard {
   background: var(--l2e-surface);
   border: 1px solid var(--l2e-border);
   border-radius: var(--l2e-radius-card);
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.path {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-start;
+  padding: 1.25rem;
+  min-height: 44px;
+  border-radius: var(--l2e-radius-card);
+  flex: 1;
 }
 .path:hover {
-  border-color: var(--l2e-primary);
+  background: var(--l2e-primary-soft);
 }
 .icon {
   color: var(--l2e-primary);
@@ -83,11 +167,11 @@
   flex-shrink: 0;
 }
 .pathText {
-  flex: 1;
+  flex: 1 1 14rem;
   min-width: 0;
 }
 .path h3 {
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.5rem;
 }
 .path p {
   color: var(--l2e-muted);
@@ -95,10 +179,13 @@
 .counts {
   color: var(--l2e-primary);
   font-size: var(--l2e-text-sm);
-  margin-top: 0.5rem;
+  margin-top: 0.75rem;
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem 1rem;
+}
+.selection {
+  padding: 0 1.25rem 1rem;
 }
 .accountNote {
   display: grid;
@@ -109,11 +196,18 @@
   background: var(--l2e-hubert-soft);
   border-radius: var(--l2e-radius-control);
 }
-@media (max-width: 28rem) {
-  .path {
-    flex-wrap: wrap;
+@media (max-width: 52rem) {
+  .heroGrid,
+  .paths {
+    grid-template-columns: minmax(0, 1fr);
   }
-  .pathText {
-    flex-basis: 100%;
+}
+.page {
+  container-type: inline-size;
+}
+@container (max-width: 48rem) {
+  .heroGrid,
+  .paths {
+    grid-template-columns: minmax(0, 1fr);
   }
 }

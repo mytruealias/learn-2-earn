@@ -1,57 +1,41 @@
-import Link from "next/link";
 import prisma from "@/lib/prisma";
 import { requireLearner } from "@/lib/learner-server";
+import { publishedPaths } from "@/lib/learning-data";
+import { availableLessons, recommendLesson } from "@/lib/learning-progression";
 import { LEARNING_GOALS } from "@/lib/learner-navigation";
-import { BookIcon } from "../components/icons";
-import StatsBar from "../components/StatsBar";
+import { HubertIcon } from "../components/icons";
 import ContinueLearningCard from "../components/ContinueLearningCard";
+import StatsBar from "../components/StatsBar";
+import DailyGoal from "../components/learner/DailyGoal";
+import PathExplorer from "../components/learner/PathExplorer";
 import { ButtonLink, EmptyState } from "../components/ui";
 import styles from "../components/learner/home.module.css";
 export const dynamic = "force-dynamic";
 export default async function AppHome() {
   const user = await requireLearner("/app");
-  const [paths, progress] = await Promise.all([
-    prisma.path.findMany({
-      where: { isActive: true },
-      orderBy: { order: "asc" },
-      include: {
-        modules: {
-          where: { isActive: true },
-          orderBy: { order: "asc" },
-          include: {
-            lessons: {
-              where: { isActive: true },
-              orderBy: { order: "asc" },
-              select: { id: true, title: true },
-            },
-          },
-        },
-      },
-    }),
+  const [paths, progress, visits, selections] = await Promise.all([
+    publishedPaths(),
     prisma.progress.findMany({
       where: { userId: user.id },
-      select: { lessonId: true },
+      select: { lessonId: true, completedAt: true, missedCardIds: true },
       orderBy: { completedAt: "desc" },
     }),
+    prisma.lessonVisit.findMany({
+      where: { userId: user.id },
+      select: { lessonId: true, openedAt: true },
+      orderBy: { openedAt: "desc" },
+    }),
+    prisma.pathSelection.findMany({
+      where: { userId: user.id },
+      select: { pathId: true },
+    }),
   ]);
-  const completed = new Set(progress.map((p) => p.lessonId));
-  const mostRecent = progress
-    .map((p) =>
-      paths.find((path) =>
-        path.modules.some((m) => m.lessons.some((l) => l.id === p.lessonId)),
-      ),
-    )
-    .find(Boolean);
-  const ordered = mostRecent
-    ? [mostRecent, ...paths.filter((p) => p.id !== mostRecent.id)]
-    : paths;
-  const next = ordered
-    .flatMap((path) =>
-      path.modules.flatMap((m) =>
-        m.lessons.map((l) => ({ ...l, pathTitle: path.title })),
-      ),
-    )
-    .find((l) => !completed.has(l.id));
+  const selected = selections.map((s) => s.pathId),
+    done = new Set(progress.map((p) => p.lessonId)),
+    available = paths.flatMap(availableLessons),
+    count = available.filter((l) => done.has(l.id)).length;
+  const recommendation = recommendLesson(paths, progress, visits, selected),
+    allComplete = available.length > 0 && count === available.length;
   const goal =
     user.learningGoal &&
     LEARNING_GOALS[user.learningGoal as keyof typeof LEARNING_GOALS];
@@ -63,80 +47,71 @@ export default async function AppHome() {
         </p>
         <h1>Learn at your pace</h1>
         <p className={styles.muted}>
-          Choose a useful skill. Take one short lesson, or pick up where you
-          left off.
+          A useful next lesson, or a pathway you choose. There is no deadline to
+          come back.
         </p>
-        {goal && <p>Your optional goal: {goal}.</p>}
       </header>
-      <div className={styles.summary}>
+      <div className={styles.heroGrid}>
         <ContinueLearningCard
-          next={
-            next
-              ? {
-                  href: `/lesson/${next.id}`,
-                  title: next.title,
-                  pathTitle: next.pathTitle,
-                }
-              : null
-          }
-          returning={progress.length > 0}
+          recommendation={recommendation}
+          returning={progress.length > 0 || visits.length > 0}
         />
-        <StatsBar completed={progress.length} totalXp={user.totalXp} />
+        <aside className={styles.rail}>
+          <DailyGoal
+            allComplete={allComplete}
+            hasAvailable={available.length > 0}
+          />
+          <div className={styles.guide}>
+            <HubertIcon size={42} />
+            <div>
+              <strong>Small steps count.</strong>
+              <p>
+                You can take a break and return when you’re ready. Your
+                completed learning stays saved.
+              </p>
+              {goal && <p>Your optional goal: {goal}.</p>}
+            </div>
+          </div>
+        </aside>
       </div>
+      <StatsBar
+        completed={progress.length}
+        totalXp={user.totalXp}
+        availableCompleted={count}
+        availableTotal={available.length}
+        account={!!user.email}
+      />
       {!user.email && (
         <aside className={styles.accountNote} aria-label="Keep guest progress">
           <h2>Keep your progress</h2>
           <p>
-            Guest work is linked to this browser session. Create an account here
-            before switching devices or signing out.
+            Create an account in this browser before switching devices or
+            signing out.
           </p>
           <ButtonLink href="/signup" variant="secondary">
             Save my progress
           </ButtonLink>
         </aside>
       )}
-      <section aria-labelledby="paths-title">
-        <h2 id="paths-title">Choose a learning path</h2>
-        {paths.length ? (
-          <ul className={styles.paths}>
-            {paths.map((path) => {
-              const lessons = path.modules.flatMap((m) => m.lessons),
-                done = lessons.filter((l) => completed.has(l.id)).length;
-              return (
-                <li key={path.id}>
-                  <Link href={`/paths/${path.slug}`} className={styles.path}>
-                    <span className={styles.icon} aria-hidden="true">
-                      <BookIcon size={24} />
-                    </span>
-                    <div className={styles.pathText}>
-                      <h3>{path.title}</h3>
-                      <p>{path.description}</p>
-                      <div className={styles.counts}>
-                        <span>{path.modules.length} units</span>
-                        <span>
-                          {done} of {lessons.length} lessons complete
-                        </span>
-                      </div>
-                    </div>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        ) : (
-          <EmptyState
-            title="Lessons are on their way"
-            action={
-              <ButtonLink href="/lifeline" variant="secondary">
-                Find help
-              </ButtonLink>
-            }
-          >
-            No learning paths are available yet. Your program staff can help you
-            choose a next step.
-          </EmptyState>
-        )}
-      </section>
+      {paths.length ? (
+        <PathExplorer
+          paths={paths}
+          completedIds={[...done]}
+          initialSelected={selected}
+        />
+      ) : (
+        <EmptyState
+          title="No learning paths are available yet"
+          action={
+            <ButtonLink href="/lifeline" variant="secondary">
+              Find help
+            </ButtonLink>
+          }
+        >
+          Your program staff can help you choose a next step. Your saved
+          learning history has not been removed.
+        </EmptyState>
+      )}
     </main>
   );
 }

@@ -55,6 +55,9 @@ Acceptance: an anonymous context knowing a synthetic account ID/guestId cannot r
 
 ## S1 — Learner progression and clear next action (first product stage)
 
+Current implemented scope, exact files, state rules, additive migration and regression evidence are in [learning progression](learning-progression/README.md) and its [verification](learning-progression/verification.md). The earlier S1 targets below are the historical plan; broader S2/S3 behavior is not claimed complete.
+
+
 Files: `app/app/page.tsx`, `app/paths/[pathSlug]/page.tsx`, `app/components/ContinueLearningCard.tsx`, `app/components/StatsBar.tsx`, `app/components/PathProgressBar.tsx`, `app/components/LessonList.tsx`, `app/components/NavBar.tsx`, `app/api/progress/list/route.ts`, `lib/use-learner-progress.ts` (new), `app/components/learner-progress.module.css` (new), `tests/api/progress.test.ts`, `e2e/learner-progression.spec.ts` (new browser tests), `docs/upgrade-status.md`.
 
 - [ ] Use one shared session-based progress load per learner view; remove local-storage identity gating without weakening API identity checks (B01).

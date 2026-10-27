@@ -1,5 +1,6 @@
 import { z } from "zod";
 import prisma from "@/lib/prisma";
+import { reviewSuggested } from "@/lib/learning-progression";
 import { getUserIdFromRequest } from "@/lib/user-session";
 import { apiError, apiOk, apiServerError, parseJson } from "@/lib/api-helpers";
 
@@ -29,11 +30,14 @@ export async function POST(req: Request) {
 
     const progress = await prisma.progress.findMany({
       where: { userId },
-      select: { lessonId: true, completedAt: true },
+      select: { lessonId: true, completedAt: true, missedCardIds: true },
       orderBy: { completedAt: "desc" },
     });
 
+    const visits = await prisma.lessonVisit.findMany({ where: { userId }, select: { lessonId: true, openedAt: true }, orderBy: { openedAt: "desc" } });
     return apiOk({
+      visits,
+      reviewLessonIds: progress.filter(reviewSuggested).map(p => p.lessonId),
       completedLessonIds: progress.map((p) => p.lessonId),
       recentProgress: progress.map((p) => ({
         lessonId: p.lessonId,

@@ -11,7 +11,7 @@ No applicable `AGENTS.md` was found in `/` or the workspace/repository. Read REA
 - **Demo-only:** scripted/sample illustration with no real user/payment operation.
 - **Absent:** no corresponding model/route/capability found in this checkout; not a claim about uninspected external systems.
 
-The original inventory below covers **34 page routes and 36 API route files**; the subsequent design phase adds the development-only page listed next (35 page sources total) plus generated metadata/static entry points. The learner-journey stage adds `/onboarding`, `/recover`, one API route and one model: current totals are **37 page routes, 37 API route files and 19 models**. Every row is **open for later close-out**: its owner stage must record behavior, permissions, loading/empty/error/success, applicable browser checks and regression evidence before marking it verified in upgrade-status. A screenshot alone does not close a route. Source-reviewed routes without browser captures remain unverified visually. Dynamic route checks use synthetic IDs only.
+The original inventory below covers **34 page routes and 36 API route files**; the subsequent design phase adds the development-only page listed next (35 page sources total) plus generated metadata/static entry points. The learner-journey stage adds `/onboarding`, `/recover`, one API route and one model: that checkpoint totals **37 page routes, 37 API route files and 19 models**. The subsequent learning-progression stage adds two APIs/two models: current totals are **37 pages, 39 API route files and 21 models**. Every row is **open for later close-out**: its owner stage must record behavior, permissions, loading/empty/error/success, applicable browser checks and regression evidence before marking it verified in upgrade-status. A screenshot alone does not close a route. Source-reviewed routes without browser captures remain unverified visually. Dynamic route checks use synthetic IDs only.
 
 ## Design foundation addition
 
@@ -20,6 +20,10 @@ The original inventory below covers **34 page routes and 36 API route files**; t
 ## Learner access addition (2026-10-27)
 
 [Current learner journey and rollout](learner-journey/README.md) supersedes the original identity/access findings below. Server-issued, database-revocable learner sessions replace arbitrary-ID bootstrap and localStorage login flags. Existing guest records are upgraded in place from signed ownership proof; registered legacy sessions require sign-in. New onboarding fields are nullable for old accounts. `/recover` is an honest staff-assisted path because no verified delivery/reset integration exists. Broader financial, lesson and staff risks remain open.
+
+## Learning progression addition (2026-10-27)
+
+[Current progression conventions/evidence](learning-progression/README.md) supersede the home/path presentation below. Real next-lesson recommendations, optional goals, persisted selected paths and opened-state metadata drive the visual/linear path. `LessonVisit` is not completion/XP or card-position storage. `PathSelection` is not membership or access control. No prerequisites exist in the current schema; all published lessons remain selectable in any order. Inactive parents/content are guarded and empty-card content is unavailable without losing history. A second additive migration is required, with no money/content backfill.
 
 ## Page routes
 
@@ -105,6 +109,8 @@ Each source link is the exact handler. L = signed, unexpired, active and unrevok
 | `/api/stress-signal` | POST | [handler](../app/api/stress-signal/route.ts) | L; creates high-priority case + best-effort audit; partial, no external dispatch | S3 / S5 |
 | `/api/tts` | POST | [handler](../app/api/tts/route.ts) | L + OpenAI binding; MP3 stream + quota; implemented integration, external operation unverified | S3 / S5 |
 | `/api/user/ensure` | POST | [handler](../app/api/user/ensure/route.ts) | Invitation for fresh server guest; current signed session resumes; caller IDs rejected; implemented | S0b |
+| `/api/progress/open` | POST | [handler](../app/api/progress/open/route.ts) | L; published/content checks, last-opened upsert only; no XP | S1 |
+| `/api/user/learning-plan` | GET, POST | [handler](../app/api/user/learning-plan/route.ts) | L; private local-day count, optional goal and own pathway preferences; no permission/award changes | S1 |
 | `/api/user/onboarding` | POST | [handler](../app/api/user/onboarding/route.ts) | L account; idempotent completion and fixed optional goal; implemented | S1 |
 | `/api/user/profile` | POST | [handler](../app/api/user/profile/route.ts) | L; profile update; implemented, no partner membership | S3 / S5 |
 
@@ -151,6 +157,8 @@ All models below come from [schema.prisma](../prisma/schema.prisma). PostgreSQL 
 | User | Optional unique email/guestId, bcrypt password, profile/consent, XP/hearts/streak and badges; no partner FK | Partial identity/tenancy |
 | Progress | User+lesson FK, unique `(userId, lessonId)`, XP/crown/completedAt plus score/time/reflection/missed-card fields | Partial; not a durable attempt/checkpoint system |
 | PayoutRequest | User FK; XP/dollar snapshot, nullable method/handle, string status; staff reviewer/approver and timestamps/decision note | Partial money/audit concurrency |
+| PathSelection | Composite user/path preference and selection timestamp | Implemented My paths; no enrollment/access boundary |
+| LessonVisit | Composite user/lesson last-opened timestamp | Implemented opened state; no answer/card-position/XP evidence |
 | LearnerSession | Hashed nonce-bearing cookie, user relation, original expiry/revocation, user/expiry indexes | Implemented learner identity; additive migration required |
 | AdminUser | Unique email, password, role, active/lockout fields; sessions/cases/audit relations | Implemented staff identity |
 | AdminSession | Unique opaque token, admin FK, expiresAt | Partial logout revocation |

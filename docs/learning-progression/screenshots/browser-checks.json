@@ -1,0 +1,142 @@
+[
+  {
+    "screen": "new-home",
+    "width": 360,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "vertical-path",
+    "width": 360,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "linear-list",
+    "width": 360,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "linear-list",
+    "width": 360,
+    "rootTextSize": "200%",
+    "axeViolations": 0,
+    "noOverflow": true
+  },
+  {
+    "screen": "new-home",
+    "width": 768,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "vertical-path",
+    "width": 768,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "linear-list",
+    "width": 768,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "linear-list",
+    "width": 768,
+    "rootTextSize": "200%",
+    "axeViolations": 0,
+    "noOverflow": true
+  },
+  {
+    "screen": "new-home",
+    "width": 1440,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "vertical-path",
+    "width": 1440,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "linear-list",
+    "width": 1440,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "linear-list",
+    "width": 1440,
+    "rootTextSize": "200%",
+    "axeViolations": 0,
+    "noOverflow": true
+  },
+  {
+    "screen": "returning-home",
+    "width": 360,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "all-lesson-states",
+    "width": 360,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "all-complete",
+    "width": 1440,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "empty-path",
+    "width": 1440,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "empty-program",
+    "width": 360,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "content-being-prepared",
+    "width": 360,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "goal-network-error",
+    "width": 360,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "path-network-error",
+    "width": 360,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  }
+]

@@ -57,6 +57,14 @@ Recovery email/SMS delivery and a learner-reset endpoint are absent. `/recover` 
 
 Keep the additive schema when reverting presentation changes. A server rollback must retain the corrected ownership, expiry and revocation checks or temporarily disable bootstrap/signup; do not redeploy arbitrary-ID identity minting. Stale clients sending identity fields to ensure/register fail closed and should reload. No automatic session cleanup, seed, migration repair or provisioning is added to build/start/release. Port/binding remain 0.0.0.0:5000; actual Replit deployment settings still need inspection.
 
+## Learning preferences and opened-state compatibility
+
+The learning progression artifact additionally needs `20261027010000_learning_preferences_visits`, applied after the learner-session migration. It adds nullable `User.dailyGoal`, `PathSelection` and `LessonVisit` with owner/curriculum relations and indexes. No historical attempt, completion, XP, balance, payment or curriculum backfill occurs. Visits mean only “opened”; they are not award evidence. Selections are preferences, not permission or enrollment boundaries.
+
+Apply only through the reviewed release migration sequence below against a verified existing baseline and tested backup/restore. No content seed or new environment binding is required; build/start and port 5000 remain unchanged. The safe build never applies this migration. Tests apply its SQL only in a transaction inside an attested disposable database and compare preserved history.
+
+An active lesson without cards is unavailable to start/complete; inactive parents/content remain hidden/guarded. Existing history stays intact. Rollback can keep the additive schema while reverting this stage's UI/API support; retain secure sessions and active-content protections, never delete history or subtract earned XP. Physical device, live Replit, remote CI and production migration verification remain separate.
+
 ## Normal release sequence
 
 1. Inspect the exact release diff and current deployment configuration. Verify runtime database identity privately, migration status and the schema/data version required by both the old and new application. The explicit database-name confirmation prevents targeting mistakes; it is **not** a substitute for host/account inspection or authorization.

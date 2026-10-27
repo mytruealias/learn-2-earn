@@ -190,6 +190,16 @@ function findNextLesson(lesson: Lesson, completedIds: Set<string>): { id: string
 
 export default function LessonPlayer({ lesson }: { lesson: Lesson }) {
   const { user: sessionUser } = useLearnerSession();
+  const [visitError, setVisitError] = useState(false);
+  const [visitRetry, setVisitRetry] = useState(0);
+  useEffect(() => {
+    let active = true;
+    fetch("/api/progress/open", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ lessonId: lesson.id }) })
+      .then(response => { if (active) setVisitError(!response.ok); })
+      .catch(() => { if (active) setVisitError(true); });
+    return () => { active = false; };
+  }, [lesson.id, visitRetry]);
+
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [hearts, setHearts] = useState(5);
   const [initialHearts] = useState(5);
@@ -1000,6 +1010,7 @@ export default function LessonPlayer({ lesson }: { lesson: Lesson }) {
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "var(--bg-primary)" }}>
       {completionFeedback}
+      {visitError && <div data-design="lesson-place" style={{ padding: "1rem" }}><Alert>We could not save that you opened this lesson. You can keep reading; completion is saved separately.</Alert><Button variant="secondary" onClick={() => setVisitRetry(n => n + 1)}>Try saving my place again</Button></div>}
       <header style={{
         flexWrap: "wrap",
         padding: "0.85rem 1.5rem",

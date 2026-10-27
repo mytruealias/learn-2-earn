@@ -1,5 +1,6 @@
 import { z } from "zod";
 import prisma from "@/lib/prisma";
+import { activeLessonWhere } from "@/lib/learning-data";
 import { getUserIdFromRequest } from "@/lib/user-session";
 import { apiError, apiOk, apiServerError, parseJson } from "@/lib/api-helpers";
 
@@ -76,8 +77,8 @@ export async function POST(req: Request) {
       return apiError("forbidden", "You can only record progress for yourself.", 403);
     }
 
-    const lesson = await prisma.lesson.findUnique({
-      where: { id: lessonId },
+    const lesson = await prisma.lesson.findFirst({
+      where: { id: lessonId, ...activeLessonWhere, cards: { some: {} } },
       include: {
         module: {
           include: {

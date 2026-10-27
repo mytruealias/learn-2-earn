@@ -20,6 +20,7 @@ model Path {
   targetAudience  String   @default("All learners")
   difficulty      String   @default("foundational")
   modules         Module[]
+  selections      PathSelection[]
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }
@@ -57,6 +58,7 @@ model Lesson {
   module    Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   cards     Card[]
   progress  Progress[]
+  visits    LessonVisit[]
 
   @@unique([moduleId, slug])
 }
@@ -110,6 +112,9 @@ model User {
   earnedBadges  String   @default("[]")
   onboardingState String?
   learningGoal    String?
+  dailyGoal       Int?
+  pathSelections  PathSelection[]
+  lessonVisits    LessonVisit[]
   sessions      LearnerSession[]
   progress      Progress[]
   payoutRequests PayoutRequest[]
@@ -127,6 +132,27 @@ model LearnerSession {
 
   @@index([userId])
   @@index([expiresAt])
+}
+
+// Preferences organize learning; they never grant or remove curriculum access.
+model PathSelection {
+  userId String
+  pathId String
+  selectedAt DateTime @default(now())
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  path Path @relation(fields: [pathId], references: [id], onDelete: Cascade)
+  @@id([userId, pathId])
+}
+
+// Opening a lesson records no answer, score, completion or XP award.
+model LessonVisit {
+  userId String
+  lessonId String
+  openedAt DateTime @default(now())
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  @@id([userId, lessonId])
+  @@index([userId, openedAt])
 }
 
 model Progress {

@@ -44,6 +44,10 @@ See the [current architecture and route inventory](docs/current-architecture.md)
 
 [Journey, session safety and rollout](docs/learner-journey/README.md) · [Browser evidence](docs/learner-journey/screenshots/README.md). Program invitations lead to minimal signup, two short welcome steps or explicit guest exploration. Identity and guest association come from server sessions. No localStorage flag proves login. Recovery delivery is unconfigured, so `/recover` gives honest staff-assisted instructions and sends nothing. Apply the additive learner-session migration before running this version; see DEPLOYMENT.md. Learn/Rewards/Profile/Help navigation uses real routes; no standalone Practice route is advertised.
 
+## Learning progression
+
+[State/data conventions and rollout](docs/learning-progression/README.md) · [Browser evidence](docs/learning-progression/screenshots/README.md) · [Verification](docs/learning-progression/verification.md). Home prioritizes a real next lesson, optional daily goal and My paths. Visual and linear lesson lists share the same published content and actions; opening a lesson never awards XP. Apply the additive preference/visit migration after the secure-session migration before running this version.
+
 ## Getting Started
 
 Use Node.js 24 (the CI runtime), npm and PostgreSQL 14+. Retain `package-lock.json`.
@@ -176,7 +180,8 @@ npm test
 | `npm run test:browser` | Actual Chromium: responsive public page, learner UI login/path/lesson, staff UI login/dashboard |
 | `npm run test:design` | Actual Chromium + axe: design states, real CRUD/progress, keyboard, contrast, reflow and touch targets |
 | `npm run test:journey` | Actual Chromium: invitation/signup/login/onboarding/home/logout, signed guest association, expiry and interruption recovery |
-| `npm test` | Unit → API → HTTP → browser smoke → design → learner journey, sequentially |
+| `npm run test:progression` | Actual Chromium: next lesson, both path views, all lesson/program states, selections/goals and navigation without XP |
+| `npm test` | Unit → API → HTTP → browser smoke → design → learner journey → progression, sequentially |
 | `npm run test:e2e:ui` | Legacy admin browser suite; isolated DB but still needs its explicit legacy role fixtures; not a default CI gate |
 
 The harness drops only the resources it created on exit and preserves suite failure status. Separate invocations use separate random databases. If a machine/process is forcibly killed, remove only verified orphan resources from that run; never point cleanup at the development DB. The legacy suite's fixture/assertion limitations remain recorded in the baseline and are not claimed fixed.

@@ -1,6 +1,6 @@
 # Upgrade status
 
-Updated 2026-10-27 on `feat/learner-access-journey`, based on design-system commit `8e34d84`. Learner identity, entry/onboarding, home and navigation are implemented locally. Broader lesson/profile redesign, staff revocation and financial concurrency work remain pending. See [learner journey and rollout](learner-journey/README.md).
+Updated 2026-10-27 on `feat/learning-progression`, based on secure entry checkpoint `261d434`. Home/path progression, learner sessions/onboarding and design foundations are implemented locally. Broader lesson recovery/award integrity, financial concurrency and staff/partner work remain pending. See [current progression stage](learning-progression/README.md).
 
 [Current architecture / route inventory](current-architecture.md) · [Staged implementation checklist](upgrade-plan.md) · [Latest baseline evidence](upgrade-baseline.md#audit-pack-refresh) · [20 screenshots](baseline/2026-10-26/README.md)
 
@@ -10,14 +10,24 @@ Updated 2026-10-27 on `feat/learner-access-journey`, based on design-system comm
 | S0a — Small baseline repairs | Tooling prerequisites implemented/verified | Historical accessibility guidance still needs its separate route/bypass review |
 | S0b — Identity safety | Learner ownership/expiry/revocation implemented; staff work pending | Additive session migration / registered legacy re-entry; B18 admin logout still open |
 | Design foundation | Implemented and locally verified on learner path/staff directory | Gradual route migration; manual platform AT/zoom checks |
-| S1 — Learner progression | Entry/onboarding/home/shell/path implemented locally; broader route work partial | Manual platform checks, dedicated Practice, remaining lesson/profile close-out |
+| S1 — Learner progression | Home recommendations, goals, My paths, visual/linear path and real lesson states implemented locally | Manual platform/device checks; broader lesson/profile and optional dedicated Practice work |
 | S2 — Lesson feedback/recovery/awards | Pending | Honest XP breakdown, no hearts barrier, atomic writes, server-verifiable bonuses |
 | S3 — Profile/payout/support | Pending | Program-accurate copy, Zelle agreement, resilient support |
 | S4 — Public website/city decks | Pending | Claims/demo provenance, CTA and legal-route host behavior, route close-out |
 | S5 — Staff operations | Pending | Money concurrency/audit integrity, role matrix, explicit partner-boundary decision |
 | S6 — Release/Replit handoff | Safe workflow/CI authored and locally verified; broader handoff pending | Live Replit/remote Actions verification and full accessibility/low-bandwidth matrix |
 
-## Learner journey report (current change)
+## Learning progression report (current change)
+
+- **Behavior:** one personalized next lesson with actual duration/reason, optional daily goals and chosen pathways, real active/historical counts and secondary rewards. Desktop uses a broad recommendation plus goal/Hubert rail and pathway grid; narrow layouts reflow. Original vertical timeline and equivalent ordered linear list share every action/state.
+- **States:** ready, actually opened/in progress, completed, optional review from saved card markers, and unavailable empty content. No prerequisite model exists, so no sequence lock is added. Inactive curriculum is hidden/guarded; direct unavailable/empty content has explanations. First-use, returning, complete/empty and retry states are explicit. No navigation/preference XP or payout side effects.
+- **Files/evidence:** [exact changed files and executed verification](learning-progression/verification.md), [browser evidence](learning-progression/screenshots/README.md), [state/data conventions](learning-progression/README.md).
+- **Checks:** full `npm test` passed all **160 tests** (58 unit, 64 API/release, 6 HTTP, 4 smoke, 8 design, 11 entry/onboarding, 9 progression). Lint, safe build and types passed. Ten actual local production HTTP checks passed without an app DB. Actual evidence: 18 PNGs at 360/768/1440 plus 20 zero-axe/geometry observations. Final focused nine-test browser rerun passed after wording-only refinements; manual AT/native zoom remain separate.
+- **Requirements:** additive `20261027010000_learning_preferences_visits`, after the secure-session migration; nullable goal plus path preferences and last-opened records. No financial/curriculum backfill, provider secret or build-side DB operation. Existing guest account promotion preserves these choices on the same row.
+- **Limits:** opened metadata does not save a card position; review uses existing saved markers only, with no invented spaced-repetition score. Manual AT/native zoom/physical device and Replit/production/remote CI remain unverified. Financial/lesson/staff baseline risks remain separate.
+- **Rollback:** retain additive data and secure sessions, revert progression presentation/API support compatibly, preserve inactive-content protection and all money/history. No deployment or merge.
+
+## Learner journey report (previous stage)
 
 - **Behavior:** invitation → minimal signup/login or explicit server guest → two welcome steps → real learner home. Server-authoritative identity replaces browser flags/arbitrary-ID bootstrap; guest promotion keeps the same record/history. Sessions now enforce age, active account and DB expiry/revocation. Logout is real and current-device scoped. Pending signup/onboarding resumes without creating another same-email account. Help remains public; recovery truthfully uses trusted program staff because delivery/reset is unconfigured.
 - **Navigation/design:** shared semantic tokens, short adult copy, accessible validation/pending/failure states, mobile bottom bar, desktop sidebar and persistent Help. Learn/Rewards/Profile/Help have implemented destinations. No dead Practice tab. Existing profile earnings/payout UI is retained behind the session boundary; lesson changes are limited to identity/help/save recovery.

@@ -7,7 +7,12 @@ export default function PathProgressBar({
   total: number;
   completed: number;
 }) {
-  return (
+  return total > 0 ? (
     <ProgressIndicator label="Path progress" max={total} value={completed} />
+  ) : (
+    <p>
+      No lessons are ready to start in this pathway yet. Your saved history is
+      unchanged.
+    </p>
   );
 }
