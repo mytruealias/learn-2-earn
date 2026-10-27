@@ -1,5 +1,7 @@
 # Learn2Earn staged upgrade checklist
 
+Current lesson/Practice implementation: [contracts and scheduling rules](lesson-flow/README.md), [exact files and verification](lesson-flow/verification.md). This finishes the interrupted lesson-engine prerequisite together with persisted nonfinancial review; the original proposed file list below remains historical planning, not a claim that every later stage is finished.
+
 This pack turns the product brief into small, reviewable changes against the [verified baseline](upgrade-baseline.md). [Status](upgrade-status.md) distinguishes completed work from pending implementation. The selected first product priority is **learner progression and feedback**. S0 documentation/evidence was committed first. A subsequent safe build/release stage implements the workflow subset of S0a/S6; see [release verification](release-workflow-verification.md) and status for the exact scope. A scoped design foundation now proves the learner path and staff directory; [conventions/evidence](design-system/README.md) define the next-screen migration contract. This does not complete the remaining learner/staff stages. The expanded architecture audit adds a required S0b identity-safety stage before learner redesign; actual partner isolation needs a separate membership decision before any multi-partner promise.
 
 ## Constraints for every stage

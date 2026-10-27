@@ -1,3 +1,4 @@
+import { finishLesson } from "../helpers/lesson";
 import { beforeEach, describe, expect, it } from "vitest";
 import { createHmac } from "node:crypto";
 import { readFileSync } from "node:fs";
@@ -10,7 +11,6 @@ import {
   POST as profile,
 } from "@/app/api/auth/session/route";
 import { POST as onboarding } from "@/app/api/user/onboarding/route";
-import { POST as complete } from "@/app/api/progress/complete/route";
 import { getUserIdFromRequest, setUserSessionCookie } from "@/lib/user-session";
 import { assertTestDatabase } from "@/lib/test-database-safety";
 import { apiOk } from "@/lib/api-helpers";
@@ -106,13 +106,7 @@ describe("learner identity boundary and account continuity", () => {
   it("promotes the proven guest in place, preserving progress, XP, history, details and consent", async () => {
     const g = await guest();
     const { lesson } = await createLesson({ xpReward: 13 });
-    expect(
-      (
-        await complete(
-          request("progress/complete", g.token, { lessonId: lesson.id }),
-        )
-      ).status,
-    ).toBe(200);
+    expect((await finishLesson(g.token, lesson.id)).status).toBe(200);
     await prisma.user.update({
       where: { id: g.id },
       data: {
@@ -139,7 +133,7 @@ describe("learner identity boundary and account continuity", () => {
     expect((await response.json()).user.id).toBe(g.id);
     expect(await prisma.user.count()).toBe(1);
     const user = await prisma.user.findUniqueOrThrow({ where: { id: g.id } });
-    expect(user.totalXp).toBe(13);
+    expect(user.totalXp).toBe(14);
     expect(user.city).toBe("Existing synthetic city");
     expect(user.phone).toBe("Synthetic retained value");
     expect(user.onboardingState).toBe("pending-v1");
@@ -296,7 +290,11 @@ describe("learner identity boundary and account continuity", () => {
     const original = legacy(user.id);
     const [encoded, signature] = original.split(".");
     const alternate = `${Buffer.from(encoded, "base64").toString("base64url")}.${signature}`;
-    expect(await getUserIdFromRequest(request("auth/session", encodeURIComponent(original + "\n")))).toBeNull();
+    expect(
+      await getUserIdFromRequest(
+        request("auth/session", encodeURIComponent(original + "\n")),
+      ),
+    ).toBeNull();
     expect(
       await getUserIdFromRequest(
         request("auth/session", encodeURIComponent(original)),

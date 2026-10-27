@@ -2,7 +2,13 @@
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useLearnerSession } from "./learner/LearnerSession";
-import { HomeIcon, LifelineIcon, UserIcon, WalletIcon } from "./icons";
+import {
+  HomeIcon,
+  LifelineIcon,
+  UserIcon,
+  WalletIcon,
+  CheckCircleIcon,
+} from "./icons";
 import styles from "./NavBar.module.css";
 export default function NavBar() {
   const path = usePathname(),
@@ -19,6 +25,16 @@ export default function NavBar() {
         path.startsWith("/lesson/"),
       icon: <HomeIcon size={22} />,
     },
+    ...(user
+      ? [
+          {
+            href: "/practice",
+            label: "Practice",
+            active: path === "/practice",
+            icon: <CheckCircleIcon size={22} />,
+          },
+        ]
+      : []),
     ...(user?.kind === "account"
       ? [
           {

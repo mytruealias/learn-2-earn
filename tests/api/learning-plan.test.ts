@@ -1,3 +1,4 @@
+import { finishLesson } from "../helpers/lesson";
 import { beforeEach, describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 import { POST as ensure } from "@/app/api/user/ensure/route";
@@ -116,7 +117,7 @@ describe("learning choices and real opened state", () => {
             req("progress/complete", a.token, { lessonId: f.lesson.id }),
           )
         ).status,
-      ).toBe(404);
+      ).toBe(400);
     }
     expect(await prisma.progress.count()).toBe(0);
   });
@@ -187,7 +188,7 @@ describe("learning choices and real opened state", () => {
       await plan(req("user/learning-plan?zone=UTC", a.token))
     ).json();
     expect(data).toMatchObject({ target: 1, completedToday: 0 });
-    await complete(req("progress/complete", a.token, { lessonId: lesson.id }));
+    await finishLesson(a.token, lesson.id);
     data = await (
       await plan(req("user/learning-plan?zone=UTC", a.token))
     ).json();
@@ -202,7 +203,7 @@ describe("learning choices and real opened state", () => {
     expect(
       (await prisma.user.findUniqueOrThrow({ where: { id: a.user.id } }))
         .totalXp,
-    ).toBe(lesson.xpReward);
+    ).toBe(lesson.xpReward + 1);
     expect(
       (await plan(req("user/learning-plan?zone=invalid/time", a.token))).status,
     ).toBe(400);

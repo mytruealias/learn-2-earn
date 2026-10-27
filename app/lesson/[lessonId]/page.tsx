@@ -9,42 +9,20 @@ export const dynamic = "force-dynamic";
 
 export default async function LessonPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ lessonId: string }>;
+  searchParams: Promise<{ practice?: string }>;
 }) {
   const { lessonId } = await params;
+  const query = await searchParams;
   await requireLearner(`/lesson/${lessonId}`);
 
   const lesson = await prisma.lesson.findFirst({
     where: { id: lessonId, ...activeLessonWhere },
     include: {
-      cards: {
-        orderBy: { order: "asc" },
-      },
-      module: {
-        include: {
-          path: {
-            include: {
-              modules: {
-                where: { isActive: true },
-                orderBy: { order: "asc" },
-                include: {
-                  lessons: {
-                    where: { isActive: true },
-                    orderBy: { order: "asc" },
-                    select: { id: true, title: true, order: true },
-                  },
-                },
-              },
-            },
-          },
-          lessons: {
-            where: { isActive: true },
-            orderBy: { order: "asc" },
-            select: { id: true, title: true, order: true },
-          },
-        },
-      },
+      cards: { select: { id: true } },
+      module: { include: { path: { select: { slug: true, title: true } } } },
     },
   });
 
@@ -75,7 +53,13 @@ export default async function LessonPage({
     );
   return (
     <LessonPlayer
-      lesson={lesson as unknown as Parameters<typeof LessonPlayer>[0]["lesson"]}
+      lesson={{
+        id: lesson.id,
+        title: lesson.title,
+        pathSlug: lesson.module.path.slug,
+        pathTitle: lesson.module.path.title,
+      }}
+      practice={query.practice === "1"}
     />
   );
 }

@@ -1,6 +1,6 @@
 # Upgrade status
 
-Updated 2026-10-27 on `feat/learning-progression`, based on secure entry checkpoint `261d434`. Home/path progression, learner sessions/onboarding and design foundations are implemented locally. Broader lesson recovery/award integrity, financial concurrency and staff/partner work remain pending. See [current progression stage](learning-progression/README.md).
+Updated 2026-10-27 on `feat/server-backed-lessons`, based on progression checkpoint `bb6f1e0`. The interrupted server lesson engine and dedicated Practice destination are now implemented together. [Current stage report](lesson-flow/README.md); verification details below. No production migration/deployment/merge was performed.
 
 [Current architecture / route inventory](current-architecture.md) · [Staged implementation checklist](upgrade-plan.md) · [Latest baseline evidence](upgrade-baseline.md#audit-pack-refresh) · [20 screenshots](baseline/2026-10-26/README.md)
 
@@ -10,14 +10,25 @@ Updated 2026-10-27 on `feat/learning-progression`, based on secure entry checkpo
 | S0a — Small baseline repairs | Tooling prerequisites implemented/verified | Historical accessibility guidance still needs its separate route/bypass review |
 | S0b — Identity safety | Learner ownership/expiry/revocation implemented; staff work pending | Additive session migration / registered legacy re-entry; B18 admin logout still open |
 | Design foundation | Implemented and locally verified on learner path/staff directory | Gradual route migration; manual platform AT/zoom checks |
-| S1 — Learner progression | Home recommendations, goals, My paths, visual/linear path and real lesson states implemented locally | Manual platform/device checks; broader lesson/profile and optional dedicated Practice work |
-| S2 — Lesson feedback/recovery/awards | Pending | Honest XP breakdown, no hearts barrier, atomic writes, server-verifiable bonuses |
+| S1 — Learner progression | Home recommendations, goals, My paths, visual/linear path and real lesson states implemented locally | Profile migration and manual platform/device checks |
+| S2 — Lesson engine, recovery, awards and Practice | Implemented locally; final browser verification recorded in current report | Additive attempt/review migration, live host/remote CI and manual platform checks; content-version transitions require staff review |
 | S3 — Profile/payout/support | Pending | Program-accurate copy, Zelle agreement, resilient support |
 | S4 — Public website/city decks | Pending | Claims/demo provenance, CTA and legal-route host behavior, route close-out |
 | S5 — Staff operations | Pending | Money concurrency/audit integrity, role matrix, explicit partner-boundary decision |
 | S6 — Release/Replit handoff | Safe workflow/CI authored and locally verified; broader handoff pending | Live Replit/remote Actions verification and full accessibility/low-bandwidth matrix |
 
-## Learning progression report (current change)
+## Lesson engine and Practice report (current change)
+
+- **Implemented behavior:** typed validated adapters preserve every authored format; server-owned first/practice attempts and immutable answers resume across reload/devices. No initial answer keys, client bonus claims, hearts barrier or sensitive reflection persistence. One transactional receipt covers Progress, XP, badges, streak and review state; repeats cannot add credit. A single completion panel replaces badge/modal stacks.
+- **Practice:** `/practice` is in mobile/desktop navigation. Active missed-question, topic and due views explain the 1/3/7/14 elapsed-day rule, distinguish first completions from repeated practice and avoid claiming certified mastery. Legacy progress remains intact, with limited-evidence review explanations. Latest evidence supersedes historical review markers for current suggestions.
+- **Goals/milestones:** optional goals count different lessons learned/practiced once per saved local day. Timezone is saved user → optional program → UTC. First-day, same-day, midnight and DST behavior is tested; free existing freezes remain. Friendly re-entry preserves badges/balances. Speech is opt-in device functionality; no reminder provider or messages are added.
+- **Final local verification:** 190 unique test cases passed across suites (67 unit, 78 API/release, 6 HTTP, 4 smoke, 8 design, 11 journey, 9 progression, 7 lesson/Practice); final seven-browser-test rerun passed after fixing large-text header wrapping. Lint (zero warnings), safe build and type check passed; 16 local production-mode checks passed with unreachable DB. All 18 final screenshot observations have no axe violations or overflow. The earlier aggregate run stopped on obsolete assertions; affected suites were corrected and verified separately, not reported as an aggregate pass.
+- **Exact files, baseline defects, acceptance checklist and tests:** [verification](lesson-flow/verification.md), [card inventory](lesson-flow/card-inventory.md), [screenshots](lesson-flow/screenshots/README.md). Earlier test failures from obsolete Practice-absent assertions and malformed test payloads were corrected rather than disabling checks.
+- **Migration/environment:** additive `20261027020000_lesson_attempts_review` after the two preceding migrations; optional `PROGRAM_TIMEZONE`, UTC fallback; no seed/backfill/reset or financial economics change. Replit remains uninspected and port/binding remain 0.0.0.0:5000.
+- **Remaining limits:** manual screen-reader speech/native zoom/physical device and actual production migration/restore/remote CI checks; explicit audited content-version transition is not automatic. Payout concurrency, Zelle/copy, staff logout/partner boundaries and broad profile migration remain open.
+- **Rollback:** retain all additive evidence/schema and historical balances. Revert presentation with the hardened server or temporarily disable completion; never re-enable client-selected reward claims. See [release/recovery/rollback](lesson-flow/README.md#release-recovery-and-rollback). PR outcome is reported after the branch push; no merge/deploy.
+
+## Learning progression report (preceding checkpoint)
 
 - **Behavior:** one personalized next lesson with actual duration/reason, optional daily goals and chosen pathways, real active/historical counts and secondary rewards. Desktop uses a broad recommendation plus goal/Hubert rail and pathway grid; narrow layouts reflow. Original vertical timeline and equivalent ordered linear list share every action/state.
 - **States:** ready, actually opened/in progress, completed, optional review from saved card markers, and unavailable empty content. No prerequisite model exists, so no sequence lock is added. Inactive curriculum is hidden/guarded; direct unavailable/empty content has explanations. First-use, returning, complete/empty and retry states are explicit. No navigation/preference XP or payout side effects.

@@ -42,11 +42,15 @@ See the [current architecture and route inventory](docs/current-architecture.md)
 
 ## Learner access and onboarding
 
-[Journey, session safety and rollout](docs/learner-journey/README.md) · [Browser evidence](docs/learner-journey/screenshots/README.md). Program invitations lead to minimal signup, two short welcome steps or explicit guest exploration. Identity and guest association come from server sessions. No localStorage flag proves login. Recovery delivery is unconfigured, so `/recover` gives honest staff-assisted instructions and sends nothing. Apply the additive learner-session migration before running this version; see DEPLOYMENT.md. Learn/Rewards/Profile/Help navigation uses real routes; no standalone Practice route is advertised.
+[Journey, session safety and rollout](docs/learner-journey/README.md) · [Browser evidence](docs/learner-journey/screenshots/README.md). Program invitations lead to minimal signup, two short welcome steps or explicit guest exploration. Identity and guest association come from server sessions. No localStorage flag proves login. Recovery delivery is unconfigured, so `/recover` gives honest staff-assisted instructions and sends nothing. Apply the additive learner-session migration before running this version; see DEPLOYMENT.md. Learn/Practice/Rewards/Profile/Help navigation uses real routes.
 
 ## Learning progression
 
 [State/data conventions and rollout](docs/learning-progression/README.md) · [Browser evidence](docs/learning-progression/screenshots/README.md) · [Verification](docs/learning-progression/verification.md). Home prioritizes a real next lesson, optional daily goal and My paths. Visual and linear lesson lists share the same published content and actions; opening a lesson never awards XP. Apply the additive preference/visit migration after the secure-session migration before running this version.
+
+## Lessons and Practice
+
+[Server lesson engine, review rules and rollout](docs/lesson-flow/README.md) · [Card inventory](docs/lesson-flow/card-inventory.md) · [Browser evidence](docs/lesson-flow/screenshots/README.md) · [Verification](docs/lesson-flow/verification.md). Checked answers and position resume across devices. Completion and XP are atomic and derive from server evidence; repeat practice never adds monetary credit. Practice includes missed-question review, topics and explained 1/3/7/14-day scheduling. Daily goals/streaks use a saved timezone, then optional `PROGRAM_TIMEZONE`, then UTC. Apply the additive attempt/review migration before running this version. `npm run audit:cards` validates authored formats without a database; `npm run test:lesson` runs the real browser lesson/practice sequence in an isolated database.
 
 ## Getting Started
 

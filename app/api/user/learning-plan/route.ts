@@ -1,6 +1,7 @@
 import { z } from "zod";
 import prisma from "@/lib/prisma";
-import { completedOnLocalDay, validTimeZone } from "@/lib/learning-progression";
+import { validTimeZone } from "@/lib/learning-progression";
+import { learningZone, localDay } from "@/lib/lesson/rules";
 import { getUserIdFromRequest, sameOriginError } from "@/lib/user-session";
 import { apiError, apiOk, apiServerError, parseJson } from "@/lib/api-helpers";
 const Schema = z.discriminatedUnion("type", [
@@ -8,6 +9,19 @@ const Schema = z.discriminatedUnion("type", [
     .object({
       type: z.literal("goal"),
       target: z.union([z.literal(1), z.literal(2), z.null()]),
+    })
+    .strict(),
+  z
+    .object({
+      type: z.literal("timezone"),
+      zone: z
+        .string()
+        .min(1)
+        .max(100)
+        .refine(
+          validTimeZone,
+          "Choose a valid IANA timezone, such as America/Chicago.",
+        ),
     })
     .strict(),
   z
@@ -27,28 +41,55 @@ export async function GET(req: Request) {
         "Sign in to load your learning plan.",
         401,
       );
-    const zone = new URL(req.url).searchParams.get("zone") || "UTC";
-    if (zone.length > 100 || !validTimeZone(zone))
+    // Legacy query is validated for compatibility but never overrides stored day boundaries.
+    const hint = new URL(req.url).searchParams.get("zone");
+    if (hint && (hint.length > 100 || !validTimeZone(hint)))
       return apiError(
         "validation_error",
-        "Your local day could not be identified. Try again.",
+        "Choose a valid timezone in Practice settings.",
         400,
       );
-    const [user, progress] = await Promise.all([
+    const [user, progress, attempts] = await Promise.all([
       prisma.user.findUniqueOrThrow({
         where: { id },
-        select: { dailyGoal: true },
+        select: {
+          dailyGoal: true,
+          learningTimezone: true,
+          lastLearningAt: true,
+          streak: true,
+        },
       }),
       prisma.progress.findMany({
         where: { userId: id },
-        select: { completedAt: true },
+        select: { lessonId: true, completedAt: true },
+      }),
+      prisma.lessonAttempt.findMany({
+        where: { userId: id, completedAt: { not: null } },
+        select: { lessonId: true, completedAt: true },
       }),
     ]);
+    const zone = learningZone(
+        user.learningTimezone,
+        process.env.PROGRAM_TIMEZONE,
+      ),
+      today = localDay(new Date(), zone);
+    const completedToday = new Set(
+      [...progress, ...attempts]
+        .filter((p) => p.completedAt && localDay(p.completedAt, zone) === today)
+        .map((p) => p.lessonId),
+    ).size;
+    const last =
+      user.lastLearningAt ||
+      (progress.length
+        ? new Date(Math.max(...progress.map((p) => p.completedAt.getTime())))
+        : null);
     return apiOk(
       {
         target: user.dailyGoal,
-        completedToday: completedOnLocalDay(progress, zone),
+        completedToday,
         zone,
+        streak: user.streak,
+        welcomeBack: !!last && today - localDay(last, zone) > 1,
       },
       { headers: { "Cache-Control": "private, no-store" } },
     );
@@ -73,12 +114,20 @@ export async function POST(req: Request) {
     const parsed = await parseJson(req, Schema);
     if (!parsed.ok) return parsed.response;
     const data = parsed.data;
-    if (data.type === "goal") {
-      await prisma.user.update({
-        where: { id },
-        data: { dailyGoal: data.target },
+    if (data.type === "goal" || data.type === "timezone") {
+      await prisma.$transaction(async (tx) => {
+        await tx.$queryRaw`SELECT "id" FROM "User" WHERE "id" = ${id} FOR UPDATE`;
+        await tx.user.update({
+          where: { id },
+          data:
+            data.type === "goal"
+              ? { dailyGoal: data.target }
+              : { learningTimezone: data.zone },
+        });
       });
-      return apiOk({ target: data.target });
+      return apiOk(
+        data.type === "goal" ? { target: data.target } : { zone: data.zone },
+      );
     }
     if (
       !(await prisma.path.findFirst({

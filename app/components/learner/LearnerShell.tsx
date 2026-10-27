@@ -17,7 +17,7 @@ import styles from "./shell.module.css";
 export default function LearnerShell({ children }: { children: ReactNode }) {
   const path = usePathname();
   const chrome =
-    ["/app", "/profile", "/lifeline"].includes(path) ||
+    ["/app", "/practice", "/profile", "/lifeline"].includes(path) ||
     path.startsWith("/paths/");
   const active = chrome || path.startsWith("/lesson/");
   return (

@@ -21,6 +21,7 @@ export default function DailyGoal({
     target: number | null;
     completedToday: number;
     zone: string;
+    welcomeBack?: boolean;
   } | null>(null);
   const [retry, setRetry] = useState(0),
     [busy, setBusy] = useState(false),
@@ -29,8 +30,7 @@ export default function DailyGoal({
   useEffect(() => {
     let active = true;
     setState("loading");
-    const zone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
-    fetch(`/api/user/learning-plan?zone=${encodeURIComponent(zone)}`, {
+    fetch("/api/user/learning-plan", {
       cache: "no-store",
       signal: AbortSignal.timeout(20000),
     })
@@ -66,7 +66,7 @@ export default function DailyGoal({
       setMessage(
         result.target === null
           ? "Daily goal turned off."
-          : `Daily goal saved: ${result.target} new ${result.target === 1 ? "lesson" : "lessons"}.`,
+          : `Daily goal saved: ${result.target} ${result.target === 1 ? "lesson" : "lessons"}.`,
       );
       setData((current) =>
         current ? { ...current, target: result.target } : current,
@@ -82,15 +82,22 @@ export default function DailyGoal({
   return (
     <Card className={styles.goal}>
       <h2>A small goal for today</h2>
+      {data?.welcomeBack && (
+        <p>
+          Welcome back. Your earlier progress is still here. Start with one
+          useful step.
+        </p>
+      )}
+      {allComplete && (
+        <p>
+          Every available lesson is complete. Optional practice can count toward
+          your daily goal.
+        </p>
+      )}
       {!hasAvailable ? (
         <p>
           Goals can wait until lessons are available. Help is still here
           whenever you need it.
-        </p>
-      ) : allComplete ? (
-        <p>
-          Every available lesson is complete. Review whenever it helps; you do
-          not need a new lesson today.
         </p>
       ) : state === "loading" ? (
         <Skeleton label="Loading today’s learning" />
@@ -106,7 +113,7 @@ export default function DailyGoal({
                 <p>
                   {data.completedToday >= data.target
                     ? "Your small goal is reached. You can stop here or keep exploring."
-                    : `Try ${data.target} new ${data.target === 1 ? "lesson" : "lessons"} today. One step at a time.`}
+                    : `Try ${data.target} ${data.target === 1 ? "lesson" : "lessons"} today. One step at a time.`}
                 </p>
                 <ProgressIndicator
                   value={Math.min(data.completedToday, data.target)}
@@ -114,7 +121,8 @@ export default function DailyGoal({
                   label="Daily learning goal"
                 />
                 <p className={styles.muted}>
-                  {data.completedToday} new lessons completed in your local day.
+                  {data.completedToday} different lessons learned or practiced
+                  in your saved local day.
                 </p>
               </>
             ) : (
@@ -151,8 +159,10 @@ export default function DailyGoal({
               </Button>
             </div>
             <p className={styles.fine}>
-              Your local day ({data.zone.replaceAll("_", " ")}). Goals do not
-              change XP, incentives or access. No penalties for taking a break.
+              Your saved local day ({data.zone.replaceAll("_", " ")}). A
+              different lesson learned or practiced counts once each day. Change
+              timezone in Practice. Goals do not change XP, incentives or
+              access. No penalties for taking a break.
             </p>
           </>
         )

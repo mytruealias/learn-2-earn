@@ -1,3 +1,4 @@
+import { completeLesson } from "./helpers/lesson";
 import { test, expect, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { mkdirSync, writeFileSync } from "node:fs";
@@ -92,13 +93,7 @@ async function capture(page: Page, screen: string, width: number) {
   }
 }
 async function complete(page: Page, id: string) {
-  expect(
-    (
-      await page.request.post("/api/progress/complete", {
-        data: { lessonId: id },
-      })
-    ).ok(),
-  ).toBe(true);
+  expect((await completeLesson(page.request, id)).ok()).toBe(true);
 }
 for (const width of [360, 768, 1440]) {
   test(`new learning home and equivalent path views at ${width}px`, async ({
@@ -125,14 +120,14 @@ for (const width of [360, 768, 1440]) {
     const before = await savedSnapshot(user.id),
       opened = page.waitForResponse(
         (r) =>
-          r.url().endsWith("/api/progress/open") &&
+          r.url().endsWith("/api/lesson/attempt") &&
           r.request().method() === "POST",
       );
     await page
       .getByRole("link", { name: "Start learning", exact: true })
       .click();
     expect((await opened).ok()).toBe(true);
-    await expect(page.getByRole("button", { name: /^FINISH/ })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Continue", exact: true })).toBeVisible();
     expect(await savedSnapshot(user.id)).toEqual(before);
     await page.goto(`/paths/${fixture.path.slug}`);
     await expect(
@@ -266,7 +261,7 @@ test("all available lessons complete offers optional review and an empty unit st
   ).toBeVisible();
   await expect(
     page.getByText(
-      "Every available lesson is complete. Review whenever it helps; you do not need a new lesson today.",
+      "Every available lesson is complete. Optional practice can count toward your daily goal.",
     ),
   ).toBeVisible();
   await capture(page, "all-complete", 1440);
@@ -321,7 +316,7 @@ test("inactive and prepared-content boundaries have real explanations and never 
           data: { lessonId: id },
         })
       ).status(),
-    ).toBe(404);
+    ).toBe(400);
   }
   await page.goto(`/lesson/${fixture.preparing.id}`);
   await expect(
@@ -371,7 +366,7 @@ test("network errors provide retry and do not fabricate progress or successful p
 }) => {
   await page.setViewportSize({ width: 360, height: 1000 });
   await login(page);
-  await page.route("**/api/user/learning-plan?*", (r) =>
+  await page.route("**/api/user/learning-plan", (r) =>
     r.fulfill({ status: 503, json: { ok: false } }),
   );
   await page.goto("/app");
@@ -384,7 +379,7 @@ test("network errors provide retry and do not fabricate progress or successful p
     page.getByRole("link", { name: "Start learning", exact: true }),
   ).toBeVisible();
   await capture(page, "goal-network-error", 360);
-  await page.unroute("**/api/user/learning-plan?*");
+  await page.unroute("**/api/user/learning-plan");
   await page.getByRole("button", { name: "Try again", exact: true }).click();
   await expect(
     page.getByRole("button", { name: "1 lesson", exact: true }),

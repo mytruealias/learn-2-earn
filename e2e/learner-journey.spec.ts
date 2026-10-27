@@ -1,3 +1,4 @@
+import { completeLesson } from "./helpers/lesson";
 import { expect, test, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { mkdirSync, writeFileSync } from "node:fs";
@@ -217,7 +218,7 @@ for (const width of [360, 768, 1440]) {
     ).toHaveAttribute("aria-current", "page");
     await expect(
       nav.getByRole("link", { name: "Practice", exact: true }),
-    ).toHaveCount(0);
+    ).toHaveAttribute("href", "/practice");
     await capture(page, "learner-home", width);
     await page.evaluate(
       () => (document.documentElement.style.fontSize = "200%"),
@@ -322,7 +323,11 @@ test("guest lesson progress is associated only by the server session, then survi
   expect(guest.kind).toBe("guest");
   await capture(page, "guest-home", 360);
   await page.goto(`/lesson/${fixture.lessonId}`);
-  await page.getByRole("button", { name: /^FINISH/ }).click();
+  await page.getByRole("button", { name: "Continue", exact: true }).click();
+  await page.getByRole("button", { name: "Next step", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Finish lesson", exact: true })
+    .click();
   await expect
     .poll(
       async () =>
@@ -625,13 +630,9 @@ test("a shared device can deliberately start separately after expiry without del
     page.getByRole("heading", { name: "Learn at your pace", exact: true }),
   ).toBeVisible();
   const old = (await (await page.request.get("/api/auth/session")).json()).user;
-  expect(
-    (
-      await page.request.post("/api/progress/complete", {
-        data: { lessonId: fixture.lessonId },
-      })
-    ).ok(),
-  ).toBe(true);
+  expect((await completeLesson(page.request, fixture.lessonId)).ok()).toBe(
+    true,
+  );
   const before = await guestRecord(old.id);
   await expireLearnerSessions(old.id);
   await page.goto("/app");

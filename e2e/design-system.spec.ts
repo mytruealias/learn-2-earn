@@ -1,3 +1,4 @@
+import { completeLesson } from "./helpers/lesson";
 import { test, expect, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { ensureTestAdmin, disconnect } from "./helpers/seed";
@@ -98,7 +99,13 @@ async function staff(page: Page) {
   expect(response.ok()).toBe(true);
 }
 async function learner(page: Page) {
-  expect((await page.request.post("/api/access", { data: { code: process.env.DEMO_ACCESS_CODE || "LEARN2EARN" } })).ok()).toBe(true);
+  expect(
+    (
+      await page.request.post("/api/access", {
+        data: { code: process.env.DEMO_ACCESS_CODE || "LEARN2EARN" },
+      })
+    ).ok(),
+  ).toBe(true);
   const response = await page.request.post("/api/auth/register", {
     data: {
       email: `design-${Date.now()}@example.test`,
@@ -107,7 +114,11 @@ async function learner(page: Page) {
     },
   });
   expect(response.ok()).toBe(true);
-  expect((await page.request.post("/api/user/onboarding", { data: { goal: null } })).ok()).toBe(true);
+  expect(
+    (
+      await page.request.post("/api/user/onboarding", { data: { goal: null } })
+    ).ok(),
+  ).toBe(true);
   await page.goto("/app");
   await page.locator('a[href^="/paths/"]').first().click();
   await expect(page).toHaveURL(/\/paths\/[^/?]+$/);
@@ -163,14 +174,21 @@ for (const width of widths) {
     await checkLayout(page);
     await audit(page);
     // Reflow must preserve readable words, not merely hide horizontal overflow.
-    for (const label of [page.locator("h1"), page.getByRole("navigation", { name: "Primary" }).getByText("Help", { exact: true })]) {
-      expect(await label.evaluate((element) => {
-        const node = element.firstChild!;
-        const range = document.createRange();
-        range.setStart(node, 0);
-        range.setEnd(node, (node.textContent || "").split(/\s/)[0].length);
-        return range.getClientRects().length;
-      })).toBe(1);
+    for (const label of [
+      page.locator("h1"),
+      page
+        .getByRole("navigation", { name: "Primary" })
+        .getByText("Help", { exact: true }),
+    ]) {
+      expect(
+        await label.evaluate((element) => {
+          const node = element.firstChild!;
+          const range = document.createRange();
+          range.setStart(node, 0);
+          range.setEnd(node, (node.textContent || "").split(/\s/)[0].length);
+          return range.getClientRects().length;
+        }),
+      ).toBe(1);
     }
     if (evidence && width === 360)
       await page.screenshot({
@@ -340,16 +358,7 @@ test("real progress loads without a browser identity hint; failures offer retry 
   const path = page.url();
   const link = page.locator('ol a[href^="/lesson/"]').first();
   const id = (await link.getAttribute("href"))!.split("/").pop();
-  const session = await (
-    await page.request.post("/api/auth/session", { data: {} })
-  ).json();
-  expect(
-    (
-      await page.request.post("/api/progress/complete", {
-        data: { userId: session.user.id, lessonId: id },
-      })
-    ).ok(),
-  ).toBe(true);
+  expect((await completeLesson(page.request, id!)).ok()).toBe(true);
   await page.reload();
   await expect(
     page.getByRole("progressbar", { name: "Path progress" }),

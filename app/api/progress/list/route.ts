@@ -15,7 +15,11 @@ export async function POST(req: Request) {
     // sessions return 401 so a failed read cannot look like zero progress.
     const sessionUserId = await getUserIdFromRequest(req);
     if (!sessionUserId) {
-      return apiError("unauthorized", "Your session ended. Sign in to load saved progress.", 401);
+      return apiError(
+        "unauthorized",
+        "Your session ended. Sign in to load saved progress.",
+        401,
+      );
     }
 
     const parsed = await parseJson(req, Schema);
@@ -34,10 +38,21 @@ export async function POST(req: Request) {
       orderBy: { completedAt: "desc" },
     });
 
-    const visits = await prisma.lessonVisit.findMany({ where: { userId }, select: { lessonId: true, openedAt: true }, orderBy: { openedAt: "desc" } });
+    const reviews = await prisma.lessonReview.findMany({
+      where: { userId },
+      select: { lessonId: true, missedCardIds: true },
+    });
+    const current = new Map(reviews.map((r) => [r.lessonId, r]));
+    const visits = await prisma.lessonVisit.findMany({
+      where: { userId },
+      select: { lessonId: true, openedAt: true },
+      orderBy: { openedAt: "desc" },
+    });
     return apiOk({
       visits,
-      reviewLessonIds: progress.filter(reviewSuggested).map(p => p.lessonId),
+      reviewLessonIds: progress
+        .filter((p) => reviewSuggested(current.get(p.lessonId) || p))
+        .map((p) => p.lessonId),
       completedLessonIds: progress.map((p) => p.lessonId),
       recentProgress: progress.map((p) => ({
         lessonId: p.lessonId,

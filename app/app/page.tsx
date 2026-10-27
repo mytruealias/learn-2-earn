@@ -13,7 +13,7 @@ import styles from "../components/learner/home.module.css";
 export const dynamic = "force-dynamic";
 export default async function AppHome() {
   const user = await requireLearner("/app");
-  const [paths, progress, visits, selections] = await Promise.all([
+  const [paths, progress, visits, selections, reviews] = await Promise.all([
     publishedPaths(),
     prisma.progress.findMany({
       where: { userId: user.id },
@@ -29,12 +29,28 @@ export default async function AppHome() {
       where: { userId: user.id },
       select: { pathId: true },
     }),
+    prisma.lessonReview.findMany({
+      where: { userId: user.id },
+      select: { lessonId: true, missedCardIds: true },
+    }),
   ]);
+  const currentReview = new Map(
+    reviews.map((r) => [r.lessonId, r.missedCardIds]),
+  );
+  const effectiveProgress = progress.map((p) => ({
+    ...p,
+    missedCardIds: currentReview.get(p.lessonId) ?? p.missedCardIds,
+  }));
   const selected = selections.map((s) => s.pathId),
     done = new Set(progress.map((p) => p.lessonId)),
     available = paths.flatMap(availableLessons),
     count = available.filter((l) => done.has(l.id)).length;
-  const recommendation = recommendLesson(paths, progress, visits, selected),
+  const recommendation = recommendLesson(
+      paths,
+      effectiveProgress,
+      visits,
+      selected,
+    ),
     allComplete = available.length > 0 && count === available.length;
   const goal =
     user.learningGoal &&

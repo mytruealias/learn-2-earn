@@ -59,6 +59,8 @@ model Lesson {
   cards     Card[]
   progress  Progress[]
   visits    LessonVisit[]
+  attempts  LessonAttempt[]
+  reviews LessonReview[]
 
   @@unique([moduleId, slug])
 }
@@ -113,6 +115,10 @@ model User {
   onboardingState String?
   learningGoal    String?
   dailyGoal       Int?
+  learningTimezone String?
+  lastLearningAt DateTime?
+  lessonAttempts LessonAttempt[]
+  lessonReviews LessonReview[]
   pathSelections  PathSelection[]
   lessonVisits    LessonVisit[]
   sessions      LearnerSession[]
@@ -365,4 +371,45 @@ model PoolAdjustment {
   admin       AdminUser @relation(fields: [adminId], references: [id])
 
   @@index([createdAt])
+}
+
+// Choice evidence and acknowledgements only. Personal reflection text is never stored here.
+model LessonAttempt {
+ id String @id @default(cuid())
+ userId String
+ lessonId String
+ mode String
+ contentHash String
+ position Int @default(0)
+ createdAt DateTime @default(now())
+ completedAt DateTime?
+ resultJson String?
+ user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+ lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+ answers LessonAnswer[]
+ @@index([userId, lessonId, createdAt])
+}
+model LessonAnswer {
+ attemptId String
+ cardId String
+ ordinal Int
+ choice Int?
+ correct Boolean?
+ skipped Boolean @default(false)
+ answeredAt DateTime @default(now())
+ attempt LessonAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+ @@id([attemptId, cardId])
+ @@unique([attemptId, ordinal])
+}
+model LessonReview {
+ userId String
+ lessonId String
+ successes Int @default(0)
+ missedCardIds String @default("[]")
+ dueAt DateTime
+ lastReviewedAt DateTime
+ user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+ lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+ @@id([userId, lessonId])
+ @@index([userId, dueAt])
 }

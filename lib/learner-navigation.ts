@@ -7,7 +7,7 @@ export function safeLearnerDestination(value: unknown): string {
   )
     return "/app";
   if (
-    /^\/(?:app|lifeline|profile|paths\/[a-zA-Z0-9_-]+|lesson\/[a-zA-Z0-9_-]+)$/.test(
+    /^\/(?:app|practice|lifeline|profile|paths\/[a-zA-Z0-9_-]+|lesson\/[a-zA-Z0-9_-]+)$/.test(
       value,
     )
   )

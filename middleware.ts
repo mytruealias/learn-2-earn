@@ -3,10 +3,10 @@ import type { NextRequest } from "next/server";
 import { parseSessionPayload } from "./lib/session-policy";
 import { safeLearnerDestination } from "./lib/learner-navigation";
 
-const PROTECTED_PATHS = ["/app", "/paths", "/lesson", "/profile", "/signup", "/onboarding"];
+const PROTECTED_PATHS = ["/app", "/practice", "/paths", "/lesson", "/profile", "/signup", "/onboarding"];
 
 const LEARNER_PATHS = [
-  "/app", "/paths", "/lesson", "/profile",
+  "/app", "/practice", "/paths", "/lesson", "/profile",
   "/lifeline", "/signup", "/login", "/access", "/onboarding", "/recover",
 ];
 
@@ -93,7 +93,7 @@ function redirect301(url: string): NextResponse {
 
 function passThrough(pathname: string) {
   const response = NextResponse.next();
-  if (LEARNER_PATHS.some(p => pathname === p || pathname.startsWith(p + "/")) || pathname.startsWith("/api/auth/") || pathname.startsWith("/api/user/")) {
+  if (LEARNER_PATHS.some(p => pathname === p || pathname.startsWith(p + "/")) || pathname.startsWith("/api/auth/") || pathname.startsWith("/api/user/") || pathname.startsWith("/api/lesson/") || pathname.startsWith("/api/progress/") || pathname === "/api/practice") {
     response.headers.set("Cache-Control", "private, no-store");
     response.headers.set("X-Robots-Tag", "noindex, nofollow");
   }
