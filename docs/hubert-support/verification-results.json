@@ -35,5 +35,11 @@
   "productionDatabaseUsed": false,
   "livePersonalConversationsUsed": false,
   "liveProviderCallsUsed": false,
-  "deployed": false
+  "deployed": false,
+  "collaboration": {
+    "implementationCommit": "351368d",
+    "pushed": false,
+    "prCreated": false,
+    "reason": "Native Git authentication unavailable; configured GitHub CLI binding rejected by Git and API returned Forbidden"
+  }
 }
