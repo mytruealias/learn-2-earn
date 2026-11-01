@@ -1,218 +1,93 @@
-import { sumCents } from "@/lib/rewards/money";
 import { getAdminFromRequest } from "@/lib/admin-auth";
-import prisma from "@/lib/prisma";
-import { apiError, apiOk, apiServerError } from "@/lib/api-helpers";
-
+import { apiError, apiOk, apiServerError, parseQuery } from "@/lib/api-helpers";
+import { reportQuery, programReport } from "@/lib/staff/reporting";
+import { scopedDb } from "@/lib/program-scope";
+import { csvText } from "@/lib/staff/csv";
 export async function GET(req: Request) {
   try {
-    const admin = await getAdminFromRequest(req);
-    if (!admin) return apiError("unauthorized", "Not signed in", 401);
-
-    const now = new Date();
-    const ninetyDaysAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
-
-    const [
-      engagementRaw,
-      pathsWithCounts,
-      totalUsers,
-      registeredUsers,
-      activeMonth,
-      activeWeek,
-      totalXp,
-      totalLessonsCompleted,
-      payoutSummary,
-      completedPayoutSum,
-    ] = await Promise.all([
-      prisma.$queryRaw<{ day: Date; count: bigint }[]>`
-        SELECT DATE("completedAt") as day, COUNT(*)::bigint as count
-        FROM "Progress"
-        WHERE "completedAt" >= ${ninetyDaysAgo}
-        GROUP BY DATE("completedAt")
-        ORDER BY day ASC
-      `,
-      prisma.path.findMany({
-        where: { isActive: true },
-        select: {
-          id: true,
-          title: true,
-          modules: {
-            where: { isActive: true },
-            select: {
-              id: true,
-              title: true,
-              lessons: {
-                where: { isActive: true },
-                select: { id: true, progress: { select: { userId: true } } },
-              },
-            },
-          },
+    const a = await getAdminFromRequest(req);
+    if (!a) return apiError("unauthorized", "Sign in as staff.", 401);
+    const p = parseQuery(
+      Object.fromEntries(new URL(req.url).searchParams),
+      reportQuery,
+    );
+    if (!p.ok) return p.response;
+    if (p.data.programId && p.data.programId !== a.programId)
+      return apiError(
+        "forbidden",
+        "Select your active authorized program.",
+        403,
+      );
+    const report = await programReport(a, p.data);
+    if (p.data.format === "csv") {
+      await scopedDb(a).auditLog.create({
+        data: {
+          adminId: a.id,
+          action: "PROGRAM_REPORT_EXPORTED",
+          entity: "Report",
+          details: JSON.stringify(report.filters),
         },
-        orderBy: { order: "asc" },
-      }),
-      prisma.user.count(),
-      prisma.user.count({ where: { email: { not: null } } }),
-      prisma.user.count({
-        where: {
-          lastActiveAt: {
-            gte: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000),
-          },
-        },
-      }),
-      prisma.user.count({
-        where: {
-          lastActiveAt: {
-            gte: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000),
-          },
-        },
-      }),
-      prisma.progress.aggregate({ _sum: { xpEarned: true } }),
-      prisma.progress.count(),
-      prisma.payoutRequest.findMany({
-        where: {
-          status: { in: ["pending", "reviewed", "approved", "completed"] },
-        },
-        select: { amountCents: true },
-      }),
-      prisma.payoutRequest.findMany({
-        where: { status: "completed" },
-        select: { amountCents: true },
-      }),
-    ]);
-
-    const engagement = engagementRaw.map((row) => ({
-      date: (row.day instanceof Date ? row.day : new Date(row.day))
-        .toISOString()
-        .slice(0, 10),
-      count: Number(row.count),
-    }));
-
-    const dropoff: {
-      pathTitle: string;
-      modules: {
-        title: string;
-        totalLessons: number;
-        uniqueStarters: number;
-        uniqueCompleters: number;
-        completionRate: number;
-      }[];
-      totalLessons: number;
-      uniqueStarters: number;
-      uniqueCompleters: number;
-      completionRate: number;
-    }[] = [];
-
-    let totalPathCompletions = 0;
-    let totalModuleCompletions = 0;
-
-    for (const path of pathsWithCounts) {
-      const pathStarters = new Set<string>();
-      const pathCompleters = new Set<string>();
-      let pathTotalLessons = 0;
-      const moduleStats: (typeof dropoff)[0]["modules"] = [];
-
-      for (const mod of path.modules) {
-        const modStarters = new Set<string>();
-        const modLessonCount = mod.lessons.length;
-        pathTotalLessons += modLessonCount;
-
-        const userCompletedLessons = new Map<string, number>();
-
-        for (const lesson of mod.lessons) {
-          for (const p of lesson.progress) {
-            modStarters.add(p.userId);
-            pathStarters.add(p.userId);
-            userCompletedLessons.set(
-              p.userId,
-              (userCompletedLessons.get(p.userId) || 0) + 1,
-            );
-          }
-        }
-
-        const modCompleters = new Set<string>();
-        for (const [userId, count] of userCompletedLessons) {
-          if (count >= modLessonCount && modLessonCount > 0) {
-            modCompleters.add(userId);
-          }
-        }
-        totalModuleCompletions += modCompleters.size;
-
-        moduleStats.push({
-          title: mod.title,
-          totalLessons: modLessonCount,
-          uniqueStarters: modStarters.size,
-          uniqueCompleters: modCompleters.size,
-          completionRate:
-            modStarters.size > 0
-              ? Math.round((modCompleters.size / modStarters.size) * 100)
-              : 0,
-        });
-      }
-
-      const userTotalLessonsInPath = new Map<string, number>();
-      for (const mod of path.modules) {
-        for (const lesson of mod.lessons) {
-          for (const p of lesson.progress) {
-            userTotalLessonsInPath.set(
-              p.userId,
-              (userTotalLessonsInPath.get(p.userId) || 0) + 1,
-            );
-          }
-        }
-      }
-      for (const [userId, count] of userTotalLessonsInPath) {
-        if (count >= pathTotalLessons && pathTotalLessons > 0) {
-          pathCompleters.add(userId);
-        }
-      }
-      totalPathCompletions += pathCompleters.size;
-
-      dropoff.push({
-        pathTitle: path.title,
-        modules: moduleStats,
-        totalLessons: pathTotalLessons,
-        uniqueStarters: pathStarters.size,
-        uniqueCompleters: pathCompleters.size,
-        completionRate:
-          pathStarters.size > 0
-            ? Math.round((pathCompleters.size / pathStarters.size) * 100)
-            : 0,
       });
+      const s = report.summary;
+      return new Response(
+        csvText([
+          ["Program", a.programName],
+          ["Local start", p.data.start],
+          ["Local end inclusive", p.data.end],
+          ["Timezone", p.data.timezone],
+          ["Metric", "Value", "Definition"],
+          [
+            "Current enrolled denominator",
+            s.enrolled,
+            report.definitions.denominator,
+          ],
+          [
+            "Participating accounts",
+            s.active,
+            report.definitions.participation,
+          ],
+          [
+            "Participation percent",
+            s.participationPercent,
+            report.definitions.participation,
+          ],
+          ["First completions", s.first, report.definitions.first],
+          ["Practice sessions", s.practice, report.definitions.practice],
+          ["Service allocations", s.services, report.definitions.service],
+          ["Allocated quantity", s.quantity, report.definitions.service],
+          ["Cases created", s.cases, "Support cases created in range"],
+          ["Paid exact cents", s.paidCents, report.definitions.paid],
+          ["Recorded payments", s.paidCount, report.definitions.paid],
+          ["Paid participants", s.paidParticipants, report.definitions.paid],
+          [
+            "Undated completed legacy requests",
+            s.legacyPaid,
+            "All time; excluded from dated payment metrics",
+          ],
+          [
+            "Self-reported outcomes",
+            "Not collected",
+            report.definitions.outcomes,
+          ],
+          [],
+          ["Local date", "First completions"],
+          ...report.daily.map((d) => [d.date, d.completions]),
+        ]),
+        {
+          headers: {
+            "Content-Type": "text/csv; charset=utf-8",
+            "Content-Disposition":
+              "attachment; filename=program-participation-report.csv",
+            "Cache-Control": "private, no-store",
+          },
+        },
+      );
     }
-
-    return apiOk({
-      reports: {
-        engagement,
-        dropoff,
-        milestones: {
-          pathCompletions: totalPathCompletions,
-          moduleCompletions: totalModuleCompletions,
-          lessonsCompleted: totalLessonsCompleted,
-        },
-        summary: {
-          totalUsers,
-          registeredUsers,
-          guestUsers: totalUsers - registeredUsers,
-          activeWeek,
-          activeMonth,
-          totalXpDistributed: totalXp._sum.xpEarned || 0,
-          totalLessonsCompleted,
-          totalPayoutRequests: payoutSummary.length,
-          totalPayoutDollars:
-            sumCents(payoutSummary.map((p) => p.amountCents)) === null
-              ? null
-              : Number(sumCents(payoutSummary.map((p) => p.amountCents))) / 100,
-          completedPayouts: completedPayoutSum.length,
-          completedPayoutDollars:
-            sumCents(completedPayoutSum.map((p) => p.amountCents)) === null
-              ? null
-              : Number(sumCents(completedPayoutSum.map((p) => p.amountCents))) /
-                100,
-          pathCompletions: totalPathCompletions,
-          moduleCompletions: totalModuleCompletions,
-        },
-      },
-    });
-  } catch (error) {
-    return apiServerError("admin/stats/reports", error);
+    return apiOk(
+      { report },
+      { headers: { "Cache-Control": "private, no-store" } },
+    );
+  } catch (e) {
+    return apiServerError("program/reports", e);
   }
 }

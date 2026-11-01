@@ -28,7 +28,9 @@ export function useModalA11y(
 ) {
   const previouslyFocused = useRef<HTMLElement | null>(null);
   const closeHandler = useRef(onClose);
-  useEffect(() => { closeHandler.current = onClose; }, [onClose]);
+  useEffect(() => {
+    closeHandler.current = onClose;
+  }, [onClose]);
 
   useEffect(() => {
     if (!open) return;
@@ -40,7 +42,13 @@ export function useModalA11y(
 
     const container = containerRef.current;
     const focusables = (): HTMLElement[] =>
-      container ? Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(el => el.getClientRects().length > 0 && !el.matches(":disabled, [hidden], [inert] *")) : [];
+      container
+        ? Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(
+            (el) =>
+              el.getClientRects().length > 0 &&
+              !el.matches(":disabled, [hidden], [inert] *"),
+          )
+        : [];
 
     const initial = focusables()[0] ?? container;
     initial?.focus({ preventScroll: true });
@@ -61,10 +69,18 @@ export function useModalA11y(
       const first = items[0];
       const last = items[items.length - 1];
       const active = document.activeElement as HTMLElement | null;
-      if (e.shiftKey && (active === first || active === container || !container.contains(active))) {
+      if (
+        e.shiftKey &&
+        (active === first ||
+          active === container ||
+          !container.contains(active))
+      ) {
         e.preventDefault();
         last.focus();
-      } else if (!e.shiftKey && (active === last || !container.contains(active))) {
+      } else if (
+        !e.shiftKey &&
+        (active === last || !container.contains(active))
+      ) {
         e.preventDefault();
         first.focus();
       }
@@ -75,8 +91,15 @@ export function useModalA11y(
     return () => {
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = prevOverflow;
-      if (previouslyFocused.current?.isConnected) previouslyFocused.current.focus({ preventScroll: true });
-      else document.querySelector<HTMLElement>('main[tabindex="-1"]')?.focus({ preventScroll: true });
+      // Native modal focus must be released before restoring its trigger, including Strict Mode replay.
+      if (container instanceof HTMLDialogElement && container.open)
+        container.close();
+      if (previouslyFocused.current?.isConnected)
+        previouslyFocused.current.focus({ preventScroll: true });
+      else
+        document
+          .querySelector<HTMLElement>('main[tabindex="-1"]')
+          ?.focus({ preventScroll: true });
     };
   }, [open, containerRef]);
 }

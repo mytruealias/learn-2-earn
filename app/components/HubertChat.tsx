@@ -1,963 +1,464 @@
 "use client";
-
-import { useState, useRef, useEffect, useCallback } from "react";
-import { HubertIcon, CloseIcon, MicIcon, SpeakerOnIcon, SpeakerOffIcon } from "./icons";
-import { useModalA11y } from "@/lib/use-modal-a11y";
-
-type SpeechRecognitionLike = {
-  continuous: boolean;
-  interimResults: boolean;
-  lang: string;
-  start: () => void;
-  stop: () => void;
-  abort: () => void;
-  onresult: ((event: { resultIndex: number; results: ArrayLike<{ 0: { transcript: string }; isFinal: boolean; length: number }> }) => void) | null;
-  onerror: ((event: { error: string }) => void) | null;
-  onend: (() => void) | null;
-  onstart: (() => void) | null;
-};
-
-type SpeechRecognitionCtor = new () => SpeechRecognitionLike;
-
-function getSpeechRecognitionCtor(): SpeechRecognitionCtor | null {
-  if (typeof window === "undefined") return null;
-  const w = window as unknown as {
-    SpeechRecognition?: SpeechRecognitionCtor;
-    webkitSpeechRecognition?: SpeechRecognitionCtor;
-  };
-  return w.SpeechRecognition ?? w.webkitSpeechRecognition ?? null;
-}
-
-interface Message {
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Alert, Button, Dialog } from "./ui";
+import { HubertIcon } from "./icons";
+import HumanResources from "./support/HumanResources";
+import styles from "./support/support.module.css";
+type Message = {
+  id: string;
   role: "user" | "assistant";
   content: string;
-}
-
+  complete: boolean;
+};
+type Availability = { accountId: string | null; aiAvailable: boolean };
 export default function HubertChat({ onClose }: { onClose: () => void }) {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      role: "assistant",
-      content: "Hi, I'm Hubert. I'm here to listen, no judgment, no pressure. What's on your mind?",
-    },
-  ]);
-  const [input, setInput] = useState("");
-  const [streaming, setStreaming] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [authChecked, setAuthChecked] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
-  const [voiceSupported, setVoiceSupported] = useState(false);
-  const [voiceDisabled, setVoiceDisabled] = useState(false);
-  const [listening, setListening] = useState(false);
-  const [voiceHint, setVoiceHint] = useState<string | null>(null);
-  const [speechSynthSupported, setSpeechSynthSupported] = useState(false);
-  const [speakReplies, setSpeakReplies] = useState(false);
-  const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
-  const [selectedVoiceURI, setSelectedVoiceURI] = useState<string>("");
-  const lastSpokenIndexRef = useRef<number>(-1);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
-  const finalTranscriptRef = useRef<string>("");
-  const baseInputRef = useRef<string>("");
-  const ttsAbortRef = useRef<AbortController | null>(null);
-  const ttsAudioRef = useRef<HTMLAudioElement | null>(null);
-  const ttsObjectUrlRef = useRef<string | null>(null);
-  const [ttsAvailable, setTtsAvailable] = useState(true);
-
+  const [messages, setMessages] = useState<Message[]>([]),
+    [input, setInput] = useState(""),
+    [consent, setConsent] = useState(false),
+    [cloudConsent, setCloudConsent] = useState(false),
+    [state, setState] = useState<"checking" | "ready" | "streaming">(
+      "checking",
+    ),
+    [available, setAvailable] = useState<Availability | null>(null),
+    [error, setError] = useState(""),
+    [region, setRegion] = useState<"US" | "other">("US"),
+    [audioBusy, setAudioBusy] = useState(false),
+    [audioMessage, setAudioMessage] = useState("");
+  const pending = useRef<AbortController | null>(null),
+    audioRequest = useRef<AbortController | null>(null),
+    audio = useRef<HTMLAudioElement | null>(null),
+    audioUrl = useRef<string | null>(null),
+    lock = useRef(false),
+    mounted = useRef(true),
+    log = useRef<HTMLDivElement>(null);
+  const stopAudio = useCallback(() => {
+    audioRequest.current?.abort();
+    audio.current?.pause();
+    if (audio.current) audio.current.src = "";
+    if (audioUrl.current) URL.revokeObjectURL(audioUrl.current);
+    audioUrl.current = null;
+    audio.current = null;
+    if (typeof speechSynthesis !== "undefined") speechSynthesis.cancel();
+  }, []);
   useEffect(() => {
-    setVoiceSupported(getSpeechRecognitionCtor() !== null);
-  }, []);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const supported = typeof window.speechSynthesis !== "undefined" && typeof window.SpeechSynthesisUtterance !== "undefined";
-    setSpeechSynthSupported(supported);
-    if (!supported) return;
-    try {
-      const stored = window.localStorage.getItem("hubert-speak-replies");
-      if (stored === "1") setSpeakReplies(true);
-    } catch {
-      // ignore
-    }
-    try {
-      const storedVoice = window.localStorage.getItem("hubert-voice-uri");
-      if (storedVoice) setSelectedVoiceURI(storedVoice);
-    } catch {
-      // ignore
-    }
-    lastSpokenIndexRef.current = 0;
-
-    const loadVoices = () => {
-      try {
-        const voices = window.speechSynthesis.getVoices() || [];
-        setAvailableVoices(voices);
-      } catch {
-        // ignore
-      }
-    };
-    loadVoices();
-    window.speechSynthesis.addEventListener?.("voiceschanged", loadVoices);
-    return () => {
-      window.speechSynthesis.removeEventListener?.("voiceschanged", loadVoices);
-    };
-  }, []);
-
-  const filteredVoices = (() => {
-    if (availableVoices.length === 0) return [];
-    const navLang = (typeof navigator !== "undefined" && navigator.language) || "en-US";
-    const baseLang = navLang.split("-")[0].toLowerCase();
-    const matching = availableVoices.filter((v) => v.lang?.toLowerCase().startsWith(baseLang));
-    const list = matching.length > 0 ? matching : availableVoices;
-    const seen = new Set<string>();
-    const unique: SpeechSynthesisVoice[] = [];
-    for (const v of list) {
-      const key = v.voiceURI || `${v.name}|${v.lang}`;
-      if (seen.has(key)) continue;
-      seen.add(key);
-      unique.push(v);
-    }
-    unique.sort((a, b) => {
-      if (a.localService !== b.localService) return a.localService ? -1 : 1;
-      return a.name.localeCompare(b.name);
-    });
-    return unique;
-  })();
-
-  const handleVoiceChange = useCallback((uri: string) => {
-    setSelectedVoiceURI(uri);
-    try {
-      window.localStorage.setItem("hubert-voice-uri", uri);
-    } catch {
-      // ignore
-    }
-  }, []);
-
-  const stopSpeaking = useCallback(() => {
-    if (typeof window === "undefined") return;
-    if (ttsAbortRef.current) {
-      try {
-        ttsAbortRef.current.abort();
-      } catch {
-        // ignore
-      }
-      ttsAbortRef.current = null;
-    }
-    const audio = ttsAudioRef.current;
-    if (audio) {
-      try {
-        audio.pause();
-        audio.src = "";
-      } catch {
-        // ignore
-      }
-      ttsAudioRef.current = null;
-    }
-    if (ttsObjectUrlRef.current) {
-      try {
-        URL.revokeObjectURL(ttsObjectUrlRef.current);
-      } catch {
-        // ignore
-      }
-      ttsObjectUrlRef.current = null;
-    }
-    if (window.speechSynthesis) {
-      try {
-        window.speechSynthesis.cancel();
-      } catch {
-        // ignore
-      }
-    }
-  }, []);
-
-  const speakWithBrowser = useCallback((text: string) => {
-    if (typeof window === "undefined") return;
-    if (!window.speechSynthesis) return;
-    try {
-      window.speechSynthesis.cancel();
-      const utter = new window.SpeechSynthesisUtterance(text);
-      const chosen = selectedVoiceURI
-        ? availableVoices.find((v) => v.voiceURI === selectedVoiceURI)
-        : undefined;
-      if (chosen) {
-        utter.voice = chosen;
-        utter.lang = chosen.lang;
-      } else {
-        utter.lang = (typeof navigator !== "undefined" && navigator.language) || "en-US";
-      }
-      window.speechSynthesis.speak(utter);
-    } catch {
-      // ignore
-    }
-  }, [selectedVoiceURI, availableVoices]);
-
-  const speakWithServer = useCallback(async (text: string) => {
-    if (typeof window === "undefined") return false;
-    if (typeof navigator !== "undefined" && navigator.onLine === false) return false;
-    const controller = new AbortController();
-    ttsAbortRef.current = controller;
-    try {
-      const res = await fetch("/api/tts", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
-        signal: controller.signal,
-      });
-      if (!res.ok || !res.body) {
-        if (res.status === 503 || res.status === 401) {
-          setTtsAvailable(false);
-        }
-        return false;
-      }
-      const blob = await res.blob();
-      if (controller.signal.aborted) return true;
-      const url = URL.createObjectURL(blob);
-      ttsObjectUrlRef.current = url;
-      const audio = new Audio(url);
-      ttsAudioRef.current = audio;
-      audio.onended = () => {
-        if (ttsObjectUrlRef.current === url) {
-          URL.revokeObjectURL(url);
-          ttsObjectUrlRef.current = null;
-        }
-        if (ttsAudioRef.current === audio) ttsAudioRef.current = null;
-      };
-      audio.onerror = () => {
-        if (ttsObjectUrlRef.current === url) {
-          URL.revokeObjectURL(url);
-          ttsObjectUrlRef.current = null;
-        }
-        if (ttsAudioRef.current === audio) ttsAudioRef.current = null;
-      };
-      try {
-        await audio.play();
-      } catch {
-        try { audio.pause(); } catch { /* ignore */ }
-        if (ttsAudioRef.current === audio) ttsAudioRef.current = null;
-        if (ttsObjectUrlRef.current === url) {
-          try { URL.revokeObjectURL(url); } catch { /* ignore */ }
-          ttsObjectUrlRef.current = null;
-        }
-        return false;
-      }
-      return true;
-    } catch (err) {
-      if ((err as { name?: string })?.name === "AbortError") return true;
-      return false;
-    } finally {
-      if (ttsAbortRef.current === controller) ttsAbortRef.current = null;
-    }
-  }, []);
-
-  const toggleSpeakReplies = useCallback(() => {
-    setSpeakReplies((prev) => {
-      const next = !prev;
-      try {
-        window.localStorage.setItem("hubert-speak-replies", next ? "1" : "0");
-      } catch {
-        // ignore
-      }
-      if (next) {
-        lastSpokenIndexRef.current = messages.length - 1;
-      } else {
-        stopSpeaking();
-      }
-      return next;
-    });
-  }, [stopSpeaking, messages.length]);
-
-  useEffect(() => {
-    if (!speakReplies) return;
-    if (streaming) return;
-    const lastIdx = messages.length - 1;
-    if (lastIdx <= lastSpokenIndexRef.current) return;
-    const last = messages[lastIdx];
-    if (!last || last.role !== "assistant") return;
-    const text = last.content.trim();
-    if (!text) return;
-    lastSpokenIndexRef.current = lastIdx;
-
-    stopSpeaking();
-
-    let cancelled = false;
-    (async () => {
-      let played = false;
-      if (ttsAvailable) {
-        played = await speakWithServer(text);
-      }
-      if (!played && !cancelled && speechSynthSupported) {
-        speakWithBrowser(text);
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [messages, streaming, speakReplies, speechSynthSupported, ttsAvailable, speakWithServer, speakWithBrowser, stopSpeaking]);
-
-  useEffect(() => {
-    return () => {
-      stopSpeaking();
-    };
-  }, [stopSpeaking]);
-
-  useEffect(() => {
-    return () => {
-      const rec = recognitionRef.current;
-      if (!rec) return;
-      try {
-        rec.onresult = null;
-        rec.onerror = null;
-        rec.onend = null;
-        rec.onstart = null;
-        rec.abort();
-      } catch {
-        // ignore
-      }
-      recognitionRef.current = null;
-    };
-  }, []);
-
-  const stopListening = useCallback(() => {
-    const rec = recognitionRef.current;
-    if (!rec) return;
-    try {
-      rec.stop();
-    } catch {
-      // ignore
-    }
-  }, []);
-
-  const startListening = useCallback(() => {
-    if (voiceDisabled || listening) return;
-    const Ctor = getSpeechRecognitionCtor();
-    if (!Ctor) return;
-
-    try {
-      const rec: SpeechRecognitionLike = new Ctor();
-      rec.continuous = true;
-      rec.interimResults = true;
-      rec.lang = (typeof navigator !== "undefined" && navigator.language) || "en-US";
-
-      finalTranscriptRef.current = "";
-      baseInputRef.current = input ? input.replace(/\s*$/, "") + (input ? " " : "") : "";
-
-      rec.onstart = () => {
-        setListening(true);
-        setVoiceHint(null);
-      };
-
-      rec.onresult = (event) => {
-        let interim = "";
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          const result = event.results[i];
-          const transcript = result[0]?.transcript ?? "";
-          if (result.isFinal) {
-            finalTranscriptRef.current += transcript;
-          } else {
-            interim += transcript;
-          }
-        }
-        const combined = (baseInputRef.current + finalTranscriptRef.current + interim)
-          .replace(/\s+/g, " ")
-          .trimStart();
-        setInput(combined);
-      };
-
-      rec.onerror = (event) => {
-        const err = event.error;
-        if (err === "not-allowed" || err === "service-not-allowed") {
-          setVoiceDisabled(true);
-          setVoiceHint("Microphone access blocked. Enable mic permission in your browser to use voice.");
-        } else if (err === "no-speech") {
-          setVoiceHint("Didn't catch that. Try again.");
-        } else if (err === "audio-capture") {
-          setVoiceDisabled(true);
-          setVoiceHint("No microphone detected on this device.");
-        } else if (err !== "aborted") {
-          setVoiceHint("Voice input stopped unexpectedly.");
-        }
-      };
-
-      rec.onend = () => {
-        setListening(false);
-        recognitionRef.current = null;
-      };
-
-      recognitionRef.current = rec;
-      rec.start();
-    } catch {
-      setVoiceHint("Voice input isn't available right now.");
-      setListening(false);
-    }
-  }, [input, listening, voiceDisabled]);
-
-  const toggleListening = useCallback(() => {
-    if (listening) {
-      stopListening();
-    } else {
-      startListening();
-    }
-  }, [listening, startListening, stopListening]);
-
-  useEffect(() => {
-    fetch("/api/auth/session", {
-      method: "POST",
+    mounted.current = true;
+    const c = new AbortController();
+    fetch("/api/support", {
       credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: "{}",
+      cache: "no-store",
+      signal: c.signal,
     })
-      .then((res) => {
-        setIsLoggedIn(res.ok);
-        setAuthChecked(true);
+      .then(async (r) => {
+        if (!r.ok) throw new Error();
+        const d = await r.json();
+        if (mounted.current) setAvailable(d);
       })
       .catch(() => {
-        setIsLoggedIn(false);
-        setAuthChecked(true);
+        if (!c.signal.aborted)
+          setError(
+            "Hubert’s availability could not be checked. Human help remains available below.",
+          );
+      })
+      .finally(() => {
+        if (!c.signal.aborted) setState("ready");
       });
-  }, []);
-
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-
-  const scrollToBottom = useCallback(() => {
-    const el = scrollContainerRef.current;
-    if (el) {
-      el.scrollTop = el.scrollHeight;
-    }
-  }, []);
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages, scrollToBottom]);
-
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
-
-  const overlayRef = useRef<HTMLDivElement>(null);
-  useModalA11y(true, overlayRef, onClose);
-
-  useEffect(() => {
-    const html = document.documentElement;
-    const body = document.body;
-    const scrollY = window.scrollY;
-
-    const prev = {
-      htmlOverflow: html.style.overflow,
-      bodyPosition: body.style.position,
-      bodyTop: body.style.top,
-      bodyLeft: body.style.left,
-      bodyRight: body.style.right,
-    };
-
-    html.style.overflow = "hidden";
-    body.style.position = "fixed";
-    body.style.top = `-${scrollY}px`;
-    body.style.left = "0";
-    body.style.right = "0";
-
     return () => {
-      html.style.overflow = prev.htmlOverflow;
-      body.style.position = prev.bodyPosition;
-      body.style.top = prev.bodyTop;
-      body.style.left = prev.bodyLeft;
-      body.style.right = prev.bodyRight;
-      window.scrollTo(0, scrollY);
+      mounted.current = false;
+      c.abort();
+      pending.current?.abort();
+      stopAudio();
     };
-  }, []);
-
-  useEffect(() => {
-    const overlay = overlayRef.current;
-    if (!overlay) return;
-
-    const scrollEl = scrollContainerRef.current;
-
-    const blockWheel = (e: WheelEvent) => {
-      if (scrollEl && scrollEl.contains(e.target as Node)) return;
-      e.preventDefault();
-    };
-
-    const blockTouch = (e: TouchEvent) => {
-      if (scrollEl && scrollEl.contains(e.target as Node)) return;
-      e.preventDefault();
-    };
-
-    overlay.addEventListener("wheel", blockWheel, { passive: false });
-    overlay.addEventListener("touchmove", blockTouch, { passive: false });
-
-    return () => {
-      overlay.removeEventListener("wheel", blockWheel);
-      overlay.removeEventListener("touchmove", blockTouch);
-    };
-  }, []);
-
-  const sendMessage = async () => {
-    const text = input.trim();
-    if (!text || streaming) return;
-
-    if (recognitionRef.current) {
-      try {
-        recognitionRef.current.stop();
-      } catch {
-        // ignore
-      }
-    }
-
+  }, [stopAudio]);
+  const latest = [...messages]
+      .reverse()
+      .find((m) => m.role === "assistant" && m.complete && m.content),
+    canSend =
+      !!available?.accountId &&
+      available.aiAvailable &&
+      consent &&
+      state === "ready";
+  async function send(retry = false) {
+    const text = (
+      retry
+        ? [...messages].reverse().find((m) => m.role === "user")?.content
+        : input
+    )?.trim();
+    if (!text || lock.current || !canSend) return;
+    lock.current = true;
+    setState("streaming");
+    setError("");
+    stopAudio();
+    const user: Message = {
+        id: crypto.randomUUID(),
+        role: "user",
+        content: text,
+        complete: true,
+      },
+      history = retry
+        ? messages
+            .filter((m) => m.complete)
+            .filter((m, i, all) => !(i === all.length - 1 && m.role === "user"))
+        : messages.filter((m) => m.complete),
+      conversation = [...history, user];
+    setMessages(conversation);
     setInput("");
-    setError(null);
-    const userMessage: Message = { role: "user", content: text };
-    const updatedMessages = [...messages, userMessage];
-    setMessages(updatedMessages);
-    setStreaming(true);
-
+    const answerId = crypto.randomUUID(),
+      c = new AbortController();
+    pending.current = c;
+    const timer = setTimeout(() => c.abort(), 35000);
+    let content = "",
+      complete = false;
     try {
-      const res = await fetch("/api/chat", {
+      let turns = conversation
+        .slice(-12)
+        .map(({ role, content }) => ({ role, content }));
+      while (
+        turns.length > 1 &&
+        (turns.reduce((n, m) => n + m.content.length, 0) > 12000 ||
+          new TextEncoder().encode(
+            JSON.stringify({
+              expectedAccountId: available!.accountId,
+              consent: true,
+              region,
+              messages: turns,
+            }),
+          ).byteLength > 49152)
+      )
+        turns = turns.slice(1);
+      const r = await fetch("/api/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         credentials: "include",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          messages: updatedMessages.map((m) => ({ role: m.role, content: m.content })),
+          expectedAccountId: available!.accountId,
+          consent: true,
+          region,
+          messages: turns,
         }),
+        signal: c.signal,
       });
-
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        setError(data.error?.message || "Something went wrong. Please try again.");
-        setStreaming(false);
-        return;
+      if (!r.ok) {
+        const d = await r.json();
+        throw new Error(d.error?.message || "Hubert could not reply.");
       }
-
-      const reader = res.body?.getReader();
-      if (!reader) {
-        setError("Connection error. Please try again.");
-        setStreaming(false);
-        return;
-      }
-
-      const decoder = new TextDecoder();
-      let assistantContent = "";
+      if (!r.body) throw new Error("No reply stream was available.");
+      const reader = r.body.getReader(),
+        decoder = new TextDecoder();
       let buffer = "";
-      setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
-
-      while (true) {
+      setMessages((prev) => [
+        ...prev,
+        { id: answerId, role: "assistant", content: "", complete: false },
+      ]);
+      while (!complete) {
         const { done, value } = await reader.read();
         if (done) break;
-
         buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n");
-        buffer = lines.pop() || "";
-
-        for (const line of lines) {
-          const trimmed = line.trim();
-          if (!trimmed.startsWith("data: ")) continue;
-          const data = trimmed.slice(6);
-          if (data === "[DONE]") break;
-          try {
-            const parsed = JSON.parse(data);
-            if (parsed.error) {
-              setError(parsed.error);
-              break;
-            }
-            if (parsed.text) {
-              assistantContent += parsed.text;
-              setMessages((prev) => {
-                const updated = [...prev];
-                updated[updated.length - 1] = { role: "assistant", content: assistantContent };
-                return updated;
-              });
-            }
-          } catch {
-            buffer = line + "\n";
+        if (buffer.length > 20000) throw new Error("Reply interrupted.");
+        const frames = buffer.split(/\r?\n\r?\n/);
+        buffer = frames.pop() || "";
+        for (const frame of frames) {
+          const data = frame
+            .split(/\r?\n/)
+            .find((l) => l.startsWith("data: "))
+            ?.slice(6);
+          if (!data) continue;
+          if (data === "[DONE]") {
+            complete = true;
+            break;
+          }
+          const event = JSON.parse(data);
+          if (event.error) throw new Error(event.error);
+          if (typeof event.text === "string") {
+            content += event.text;
+            if (content.length > 6000) throw new Error("Reply interrupted.");
+            if (mounted.current)
+              setMessages((prev) =>
+                prev.map((m) => (m.id === answerId ? { ...m, content } : m)),
+              );
           }
         }
       }
-    } catch {
-      setError("Connection error. Please try again.");
+      if (!complete)
+        throw new Error(
+          "This reply was interrupted and may be incomplete. No help request or alert was sent.",
+        );
+      if (mounted.current)
+        setMessages((prev) =>
+          prev.map((m) => (m.id === answerId ? { ...m, complete: true } : m)),
+        );
+    } catch (e) {
+      if (mounted.current)
+        setError(
+          c.signal.aborted
+            ? "Reply stopped or timed out. Partial text may be incomplete. Human help remains available; no alert was sent."
+            : e instanceof Error
+              ? e.message
+              : "The reply could not be confirmed. Human help remains available.",
+        );
+    } finally {
+      clearTimeout(timer);
+      c.abort();
+      pending.current = null;
+      lock.current = false;
+      if (mounted.current) setState("ready");
     }
-
-    setStreaming(false);
-    inputRef.current?.focus();
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
+  }
+  async function voice(cloud: boolean) {
+    if (!latest) return;
+    stopAudio();
+    setAudioMessage("");
+    if (!cloud) {
+      const voices =
+        typeof speechSynthesis !== "undefined"
+          ? speechSynthesis.getVoices().filter((v) => v.localService)
+          : [];
+      if (!voices.length) {
+        setAudioMessage(
+          "No local device voice is available. Text remains readable; cloud voice requires a separate choice.",
+        );
+        return;
+      }
+      const utterance = new SpeechSynthesisUtterance(latest.content);
+      utterance.voice =
+        voices.find((v) =>
+          v.lang.startsWith(navigator.language.split("-")[0]),
+        ) || voices[0];
+      speechSynthesis.speak(utterance);
+      setAudioMessage(
+        "Reading on a local device voice. Use Stop audio to end it.",
+      );
+      return;
     }
-  };
-
+    if (!cloudConsent) return;
+    const c = new AbortController();
+    audioRequest.current = c;
+    setAudioBusy(true);
+    try {
+      const r = await fetch("/api/tts", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          expectedAccountId: available!.accountId,
+          text: latest.content.slice(0, 2000),
+          consent: true,
+        }),
+        signal: c.signal,
+      });
+      if (!r.ok) {
+        const d = await r.json();
+        throw new Error(d.error?.message || "Cloud voice unavailable.");
+      }
+      const url = URL.createObjectURL(await r.blob());
+      if (!mounted.current) {
+        URL.revokeObjectURL(url);
+        return;
+      }
+      audioUrl.current = url;
+      const player = new Audio(url);
+      audio.current = player;
+      player.onended = stopAudio;
+      await player.play();
+      setAudioMessage(
+        "Playing AI-generated cloud voice, up to the first 2,000 characters. No automatic voice processing is enabled.",
+      );
+    } catch (e) {
+      if (mounted.current)
+        setAudioMessage(
+          c.signal.aborted
+            ? "Audio stopped."
+            : e instanceof Error
+              ? e.message
+              : "Audio unavailable. Text remains available.",
+        );
+    } finally {
+      if (mounted.current) setAudioBusy(false);
+    }
+  }
   return (
-    <div
-      ref={overlayRef}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="hubert-chat-title"
-      tabIndex={-1}
-      style={{
-      position: "fixed",
-      inset: 0,
-      zIndex: 3000,
-      display: "flex",
-      flexDirection: "column",
-      backgroundColor: "rgba(0,0,0,0.8)",
-      touchAction: "none",
-    }}>
-      <div style={{
-        flex: 1,
-        display: "flex",
-        flexDirection: "column",
-        maxWidth: "600px",
-        width: "100%",
-        margin: "0 auto",
-        backgroundColor: "var(--bg-primary)",
-        borderLeft: "1px solid var(--border-color)",
-        borderRight: "1px solid var(--border-color)",
-        overflow: "hidden",
-        minHeight: 0,
-      }}>
-        <div style={{
-          padding: "0.75rem 1rem",
-          borderBottom: "1px solid var(--border-color)",
-          display: "flex",
-          alignItems: "center",
-          gap: "0.75rem",
-          backgroundColor: "var(--bg-secondary)",
-          flexShrink: 0,
-        }}>
-          <div style={{
-            width: 36,
-            height: 36,
-            borderRadius: "50%",
-            background: "linear-gradient(135deg, var(--accent-green), var(--accent-blue))",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            flexShrink: 0,
-          }}>
-            <HubertIcon size={20} color="#fff" />
-          </div>
-          <div style={{ flex: 1 }}>
-            <div id="hubert-chat-title" style={{
-              fontWeight: 700,
-              fontSize: "1rem",
-              fontFamily: "var(--font-display)",
-            }}>Hubert</div>
-            <div style={{
-              fontSize: "0.7rem",
-              color: "var(--accent-green)",
-              fontWeight: 600,
-            }}>
-              {streaming ? "typing..." : "online"}
-            </div>
-          </div>
-          {speechSynthSupported && filteredVoices.length > 0 && (
-            <>
-              <label htmlFor="hubert-voice-select" className="sr-only">
-                Choose Hubert&apos;s voice
-              </label>
-              <select
-                id="hubert-voice-select"
-                value={selectedVoiceURI}
-                onChange={(e) => handleVoiceChange(e.target.value)}
-                title="Choose Hubert's voice"
-                style={{
-                  maxWidth: 140,
-                  padding: "0.35rem 0.5rem",
-                  fontSize: "0.75rem",
-                  backgroundColor: "var(--bg-card)",
-                  color: "var(--text-primary)",
-                  border: "1px solid var(--border-color)",
-                  borderRadius: "8px",
-                  fontFamily: "inherit",
-                  cursor: "pointer",
-                }}
-              >
-                <option value="">Default voice</option>
-                {filteredVoices.map((v) => (
-                  <option key={v.voiceURI || `${v.name}|${v.lang}`} value={v.voiceURI}>
-                    {v.name} ({v.lang})
-                  </option>
-                ))}
-              </select>
-            </>
-          )}
-          {(speechSynthSupported || ttsAvailable) && (
-            <button
-              type="button"
-              onClick={toggleSpeakReplies}
-              aria-label={speakReplies ? "Turn off read replies aloud" : "Turn on read replies aloud"}
-              aria-pressed={speakReplies}
-              title={speakReplies ? "Mute Hubert's voice" : "Read Hubert's replies aloud"}
-              style={{
-                background: "none",
-                border: "none",
-                color: speakReplies ? "var(--accent-green)" : "var(--text-muted)",
-                padding: "0.5rem",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                cursor: "pointer",
-              }}
-            >
-              {speakReplies ? (
-                <SpeakerOnIcon size={20} color="currentColor" />
-              ) : (
-                <SpeakerOffIcon size={20} color="currentColor" />
-              )}
-            </button>
-          )}
-          <button
-            onClick={onClose}
-            style={{
-              background: "none",
-              border: "none",
-              color: "var(--text-muted)",
-              padding: "0.5rem",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-            aria-label="Close chat"
+    <Dialog
+      open
+      title="Hubert — AI support"
+      onClose={() => {
+        pending.current?.abort();
+        stopAudio();
+        onClose();
+      }}
+    >
+      <div className={styles.chat} data-design="support">
+        <div className={styles.badge}>
+          <HubertIcon size={32} />
+          <strong>Optional AI support</strong>
+        </div>
+        <p>
+          Hubert can be wrong. It is not a clinician, crisis counselor or
+          monitored service. It cannot read case files, change rewards, contact
+          staff or dispatch help.
+        </p>
+        <label>
+          Resource region
+          <select
+            aria-label="Resource region"
+            value={region}
+            onChange={(e) => setRegion(e.target.value as "US" | "other")}
           >
-            <CloseIcon size={22} color="var(--text-muted)" />
-          </button>
-        </div>
-
-        {authChecked && !isLoggedIn ? (
-          <div style={{
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "2rem",
-            gap: "1rem",
-            textAlign: "center",
-          }}>
-            <div style={{
-              width: 56,
-              height: 56,
-              borderRadius: "50%",
-              background: "linear-gradient(135deg, var(--accent-green), var(--accent-blue))",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}>
-              <HubertIcon size={28} color="#fff" />
-            </div>
-            <div style={{ fontSize: "1.1rem", fontWeight: 700 }}>
-              Log in to chat with Hubert
-            </div>
-            <div style={{ fontSize: "0.85rem", color: "var(--text-secondary)", maxWidth: 280 }}>
-              Create a free account or sign in to start talking with your AI support companion.
-            </div>
-            <a
-              href="/login"
-              style={{
-                display: "inline-block",
-                marginTop: "0.5rem",
-                padding: "0.7rem 2rem",
-                backgroundColor: "var(--accent-green)",
-                color: "#fff",
-                borderRadius: "10px",
-                fontWeight: 700,
-                fontSize: "0.9rem",
-                textDecoration: "none",
-              }}
-            >
-              Log In
-            </a>
-          </div>
-        ) : (
-        <>
+            <option value="US">United States</option>
+            <option value="other">Outside the United States</option>
+          </select>
+        </label>
+        <p>
+          Messages go to OpenAI when AI is enabled. We do not save chat
+          transcripts to your account or browser storage. Provider and hosting
+          retention depend on their settings and agreements; closing chat does
+          not guarantee their deletion. Avoid names, locations, case details and
+          payment information.
+        </p>
+        <label className={styles.check}>
+          <input
+            type="checkbox"
+            checked={consent}
+            onChange={(e) => setConsent(e.target.checked)}
+          />
+          I choose to send this conversation to the AI provider.
+        </label>
+        {state === "checking" ? (
+          <p role="status">Checking optional AI availability…</p>
+        ) : !available ? (
+          <p>
+            Optional AI status is unavailable. Human help remains available
+            below.
+          </p>
+        ) : !available.accountId ? (
+          <p>
+            Sign in to use AI chat. Human help below does not require sign-in.
+          </p>
+        ) : !available.aiAvailable ? (
+          <p>
+            Hubert AI is unavailable. Human-help options remain available; this
+            conversation is not monitored.
+          </p>
+        ) : null}
         <div
-          ref={scrollContainerRef}
-          style={{
-          flex: 1,
-          overflowY: "auto",
-          padding: "1rem",
-          display: "flex",
-          flexDirection: "column",
-          gap: "0.75rem",
-          minHeight: 0,
-          touchAction: "pan-y",
-          WebkitOverflowScrolling: "touch",
-        } as React.CSSProperties}>
-          {messages.map((msg, i) => (
-            <div
-              key={i}
-              style={{
-                display: "flex",
-                justifyContent: msg.role === "user" ? "flex-end" : "flex-start",
-                gap: "0.5rem",
-                alignItems: "flex-end",
-              }}
+          ref={log}
+          className={styles.log}
+          tabIndex={0}
+          role="log"
+          aria-label="Hubert conversation"
+          aria-live="polite"
+          aria-relevant="additions"
+        >
+          <p>
+            Choose what you want to share. Sending a chat message does not send
+            a program help request.
+          </p>
+          {messages.map((m) => (
+            <article
+              key={m.id}
+              className={`${styles.message} ${m.role === "user" ? styles.mine : ""}`}
             >
-              {msg.role === "assistant" && (
-                <div style={{
-                  width: 28,
-                  height: 28,
-                  borderRadius: "50%",
-                  background: "linear-gradient(135deg, var(--accent-green), var(--accent-blue))",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  flexShrink: 0,
-                }}>
-                  <HubertIcon size={14} color="#fff" />
-                </div>
-              )}
-              <div
-                style={{
-                  maxWidth: "80%",
-                  padding: "0.65rem 0.9rem",
-                  borderRadius: msg.role === "user" ? "16px 16px 6px 16px" : "16px 16px 16px 6px",
-                  backgroundColor: msg.role === "user" ? "var(--accent-blue)" : "var(--bg-card)",
-                  color: msg.role === "user" ? "#fff" : "var(--text-primary)",
-                  fontSize: "0.88rem",
-                  lineHeight: "1.5",
-                  whiteSpace: "pre-wrap",
-                  wordBreak: "break-word",
-                  border: msg.role === "assistant" ? "1px solid var(--border-color)" : "none",
-                }}
-              >
-                {msg.content || (streaming && i === messages.length - 1 ? "..." : "")}
-              </div>
-            </div>
+              <strong>
+                {m.role === "user" ? "You" : "Hubert AI"}
+                {!m.complete && m.role === "assistant"
+                  ? " — incomplete reply"
+                  : ""}
+              </strong>
+              <p>{m.content || "Preparing a reply…"}</p>
+            </article>
           ))}
-
-          {error && (
-            <div role="alert" aria-live="assertive" style={{
-              textAlign: "center",
-              fontSize: "0.8rem",
-              color: "var(--accent-red)",
-              padding: "0.5rem",
-              backgroundColor: "rgba(245,80,80,0.1)",
-              borderRadius: "8px",
-            }}>
-              {error}
-            </div>
-          )}
-
-          <div ref={messagesEndRef} style={{ flexShrink: 0, height: 1 }} />
         </div>
-
-        <div style={{
-          padding: "0.75rem 1rem",
-          borderTop: "1px solid var(--border-color)",
-          backgroundColor: "var(--bg-secondary)",
-          flexShrink: 0,
-        }}>
-          <div style={{
-            fontSize: "0.65rem",
-            color: "var(--text-muted)",
-            textAlign: "center",
-            marginBottom: "0.5rem",
-          }}>
-            Hubert is an AI companion, not a therapist. In crisis? Call <a href="tel:988" style={{ color: "var(--accent-red)", fontWeight: 700 }}>988</a>
-          </div>
-          {voiceHint && (
-            <div role="status" aria-live="polite" style={{
-              fontSize: "0.7rem",
-              color: "var(--text-secondary)",
-              textAlign: "center",
-              marginBottom: "0.5rem",
-              padding: "0.4rem 0.6rem",
-              backgroundColor: "var(--bg-card)",
-              border: "1px solid var(--border-color)",
-              borderRadius: "8px",
-            }}>
-              {voiceHint}
-            </div>
-          )}
-          <div style={{
-            display: "flex",
-            gap: "0.5rem",
-            alignItems: "center",
-          }}>
-            <label htmlFor="hubert-chat-input" className="sr-only">
-              Type a message to Hubert
-            </label>
-            <input
-              id="hubert-chat-input"
-              ref={inputRef}
-              type="text"
+        {error && <Alert tone="error">{error}</Alert>}
+        <form
+          className={styles.form}
+          onSubmit={(e) => {
+            e.preventDefault();
+            void send();
+          }}
+        >
+          <label>
+            Your message
+            <textarea
+              maxLength={1000}
               value={input}
-              onChange={(e) => {
-                setInput(e.target.value);
-                if (listening) stopListening();
-              }}
-              onKeyDown={handleKeyDown}
-              placeholder="Type a message..."
-              disabled={streaming}
-              autoComplete="off"
-              style={{
-                flex: 1,
-                padding: "0.7rem 1rem",
-                backgroundColor: "var(--bg-card)",
-                border: "1px solid var(--border-color)",
-                borderRadius: "20px",
-                color: "var(--text-primary)",
-                fontSize: "0.88rem",
-                fontFamily: "inherit",
-                outline: "none",
-              }}
+              onChange={(e) => setInput(e.target.value)}
+              disabled={!canSend}
+              aria-describedby="hubert-input-note"
             />
-            {voiceSupported && !voiceDisabled && (
-              <button
-                type="button"
-                onClick={toggleListening}
-                disabled={streaming}
-                aria-label={listening ? "Stop voice input" : "Start voice input"}
-                aria-pressed={listening}
-                title={listening ? "Stop voice input" : "Start voice input"}
-                style={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: "50%",
-                  backgroundColor: listening ? "var(--accent-red)" : "var(--bg-card)",
-                  color: listening ? "#fff" : "var(--text-secondary)",
-                  border: `1px solid ${listening ? "var(--accent-red)" : "var(--border-color)"}`,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  flexShrink: 0,
-                  cursor: streaming ? "not-allowed" : "pointer",
-                  transition: "all 0.2s",
-                  animation: listening ? "hubertMicPulse 1.4s ease-in-out infinite" : "none",
-                  opacity: streaming ? 0.5 : 1,
+          </label>
+          <p id="hubert-input-note">
+            Up to 1,000 characters. Voice dictation on your keyboard may use
+            your device provider; type if you prefer.
+          </p>
+          <div className={styles.actions}>
+            <Button
+              type="submit"
+              disabled={!canSend || !input.trim()}
+              disabledReason="AI must be available, you must be signed in, and the privacy choice and message are required."
+              busy={state === "streaming"}
+            >
+              Send to Hubert
+            </Button>
+            {state === "streaming" && (
+              <Button
+                variant="secondary"
+                onClick={() => pending.current?.abort()}
+              >
+                Stop reply
+              </Button>
+            )}
+            {error && (
+              <Button
+                variant="secondary"
+                disabled={!canSend}
+                disabledReason="Wait for the current reply or availability check."
+                onClick={() => void send(true)}
+              >
+                Retry last message
+              </Button>
+            )}
+          </div>
+        </form>
+        {latest && (
+          <section>
+            <h3>Optional read-aloud</h3>
+            <div className={styles.actions}>
+              <Button variant="secondary" onClick={() => void voice(false)}>
+                Read with local device voice
+              </Button>
+              <Button
+                variant="quiet"
+                onClick={() => {
+                  stopAudio();
+                  setAudioMessage("Audio stopped.");
                 }}
               >
-                <MicIcon size={18} color="currentColor" />
-              </button>
-            )}
-            <button
-              onClick={sendMessage}
-              disabled={streaming || !input.trim()}
-              style={{
-                width: 40,
-                height: 40,
-                borderRadius: "50%",
-                backgroundColor: streaming || !input.trim() ? "var(--bg-card)" : "var(--accent-green)",
-                color: streaming || !input.trim() ? "var(--text-muted)" : "#fff",
-                border: "none",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                flexShrink: 0,
-                transition: "all 0.2s",
-              }}
-              aria-label="Send message"
+                Stop audio
+              </Button>
+            </div>
+            <label className={styles.check}>
+              <input
+                type="checkbox"
+                checked={cloudConsent}
+                onChange={(e) => setCloudConsent(e.target.checked)}
+              />
+              I choose to send this reply text to OpenAI for AI-generated voice.
+            </label>
+            <Button
+              variant="secondary"
+              busy={audioBusy}
+              disabled={!cloudConsent}
+              disabledReason="Cloud voice sends reply text to OpenAI; choose that processing option first."
+              onClick={() => void voice(true)}
             >
-              <svg width={18} height={18} viewBox="0 0 24 24" fill="none">
-                <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </button>
-          </div>
-        </div>
-        </>
+              Read with cloud voice
+            </Button>
+            {audioMessage && <p role="status">{audioMessage}</p>}
+          </section>
         )}
+        <HumanResources compact region={region} />
+        <a href="/lifeline" className={styles.link}>
+          Open public help and program request status
+        </a>
       </div>
-    </div>
+    </Dialog>
   );
 }

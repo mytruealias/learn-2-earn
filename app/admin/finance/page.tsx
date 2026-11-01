@@ -17,5 +17,5 @@ export default async function Page() {
         </p>
       </Card>
     );
-  return <FinanceClient initialData={await financeData()} />;
+  return <FinanceClient initialData={await financeData(a)} />;
 }

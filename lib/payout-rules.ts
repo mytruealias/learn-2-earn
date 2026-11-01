@@ -36,16 +36,30 @@ export function citySlug(city: string | null | undefined) {
 export async function getPayoutRules(
   userCity: string | null | undefined,
   db: Prisma.TransactionClient = prisma,
+  programId?: string | null,
 ): Promise<PayoutRules> {
   const slug = citySlug(userCity);
+  const security = { programId: programId ?? null };
+  const program = programId
+    ? await db.program.findUnique({
+        where: { id: programId },
+        select: { defaultConfigSlug: true },
+      })
+    : null;
   const config =
     (slug
       ? await db.payoutConfig.findFirst({
-          where: { programSlug: slug, isActive: true },
+          where: { ...security, programSlug: slug, isActive: true },
         })
       : null) ||
     (await db.payoutConfig.findFirst({
-      where: { programSlug: "default", isActive: true },
+      where: {
+        ...security,
+        programSlug:
+          program?.defaultConfigSlug ??
+          (programId ? `program-default-${programId}` : "default"),
+        isActive: true,
+      },
     }));
   let methods: RewardMethod[] = legacyMethods;
   if (config?.paymentMethods) {

@@ -1,3 +1,4 @@
+import { verifyStaffRequest } from "./helpers/staff";
 import { test, expect, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { mkdirSync, writeFileSync } from "node:fs";
@@ -144,10 +145,15 @@ for (const width of [360, 768, 1440])
         })
       ).ok(),
     ).toBe(true);
-    await page.goto("/admin/payouts");
+    await verifyStaffRequest(page.request, staff.email);
+    await page
+      .context()
+      .setExtraHTTPHeaders({ "x-l2e-program": "test-program" });
+    await page.goto(`/admin/payouts?search=${before.requests[0].id}`);
     await expect(
       page.getByRole("heading", { name: "Reward requests", exact: true }),
     ).toBeVisible();
+    await page.getByText("View request history", { exact: true }).click();
     await expect(page.getByText("••••ct", { exact: false })).toBeVisible();
     await audit(page, "staff-review", width);
     await page
@@ -159,6 +165,7 @@ for (const width of [360, 768, 1440])
     await page
       .getByRole("button", { name: "Save decision", exact: true })
       .click();
+    await expect(page.getByRole("dialog")).not.toBeVisible();
     await page
       .getByRole("combobox", { name: "Status", exact: true })
       .selectOption("reviewed");
@@ -169,6 +176,7 @@ for (const width of [360, 768, 1440])
     await page
       .getByRole("button", { name: "Save decision", exact: true })
       .click();
+    await expect(page.getByRole("dialog")).not.toBeVisible();
     const approved = await rewardSnapshot(user.id);
     expect(approved.account).toMatchObject({ reservedXp: 100, spentXp: 0 });
     expect(approved.requests[0].paidAt).toBeNull();
@@ -177,6 +185,9 @@ for (const width of [360, 768, 1440])
         await page.request.post("/api/admin/finance/pool", {
           data: {
             requestKey: crypto.randomUUID(),
+            expectedBalanceCents:
+              (await (await page.request.get("/api/admin/finance/pool")).json())
+                .pool?.balanceCents || 0,
             amountCents: 1000,
             reason: "Synthetic bookkeeping funding; no funds move",
           },

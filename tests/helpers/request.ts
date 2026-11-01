@@ -14,6 +14,8 @@ interface MakeRequestOpts {
 
 export function makeRequest(url: string, opts: MakeRequestOpts = {}): Request {
   const headers = new Headers(opts.headers ?? {});
+  if (opts.cookies?.l2e_admin_session && !headers.has("x-l2e-program"))
+    headers.set("x-l2e-program", "test-program");
   if (opts.body !== undefined && !headers.has("content-type")) {
     headers.set("content-type", "application/json");
   }
@@ -31,7 +33,8 @@ export function makeRequest(url: string, opts: MakeRequestOpts = {}): Request {
     headers,
   };
   if (opts.body !== undefined) {
-    init.body = typeof opts.body === "string" ? opts.body : JSON.stringify(opts.body);
+    init.body =
+      typeof opts.body === "string" ? opts.body : JSON.stringify(opts.body);
   }
   return new Request(url, init);
 }
@@ -60,11 +63,15 @@ export function readCookie(setCookies: string[], name: string): string | null {
   for (const c of setCookies) {
     const [pair] = c.split(";");
     const index = pair.indexOf("=");
-    if (pair.slice(0, index).trim() === name) return decodeURIComponent(pair.slice(index + 1));
+    if (pair.slice(0, index).trim() === name)
+      return decodeURIComponent(pair.slice(index + 1));
   }
   return null;
 }
 
 export function makeInvitedRequest(url: string, opts: MakeRequestOpts = {}) {
-  return makeRequest(url, { ...opts, cookies: { l2e_demo_access: createAccessToken(), ...opts.cookies } });
+  return makeRequest(url, {
+    ...opts,
+    cookies: { l2e_demo_access: createAccessToken(), ...opts.cookies },
+  });
 }

@@ -1,0 +1,171 @@
+.page {
+  display: grid;
+  gap: var(--l2e-space-5);
+  max-width: 90rem;
+  margin: 0 auto;
+  color: var(--l2e-ink);
+}
+.page header p {
+  max-width: 70ch;
+}
+.eyebrow {
+  color: var(--l2e-muted);
+  font-size: var(--l2e-text-sm);
+}
+.toolbar {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 1rem;
+  background: var(--l2e-surface);
+  border: 1px solid var(--l2e-border);
+  padding: 1rem;
+  border-radius: 20px;
+}
+.toolbar label {
+  display: grid;
+  gap: 0.5rem;
+  flex: 1 1 10rem;
+}
+.page :is(input, select, textarea),
+.form :is(input, select, textarea) {
+  min-height: 44px;
+  width: 100%;
+  max-width: 100%;
+  padding: 0.7rem;
+  border: 1px solid var(--l2e-control-border);
+  background: var(--l2e-surface);
+  color: var(--l2e-ink);
+  border-radius: 12px;
+  font: inherit;
+}
+.page textarea,
+.form textarea {
+  min-height: 7rem;
+}
+.page :is(a, button, input, select, textarea):focus-visible,
+.form :is(a, button, input, select, textarea):focus-visible {
+  outline: 3px solid var(--l2e-focus);
+  outline-offset: 3px;
+}
+.page a:not([class]) {
+  color: var(--l2e-primary);
+  text-decoration: underline;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  overflow-wrap: anywhere;
+}
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: var(--l2e-surface);
+  border: 1px solid var(--l2e-border);
+  border-radius: 16px;
+  overflow: hidden;
+  font-size: 0.9375rem;
+}
+.table caption {
+  text-align: left;
+  color: var(--l2e-muted);
+  padding: 0.75rem 0;
+}
+.table th {
+  background: var(--l2e-surface-muted);
+  font-weight: 650;
+  text-align: left;
+}
+.table :is(th, td) {
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid var(--l2e-border);
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+.table tr:last-child td {
+  border-bottom: 0;
+}
+.pager,
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+}
+.empty {
+  padding: 2rem;
+  border: 1px dashed var(--l2e-border);
+  border-radius: 20px;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+  gap: 1.5rem;
+}
+.form {
+  display: grid;
+  gap: 1rem;
+  max-width: 48rem;
+}
+.form label {
+  display: grid;
+  gap: 0.5rem;
+}
+.timeline {
+  display: grid;
+  gap: 1rem;
+  padding-left: 1.5rem;
+}
+.timeline li {
+  border-bottom: 1px solid var(--l2e-border);
+  padding-bottom: 1rem;
+  overflow-wrap: anywhere;
+}
+.metric {
+  font-size: 2rem;
+  font-weight: 700;
+}
+@media (max-width: 48rem) {
+  .table,
+  .table tbody,
+  .table tr,
+  .table td {
+    display: block;
+  }
+  .table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .table tr {
+    padding: 1rem;
+    border-bottom: 2px solid var(--l2e-border);
+  }
+  .table td {
+    border: 0;
+    padding: 0.4rem 0;
+    display: grid;
+    grid-template-columns: minmax(6rem, 35%) minmax(0, 1fr);
+    gap: 0.75rem;
+  }
+  .table td::before {
+    content: attr(data-label);
+    font-weight: 650;
+    color: var(--l2e-muted);
+  }
+  .table caption {
+    display: block;
+  }
+  .toolbar {
+    align-items: stretch;
+  }
+}
+/* On narrow phones, large text needs the full card width for labels and actions. */
+@media (max-width: 26rem) {
+  .table td {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.25rem;
+  }
+}

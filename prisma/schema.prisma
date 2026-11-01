@@ -88,6 +88,12 @@ model Card {
 }
 
 model User {
+  supportUsage SupportUsage[]
+  supportLeases SupportLease[]
+  programEnrollmentState String @default("legacy_quarantine")
+  staffVersion Int @default(0)
+  enrollment ParticipantEnrollment?
+
   id            String   @id @default(cuid())
   guestId       String?  @unique
   email         String?  @unique
@@ -190,6 +196,10 @@ enum PaymentMethod {
 }
 
 model PayoutRequest {
+  programId String?
+  program Program? @relation(fields: [programId], references: [id], onDelete: Restrict)
+  @@index([programId])
+
   id            String         @id @default(cuid())
   userId        String
   xpAmount      Int
@@ -204,7 +214,7 @@ model PayoutRequest {
   rewardEntries RewardEntry[]
   paidBy AdminUser? @relation("PayoutPayer", fields: [paidById], references: [id])
   @@unique([userId, requestKey])
-  @@unique([paymentMethod, paymentReference])
+  @@unique([programId, paymentMethod, paymentReference])
   status        String         @default("pending")
   note          String?
   paymentMethod PaymentMethod?
@@ -221,9 +231,19 @@ model PayoutRequest {
   user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   reviewedBy    AdminUser?   @relation("PayoutReviewer", fields: [reviewedById], references: [id])
   approvedBy    AdminUser?   @relation("PayoutApprover", fields: [approvedById], references: [id])
+  @@index([programId, status, createdAt])
 }
 
 model AdminUser {
+  acknowledgedCases Case[] @relation("CaseAcknowledger")
+  staffActions StaffActionReceipt[]
+  memberships StaffMembership[]
+  mfaSecretEncrypted String?
+  mfaConfirmedAt DateTime?
+  mfaLastStep BigInt?
+  recoveryCodes StaffRecoveryCode[]
+  mustChangePassword Boolean @default(false)
+
   id              String    @id @default(cuid())
   email           String    @unique
   passwordHash    String
@@ -248,6 +268,22 @@ model AdminUser {
 }
 
 model Case {
+  intakeKey String?
+  intakePayloadHash String?
+  intakeSnapshot String?
+  locationConsentAt DateTime?
+  acknowledgedAt DateTime?
+  acknowledgedById String?
+  acknowledgedBy AdminUser? @relation("CaseAcknowledger",fields:[acknowledgedById],references:[id],onDelete:Restrict)
+  @@unique([userId,intakeKey])
+  @@index([programId,acknowledgedAt])
+  followUpAt DateTime?
+  resolvedAt DateTime?
+  version Int @default(0)
+  programId String?
+  program Program? @relation(fields: [programId], references: [id], onDelete: Restrict)
+  @@index([programId])
+
   id           String   @id @default(cuid())
   userId       String
   status       String   @default("new")
@@ -267,6 +303,8 @@ model Case {
   @@index([userId])
   @@index([status])
   @@index([createdAt])
+  @@index([programId, status, createdAt])
+  @@index([programId, followUpAt])
 }
 
 model CaseNote {
@@ -299,6 +337,11 @@ model ResourceAllocation {
 }
 
 model ServiceDirectory {
+  version Int @default(0)
+  programId String?
+  program Program? @relation(fields: [programId], references: [id], onDelete: Restrict)
+  @@index([programId])
+
   id        String   @id @default(cuid())
   name      String
   category  String
@@ -312,9 +355,16 @@ model ServiceDirectory {
   updatedAt DateTime @updatedAt
 
   @@index([category])
+  @@index([programId, isActive, name])
 }
 
 model AdminSession {
+  activeProgramId String?
+  activeProgram Program? @relation(fields: [activeProgramId], references: [id], onDelete: Restrict)
+  revokedAt DateTime?
+  mfaVerifiedAt DateTime?
+  lastSeenAt DateTime @default(now())
+
   id        String   @id @default(cuid())
   token     String   @unique
   adminId   String
@@ -327,6 +377,10 @@ model AdminSession {
 }
 
 model AuditLog {
+  programId String?
+  program Program? @relation(fields: [programId], references: [id], onDelete: Restrict)
+  @@index([programId])
+
   id          String   @id @default(cuid())
   adminId     String?
   action      String
@@ -341,6 +395,7 @@ model AuditLog {
   @@index([entity, entityId])
   @@index([adminId])
   @@index([createdAt])
+  @@index([programId, createdAt])
 }
 
 model ConsentRecord {
@@ -358,6 +413,10 @@ model ConsentRecord {
 }
 
 model PayoutConfig {
+  programId String?
+  program Program? @relation(fields: [programId], references: [id], onDelete: Restrict)
+  @@index([programId])
+
   id            String   @id @default(cuid())
   programSlug   String   @unique
   programName   String
@@ -374,6 +433,11 @@ model PayoutConfig {
 }
 
 model PoolBalance {
+  programId String?
+  program Program? @relation(fields: [programId], references: [id], onDelete: Restrict)
+  @@index([programId])
+  @@unique([programId])
+
   id          String   @id @default(cuid())
   balanceCents Int     @default(0)
   updatedAt   DateTime @updatedAt
@@ -381,7 +445,12 @@ model PoolBalance {
 }
 
 model PoolAdjustment {
-  requestKey String? @unique
+  @@unique([programId, requestKey])
+  programId String?
+  program Program? @relation(fields: [programId], references: [id], onDelete: Restrict)
+  @@index([programId])
+
+  requestKey String?
   payoutId String? @unique
   id          String   @id @default(cuid())
   adminId     String
@@ -470,4 +539,134 @@ model RewardEntry {
  admin AdminUser? @relation(fields: [adminId], references: [id], onDelete: Restrict)
  @@unique([userId, sourceKey])
  @@index([payoutId, createdAt])
+}
+
+// Security boundaries are independent of city labels and financial configuration slugs.
+model Organization {
+  id String @id @default(cuid())
+  name String
+  isActive Boolean @default(true)
+  createdAt DateTime @default(now())
+  programs Program[]
+}
+model Program {
+  supportRegion String?
+  supportEnabled Boolean @default(false)
+  supportTeamName String?
+  supportMonitoring String?
+  supportReviewReference String?
+  supportVersion Int @default(0)
+  id String @id @default(cuid())
+  organizationId String
+  slug String @unique
+  name String
+  isActive Boolean @default(true)
+  defaultConfigSlug String?
+  createdAt DateTime @default(now())
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  memberships StaffMembership[]
+  enrollments ParticipantEnrollment[]
+  invitations ProgramInvitation[]
+  sessions AdminSession[]
+  payouts PayoutRequest[]
+  cases Case[]
+  services ServiceDirectory[]
+  audits AuditLog[]
+  configs PayoutConfig[]
+  pool PoolBalance?
+  staffActions StaffActionReceipt[]
+  adjustments PoolAdjustment[]
+}
+enum StaffProgramRole {
+  program_admin
+  caseworker
+  finance
+}
+model StaffMembership {
+  version Int @default(0)
+  id String @id @default(cuid())
+  adminId String
+  programId String
+  role StaffProgramRole
+  isActive Boolean @default(true)
+  createdAt DateTime @default(now())
+  revokedAt DateTime?
+  admin AdminUser @relation(fields: [adminId], references: [id], onDelete: Restrict)
+  program Program @relation(fields: [programId], references: [id], onDelete: Restrict)
+  @@unique([adminId, programId])
+  @@index([programId, isActive])
+}
+model ParticipantEnrollment {
+  // One security owner for this account and all its existing learning/financial history.
+  // Transfers/multiple concurrent enrollments require a separate reviewed history design.
+  userId String @id
+  programId String
+  status String @default("active")
+  createdAt DateTime @default(now())
+  reviewedById String?
+  user User @relation(fields: [userId], references: [id], onDelete: Restrict)
+  program Program @relation(fields: [programId], references: [id], onDelete: Restrict)
+  @@index([programId, status])
+}
+model ProgramInvitation {
+  id String @id @default(cuid())
+  programId String
+  tokenHash String @unique
+  expiresAt DateTime
+  isActive Boolean @default(true)
+  createdAt DateTime @default(now())
+  program Program @relation(fields: [programId], references: [id], onDelete: Restrict)
+}
+model StaffRecoveryCode {
+  id String @id @default(cuid())
+  adminId String
+  codeHash String @unique
+  usedAt DateTime?
+  createdAt DateTime @default(now())
+  admin AdminUser @relation(fields: [adminId], references: [id], onDelete: Restrict)
+  @@index([adminId])
+}
+
+model StaffAuthThrottle {
+  key String @id
+  failures Int @default(0)
+  windowAt DateTime @default(now())
+  lockedUntil DateTime?
+}
+
+model StaffActionReceipt {
+  id String @id @default(cuid())
+  programId String
+  adminId String
+  requestKey String
+  payloadHash String
+  entity String
+  entityId String
+  action String
+  version Int
+  createdAt DateTime @default(now())
+  program Program @relation(fields: [programId], references: [id], onDelete: Restrict)
+  admin AdminUser @relation(fields: [adminId], references: [id], onDelete: Restrict)
+  @@unique([programId, requestKey])
+  @@index([programId, entity, entityId, createdAt])
+}
+
+// Metadata only. No chat text, audio, location or support-request text.
+model SupportUsage {
+  userId String
+  kind String
+  windowAt DateTime
+  count Int @default(0)
+  units Int @default(0)
+  policyVersion String?
+  user User @relation(fields:[userId],references:[id],onDelete:Restrict)
+  @@id([userId,kind])
+}
+model SupportLease {
+  userId String
+  kind String
+  token String
+  expiresAt DateTime
+  user User @relation(fields:[userId],references:[id],onDelete:Restrict)
+  @@id([userId,kind])
 }

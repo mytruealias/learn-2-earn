@@ -11,7 +11,7 @@ import {
 import { z } from "zod";
 import { getAdminFromRequest } from "@/lib/admin-auth";
 import { logAudit } from "@/lib/audit";
-import prisma from "@/lib/prisma";
+import { scopedDb } from "@/lib/program-scope";
 import {
   apiError,
   apiOk,
@@ -22,7 +22,8 @@ import {
 } from "@/lib/api-helpers";
 
 const PatchSchema = z.object({
-  requestKey: z.string().uuid().optional(),
+  requestKey: z.string().uuid(),
+  expectedVersion: z.number().int().nonnegative(),
   caseNumber: z.string().max(60).optional(),
   xpAdjustment: z.number().int().min(-100000).max(100000).optional(),
   xpReason: z.string().max(500).optional(),
@@ -36,6 +37,7 @@ export async function GET(
   try {
     const admin = await getAdminFromRequest(req);
     if (!admin) return apiError("unauthorized", "Not signed in", 401);
+    const prisma = scopedDb(admin);
 
     const { userId: rawUserId } = await params;
     const idCheck = parseParam(rawUserId, idParamSchema, "userId");
@@ -44,29 +46,66 @@ export async function GET(
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      include: {
+      select: {
+        id: true,
+        fullName: true,
+        email: true,
+        phone: true,
+        city: true,
+        state: true,
+        caseNumber: true,
+        isActive: true,
+        staffVersion: true,
+        totalXp: true,
+        streak: true,
+        createdAt: true,
+        lastActiveAt: true,
+        consentGiven: true,
+        consentAt: true,
         progress: {
-          include: {
+          take: 100,
+          orderBy: { completedAt: "desc" },
+          select: {
+            id: true,
+            completedAt: true,
+            xpEarned: true,
             lesson: {
               select: {
                 title: true,
-                xpReward: true,
                 module: {
                   select: { title: true, path: { select: { title: true } } },
                 },
               },
             },
           },
-          orderBy: { completedAt: "desc" },
         },
-        payoutRequests: { orderBy: { createdAt: "desc" } },
-        consents: { orderBy: { createdAt: "desc" } },
+        payoutRequests: { take: 100, orderBy: { createdAt: "desc" } },
+        consents: {
+          take: 100,
+          orderBy: { createdAt: "desc" },
+          select: {
+            id: true,
+            consentType: true,
+            version: true,
+            granted: true,
+            createdAt: true,
+          },
+        },
+        cases: {
+          take: 20,
+          orderBy: { updatedAt: "desc" },
+          select: { id: true, title: true, status: true, updatedAt: true },
+        },
+        _count: {
+          select: { progress: true, payoutRequests: true, cases: true },
+        },
       },
     });
 
     if (!user) return apiError("not_found", "User not found", 404);
 
     await logAudit({
+      programId: admin.programId,
       adminId: admin.id,
       action: "VIEW_USER_DETAIL",
       entity: "User",
@@ -74,13 +113,35 @@ export async function GET(
       ipAddress: getClientIp(req),
     });
 
-    const { passwordHash: _passwordHash, ...safeUser } = user;
-    void _passwordHash;
+    const safeUser = user;
+    if (admin.role === "finance")
+      return apiOk({
+        user: {
+          id: user.id,
+          staffVersion: user.staffVersion,
+          fullName: user.fullName,
+          email: user.email,
+          totalXp: user.totalXp,
+          payoutRequests: user.payoutRequests.map((p) => payoutDto(p)),
+          rewards: await prisma.$transaction((tx) => rewardSummary(tx, userId)),
+        },
+      });
     return apiOk({
       user: {
         ...safeUser,
         payoutRequests: user.payoutRequests.map((p) => payoutDto(p)),
         rewards: await prisma.$transaction((tx) => rewardSummary(tx, userId)),
+        activity: await prisma.auditLog.findMany({
+          where: { entityId: userId },
+          orderBy: { createdAt: "desc" },
+          take: 50,
+          select: {
+            id: true,
+            action: true,
+            createdAt: true,
+            admin: { select: { fullName: true } },
+          },
+        }),
       },
     });
   } catch (error) {
@@ -105,6 +166,40 @@ export async function PATCH(
         include: { rewardAccount: true },
       });
       if (!user) throw new RewardIssue("not_found", "Learner not found.", 404);
+      if (
+        admin.role === "finance" &&
+        (data.isActive !== undefined || data.caseNumber !== undefined)
+      )
+        throw new RewardIssue(
+          "forbidden",
+          "Finance cannot change participant case or access status.",
+          403,
+        );
+      const sourceHash = hash(data),
+        oldReceipt = await tx.staffActionReceipt.findUnique({
+          where: {
+            programId_requestKey: {
+              programId: admin.programId,
+              requestKey: data.requestKey,
+            },
+          },
+        });
+      if (oldReceipt) {
+        if (
+          oldReceipt.payloadHash !== sourceHash ||
+          oldReceipt.adminId !== admin.id
+        )
+          throw new RewardIssue(
+            "conflict",
+            "Action key already used with different details.",
+          );
+        return { replayed: true, user: { id: userId } };
+      }
+      if (user.staffVersion !== data.expectedVersion)
+        throw new RewardIssue(
+          "conflict",
+          "Another staff member updated this participant. Reload and review before saving.",
+        );
       const adjustment = data.xpAdjustment || 0;
       if (adjustment) {
         if (!["admin", "finance"].includes(admin.role))
@@ -178,13 +273,32 @@ export async function PATCH(
       const updated = await tx.user.update({
         where: { id: userId },
         data: {
+          staffVersion: { increment: 1 },
           ...(data.caseNumber !== undefined
             ? { caseNumber: data.caseNumber || null }
             : {}),
           ...(data.isActive !== undefined ? { isActive: data.isActive } : {}),
         },
       });
+      if (data.isActive === false)
+        await tx.learnerSession.updateMany({
+          where: { userId, revokedAt: null },
+          data: { revokedAt: new Date() },
+        });
+      await tx.staffActionReceipt.create({
+        data: {
+          programId: admin.programId,
+          adminId: admin.id,
+          requestKey: data.requestKey,
+          payloadHash: sourceHash,
+          entity: "User",
+          entityId: userId,
+          action: "update",
+          version: updated.staffVersion,
+        },
+      });
       await audit(tx, "USER_UPDATED_WITH_REWARD_CORRECTION", userId, admin.id, {
+        fromActive:user.isActive,toActive:updated.isActive,fromCaseNumber:user.caseNumber,toCaseNumber:updated.caseNumber,fromVersion:user.staffVersion,toVersion:updated.staffVersion,
         rewardAdjustment: adjustment,
         reason: data.xpReason || null,
       });

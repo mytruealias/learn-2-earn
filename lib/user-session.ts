@@ -125,7 +125,11 @@ export async function revokeUserSession(req: Request) {
   });
 }
 export function clearLearnerCookies(res: NextResponse) {
-  for (const name of [USER_COOKIE, "l2e_demo_access"]) {
+  for (const name of [
+    USER_COOKIE,
+    "l2e_demo_access",
+    "l2e_program_invitation",
+  ]) {
     res.cookies.set(name, "", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -142,6 +146,16 @@ export function clearLearnerCookies(res: NextResponse) {
     });
 }
 export function sameOriginError(req: Request) {
+  if (req.headers.get("sec-fetch-site") === "cross-site")
+    return NextResponse.json(
+      {
+        error: {
+          code: "forbidden",
+          message: "Open this page directly to continue.",
+        },
+      },
+      { status: 403 },
+    );
   const origin = req.headers.get("origin");
   if (!origin) return null; // Non-browser clients still need credentials/invitation.
   try {

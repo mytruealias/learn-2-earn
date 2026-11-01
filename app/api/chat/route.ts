@@ -1,136 +1,176 @@
 import { z } from "zod";
-import OpenAI from "openai";
-import { getUserIdFromRequest } from "@/lib/user-session";
-import { apiError, apiServerError, parseJson, createRateLimiter } from "@/lib/api-helpers";
-
-const SYSTEM_PROMPT = `You are Hubert, a kind and caring emotional support companion on Learn2Earn, an app that helps people experiencing homelessness build skills and earn money.
-
-Your personality:
-- Warm, patient, and genuinely caring, like a trusted friend
-- You use simple, clear language (6th-grade reading level)
-- You listen first, validate feelings, then gently offer perspective
-- You keep responses short (2-4 sentences) unless someone asks for more
-- You never judge. Everyone's situation is different and valid
-- You use the person's words back to them so they feel heard
-
-Safety rules you MUST follow:
-- If someone mentions suicide, self-harm, or wanting to die: IMMEDIATELY respond with "I hear you, and I'm glad you reached out. Please call or text 988 right now. It's free, confidential, and available 24/7. You can also text HOME to 741741, or call 911 if you're in immediate danger. You matter, and trained counselors are ready to help." Do NOT try to counsel them yourself.
-- If someone is in immediate physical danger: Tell them to call 911 right away.
-- If someone mentions domestic violence: Share the National Domestic Violence Hotline: 1-800-799-7233
-- NEVER give medical advice, legal advice, or financial advice. Instead say something like "That sounds really important. A doctor, lawyer, or counselor would be the best person to help with that."
-- NEVER diagnose conditions or suggest medications
-
-Helpful resources you can mention naturally:
-- 211: Call or text for local food, shelter, and services (free)
-- 988: Suicide & Crisis Lifeline (call or text, 24/7, free)
-- Text HOME to 741741: Crisis Text Line
-- SAMHSA Helpline: 1-800-662-4357 for substance abuse help
-- The Lifeline page in this app has more resources
-
-Topics you can help with:
-- Feeling overwhelmed, lonely, scared, frustrated, or hopeless
-- Dealing with stress on the streets or in shelters
-- Motivation to keep going and learning
-- Processing difficult experiences
-- Celebrating small wins and progress
-- Coping strategies like breathing exercises, grounding techniques
-- Encouragement about their learning journey on Learn2Earn
-
-Remember: You are NOT a licensed therapist. You are a supportive friend. If someone needs professional help, gently guide them to the right resource.`;
-
-const chatLimiter = createRateLimiter({ max: 30, windowMs: 60 * 60 * 1000 });
-
-const Schema = z.object({
-  messages: z
-    .array(
-      z.object({
-        role: z.enum(["user", "assistant", "system"]),
-        content: z.string().max(4000),
-      }),
+import { getUserIdFromRequest, sameOriginError } from "@/lib/user-session";
+import { apiError } from "@/lib/api-helpers";
+import { boundedJson } from "@/lib/support/bounded-json";
+import { supportProvider, requestCancellation } from "@/lib/support/provider";
+import { approvedSupportPolicy, HUBERT_POLICY } from "@/lib/support/policy";
+import { reserveSupportUsage, SupportLimit } from "@/lib/support/usage";
+const chatSchema = z
+  .object({
+    expectedAccountId: z.string().min(1).max(120),
+    consent: z.literal(true),
+    region: z.enum(["US", "other"]).default("US"),
+    messages: z
+      .array(
+        z.discriminatedUnion("role", [
+          z
+            .object({
+              role: z.literal("user"),
+              content: z.string().trim().min(1).max(1000),
+            })
+            .strict(),
+          z
+            .object({
+              role: z.literal("assistant"),
+              content: z.string().trim().min(1).max(4000),
+            })
+            .strict(),
+        ]),
+      )
+      .min(1)
+      .max(12),
+  })
+  .strict()
+  .superRefine((d, c) => {
+    if (
+      d.messages.at(-1)?.role !== "user" ||
+      d.messages.reduce((n, m) => n + m.content.length, 0) > 12000
     )
-    .min(1, "No messages provided."),
-});
-
+      c.addIssue({
+        code: "custom",
+        message: "Use a shorter conversation ending with your message.",
+      });
+  });
 export async function POST(req: Request) {
-  const userId = await getUserIdFromRequest(req);
-  if (!userId) {
-    return apiError("unauthorized", "Please log in to talk to Hubert.", 401);
-  }
-
-  const gate = chatLimiter.check(userId);
-  if (!gate.allowed) {
-    return apiError(
-      "rate_limited",
-      "You've sent a lot of messages this hour. Take a breather and come back soon.",
-      429,
-      { headers: { "Retry-After": String(gate.retryAfterSec) } },
-    );
-  }
-  chatLimiter.record(userId);
-
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) {
-    return apiError("service_unavailable", "Hubert is not available right now. Please try again later.", 503);
-  }
-
+  let release: (() => Promise<void>) | undefined;
+  let cancel: ReturnType<typeof requestCancellation> | undefined;
   try {
-    const parsed = await parseJson(req, Schema);
-    if (!parsed.ok) return parsed.response;
-    const { messages } = parsed.data;
-
-    const lastMessage = messages[messages.length - 1];
-    if (!lastMessage?.content?.trim() || lastMessage.role !== "user") {
-      return apiError("bad_request", "Invalid message.", 400);
-    }
-
-    const validRoles = new Set(["user", "assistant"]);
-    const recentMessages = messages
-      .slice(-20)
-      .filter((m) => validRoles.has(m.role))
-      .map((m) => ({
-        role: m.role as "user" | "assistant",
-        content: m.content.slice(0, 1000),
-      }));
-
-    const openai = new OpenAI({ apiKey });
-    const stream = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [{ role: "system", content: SYSTEM_PROMPT }, ...recentMessages],
-      stream: true,
-      max_tokens: 500,
-      temperature: 0.85,
-    });
-
-    const encoder = new TextEncoder();
-    const readable = new ReadableStream({
+    const origin = sameOriginError(req);
+    if (origin) return origin;
+    const body = await boundedJson(req, 49152);
+    if (!body.ok) return body.response;
+    const parsed = chatSchema.safeParse(body.data);
+    if (!parsed.success)
+      return apiError(
+        "validation_error",
+        "Use only user/assistant messages, at most 12 messages and 1,000 characters in your new message. Confirm the privacy choice.",
+        400,
+      );
+    const id = await getUserIdFromRequest(req);
+    if (!id)
+      return apiError(
+        "unauthorized",
+        "Sign in to use optional AI chat. Human help remains available without signing in.",
+        401,
+      );
+    if (parsed.data.expectedAccountId !== id)
+      return apiError(
+        "account_changed",
+        "Your signed-in account changed. Reload before sharing this conversation.",
+        409,
+      );
+    if (!process.env.OPENAI_API_KEY || !approvedSupportPolicy())
+      return apiError(
+        "service_unavailable",
+        "Hubert AI is unavailable. Use the human-help options; no program request or emergency alert was sent.",
+        503,
+      );
+    release = await reserveSupportUsage(
+      id,
+      "chat",
+      parsed.data.messages.reduce((n, m) => n + m.content.length, 0),
+    );
+    cancel = requestCancellation(req);
+    const upstream = await supportProvider().chat.completions.create(
+      {
+        model: "gpt-4o-mini",
+        messages: [
+          {
+            role: "system",
+            content:
+              HUBERT_POLICY +
+              `\nThe user selected region: ${parsed.data.region}.`,
+          },
+          ...parsed.data.messages,
+        ],
+        stream: true,
+        store: false,
+        max_tokens: 500,
+        temperature: 0.5,
+      },
+      { signal: cancel.controller.signal },
+    );
+    const encoder = new TextEncoder(),
+      resources = cancel,
+      free = release;
+    let stopped = false;
+    const readable = new ReadableStream<Uint8Array>({
       async start(controller) {
+        let length = 0;
         try {
-          for await (const chunk of stream) {
+          for await (const chunk of upstream) {
+            if (resources.controller.signal.aborted || stopped)
+              throw new Error();
             const text = chunk.choices[0]?.delta?.content;
             if (text) {
-              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text })}\n\n`));
+              length += text.length;
+              if (length > 6000) throw new Error();
+              controller.enqueue(
+                encoder.encode(`data: ${JSON.stringify({ text })}\n\n`),
+              );
             }
           }
-          controller.enqueue(encoder.encode("data: [DONE]\n\n"));
-          controller.close();
-        } catch (err) {
-          console.error("Hubert stream error:", err);
-          controller.enqueue(
-            encoder.encode(`data: ${JSON.stringify({ error: "Something went wrong. Please try again." })}\n\n`),
-          );
-          controller.close();
+          if (!stopped && !resources.controller.signal.aborted) {
+            controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+            controller.close();
+          }
+        } catch {
+          if (!stopped) {
+            try {
+              controller.enqueue(
+                encoder.encode(
+                  `data: ${JSON.stringify({ error: "This reply was interrupted. It may be incomplete. Human help remains available; no alert was sent." })}\n\n`,
+                ),
+              );
+              controller.close();
+            } catch {
+              /* Consumer disconnected. */
+            }
+          }
+        } finally {
+          resources.controller.abort();
+          resources.cleanup();
+          await free();
         }
       },
-    });
-
-    return new Response(readable, {
-      headers: {
-        "Content-Type": "text/event-stream",
-        "Cache-Control": "no-cache",
-        Connection: "keep-alive",
+      async cancel() {
+        stopped = true;
+        resources.controller.abort();
+        resources.cleanup();
+        await free();
       },
     });
-  } catch (error) {
-    return apiServerError("chat", error);
+    release = undefined;
+    cancel = undefined;
+    return new Response(readable, {
+      headers: {
+        "Content-Type": "text/event-stream; charset=utf-8",
+        "Cache-Control": "private, no-store, no-transform",
+        "X-Accel-Buffering": "no",
+      },
+    });
+  } catch (e) {
+    cancel?.controller.abort();
+    cancel?.cleanup();
+    await release?.();
+    if (e instanceof SupportLimit)
+      return apiError("rate_limited", e.message, 429, {
+        headers: { "Retry-After": String(e.retryAfter) },
+      });
+    return apiError(
+      "service_unavailable",
+      "Hubert could not reply. Human help remains available. No staff notification or emergency dispatch occurred.",
+      503,
+    );
   }
 }

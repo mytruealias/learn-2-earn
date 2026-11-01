@@ -1,12 +1,13 @@
 import { sumCents } from "@/lib/rewards/money";
 import { getAdminFromRequest } from "@/lib/admin-auth";
-import prisma from "@/lib/prisma";
+import { scopedDb } from "@/lib/program-scope";
 import { apiError, apiOk, apiServerError } from "@/lib/api-helpers";
 
 export async function GET(req: Request) {
   try {
     const admin = await getAdminFromRequest(req);
     if (!admin) return apiError("unauthorized", "Not signed in", 401);
+    const prisma = scopedDb(admin);
 
     const now = new Date();
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);

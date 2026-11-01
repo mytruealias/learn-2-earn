@@ -1,3 +1,4 @@
+import { ScopeError } from "./program-scope";
 import { NextResponse } from "next/server";
 import { z, type ZodTypeAny } from "zod";
 import crypto from "crypto";
@@ -34,10 +35,18 @@ export function apiError(
   code: ApiErrorCode | string,
   message: string,
   status: number,
-  options?: { fields?: Record<string, string[]>; headers?: Record<string, string>; requestId?: string },
+  options?: {
+    fields?: Record<string, string[]>;
+    headers?: Record<string, string>;
+    requestId?: string;
+  },
 ): NextResponse {
   const body: ApiErrorBody = {
-    error: { code, message, ...(options?.fields ? { fields: options.fields } : {}) },
+    error: {
+      code,
+      message,
+      ...(options?.fields ? { fields: options.fields } : {}),
+    },
     ...(options?.requestId ? { requestId: options.requestId } : {}),
   };
   return NextResponse.json(body, { status, headers: options?.headers });
@@ -47,7 +56,10 @@ export function apiError(
  * Successful response. Always includes `ok: true` so older clients reading
  * `data.ok` keep working. New code should read the named keys directly.
  */
-export function apiOk<T extends Record<string, unknown>>(data?: T, init?: ResponseInit): NextResponse {
+export function apiOk<T extends Record<string, unknown>>(
+  data?: T,
+  init?: ResponseInit,
+): NextResponse {
   return NextResponse.json({ ok: true, ...(data ?? {}) }, init);
 }
 
@@ -56,8 +68,14 @@ export function apiOk<T extends Record<string, unknown>>(data?: T, init?: Respon
  * generic message + a short request ID the user can quote in support.
  */
 export function apiServerError(label: string, error: unknown): NextResponse {
+  if (error instanceof ScopeError)
+    return apiError(
+      error.status === 404 ? "not_found" : "forbidden",
+      error.message,
+      error.status,
+    );
   const requestId = crypto.randomBytes(6).toString("hex");
-  console.error(`[${label}] requestId=${requestId}`, error);
+  console.error(`[${label}] requestId=${requestId} operation failed`);
   return apiError(
     "internal_error",
     "Something went wrong on our side. Please try again in a moment.",
@@ -73,12 +91,21 @@ export function apiServerError(label: string, error: unknown): NextResponse {
 export async function parseJson<S extends ZodTypeAny>(
   req: Request,
   schema: S,
-): Promise<{ ok: true; data: z.infer<S> } | { ok: false; response: NextResponse }> {
+): Promise<
+  { ok: true; data: z.infer<S> } | { ok: false; response: NextResponse }
+> {
   let raw: unknown;
   try {
     raw = await req.json();
   } catch {
-    return { ok: false, response: apiError("invalid_json", "Request body must be valid JSON.", 400) };
+    return {
+      ok: false,
+      response: apiError(
+        "invalid_json",
+        "Request body must be valid JSON.",
+        400,
+      ),
+    };
   }
 
   const parsed = schema.safeParse(raw);
@@ -119,23 +146,28 @@ export function parseParam<S extends ZodTypeAny>(
 }
 
 /** Reusable schema for opaque ID-like path segments. */
-export const idParamSchema = z.string().trim().min(1).max(120).regex(
-  /^[a-zA-Z0-9_-]+$/,
-  "ID must be alphanumeric, dashes, or underscores",
-);
+export const idParamSchema = z
+  .string()
+  .trim()
+  .min(1)
+  .max(120)
+  .regex(/^[a-zA-Z0-9_-]+$/, "ID must be alphanumeric, dashes, or underscores");
 
 /** Reusable schema for short slugs (city slugs, etc.). */
-export const slugParamSchema = z.string().trim().min(1).max(60).regex(
-  /^[a-z0-9-]+$/,
-  "Slug must be lowercase letters, numbers, or dashes",
-);
+export const slugParamSchema = z
+  .string()
+  .trim()
+  .min(1)
+  .max(60)
+  .regex(/^[a-z0-9-]+$/, "Slug must be lowercase letters, numbers, or dashes");
 
 export function parseQuery<S extends ZodTypeAny>(
   raw: Record<string, string | undefined>,
   schema: S,
 ): { ok: true; data: z.infer<S> } | { ok: false; response: NextResponse } {
   const parsed = schema.safeParse(raw);
-  if (!parsed.success) return { ok: false, response: zodErrorResponse(parsed.error) };
+  if (!parsed.success)
+    return { ok: false, response: zodErrorResponse(parsed.error) };
   return { ok: true, data: parsed.data };
 }
 
@@ -191,9 +223,13 @@ export function createRateLimiter({
     check(key) {
       const now = Date.now();
       const entry = buckets.get(key);
-      if (!entry || now > entry.resetAt) return { allowed: true, retryAfterSec: 0 };
+      if (!entry || now > entry.resetAt)
+        return { allowed: true, retryAfterSec: 0 };
       if (entry.count >= max) {
-        return { allowed: false, retryAfterSec: Math.max(1, Math.ceil((entry.resetAt - now) / 1000)) };
+        return {
+          allowed: false,
+          retryAfterSec: Math.max(1, Math.ceil((entry.resetAt - now) / 1000)),
+        };
       }
       return { allowed: true, retryAfterSec: 0 };
     },
@@ -213,7 +249,10 @@ export function createRateLimiter({
 }
 
 export interface UsageQuota {
-  check(key: string, amount: number): { allowed: boolean; retryAfterSec: number; remaining: number };
+  check(
+    key: string,
+    amount: number,
+  ): { allowed: boolean; retryAfterSec: number; remaining: number };
   record(key: string, amount: number): void;
 }
 
@@ -259,11 +298,15 @@ export function createUsageQuota({
   };
 }
 
-export function rateLimitResponse(retryAfterSec: number, message?: string): NextResponse {
+export function rateLimitResponse(
+  retryAfterSec: number,
+  message?: string,
+): NextResponse {
   const minutes = Math.max(1, Math.ceil(retryAfterSec / 60));
   return apiError(
     "rate_limited",
-    message ?? `Too many requests. Please try again in about ${minutes} minute${minutes === 1 ? "" : "s"}.`,
+    message ??
+      `Too many requests. Please try again in about ${minutes} minute${minutes === 1 ? "" : "s"}.`,
     429,
     { headers: { "Retry-After": String(retryAfterSec) } },
   );

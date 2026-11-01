@@ -1,3 +1,4 @@
+import { enrollFromInvitation } from "@/lib/program-enrollment";
 import { newRewardRelations } from "@/lib/rewards/new-account";
 import { registrationSchema } from "@/lib/learner-auth-schema";
 import bcrypt from "bcryptjs";
@@ -77,6 +78,7 @@ export async function POST(req: Request) {
       const user = current
         ? await tx.user.update({ where: { id: current.id }, data })
         : await tx.user.create({ data: { ...data, ...newRewardRelations() } });
+      await enrollFromInvitation(req, tx, user.id);
       await tx.learnerSession.updateMany({
         where: { userId: user.id, revokedAt: null },
         data: { revokedAt: new Date() },

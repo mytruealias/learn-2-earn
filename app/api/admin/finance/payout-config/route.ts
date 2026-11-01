@@ -1,5 +1,5 @@
 import { z } from "zod";
-import prisma from "@/lib/prisma";
+import { scopedDb } from "@/lib/program-scope";
 import { getAdminFromRequest } from "@/lib/admin-auth";
 import { apiError, apiOk } from "@/lib/api-helpers";
 import { staffWrite, rewardError } from "@/lib/rewards/http";
@@ -41,6 +41,7 @@ export async function GET(req: Request) {
   try {
     const a = await getAdminFromRequest(req);
     if (!a) return apiError("unauthorized", "Sign in as staff.", 401);
+    const prisma = scopedDb(a);
     if (!["admin", "finance"].includes(a.role))
       return apiError("forbidden", "Finance access required.", 403);
     return apiOk(
@@ -110,6 +111,14 @@ async function save(req: Request, editing: boolean) {
           data: { ...values, programSlug: data.programSlug },
         });
       }
+      const program = await tx.program.findUniqueOrThrow({
+        where: { id: admin.programId },
+      });
+      if (!program.defaultConfigSlug)
+        await tx.program.update({
+          where: { id: admin.programId },
+          data: { defaultConfigSlug: config.programSlug },
+        });
       await audit(tx, "PAYOUT_CONFIG_VERSIONED", config.id, admin.id, {
         version: config.version,
         ...values,

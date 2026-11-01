@@ -1,3 +1,4 @@
+import { enrollFromInvitation } from "@/lib/program-enrollment";
 import { newRewardRelations } from "@/lib/rewards/new-account";
 import { z } from "zod";
 import prisma from "@/lib/prisma";
@@ -47,6 +48,7 @@ export async function POST(req: Request) {
     limiter.record(ip);
     const result = await prisma.$transaction(async (tx) => {
       const user = await tx.user.create({ data: newRewardRelations() });
+      await enrollFromInvitation(req, tx, user.id);
       return { id: user.id, token: await createUserSession(user.id, tx) };
     });
     const res = apiOk({ actualUserId: result.id });

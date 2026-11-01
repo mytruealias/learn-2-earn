@@ -10,14 +10,14 @@ This safety guarantee applies to the repository commands. An uninspected custom 
 
 The executable package scripts bind **0.0.0.0:5000** for both `npm run dev` and `npm start`. Preserve that binding unless the actual workspace provides a different reviewed requirement.
 
-| Context | Intended command/settings to verify in Replit | Database behavior |
-| --- | --- | --- |
-| Dependency preparation | Node 24, `npm ci --include=dev`, `npm run prisma:generate` | No database mutation |
-| Workspace development | `npm run dev`; forward port 5000; local/dev DB runtime binding | Application activity only; no automatic seeds/migrations |
-| Deployment build | `npm ci --include=dev` then `npm run build` | Prisma generation + Next compilation with build-only unreachable DB; no release side effects |
-| Deployment run | `npm start`; 0.0.0.0:5000; reviewed runtime Secrets | Real application operations; no automatic bootstrap |
-| Reviewed database release step | Explicit `release:migrate` / `release:content` outside build/start | Operator-confirmed mutations only |
-| First installation only | Explicit `release:bootstrap-admin` once | Refuses any existing staff, including inactive accounts |
+| Context                        | Intended command/settings to verify in Replit                      | Database behavior                                                                            |
+| ------------------------------ | ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------- |
+| Dependency preparation         | Node 24, `npm ci --include=dev`, `npm run prisma:generate`         | No database mutation                                                                         |
+| Workspace development          | `npm run dev`; forward port 5000; local/dev DB runtime binding     | Application activity only; no automatic seeds/migrations                                     |
+| Deployment build               | `npm ci --include=dev` then `npm run build`                        | Prisma generation + Next compilation with build-only unreachable DB; no release side effects |
+| Deployment run                 | `npm start`; 0.0.0.0:5000; reviewed runtime Secrets                | Real application operations; no automatic bootstrap                                          |
+| Reviewed database release step | Explicit `release:migrate` / `release:content` outside build/start | Operator-confirmed mutations only                                                            |
+| First installation only        | Explicit `release:bootstrap-admin` once                            | Refuses any existing staff, including inactive accounts                                      |
 
 `scripts/post-merge.sh` now runs `npm ci --include=dev` and Prisma generation only. It no longer installs unpinned dependencies or runs `db push --accept-data-loss`. Direct old seed invocations refuse writes without release-operation confirmation. The Prisma implicit seed configuration was removed; use named commands.
 
@@ -25,24 +25,34 @@ The executable package scripts bind **0.0.0.0:5000** for both `npm run dev` and 
 
 Store values in the host's secure settings; never commit filled `.env`, print credentials or pass passwords as command arguments.
 
-| Names | Use |
-| --- | --- |
-| `PROGRAM_TIMEZONE` | Optional IANA learning-day fallback; saved learner timezone takes priority, otherwise UTC |
-| `DATABASE_URL` | Runtime DB or explicitly reviewed release target; not needed for compilation |
-| `SESSION_SECRET` | Required private HMAC signing secret for learner/demo/city tokens (never replace it with the shared invitation code); **not** an admin JWT secret |
-| `DEMO_ACCESS_CODE` | Learner demo gate; not a substitute for a private session secret in production |
-| `AUSTIN_ACCESS_PIN`, `CITY_ACCESS_PIN` | Austin proposal PIN and shared PIN for the other city decks |
-| `ROOT_DOMAIN` | Optional bare domain enabling apex/app/admin routing; leave unset for local/Replit preview |
-| `NEXT_PUBLIC_SITE_URL` | Canonical public metadata URL; verify it matches the intended host |
-| `ALLOWED_DEV_ORIGINS` | Reviewed development origins if needed; normally unset for production |
-| `OPENAI_API_KEY`, `TTS_DAILY_CHAR_CAP` | Optional Hubert chat/TTS and usage setting |
-| `STRIPE_SECRET_KEY` | Optional finance account/balance reads; does not automatically send payouts |
-| `GITHUB_TOKEN` | Optional existing Octokit helper; not needed for native platform Git auth or builds |
-| `ADMIN_BOOTSTRAP_EMAIL`, `ADMIN_DEFAULT_PASSWORD` | **Temporary explicit first-admin provisioning only**, password at least 16 characters |
-| `TEST_DATABASE_ADMIN_URL` | Local test-instance `/postgres` maintenance connection; never production |
-| `PLAYWRIGHT_CHROMIUM_EXECUTABLE`, `E2E_PORT` | Optional local browser executable and test port; CI installs bundled Chromium |
+| Names                                             | Use                                                                                                                                               |
+| ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `PROGRAM_TIMEZONE`                                | Optional IANA learning-day fallback; saved learner timezone takes priority, otherwise UTC                                                         |
+| `DATABASE_URL`                                    | Runtime DB or explicitly reviewed release target; not needed for compilation                                                                      |
+| `SESSION_SECRET`                                  | Required private HMAC signing secret for learner/demo/city tokens (never replace it with the shared invitation code); **not** an admin JWT secret |
+| `DEMO_ACCESS_CODE`                                | Learner demo gate; not a substitute for a private session secret in production                                                                    |
+| `AUSTIN_ACCESS_PIN`, `CITY_ACCESS_PIN`            | Austin proposal PIN and shared PIN for the other city decks                                                                                       |
+| `ROOT_DOMAIN`                                     | Optional bare domain enabling apex/app/admin routing; leave unset for local/Replit preview                                                        |
+| `NEXT_PUBLIC_SITE_URL`                            | Canonical public metadata URL; verify it matches the intended host                                                                                |
+| `ALLOWED_DEV_ORIGINS`                             | Reviewed development origins if needed; normally unset for production                                                                             |
+| `OPENAI_API_KEY`, `TTS_DAILY_CHAR_CAP`            | Optional Hubert chat/TTS and usage setting                                                                                                        |
+| `STRIPE_SECRET_KEY`                               | Optional finance account/balance reads; does not automatically send payouts                                                                       |
+| `GITHUB_TOKEN`                                    | Optional existing Octokit helper; not needed for native platform Git auth or builds                                                               |
+| `ADMIN_BOOTSTRAP_EMAIL`, `ADMIN_DEFAULT_PASSWORD` | **Temporary explicit first-admin provisioning only**, password at least 16 characters                                                             |
+| `TEST_DATABASE_ADMIN_URL`                         | Local test-instance `/postgres` maintenance connection; never production                                                                          |
+| `PLAYWRIGHT_CHROMIUM_EXECUTABLE`, `E2E_PORT`      | Optional local browser executable and test port; CI installs bundled Chromium                                                                     |
 
 `DATABASE_URL_TEST` and `TEST_DATABASE_NONCE` are generated by the test harness. Do not persist or manually substitute production/development targets. Test processes receive empty external AI/payment bindings, ROOT_DOMAIN unset, and fresh test credentials. Browser tests only use the spawned loopback server; arbitrary PLAYWRIGHT_BASE_URL values are refused.
+
+## Program authorization and staff workflow release gate
+
+Apply `20261027040000_program_boundaries`, then `20261029000000_staff_workflows`, after the reward migration and its preceding migrations. New ownership/membership/session/MFA/receipt fields preserve records and grant no automatic access. Existing staff must re-enter and complete authenticator enrollment; unassigned legacy data remains quarantined until the target-confirmed, hash-reviewed `programs:reconcile` operation. Review original financial configs/defaults alongside memberships so program scoping does not silently replace configured terms. Cases/payouts with ambiguous actors remain unassigned. New invitation eligibility is marked only on new accounts; pre-migration accounts cannot self-claim legacy records through an invitation.
+
+Privately configure `STAFF_MFA_ENCRYPTION_KEY` as 32 random bytes encoded as 64 hex characters. Preserve it with verified encrypted backups; do not expose it in public build settings, screenshots or logs. Build disables this binding. MFA is verified by OTPAuth 9.5.2; ten single-use recovery codes and a separately verified operator recovery command are implemented. Quiesce old staff/financial writers, verify backups/restoration and actual Replit proxy/secure-cookie settings, apply schema, review/map ownership, reconcile original money/learning/pool totals, and verify real staff enrollment before enabling multi-organization operations. No build/start command performs these actions.
+
+Named deliberate operations: `programs:reconcile` (reviewed legacy ownership), `programs:provision` (reviewed new program/explicit staff grants), and `staff:recover` (verified identity recovery). Read the [exact runbook and permission matrix](docs/program-boundaries/README.md) before invoking them. New-program first-admin provisioning uses private `STAFF_PROVISION_PASSWORD`; recovery uses private `STAFF_RECOVERY_PASSWORD`. These are temporary release bindings, never ordinary runtime/build credentials. Optional first-install display names are `ADMIN_BOOTSTRAP_ORGANIZATION_NAME` / `ADMIN_BOOTSTRAP_PROGRAM_NAME`; the original bootstrap still refuses any existing staff.
+
+Runtime remains **0.0.0.0:5000**. No SSO/SCIM/provider is added. Do not run a pre-boundary binary against these records: it authorizes globally and cannot preserve ownership/receipts. Retain additive fields, secure auth/accounting and evidence; disable private writes while forward-fixing or performing a separately reviewed restore. Never erase subsequent payments/awards or broadly map quarantine as a rollback.
 
 ## Reward-accounting release gate
 
@@ -96,6 +106,7 @@ An active lesson without cards is unavailable to start/complete; inactive parent
    ```
 
    This executes only `prisma migrate deploy`. No content/admin seeds or migration-history repair follow. A failure stops the command with a nonzero status. Resolve the diagnosed prerequisite instead of editing history to force success.
+
 5. If the release adds curriculum, review the authored content and run separately:
 
    ```bash
@@ -103,6 +114,7 @@ An active lesson without cards is unavailable to start/complete; inactive parent
    ```
 
    This inserts missing paths/modules/lessons/cards while preserving existing rows, identifiers, activation, order, content edits, rewards and all learner/payment records. New-lesson derived metadata is initialized only for those new rows. Existing metadata corrections or financial changes require their own reviewed, additive backfill and reconciliation; rerunning content sync will not overwrite them. Missing card slots are filled by order; no existing cards are replaced/deleted. Named release operations are serialized with a database advisory lock.
+
 6. Provision the first admin **only for a genuinely empty staff table**. Set temporary bootstrap email/password securely, then deliberately run:
 
    ```bash
@@ -110,6 +122,7 @@ An active lesson without cards is unavailable to start/complete; inactive parent
    ```
 
    The serializable transaction/advisory lock checks for **any** staff account and refuses if one exists. No fixed email, upsert, password reset, inactive-account recreation or routine-deploy bootstrap. Remove bootstrap settings afterward. For an existing installation with inaccessible staff, use a separately reviewed account-recovery procedure instead of deleting accounts.
+
 7. Start the reviewed artifact with `npm start` only when authorized. Check public landing, signed learner session/progress, staff session/permissions and payout review without sending real payments. The current audit has not performed this production step. Do not treat approval as evidence that a transfer occurred.
 
 ## Migration baseline and verified recovery
@@ -149,3 +162,11 @@ With ROOT_DOMAIN configured, middleware routes learner pages to `app.<domain>`, 
 Keep the prior application artifact/commit and a tested restore plan. Prefer code rollback only when both versions are compatible with the current additive schema. Retain newly inserted curriculum and admin accounts; do not delete records or decrement balances to undo a code deployment. Never roll back to the old build that automatically repaired history/seeded data: retain the safe workflow while correcting application regressions.
 
 For migrations/backfills, document backward compatibility and reconciliation before execution; do not auto-run destructive down migrations. A full database restore can discard later writes, accounts, earnings and payouts: require an authorized outage/restore plan, preserve/reconcile post-backup activity, and verify IDs/totals/history afterward. This change adds no schema migration and requires no data rollback.
+
+## Hubert/help release gates
+
+After the program and staff migrations, additive `20261101000000_support_integrity` adds optional case-intake/acknowledgment evidence, disabled program support settings and metadata-only usage/lease tables. No seeding, financial repricing, automatic team provisioning or historical consent/acknowledgment backfill is performed. Verify target/baseline, backup/restore and the exact migration plan before using the named release command. Roll back presentation compatibly, retaining stored cases/evidence and guarded endpoints; disable AI/new intake during incompatible rollback. See [support runbook](docs/hubert-support/README.md).
+
+AI remains off unless private `OPENAI_API_KEY`, `HUBERT_APPROVED_POLICY_VERSION` matching the reviewed policy and `HUBERT_REVIEW_REFERENCE` are present. No qualified human approval is supplied by this change; do not fill these with test references. The existing optional `TTS_DAILY_CHAR_CAP` defaults to 20,000. Build/tests suppress provider/approval bindings. There is no new notification/delivery provider. New program intake defaults off; an authorized program administrator must verify real staffing/hours/timezone/absence coverage, resource region, privacy/retention and review reference before enabling it. Saved cases are not notifications; acknowledgment is an explicit audited staff action.
+
+Live resource pages (911/988/211/SAMHSA) and OpenAI retention documentation could not be fetched through this workspace’s CONNECT proxy (HTTP 403). Verify official regional contacts, actual provider/hosting logs/body capture/retention, lawful case retention/deletion, privacy contact and qualified response policy review before rollout. No production conversation, Replit logging setting, regional deployment or staffed monitoring was verified. Do not promise constant monitoring, automatic emergency dispatch or zero storage/retention. Human resources remain public when AI/intake fail or are disabled.

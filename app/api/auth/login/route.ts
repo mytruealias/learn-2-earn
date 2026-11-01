@@ -1,8 +1,13 @@
+import { enrollFromInvitation } from "@/lib/program-enrollment";
 import { loginSchema } from "@/lib/learner-auth-schema";
 import bcrypt from "bcryptjs";
 import prisma from "@/lib/prisma";
 import { logAudit } from "@/lib/audit";
-import { setUserSessionCookie, sameOriginError, revokeUserSession } from "@/lib/user-session";
+import {
+  setUserSessionCookie,
+  sameOriginError,
+  revokeUserSession,
+} from "@/lib/user-session";
 import { setDemoAccessCookie } from "@/lib/access-token";
 import {
   apiError,
@@ -21,7 +26,8 @@ const Schema = loginSchema;
 
 export async function POST(req: Request) {
   try {
-    const origin = sameOriginError(req); if (origin) return origin;
+    const origin = sameOriginError(req);
+    if (origin) return origin;
     const ip = getClientIp(req);
     const gate = loginLimiter.check(`login:${ip}`);
     if (!gate.allowed) {
@@ -62,6 +68,7 @@ export async function POST(req: Request) {
       ipAddress: ip,
     });
 
+    await prisma.$transaction((tx) => enrollFromInvitation(req, tx, user.id));
     await prisma.user.update({
       where: { id: user.id },
       data: { lastActiveAt: new Date() },

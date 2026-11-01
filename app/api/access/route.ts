@@ -10,6 +10,11 @@ import {
   rateLimitResponse,
 } from "@/lib/api-helpers";
 
+import prisma from "@/lib/prisma";
+import {
+  invitedProgram,
+  PROGRAM_INVITATION_COOKIE,
+} from "@/lib/program-enrollment";
 const DEMO_CODE = process.env.DEMO_ACCESS_CODE;
 import { sameOriginError } from "@/lib/user-session";
 
@@ -23,8 +28,14 @@ const Schema = z.object({
 
 export async function POST(req: Request) {
   try {
-    const origin = sameOriginError(req); if (origin) return origin;
-    if (!DEMO_CODE || !process.env.SESSION_SECRET) return apiError("service_unavailable", "Program access is not configured. Ask your program staff for help.", 503);
+    const origin = sameOriginError(req);
+    if (origin) return origin;
+    if (!process.env.SESSION_SECRET)
+      return apiError(
+        "service_unavailable",
+        "Program access is not configured. Ask your program staff for help.",
+        503,
+      );
     const ip = getClientIp(req);
     const gate = limiter.check(`access:${ip}`);
     if (!gate.allowed) {
@@ -37,7 +48,13 @@ export async function POST(req: Request) {
     const parsed = await parseJson(req, Schema);
     if (!parsed.ok) return parsed.response;
 
-    if (parsed.data.code.toUpperCase().trim() !== DEMO_CODE.toUpperCase().trim()) {
+    const demo =
+      !!DEMO_CODE &&
+      parsed.data.code.toUpperCase().trim() === DEMO_CODE.toUpperCase().trim();
+    const programId = demo
+      ? null
+      : await invitedProgram(prisma, parsed.data.code);
+    if (!demo && !programId) {
       limiter.record(`access:${ip}`);
       return apiError("unauthorized", "Invalid access code", 401);
     }
@@ -46,6 +63,17 @@ export async function POST(req: Request) {
 
     const response = apiOk();
     setDemoAccessCookie(response);
+    response.cookies.set(
+      PROGRAM_INVITATION_COOKIE,
+      programId ? parsed.data.code.trim().toUpperCase() : "",
+      {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        path: "/",
+        maxAge: programId ? 24 * 3600 : 0,
+      },
+    );
     return response;
   } catch (error) {
     return apiServerError("access", error);

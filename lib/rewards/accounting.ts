@@ -1,3 +1,4 @@
+import { participantProgram } from "../program-scope";
 import type { Prisma, PayoutRequest } from "@prisma/client";
 import { createHash } from "node:crypto";
 import { citySlug, getPayoutRules } from "../payout-rules";
@@ -40,10 +41,12 @@ export async function audit(
   entityId: string,
   adminId: string | null,
   details: object,
+  programId?: string | null,
 ) {
   await tx.auditLog.create({
     data: {
       action,
+      ...(programId ? { programId } : {}),
       entity: "RewardAccounting",
       entityId,
       adminId,
@@ -150,8 +153,9 @@ export async function rewardSummary(tx: Tx, userId: string) {
       },
     },
   });
+  const securityProgramId = await participantProgram(tx, userId);
   const a = user.rewardAccount,
-    rules = await getPayoutRules(a ? a.programSlug : user.city, tx);
+    rules = await getPayoutRules(a?.programSlug, tx, securityProgramId);
   const live = user.payoutRequests.filter((p) =>
       reservedStatuses.includes(p.status),
     ),
@@ -170,6 +174,8 @@ export async function rewardSummary(tx: Tx, userId: string) {
   );
   const reconciled =
     !!a &&
+    (!securityProgramId ||
+      user.payoutRequests.every((p) => p.programId === securityProgramId)) &&
     totals.available === a.availableXp &&
     totals.reserved === a.reservedXp &&
     totals.spent === a.spentXp &&
@@ -197,6 +203,7 @@ export async function rewardSummary(tx: Tx, userId: string) {
     pendingCents: sumCents(live.map((p) => p.amountCents)),
     paidCents: sumCents(paid.map((p) => p.amountCents)),
     reconciled,
+    programReady: !!securityProgramId,
     profileReady: !!user.email && !!user.fullName,
     weeklyUsed,
     weeklyRemaining: Math.max(0, rules.weeklyXpCap - weeklyUsed),

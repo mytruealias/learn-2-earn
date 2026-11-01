@@ -1,58 +1,138 @@
+import { lockStaffScope } from "@/lib/program-scope";
 import { z } from "zod";
-import { getAdminFromRequest, requireRole } from "@/lib/admin-auth";
-import { logAudit } from "@/lib/audit";
 import prisma from "@/lib/prisma";
-import { apiError, apiOk, apiServerError, parseJson, parseParam, idParamSchema, getClientIp } from "@/lib/api-helpers";
-
-const PatchSchema = z.object({ isActive: z.boolean() });
-
-export async function PATCH(req: Request, { params }: { params: Promise<{ staffId: string }> }) {
+import { getAdminFromRequest } from "@/lib/admin-auth";
+import { legacyRole } from "@/lib/program-scope";
+import { apiError, apiOk, apiServerError, parseJson } from "@/lib/api-helpers";
+export async function PATCH(
+  req: Request,
+  { params }: { params: Promise<{ staffId: string }> },
+) {
   try {
-    const admin = await getAdminFromRequest(req);
-    if (!admin) return apiError("unauthorized", "Not signed in", 401);
-    if (!requireRole(admin.role, ["admin"])) return apiError("forbidden", "Admin role required", 403);
-
-    const { staffId: rawStaffId } = await params;
-    const idCheck = parseParam(rawStaffId, idParamSchema, "staffId");
-    if (!idCheck.ok) return idCheck.response;
-    const staffId = idCheck.data;
-
-    const parsed = await parseJson(req, PatchSchema);
-    if (!parsed.ok) return parsed.response;
-    const { isActive } = parsed.data;
-
-    if (staffId === admin.id) {
-      return apiError("bad_request", "Cannot modify your own account", 400);
-    }
-
-    const target = await prisma.adminUser.findUnique({ where: { id: staffId } });
-    if (!target) return apiError("not_found", "Staff member not found", 404);
-
-    const updated = await prisma.adminUser.update({
-      where: { id: staffId },
-      data: { isActive },
-      select: {
-        id: true,
-        email: true,
-        fullName: true,
-        role: true,
-        isActive: true,
-        createdAt: true,
-        lastLoginAt: true,
-      },
+    const a = await getAdminFromRequest(req);
+    if (!a) return apiError("unauthorized", "Sign in as staff.", 401);
+    if (a.role !== "admin")
+      return apiError("forbidden", "Program administrator required.", 403);
+    const { staffId } = await params;
+    const p = await parseJson(
+      req,
+      z
+        .object({
+          isActive: z.boolean(),
+          expectedVersion: z.number().int().nonnegative(),
+          requestKey: z.string().uuid(),
+        })
+        .strict(),
+    );
+    if (!p.ok) return p.response;
+    if (staffId === a.id)
+      return apiError(
+        "bad_request",
+        "You cannot deactivate your own membership.",
+        400,
+      );
+    const result = await prisma.$transaction(async (tx) => {
+      await tx.$queryRaw`SELECT "id" FROM "Program" WHERE "id"=${a.programId} FOR UPDATE`;
+      await lockStaffScope(tx, a);
+      const current = await getAdminFromRequest(req, tx);
+      if (!current || current.role !== "admin") return null;
+      const fingerprint = (await import("@/lib/rewards/accounting")).hash({
+        staffId,
+        ...p.data,
+      });
+      const receipt = await tx.staffActionReceipt.findUnique({
+        where: {
+          programId_requestKey: {
+            programId: a.programId,
+            requestKey: p.data.requestKey,
+          },
+        },
+      });
+      if (receipt) {
+        if (receipt.payloadHash !== fingerprint || receipt.adminId !== a.id)
+          throw new (await import("@/lib/program-scope")).ScopeError(
+            409,
+            "Action key was already used.",
+          );
+        return { id: staffId, replayed: true };
+      }
+      const m = await tx.staffMembership.findUnique({
+        where: {
+          adminId_programId: { adminId: staffId, programId: a.programId },
+        },
+        include: {
+          admin: {
+            select: {
+              id: true,
+              email: true,
+              fullName: true,
+              createdAt: true,
+              lastLoginAt: true,
+            },
+          },
+        },
+      });
+      if (!m) return null;
+      if (m.version !== p.data.expectedVersion)
+        throw new (await import("@/lib/program-scope")).ScopeError(
+          409,
+          "Another administrator changed this membership. Reload before confirming again.",
+        );
+      await tx.staffMembership.update({
+        where: { id: m.id },
+        data: {
+          version: { increment: 1 },
+          isActive: p.data.isActive,
+          revokedAt: p.data.isActive ? null : new Date(),
+        },
+      });
+      if (!p.data.isActive)
+        await tx.adminSession.updateMany({
+          where: {
+            adminId: staffId,
+            activeProgramId: a.programId,
+            revokedAt: null,
+          },
+          data: { revokedAt: new Date() },
+        });
+      await tx.auditLog.create({
+        data: {
+          programId: a.programId,
+          adminId: a.id,
+          action: p.data.isActive
+            ? "PROGRAM_MEMBERSHIP_REACTIVATED"
+            : "PROGRAM_MEMBERSHIP_REVOKED",
+          entity: "StaffMembership",
+          entityId: m.id,
+        },
+      });
+      await tx.staffActionReceipt.create({
+        data: {
+          programId: a.programId,
+          adminId: a.id,
+          requestKey: p.data.requestKey,
+          payloadHash: fingerprint,
+          entity: "StaffMembership",
+          entityId: m.id,
+          action: "membership",
+          version: m.version + 1,
+        },
+      });
+      return {
+        ...m.admin,
+        version: m.version + 1,
+        role: legacyRole(m.role),
+        isActive: p.data.isActive,
+      };
     });
-
-    await logAudit({
-      adminId: admin.id,
-      action: isActive ? "STAFF_REACTIVATE" : "STAFF_DEACTIVATE",
-      entity: "AdminUser",
-      entityId: staffId,
-      details: JSON.stringify({ email: target.email, isActive }),
-      ipAddress: getClientIp(req),
-    });
-
-    return apiOk({ staff: updated });
-  } catch (error) {
-    return apiServerError("admin/staff/patch", error);
+    return result
+      ? apiOk({ staff: result })
+      : apiError(
+          "not_found",
+          "Membership not found in your active program.",
+          404,
+        );
+  } catch (e) {
+    return apiServerError("staff/membership", e);
   }
 }

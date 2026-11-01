@@ -28,6 +28,13 @@ export default async function globalTeardown(): Promise<void> {
         data: { paidById: null },
       });
       await prisma.auditLog.deleteMany({ where: { adminId: admin.id } });
+      await prisma.staffActionReceipt.deleteMany({
+        where: { adminId: admin.id },
+      });
+      await prisma.staffMembership.deleteMany({ where: { adminId: admin.id } });
+      await prisma.staffRecoveryCode.deleteMany({
+        where: { adminId: admin.id },
+      });
       await prisma.adminSession.deleteMany({ where: { adminId: admin.id } });
       await prisma.payoutRequest.updateMany({
         where: { reviewedById: admin.id },

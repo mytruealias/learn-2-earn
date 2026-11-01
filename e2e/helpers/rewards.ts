@@ -1,3 +1,4 @@
+import { syntheticProgram, provisionStaff } from "./staff";
 import { PrismaClient } from "@prisma/client";
 import {
   assertTestDatabase,
@@ -13,12 +14,14 @@ const db = new PrismaClient({
 });
 export async function rewardFixture() {
   await assertTestDatabase(db);
+  await syntheticProgram();
   const user = await db.user.create({
     data: {
       email: `reward-${Date.now()}-${Math.random()}@example.test`,
       fullName: "Synthetic reward learner",
       passwordHash: await bcrypt.hash("synthetic-reward-password", 4),
       totalXp: 500,
+      enrollment: { create: { programId: "test-program" } },
     },
   });
   const plan = await db.$transaction((tx) => reconciliationPlan(tx));
@@ -32,14 +35,11 @@ export async function reconcileRewardFixtures() {
 }
 export async function rewardStaff(role = "admin") {
   await assertTestDatabase(db);
-  return db.adminUser.create({
-    data: {
-      email: `reward-staff-${Date.now()}-${Math.random()}@example.test`,
-      fullName: "Synthetic finance staff",
-      role,
-      passwordHash: await bcrypt.hash("synthetic-staff-password", 4),
-    },
-  });
+  return provisionStaff(
+    `reward-staff-${Date.now()}-${Math.random()}@example.test`,
+    "synthetic-staff-password",
+    role,
+  );
 }
 export async function rewardSnapshot(userId: string) {
   await assertTestDatabase(db);

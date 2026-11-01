@@ -10,24 +10,24 @@ Learn 2 Earn is a mission-driven platform that rewards learners with small cash 
 
 The platform has three access layers:
 
-| Layer | Path | Audience |
-|---|---|---|
-| Investor / Partner landing page | `/` | City officials, funders, continuums of care |
-| Learner app | `/app` | Program participants (code-gated) |
-| Admin dashboard | `/admin` | Case workers, program managers, finance |
+| Layer                           | Path     | Audience                                    |
+| ------------------------------- | -------- | ------------------------------------------- |
+| Investor / Partner landing page | `/`      | City officials, funders, continuums of care |
+| Learner app                     | `/app`   | Program participants (code-gated)           |
+| Admin dashboard                 | `/admin` | Case workers, program managers, finance     |
 
 ---
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Framework | [Next.js 15](https://nextjs.org/) (App Router) |
-| Language | TypeScript |
-| ORM | [Prisma 6](https://www.prisma.io/) |
-| Database | PostgreSQL |
-| Styling | CSS Modules + global CSS |
-| Auth | Cookie-based sessions, bcrypt |
+| Layer      | Technology                                                  |
+| ---------- | ----------------------------------------------------------- |
+| Framework  | [Next.js 15](https://nextjs.org/) (App Router)              |
+| Language   | TypeScript                                                  |
+| ORM        | [Prisma 6](https://www.prisma.io/)                          |
+| Database   | PostgreSQL                                                  |
+| Styling    | CSS Modules + global CSS                                    |
+| Auth       | Cookie-based sessions, bcrypt                               |
 | Deployment | Any Node.js-compatible host (Vercel, Railway, Render, etc.) |
 
 ---
@@ -55,6 +55,10 @@ See the [current architecture and route inventory](docs/current-architecture.md)
 ## Reward accounting and manual payments
 
 [Audited rules, ledger and state machine](docs/reward-accounting/README.md) · [Baseline findings](docs/reward-accounting/audit.md) · [Verification and exact files](docs/reward-accounting/verification.md) · [Browser evidence](docs/reward-accounting/screenshots/README.md). Rewards uses one versioned program contract, exact cents and audited XP reservations; approvals are distinct from recorded payments. Financial program assignment is separate from editable contact city. Apply the additive accounting migration and complete the explicit hash-reviewed legacy reconciliation **before enabling financial writes**. No build/start command performs a backfill, sends money or silently repairs history. See DEPLOYMENT.md for gates and rollback restrictions.
+
+## Program boundaries and staff operations
+
+[Program authorization, permission matrix, MFA and reviewed legacy mapping](docs/program-boundaries/README.md) · [Staff workflow conventions and route close-out](docs/staff-operations/README.md). Staff must complete MFA and select an active authorized program. Existing staff roles receive no automatic organization-wide grant. City names/subdomains do not authorize access. Program-scoped queues, versioned case workflows, participant detail, bounded tables and defined aggregate reports use the shared design system. The two additive migrations and explicit ownership review are release gates; this is not a multi-organization production-readiness claim.
 
 ## Getting Started
 
@@ -91,12 +95,12 @@ npm start
 
 Database changes require an operator-reviewed target, a tested backup/restore plan, and separate explicit commands:
 
-| Command | Effect |
-| --- | --- |
-| `npm run release:migrate -- --confirm-database reviewed_database_name` | Apply tracked migrations to a verified existing migration baseline; no seeds/repair |
-| `npm run release:content -- --confirm-database reviewed_database_name` | Insert missing curriculum/slots; preserve existing content, IDs, rewards, user progress and payment history |
+| Command                                                                        | Effect                                                                                                                                                 |
+| ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `npm run release:migrate -- --confirm-database reviewed_database_name`         | Apply tracked migrations to a verified existing migration baseline; no seeds/repair                                                                    |
+| `npm run release:content -- --confirm-database reviewed_database_name`         | Insert missing curriculum/slots; preserve existing content, IDs, rewards, user progress and payment history                                            |
 | `npm run release:bootstrap-admin -- --confirm-database reviewed_database_name` | Create first admin only when **no staff rows exist**; requires `ADMIN_BOOTSTRAP_EMAIL` and `ADMIN_DEFAULT_PASSWORD` (16+ characters) supplied securely |
-| `npm run recovery:inspect` | Read-only status of the historic init migration; never changes migration history |
+| `npm run recovery:inspect`                                                     | Read-only status of the historic init migration; never changes migration history                                                                       |
 
 Do not set bootstrap variables in ordinary build/start settings; remove them immediately after deliberate first provisioning. Existing staff must be managed through authenticated staff management or a separately reviewed recovery procedure. Content sync does not overwrite existing metadata or rewards; corrections to existing content require an explicit reviewed backfill. No payout-rate change occurs here.
 
@@ -131,12 +135,14 @@ See [the release runbook](DEPLOYMENT.md) for development/deployment settings, mi
 The seed sources define learning journeys across life skills and recovery. Measure current lesson/card counts from those sources rather than this list or the curriculum snapshot:
 
 **Life Skills**
+
 - Stability Basics
 - Survival & Systems
 - Building Your Future
 - Financial Literacy
 
 **Addiction & Recovery**
+
 - Foundations of Recovery
 - Harm Reduction & Safety
 - Treatment & Recovery Navigation
@@ -162,7 +168,7 @@ The admin panel (`/admin`) provides:
 - **Payout workflow** — review, approve, or reject payout requests
 - **Audit log** — immutable record of all admin actions
 
-Role levels: `admin`, `caseworker`, `finance`.
+Program membership roles: `program_admin`, `caseworker`, `finance`. Historical `AdminUser.role` is preserved but grants no runtime program access. The compatibility API label `admin` means the selected membership is a program administrator. Staff sign-in includes required MFA; see the permission matrix above.
 
 ---
 
@@ -179,20 +185,22 @@ npm test
 
 `.env.test` supplies only the maintenance connection used to create/drop fresh databases/roles and an optional `PLAYWRIGHT_CHROMIUM_EXECUTABLE` path. It cannot override the child suite's isolated application bindings. No production credentials are required. For a preinstalled browser, export `PLAYWRIGHT_CHROMIUM_EXECUTABLE` with its local executable path. The bundled Playwright browser is the CI default.
 
-| Command | Scope |
-| --- | --- |
-| `npm run test:unit` | Isolation guard tests; no database needed |
-| `npm run test:api` | API integration + release safety tests on a fresh isolated DB |
-| `npm run test:api:watch` | Same isolated API database retained only for that watch session |
-| `npm run test:e2e` | Existing HTTP city/learner/payout tests; local server port 5050 and `.next-e2e` output |
-| `npm run test:browser` | Actual Chromium: responsive public page, learner UI login/path/lesson, staff UI login/dashboard |
-| `npm run test:design` | Actual Chromium + axe: design states, real CRUD/progress, keyboard, contrast, reflow and touch targets |
-| `npm run test:journey` | Actual Chromium: invitation/signup/login/onboarding/home/logout, signed guest association, expiry and interruption recovery |
-| `npm run test:progression` | Actual Chromium: next lesson, both path views, all lesson/program states, selections/goals and navigation without XP |
-| `npm test` | Unit → API → HTTP → browser smoke → design → learner journey → progression, sequentially |
-| `npm run test:e2e:ui` | Legacy admin browser suite; isolated DB but still needs its explicit legacy role fixtures; not a default CI gate |
+| Command                    | Scope                                                                                                                                   |
+| -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run test:unit`        | Isolation guard tests; no database needed                                                                                               |
+| `npm run test:api`         | API integration + release safety tests on a fresh isolated DB                                                                           |
+| `npm run test:api:watch`   | Same isolated API database retained only for that watch session                                                                         |
+| `npm run test:e2e`         | Existing HTTP city/learner/payout tests; local server port 5050 and `.next-e2e` output                                                  |
+| `npm run test:browser`     | Actual Chromium: responsive public page, learner UI login/path/lesson, staff UI login/dashboard                                         |
+| `npm run test:design`      | Actual Chromium + axe: design states, real CRUD/progress, keyboard, contrast, reflow and touch targets                                  |
+| `npm run test:journey`     | Actual Chromium: invitation/signup/login/onboarding/home/logout, signed guest association, expiry and interruption recovery             |
+| `npm run test:progression` | Actual Chromium: next lesson, both path views, all lesson/program states, selections/goals and navigation without XP                    |
+| `npm run test:staff`       | Real staff MFA, scoped routes, pagination/exports and concurrent workflow browser checks                                                |
+| `npm run test:support`     | Human help, unavailable/interrupted mocked AI, idempotent intake/reload and real staff acknowledgment/settings                          |
+| `npm test`                 | Unit → API → HTTP → browser smoke → design → learner journey → progression → lessons/Practice → rewards → staff → support, sequentially |
+| `npm run test:e2e:ui`      | Preserved legacy command now runs the real synthetic staff/reward browser suites, including MFA and role checks                         |
 
-The harness drops only the resources it created on exit and preserves suite failure status. Separate invocations use separate random databases. If a machine/process is forcibly killed, remove only verified orphan resources from that run; never point cleanup at the development DB. The legacy suite's fixture/assertion limitations remain recorded in the baseline and are not claimed fixed.
+The harness drops only the resources it created on exit and preserves suite failure status. Separate invocations use separate random databases. If a machine/process is forcibly killed, remove only verified orphan resources from that run; never point cleanup at the development DB. The former legacy suite's missing-fixture and swallowed-assertion branches are replaced by the current staff/reward flows; they fail on missing controls or wrong results.
 
 ## Deployment
 
@@ -205,3 +213,9 @@ The harness drops only the resources it created on exit and preserves suite fail
 Copyright © 2025 Learn 2 Earn. All rights reserved.
 
 This software is proprietary and confidential. Unauthorized copying, distribution, or use is strictly prohibited.
+
+### Hubert and human help
+
+Public `/lifeline` and Help keep human contacts available without AI, account access or lesson completion. Optional Hubert chat/cloud voice are gated behind a recorded, qualified policy review; program intake defaults off until the actual team and monitoring schedule are configured under staff security. Requests are scoped stored cases with explicit optional location consent, retry keys and genuine staff acknowledgment. Saving is not notification or emergency dispatch. Read the [support runbook, privacy limits and outstanding human review](docs/hubert-support/README.md) before enabling either service. No live provider or private conversation is used in tests; `npm run test:support` exercises synthetic browser flows. [Latest verification and exact changed files](docs/hubert-support/verification.md).
+
+Cloud verification note (2026-11-01 UTC): the final clean dependency install succeeded, but the workspace proxy blocked Prisma engine checksum downloads. Current runtime/client regeneration, final build and post-install type check require that network prerequisite; see the [exact verification record](docs/hubert-support/verification.md). Saved setup/network instructions require review/publication and were not applied to runtime. Do not ignore engine checksums.

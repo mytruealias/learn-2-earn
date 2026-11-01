@@ -2,9 +2,17 @@ import { z } from "zod";
 import prisma from "../prisma";
 import { apiError, apiOk, parseJson } from "../api-helpers";
 import { getUserIdFromRequest, sameOriginError } from "../user-session";
+import { scopedDb, ScopeError } from "../program-scope";
+import type { ScopedAdmin } from "../admin-auth";
 import { getAdminFromRequest } from "../admin-auth";
 import { financialLock, RewardIssue, userLock, type Tx } from "./accounting";
 export function rewardError(error: unknown) {
+  if (error instanceof ScopeError)
+    return apiError(
+      error.status === 404 ? "not_found" : "forbidden",
+      error.message,
+      error.status,
+    );
   if (error instanceof RewardIssue)
     return apiError(error.code, error.message, error.status);
   console.error(
@@ -62,7 +70,7 @@ export async function staffWrite<S extends z.ZodTypeAny>(
   roles: string[],
   work: (
     tx: Tx,
-    admin: { id: string; role: string },
+    admin: ScopedAdmin,
     data: z.infer<S>,
   ) => Promise<Record<string, unknown>>,
 ) {
@@ -88,7 +96,7 @@ export async function staffWrite<S extends z.ZodTypeAny>(
             "Your staff session or permissions changed.",
             403,
           );
-        return work(tx, current, parsed.data);
+        return work(scopedDb(current, tx), current, parsed.data);
       },
       { maxWait: 15000, timeout: 20000 },
     );

@@ -1,3 +1,4 @@
+import { verifyStaffRequest } from "./helpers/staff";
 import { completeLesson } from "./helpers/lesson";
 import { test, expect, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
@@ -97,6 +98,8 @@ async function staff(page: Page) {
     },
   });
   expect(response.ok()).toBe(true);
+  await verifyStaffRequest(page.request, "design-staff@example.test");
+  await page.context().setExtraHTTPHeaders({ "x-l2e-program": "test-program" });
 }
 async function learner(page: Page) {
   expect(
@@ -198,7 +201,9 @@ for (const width of widths) {
     await page.evaluate(() => (document.documentElement.style.fontSize = ""));
     await staff(page);
     const existingServices = await (
-      await page.request.get("/api/admin/directory")
+      await page.request.get("/api/admin/directory", {
+        headers: { "x-l2e-program": "test-program" },
+      })
     ).json();
     if (
       !existingServices.entries.some(
@@ -208,6 +213,7 @@ for (const width of widths) {
     ) {
       const service = await page.request.post("/api/admin/directory", {
         data: {
+          requestKey: crypto.randomUUID(),
           name: "Community support centre (synthetic)",
           category: "Shelter",
           address: "Synthetic address — no real location",
@@ -223,7 +229,7 @@ for (const width of widths) {
     await page.goto("/admin/directory");
     await expect(
       page
-        .getByRole("heading", { name: "Community support centre (synthetic)" })
+        .getByText("Community support centre (synthetic)", { exact: true })
         .first(),
     ).toBeVisible();
     await screenshot(page, "staff-directory", width);
@@ -246,9 +252,9 @@ for (const width of widths) {
     });
     await page.evaluate(() => (document.documentElement.style.fontSize = ""));
     await page
-      .getByRole("button", { name: "+ Add service", exact: true })
+      .getByRole("button", { name: "Add service", exact: true })
       .click();
-    const dialog = page.getByRole("dialog", { name: "Add a service" });
+    const dialog = page.getByRole("dialog", { name: "Add service" });
     await expect(dialog).toBeVisible();
     await checkLayout(page);
     await audit(page);
@@ -306,9 +312,7 @@ test("directory creates, edits, clears optional data and removes using the real 
 }) => {
   await staff(page);
   await page.goto("/admin/directory");
-  await page
-    .getByRole("button", { name: "+ Add service", exact: true })
-    .click();
+  await page.getByRole("button", { name: "Add service", exact: true }).click();
   const dialog = page.getByRole("dialog");
   const save = dialog.getByRole("button", {
     name: "Save service",
@@ -316,26 +320,26 @@ test("directory creates, edits, clears optional data and removes using the real 
   });
   await expect(save).toBeDisabled();
   await expect(save).toHaveAccessibleDescription(
-    "Enter an organization name to save this service.",
+    "Enter a service name to save this service.",
   );
   const longName =
     "A community-led support organization with a long descriptive name for checking narrow screen layouts";
-  await page
-    .getByLabel("Organization name (required)", { exact: true })
-    .fill(longName);
+  await page.getByLabel("Service name", { exact: true }).fill(longName);
   await page.getByLabel("Address", { exact: true }).fill("Synthetic address");
   await save.click();
   await expect(dialog).not.toBeVisible();
-  await expect(
-    page.getByRole("heading", { name: longName, exact: true }),
-  ).toBeVisible();
+  await expect(page.getByText(longName, { exact: true })).toBeVisible();
   await page
     .getByRole("button", { name: `Edit ${longName}`, exact: true })
     .click();
   await page.getByLabel("Address", { exact: true }).fill("");
   await page.getByRole("button", { name: "Save service", exact: true }).click();
   await expect(page.getByRole("dialog")).not.toBeVisible();
-  const list = await (await page.request.get("/api/admin/directory")).json();
+  const list = await (
+    await page.request.get("/api/admin/directory", {
+      headers: { "x-l2e-program": "test-program" },
+    })
+  ).json();
   expect(
     list.entries.find((entry: { name: string }) => entry.name === longName)
       .address,
@@ -345,11 +349,12 @@ test("directory creates, edits, clears optional data and removes using the real 
     .click();
   await page
     .getByRole("dialog")
-    .getByRole("button", { name: "Remove service", exact: true })
+    .getByRole("button", { name: "Confirm removal", exact: true })
     .click();
+  await expect(page.getByRole("dialog")).not.toBeVisible();
   await expect(
-    page.getByRole("heading", { name: longName, exact: true }),
-  ).not.toBeVisible();
+    page.getByRole("cell", { name: longName, exact: true }),
+  ).toHaveCount(0);
 });
 test("real progress loads without a browser identity hint; failures offer retry instead of zero", async ({
   page,
@@ -372,7 +377,7 @@ test("real progress loads without a browser identity hint; failures offer retry 
   ).toContainText("Your progress could not load");
   await expect(page.getByRole("progressbar")).toHaveCount(0);
   await page.unroute("**/api/progress/list");
-  await page.getByRole("button", { name: "Try again" }).click();
+  await page.getByRole("button", { name: "Try again", exact: true }).click();
   await expect(
     page.getByRole("progressbar", { name: "Path progress" }),
   ).toHaveAttribute("value", "1");
@@ -392,40 +397,41 @@ test("directory errors preserve the form; loading, empty and retry states stay e
   await page.goto("/admin/directory");
   try {
     await expect(
-      page.getByRole("status").filter({ hasText: "Loading services" }).last(),
+      page
+        .getByRole("status")
+        .filter({ hasText: "Loading service directory" })
+        .last(),
     ).toBeVisible();
   } finally {
     release();
   }
-  await expect(
-    page.locator("[data-design=staff-directory]").getByRole("alert"),
-  ).toContainText("The directory could not load");
+  await expect(page.locator("main").getByRole("alert")).toContainText(
+    "Records could not be loaded.",
+  );
   await page.unroute("**/api/admin/directory?**");
-  await page.getByRole("button", { name: "Try again" }).click();
+  await page.getByRole("button", { name: "Retry", exact: true }).click();
   await page
-    .getByLabel("Search services", { exact: true })
+    .getByLabel("Search", { exact: true })
     .fill("no-match-for-this-fixture");
   await page.getByRole("button", { name: "Search", exact: true }).click();
   await expect(
-    page.getByRole("heading", { name: "No matching services" }),
+    page.getByRole("heading", { name: "No matching records" }),
   ).toBeVisible();
   await page.getByRole("button", { name: "Clear filters" }).click();
+  await page.getByRole("button", { name: "Add service", exact: true }).click();
   await page
-    .getByRole("button", { name: "+ Add service", exact: true })
-    .click();
-  await page
-    .getByLabel("Organization name (required)", { exact: true })
+    .getByLabel("Service name", { exact: true })
     .fill("Preserve this input");
   await page.route("**/api/admin/directory", (route) =>
     route.fulfill({ status: 500, json: { ok: false } }),
   );
   await page.getByRole("button", { name: "Save service", exact: true }).click();
   await expect(page.getByRole("dialog").getByRole("alert")).toContainText(
-    "could not be saved",
+    "could not be confirmed",
   );
-  await expect(
-    page.getByLabel("Organization name (required)", { exact: true }),
-  ).toHaveValue("Preserve this input");
+  await expect(page.getByLabel("Service name", { exact: true })).toHaveValue(
+    "Preserve this input",
+  );
 });
 
 test("mobile staff navigation traps keyboard focus and restores the menu trigger", async ({

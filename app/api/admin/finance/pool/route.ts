@@ -1,5 +1,5 @@
 import { z } from "zod";
-import prisma from "@/lib/prisma";
+import { scopedDb } from "@/lib/program-scope";
 import { getAdminFromRequest } from "@/lib/admin-auth";
 import { apiError, apiOk } from "@/lib/api-helpers";
 import { staffWrite, rewardError } from "@/lib/rewards/http";
@@ -15,6 +15,7 @@ const schema = z
       .min(-MAX_CENTS)
       .max(MAX_CENTS)
       .refine((n) => n !== 0),
+    expectedBalanceCents: z.number().int().min(0).max(MAX_CENTS),
     reason: z.string().trim().min(1).max(500),
   })
   .strict();
@@ -22,6 +23,7 @@ export async function GET(req: Request) {
   try {
     const a = await getAdminFromRequest(req);
     if (!a) return apiError("unauthorized", "Sign in as staff.", 401);
+    const prisma = scopedDb(a);
     if (!["admin", "finance"].includes(a.role))
       return apiError("forbidden", "Finance access required.", 403);
     return apiOk({
@@ -48,9 +50,14 @@ export async function POST(req: Request) {
         create: { id: "singleton", balanceCents: 0 },
         update: {},
       });
-      await tx.$queryRaw`SELECT "id" FROM "PoolBalance" WHERE "id"='singleton' FOR UPDATE`;
+      await tx.$queryRaw`SELECT "id" FROM "PoolBalance" WHERE "programId"=${admin.programId} FOR UPDATE`;
       const prior = await tx.poolAdjustment.findUnique({
-        where: { requestKey: data.requestKey },
+        where: {
+          programId_requestKey: {
+            programId: admin.programId,
+            requestKey: data.requestKey,
+          },
+        },
       });
       if (prior) {
         if (
@@ -71,6 +78,11 @@ export async function POST(req: Request) {
           where: { id: "singleton" },
         }),
         next = p.balanceCents + data.amountCents;
+      if (p.balanceCents !== data.expectedBalanceCents)
+        throw new RewardIssue(
+          "conflict",
+          "The pool changed since you reviewed it. Reload finance, check the new balance and confirm a new adjustment.",
+        );
       if (next < 0 || next > MAX_CENTS)
         throw new RewardIssue(
           "insufficient_funds",

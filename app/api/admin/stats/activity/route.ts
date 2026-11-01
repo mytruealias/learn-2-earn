@@ -1,6 +1,6 @@
 import { usd } from "@/lib/rewards/money";
 import { getAdminFromRequest } from "@/lib/admin-auth";
-import prisma from "@/lib/prisma";
+import { scopedDb } from "@/lib/program-scope";
 import { apiError, apiOk, apiServerError } from "@/lib/api-helpers";
 
 interface ActivityEvent {
@@ -18,6 +18,7 @@ export async function GET(req: Request) {
   try {
     const admin = await getAdminFromRequest(req);
     if (!admin) return apiError("unauthorized", "Not signed in", 401);
+    const prisma = scopedDb(admin);
 
     const [
       recentUsers,
@@ -42,23 +43,32 @@ export async function GET(req: Request) {
           user: { select: { fullName: true, email: true } },
         },
       }),
-      prisma.case.findMany({
-        orderBy: { createdAt: "desc" },
-        take: FETCH_PER_SOURCE,
-        select: {
-          id: true,
-          title: true,
-          priority: true,
-          createdAt: true,
-          user: { select: { fullName: true } },
-        },
-      }),
-      prisma.auditLog.findMany({
-        where: { action: "CASE_CREATE_STRESS_SIGNAL" },
-        orderBy: { createdAt: "desc" },
-        take: FETCH_PER_SOURCE,
-        select: { id: true, entityId: true, details: true, createdAt: true },
-      }),
+      admin.role === "finance"
+        ? Promise.resolve([])
+        : prisma.case.findMany({
+            orderBy: { createdAt: "desc" },
+            take: FETCH_PER_SOURCE,
+            select: {
+              id: true,
+              title: true,
+              priority: true,
+              createdAt: true,
+              user: { select: { fullName: true } },
+            },
+          }),
+      admin.role === "finance"
+        ? Promise.resolve([])
+        : prisma.auditLog.findMany({
+            where: { action: "CASE_CREATE_STRESS_SIGNAL" },
+            orderBy: { createdAt: "desc" },
+            take: FETCH_PER_SOURCE,
+            select: {
+              id: true,
+              entityId: true,
+              details: true,
+              createdAt: true,
+            },
+          }),
       prisma.progress.findMany({
         orderBy: { completedAt: "desc" },
         take: FETCH_PER_SOURCE,

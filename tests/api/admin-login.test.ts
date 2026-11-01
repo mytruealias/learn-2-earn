@@ -33,7 +33,7 @@ describe("admin/login", () => {
     expect(log).not.toBeNull();
   });
 
-  it("logs in successfully and writes a LOGIN_SUCCESS audit log", async () => {
+  it("logs in successfully and writes a STAFF_PASSWORD_VERIFIED audit log", async () => {
     await createAdmin({ email: "admin2@test.com", password: "good-pw" });
     const req = makeRequest("http://test/api/admin/login", {
       body: { email: "admin2@test.com", password: "good-pw" },
@@ -41,12 +41,12 @@ describe("admin/login", () => {
     });
     const res = await adminLoginPOST(req);
     expect(res.status).toBe(200);
-    const body = (await readJson(res)) as { ok: boolean; admin: { email: string } };
+    const body = (await readJson(res)) as { ok: boolean; nextStep: string };
     expect(body.ok).toBe(true);
-    expect(body.admin.email).toBe("admin2@test.com");
+    expect(body.nextStep).toBe("verify");
 
     const log = await prisma.auditLog.findFirst({
-      where: { action: "LOGIN_SUCCESS", entity: "AdminUser" },
+      where: { action: "STAFF_PASSWORD_VERIFIED", entity: "AdminUser" },
     });
     expect(log).not.toBeNull();
   });

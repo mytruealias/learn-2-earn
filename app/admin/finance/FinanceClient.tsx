@@ -1,6 +1,9 @@
 "use client";
+
+import { useAdmin } from "../AdminContext";
+import { staffFetch } from "@/lib/staff-fetch";
 import { useRef, useState } from "react";
-import { Alert, Button, Card, ButtonLink } from "@/app/components/ui";
+import { Alert, Button, Card, ButtonLink, Dialog } from "@/app/components/ui";
 import {
   usd,
   methodDefinitions,
@@ -15,6 +18,13 @@ export default function FinanceClient({
 }: {
   initialData: FinanceData;
 }) {
+  const { admin } = useAdmin();
+  const [poolConfirmation, setPoolConfirmation] = useState<{
+    key: string;
+    amountCents: number;
+    reason: string;
+    expectedBalanceCents: number;
+  } | null>(null);
   const [data, setData] = useState(initialData),
     [error, setError] = useState(""),
     [message, setMessage] = useState(""),
@@ -43,7 +53,7 @@ export default function FinanceClient({
     setError("");
     setMessage("");
     try {
-      const r = await fetch(path, {
+      const r = await staffFetch(path, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
@@ -55,10 +65,13 @@ export default function FinanceClient({
           d.error?.message || "Operation could not be confirmed.",
         );
       setMessage("Saved and audited. No external transfer was performed.");
-      const fresh = await fetch("/api/admin/finance", { cache: "no-store" });
+      const fresh = await staffFetch("/api/admin/finance", {
+        cache: "no-store",
+      });
       if (!fresh.ok)
         throw new Error("Saved; refresh the page to verify the latest totals.");
       setData(await fresh.json());
+      setPoolConfirmation(null);
       setKey(null);
       setConfirmed(false);
     } catch (e) {
@@ -69,6 +82,29 @@ export default function FinanceClient({
       );
     } finally {
       lock.current = false;
+      setBusy(false);
+    }
+  }
+  async function loadConfigPage(page: number) {
+    setBusy(true);
+    setError("");
+    try {
+      const r = await staffFetch(`/api/admin/finance?configPage=${page}`),
+        d = await r.json();
+      if (!r.ok)
+        throw new Error(
+          d.error?.message || "Configuration page could not load.",
+        );
+      setData(d);
+      setEditing(null);
+      setName("");
+      setSlug("");
+      setConfirmed(false);
+    } catch (e) {
+      setError(
+        e instanceof Error ? e.message : "Configuration page could not load.",
+      );
+    } finally {
       setBusy(false);
     }
   }
@@ -84,6 +120,13 @@ export default function FinanceClient({
     setActive(c.isActive);
     setConfirmed(false);
   }
+  if (admin?.programId !== data.scope.programId)
+    return (
+      <Alert tone="warning">
+        Your active program changed. Reload this page before viewing finance
+        records.
+      </Alert>
+    );
   return (
     <section
       aria-label="Reward finance operations"
@@ -137,16 +180,13 @@ export default function FinanceClient({
         <p>
           {data.reconciliation.uninitialized} accounts await initialization;{" "}
           {data.reconciliation.legacyRequests} requests await exact
-          amounts/snapshots. {data.reconciliation.adjustmentAccounts} legacy XP
-          differences need explicit review.
+          amounts/snapshots. {data.reconciliation.adjustmentAccounts} preserved
+          legacy XP opening adjustments are recorded.
         </p>
         <p>
-          {data.reconciliation.issues.length
-            ? `Blocked: ${data.reconciliation.issues.join(", ")}`
-            : "No blocking reconciliation issues detected in this read-only report."}
-        </p>
-        <p>
-          Review hash: <code>{data.reconciliation.hash}</code>
+          These are bounded inventory counts, not a ledger reconciliation. The
+          full reviewed reconciliation/hash is calculated only by the explicit
+          operator command, not during a page render.
         </p>
         <p>
           An operator must run the documented dry-run/backfill command against a
@@ -166,10 +206,11 @@ export default function FinanceClient({
             e.preventDefault();
             const k = key || crypto.randomUUID();
             setKey(k);
-            void run("/api/admin/finance/pool", "POST", {
-              requestKey: k,
+            setPoolConfirmation({
+              key: k,
               amountCents: Number(amount),
               reason,
+              expectedBalanceCents: data.pool.balanceCents,
             });
           }}
           className={styles.form}
@@ -244,6 +285,30 @@ export default function FinanceClient({
             </li>
           ))}
         </ul>
+        <div className={styles.actions}>
+          <Button
+            variant="secondary"
+            disabled={data.configsPagination.page <= 1}
+            disabledReason="This is the first configuration page."
+            onClick={() => void loadConfigPage(data.configsPagination.page - 1)}
+          >
+            Previous configurations
+          </Button>
+          <span>
+            Configuration page {data.configsPagination.page} of{" "}
+            {Math.max(1, data.configsPagination.totalPages)}
+          </span>
+          <Button
+            variant="secondary"
+            disabled={
+              data.configsPagination.page >= data.configsPagination.totalPages
+            }
+            disabledReason="There are no more configurations."
+            onClick={() => void loadConfigPage(data.configsPagination.page + 1)}
+          >
+            Next configurations
+          </Button>
+        </div>
         <Button
           variant="quiet"
           onClick={() => {
@@ -438,6 +503,43 @@ export default function FinanceClient({
           </Button>
         </form>
       </Card>
+      <Dialog
+        open={!!poolConfirmation}
+        title="Confirm program pool adjustment"
+        onClose={() => {
+          if (!busy) setPoolConfirmation(null);
+        }}
+      >
+        <p>
+          This records a bookkeeping change in{" "}
+          <strong>{admin?.programName}</strong>. It moves no bank funds.
+        </p>
+        <p>
+          Current pool: {usd(poolConfirmation?.expectedBalanceCents ?? 0)}.
+          Adjustment: {usd(poolConfirmation?.amountCents ?? 0)}. Result:{" "}
+          {usd(
+            (poolConfirmation?.expectedBalanceCents ?? 0) +
+              (poolConfirmation?.amountCents ?? 0),
+          )}
+          .
+        </p>
+        <p>Reason: {poolConfirmation?.reason}</p>
+        {error && <Alert tone="error">{error}</Alert>}
+        <Button
+          busy={busy}
+          onClick={async () => {
+            if (!poolConfirmation) return;
+            await run("/api/admin/finance/pool", "POST", {
+              requestKey: poolConfirmation.key,
+              amountCents: poolConfirmation.amountCents,
+              reason: poolConfirmation.reason,
+              expectedBalanceCents: poolConfirmation.expectedBalanceCents,
+            });
+          }}
+        >
+          Confirm adjustment
+        </Button>
+      </Dialog>
       <ButtonLink href="/admin/payouts">Review payment requests</ButtonLink>
     </section>
   );

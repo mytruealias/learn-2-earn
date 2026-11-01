@@ -1,5 +1,7 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+
+import { staffFetch } from "@/lib/staff-fetch";
+import { Suspense, useEffect, useRef, useState, useCallback } from "react";
 import { useAdmin } from "../AdminContext";
 import {
   Alert,
@@ -13,6 +15,8 @@ import {
 import { usd, methodDefinitions } from "@/lib/rewards/money";
 import type { payoutDto } from "@/lib/rewards/accounting";
 import styles from "../../profile/rewards.module.css";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { DataTable, type StaffRow } from "../components/StaffTable";
 type Payout = ReturnType<typeof payoutDto> & {
   user: { fullName: string | null };
 };
@@ -24,11 +28,32 @@ const labels: Record<string, string> = {
   rejected: "Rejected; reservation released",
   cancelled: "Cancelled; reservation released",
 };
-export default function Page() {
+export default function Workspace() {
+  return (
+    <Suspense fallback={<Skeleton label="Loading payout workspace…" />}>
+      <Page />
+    </Suspense>
+  );
+}
+function Page() {
+  const params = useSearchParams(),
+    router = useRouter(),
+    pathname = usePathname();
+  const status = params.get("status") || "pending",
+    page = Math.max(1, Number(params.get("page")) || 1),
+    search = params.get("search") || "",
+    sort = params.get("sort") || "createdAt",
+    direction = params.get("direction") || "desc";
+  function change(values: Record<string, string>) {
+    const p = new URLSearchParams(params.toString());
+    for (const [k, v] of Object.entries(values)) p.set(k, v);
+    router.replace(`${pathname}?${p}`, { scroll: false });
+  }
+  const setStatus = (value: string) => change({ status: value, page: "1" });
+  const setPage = (value: number | ((n: number) => number)) =>
+    change({ page: String(typeof value === "function" ? value(page) : value) });
   const { admin } = useAdmin();
   const [items, setItems] = useState<Payout[]>([]),
-    [status, setStatus] = useState("pending"),
-    [page, setPage] = useState(1),
     [pages, setPages] = useState(1),
     [loading, setLoading] = useState(true),
     [error, setError] = useState(""),
@@ -54,37 +79,43 @@ export default function Page() {
     retry = useRef<object | null>(null);
   const canFinance = !!admin && ["admin", "finance"].includes(admin.role),
     canReview = !!admin && ["admin", "caseworker"].includes(admin.role);
-  async function load(p = filter.current.page, s = filter.current.status) {
-    const generation = ++loadGeneration.current;
-    setLoading(true);
-    setError("");
-    try {
-      const r = await fetch(`/api/admin/payouts?status=${s}&page=${p}`, {
-        cache: "no-store",
-        signal: AbortSignal.timeout(20000),
-      });
-      const d = await r.json();
-      if (
-        generation !== loadGeneration.current ||
-        s !== filter.current.status ||
-        p !== filter.current.page
-      )
-        return;
-      if (!r.ok)
-        throw new Error(d.error?.message || "Requests could not load.");
-      setItems(d.payouts);
-      setPages(d.pagination.totalPages);
-    } catch (e) {
-      if (generation === loadGeneration.current)
-        setError(e instanceof Error ? e.message : "Requests could not load.");
-    } finally {
-      if (generation === loadGeneration.current) setLoading(false);
-    }
-  }
+  const load = useCallback(
+    async function load(p = filter.current.page, s = filter.current.status) {
+      const generation = ++loadGeneration.current;
+      setLoading(true);
+      setError("");
+      try {
+        const r = await staffFetch(
+          `/api/admin/payouts?${new URLSearchParams({ status: s, page: String(p), search, sort, direction })}`,
+          {
+            cache: "no-store",
+            signal: AbortSignal.timeout(20000),
+          },
+        );
+        const d = await r.json();
+        if (
+          generation !== loadGeneration.current ||
+          s !== filter.current.status ||
+          p !== filter.current.page
+        )
+          return;
+        if (!r.ok)
+          throw new Error(d.error?.message || "Requests could not load.");
+        setItems(d.payouts);
+        setPages(d.pagination.totalPages);
+      } catch (e) {
+        if (generation === loadGeneration.current)
+          setError(e instanceof Error ? e.message : "Requests could not load.");
+      } finally {
+        if (generation === loadGeneration.current) setLoading(false);
+      }
+    },
+    [search, sort, direction],
+  );
   useEffect(() => {
     void load(page, status);
     setDetails(null);
-  }, [page, status]);
+  }, [page, status, search, sort, direction, load]);
   function open(p: Payout, verb: string) {
     setAction({ id: p.id, action: verb, key: crypto.randomUUID() });
     setNote("");
@@ -113,7 +144,7 @@ export default function Page() {
           : {}),
       };
       retry.current = body;
-      const r = await fetch("/api/admin/payouts", {
+      const r = await staffFetch("/api/admin/payouts", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
@@ -146,7 +177,7 @@ export default function Page() {
     setBusy(true);
     setError("");
     try {
-      const r = await fetch(`/api/admin/payouts/${p.id}/payment-details`, {
+      const r = await staffFetch(`/api/admin/payouts/${p.id}/payment-details`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: "{}",
@@ -162,43 +193,25 @@ export default function Page() {
       setBusy(false);
     }
   }
-  function exportMasked() {
-    const rows = [
-      [
-        "Request ID",
-        "Amount cents",
-        "Status",
-        "Method",
-        "Masked contact",
-        "Paid timestamp",
-      ],
-      ...items.map((p) => [
-        p.id,
-        String(p.amountCents ?? "unreconciled"),
-        p.status,
-        p.paymentMethod || "",
-        p.paymentHandle,
-        p.paidAt ? new Date(p.paidAt).toISOString() : "",
-      ]),
-    ];
-    const csv = rows
-      .map((row) =>
-        row
-          .map(
-            (v) =>
-              `"${String(v)
-                .replace(/^[=+@-]/, "'$&")
-                .replaceAll('"', '""')}"`,
-          )
-          .join(","),
-      )
-      .join("\n");
-    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "masked-reward-requests.csv";
-    a.click();
-    URL.revokeObjectURL(url);
+  async function exportMasked() {
+    try {
+      const query = new URLSearchParams(params.toString());
+      query.set("format", "csv");
+      query.set("status", status);
+      const r = await staffFetch(`/api/admin/payouts?${query}`);
+      if (!r.ok) {
+        const d = await r.json();
+        throw new Error(d.error?.message || "Export failed.");
+      }
+      const url = URL.createObjectURL(await r.blob()),
+        a = document.createElement("a");
+      a.href = url;
+      a.download = "program-reward-requests.csv";
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Export could not load.");
+    }
   }
   return (
     <section
@@ -218,7 +231,6 @@ export default function Page() {
           value={status}
           onChange={(e) => {
             setStatus(e.target.value);
-            setPage(1);
           }}
         >
           {[
@@ -236,9 +248,48 @@ export default function Page() {
           ))}
         </select>
       </label>
+      <form
+        className={styles.form}
+        onSubmit={(e) => {
+          e.preventDefault();
+          const data = new FormData(e.currentTarget);
+          change({
+            search: String(data.get("search") || ""),
+            sort: String(data.get("sort") || "createdAt"),
+            direction: String(data.get("direction") || "desc"),
+            page: "1",
+          });
+        }}
+      >
+        <label>
+          Search request or participant
+          <input name="search" defaultValue={search} />
+        </label>
+        <label>
+          Sort by
+          <select name="sort" defaultValue={sort}>
+            <option value="createdAt">Created date</option>
+            <option value="status">Status</option>
+            <option value="updatedAt">Last updated</option>
+          </select>
+        </label>
+        <label>
+          Order
+          <select name="direction" defaultValue={direction}>
+            <option value="desc">Descending</option>
+            <option value="asc">Ascending</option>
+          </select>
+        </label>
+        <Button type="submit" variant="secondary">
+          Apply queue filters
+        </Button>
+      </form>
+      {loading && items.length > 0 && (
+        <p role="status">Updating queue… Previous records stay visible.</p>
+      )}
       {message && <p role="status">{message}</p>}
       {error && !action && <Alert tone="error">{error}</Alert>}
-      {loading ? (
+      {loading && !items.length ? (
         <Skeleton label="Loading reward requests" />
       ) : error && !items.length ? (
         <ErrorState onRetry={() => void load()}>
@@ -250,113 +301,152 @@ export default function Page() {
           <p>Choose another status or return later.</p>
         </Card>
       ) : (
-        <ul className={styles.list}>
-          {items.map((p) => (
-            <li key={p.id}>
-              <Card>
-                <h2>
-                  {p.amountCents === null
-                    ? "Needs reconciliation"
-                    : usd(p.amountCents)}{" "}
-                  · {p.xpAmount} XP
-                </h2>
-                <p>
-                  {p.user.fullName || "Learner"} · Record {p.userId}
-                </p>
-                <p>
-                  {labels[p.status] || "Unknown status; needs reconciliation"}
-                </p>
-                <p>
-                  {p.paymentMethod
-                    ? methodDefinitions[p.paymentMethod].label
-                    : "Method unavailable"}{" "}
-                  · {p.paymentHandle}
-                </p>
-                <p>
-                  Request {p.id} · {new Date(p.createdAt).toLocaleString()}
-                </p>
-                <p>
-                  {p.rulesSnapshot?.source === "legacy-record"
-                    ? "Historical amount preserved; original rule terms unknown."
-                    : p.rulesSnapshot
-                      ? `Accepted rate: USD ${p.rulesSnapshot.rate} / XP; independent approver ${p.rulesSnapshot.separateApprover ? "required" : "not required by this version"}.`
-                      : "Reconcile this record before changing it."}
-                </p>
-                <ol>
-                  {p.events.map((e, n) => (
-                    <li key={n}>
-                      {e.action === "legacy-import"
-                        ? "Imported historical status (not original payment date)"
-                        : labels[e.status || ""] || e.action}{" "}
-                      · {new Date(e.at).toLocaleString()}
-                    </li>
-                  ))}
-                </ol>
-                {p.paidAt && (
-                  <p>
-                    External payment timestamp:{" "}
-                    {new Date(p.paidAt).toLocaleString()} · Reference:{" "}
-                    {p.paymentReference}
-                  </p>
-                )}
-                {p.status === "completed" && !p.paidAt && (
-                  <p>
-                    Legacy completed record; original payment timestamp
-                    unavailable.
-                  </p>
-                )}
-                <div className={styles.actions}>
-                  {p.status === "pending" && canReview && (
-                    <Button busy={busy} onClick={() => open(p, "review")}>
-                      Record review
-                    </Button>
-                  )}
-                  {p.status === "reviewed" && canFinance && (
-                    <Button busy={busy} onClick={() => open(p, "approve")}>
-                      Approve request
-                    </Button>
-                  )}
-                  {["pending", "reviewed"].includes(p.status) && (
-                    <Button
-                      variant="secondary"
-                      busy={busy}
-                      onClick={() => open(p, "reject")}
-                    >
-                      Reject and release XP
-                    </Button>
-                  )}
-                  {p.status === "approved" && canFinance && (
-                    <>
-                      <Button
-                        variant="secondary"
-                        busy={busy}
-                        onClick={() => void reveal(p)}
-                      >
-                        Open private payment details
-                      </Button>
-                      <Button busy={busy} onClick={() => open(p, "complete")}>
-                        Record manual payment
-                      </Button>
-                    </>
-                  )}
-                </div>
-                {details?.id === p.id && (
-                  <Alert tone="warning">
+        <DataTable
+          busy={loading}
+          rows={items as unknown as StaffRow[]}
+          caption="Reward requests in the active program. Approval is not payment."
+          columns={[
+            {
+              key: "participant",
+              label: "Participant",
+              render: (r) =>
+                (r as unknown as Payout).user.fullName || "Learner",
+            },
+            {
+              key: "amount",
+              label: "Amount / entitlement",
+              render: (r) => {
+                const p = r as unknown as Payout;
+                return `${p.amountCents === null ? "Needs reconciliation" : usd(p.amountCents)} · ${p.xpAmount} XP`;
+              },
+            },
+            {
+              key: "status",
+              label: "Status",
+              render: (r) => labels[String(r.status)] || String(r.status),
+            },
+            {
+              key: "timeline",
+              label: "Accepted terms / timeline",
+              render: (r) => {
+                const p = r as unknown as Payout;
+                return (
+                  <details>
+                    <summary style={{ minHeight: 44, cursor: "pointer" }}>
+                      View request history
+                    </summary>{" "}
                     <p>
-                      Private payment contact:{" "}
-                      {details.handle || "Not recorded"}. Opening these details
-                      was audited. Verify the recipient and send through your
-                      approved external process. This page sends nothing.
+                      {p.paymentMethod
+                        ? methodDefinitions[p.paymentMethod].label
+                        : "Method unavailable"}{" "}
+                      · {p.paymentHandle}
                     </p>
-                    <Button variant="quiet" onClick={() => setDetails(null)}>
-                      Hide payment contact
-                    </Button>
-                  </Alert>
-                )}
-              </Card>
-            </li>
-          ))}
-        </ul>
+                    <p>
+                      Request {p.id} · {new Date(p.createdAt).toLocaleString()}
+                    </p>
+                    <p>
+                      {p.rulesSnapshot?.source === "legacy-record"
+                        ? "Historical amount preserved; original rule terms unknown."
+                        : p.rulesSnapshot
+                          ? `Accepted rate: USD ${p.rulesSnapshot.rate} / XP; independent approver ${p.rulesSnapshot.separateApprover ? "required" : "not required by this version"}.`
+                          : "Reconcile this record before changing it."}
+                    </p>
+                    <ol>
+                      {p.events.map((e, n) => (
+                        <li key={n}>
+                          {e.action === "legacy-import"
+                            ? "Imported historical status (not original payment date)"
+                            : labels[e.status || ""] || e.action}{" "}
+                          · {new Date(e.at).toLocaleString()}
+                        </li>
+                      ))}
+                    </ol>
+                    {p.paidAt && (
+                      <p>
+                        External payment timestamp:{" "}
+                        {new Date(p.paidAt).toLocaleString()} · Reference:{" "}
+                        {p.paymentReference}
+                      </p>
+                    )}
+                    {p.status === "completed" && !p.paidAt && (
+                      <p>
+                        Legacy completed record; original payment timestamp
+                        unavailable.
+                      </p>
+                    )}
+                  </details>
+                );
+              },
+            },
+            {
+              key: "actions",
+              label: "Authorized actions",
+              render: (r) => {
+                const p = r as unknown as Payout;
+                return (
+                  <>
+                    {" "}
+                    <div className={styles.actions}>
+                      {p.status === "pending" && canReview && (
+                        <Button busy={busy} onClick={() => open(p, "review")}>
+                          Record review
+                        </Button>
+                      )}
+                      {p.status === "reviewed" && canFinance && (
+                        <Button busy={busy} onClick={() => open(p, "approve")}>
+                          Approve request
+                        </Button>
+                      )}
+                      {["pending", "reviewed"].includes(p.status) && (
+                        <Button
+                          variant="secondary"
+                          busy={busy}
+                          onClick={() => open(p, "reject")}
+                        >
+                          Reject and release XP
+                        </Button>
+                      )}
+                      {p.status === "approved" && canFinance && (
+                        <>
+                          <Button
+                            variant="secondary"
+                            busy={busy}
+                            onClick={() => void reveal(p)}
+                          >
+                            Open private payment details
+                          </Button>
+                          <Button
+                            busy={busy}
+                            onClick={() => open(p, "complete")}
+                          >
+                            Record manual payment
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                    {details?.id === p.id && (
+                      <Alert tone="warning">
+                        <p>
+                          Private payment contact:{" "}
+                          {details.handle || "Not recorded"}. Opening these
+                          details was audited. Verify the recipient and send
+                          through your approved external process. This page
+                          sends nothing.
+                        </p>
+                        <Button
+                          variant="quiet"
+                          onClick={() => setDetails(null)}
+                        >
+                          Hide payment contact
+                        </Button>
+                      </Alert>
+                    )}
+                  </>
+                );
+              },
+            },
+          ]}
+        />
       )}
       <div className={styles.actions}>
         <Button
@@ -384,7 +474,7 @@ export default function Page() {
           disabled={!items.length}
           disabledReason="No records to export."
         >
-          Export masked records
+          Export filtered program records
         </Button>
       </div>
       <ButtonLink href="/admin/finance" variant="secondary">
@@ -402,6 +492,20 @@ export default function Page() {
         }}
         closeDisabledReason={busy ? "Wait for the decision result." : undefined}
       >
+        <p>
+          Request {action?.id} in your active program. Amount:{" "}
+          {items.find((p) => p.id === action?.id)?.amountCents == null
+            ? "unreconciled"
+            : usd(items.find((p) => p.id === action?.id)!.amountCents!)}
+          ; {items.find((p) => p.id === action?.id)?.xpAmount} XP.{" "}
+          {action?.action === "reject"
+            ? "Rejection releases the held XP exactly once."
+            : action?.action === "approve"
+              ? "Approval authorizes a later manual payment and keeps XP held. It is not a transfer."
+              : action?.action === "complete"
+                ? "Recording verified external payment consumes held XP and debits the program bookkeeping pool once. This button sends nothing."
+                : "Review records a staff decision and moves no funds."}
+        </p>
         <form
           className={styles.form}
           onSubmit={(e) => {

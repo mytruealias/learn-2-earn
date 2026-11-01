@@ -1,262 +1,240 @@
 "use client";
-
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import {
+  StaffCollection,
+  type StaffRow,
+  shortDate,
+} from "../components/StaffTable";
 import { useAdmin } from "../AdminContext";
-import { useToast } from "../AdminToastContext";
-import styles from "../staff.module.css";
-
-interface StaffMember {
-  id: string;
-  email: string;
-  fullName: string;
-  role: string;
-  isActive: boolean;
-  createdAt: string;
-  lastLoginAt: string | null;
-  loginFailures: number;
-  lockedUntil: string | null;
-}
-
-function formatDate(d: string | null) {
-  if (!d) return "Never";
-  return new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-}
-
-function getInitials(name: string): string {
-  return name
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((w) => w[0].toUpperCase())
-    .join("");
-}
-
-export default function AdminStaffPage() {
-  const { admin } = useAdmin();
-  const { showToast } = useToast();
-  const [staff, setStaff] = useState<StaffMember[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [showCreate, setShowCreate] = useState(false);
-  const [creating, setCreating] = useState(false);
-  const [createError, setCreateError] = useState("");
-  const [tempPassword, setTempPassword] = useState("");
-  const [form, setForm] = useState({ email: "", fullName: "", role: "caseworker" });
-  const isAdmin = admin?.role === "admin";
-
-  const fetchStaff = () => {
-    if (!isAdmin) return;
-    setLoading(true);
-    fetch("/api/admin/staff", { credentials: "include" })
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.ok) setStaff(data.staff);
-      })
-      .finally(() => setLoading(false));
-  };
-
-  useEffect(() => {
-    fetchStaff();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAdmin]);
-
-  if (!isAdmin) {
-    return (
-      <div className={styles.page}>
-        <div className={styles.accessDenied}>
-          Access denied. Admin role required.
-        </div>
-      </div>
-    );
+import { staffFetch } from "@/lib/staff-fetch";
+import { Alert, Button, Dialog } from "@/app/components/ui";
+import styles from "../components/staff.module.css";
+export default function Page() {
+  const { admin } = useAdmin(),
+    [modal, setModal] = useState<"create" | "membership" | null>(null),
+    [target, setTarget] = useState<StaffRow | null>(null),
+    [form, setForm] = useState({ fullName: "", email: "", role: "caseworker" }),
+    [password, setPassword] = useState(""),
+    [error, setError] = useState(""),
+    [message, setMessage] = useState(""),
+    [busy, setBusy] = useState(false),
+    [refresh, setRefresh] = useState(0),
+    [key, setKey] = useState("");
+  function open(type: "create" | "membership", row?: StaffRow) {
+    setModal(type);
+    setTarget(row || null);
+    setError("");
+    setPassword("");
+    setKey(crypto.randomUUID());
   }
-
-  const handleCreate = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setCreateError("");
-    setCreating(true);
-
+  async function save() {
+    if (busy) return;
+    setBusy(true);
+    setError("");
     try {
-      const res = await fetch("/api/admin/staff", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-        credentials: "include",
-      });
-      const data = await res.json();
-      if (data.ok) {
-        setTempPassword(data.tempPassword);
-        setStaff((prev) => [data.staff, ...prev]);
-        setForm({ email: "", fullName: "", role: "caseworker" });
-        showToast("Staff member created successfully", "success");
-      } else {
-        setCreateError(data.error?.message || "Failed to create staff member");
-      }
-    } catch {
-      setCreateError("Connection error");
-    } finally {
-      setCreating(false);
-    }
-  };
-
-  const toggleActive = async (member: StaffMember) => {
-    try {
-      const res = await fetch(`/api/admin/staff/${member.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ isActive: !member.isActive }),
-        credentials: "include",
-      });
-      const data = await res.json();
-      if (data.ok) {
-        setStaff((prev) => prev.map((s) => (s.id === member.id ? data.staff : s)));
-        showToast(
-          `${member.fullName} has been ${!member.isActive ? "reactivated" : "deactivated"}`,
-          !member.isActive ? "success" : "info"
+      const r = await staffFetch(
+          modal === "create"
+            ? "/api/admin/staff"
+            : `/api/admin/staff/${target?.id}`,
+          {
+            method: modal === "create" ? "POST" : "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(
+              modal === "create"
+                ? { ...form, requestKey: key }
+                : {
+                    isActive: !target?.isActive,
+                    expectedVersion: target?.version,
+                    requestKey: key,
+                  },
+            ),
+          },
+        ),
+        d = await r.json();
+      if (!r.ok)
+        throw new Error(
+          d.error?.message || "Staff change could not be confirmed.",
+        );
+      if (modal === "create") {
+        setPassword(d.tempPassword || "");
+        setMessage(
+          d.tempPassword
+            ? "Staff account created. Verify the recipient and deliver the temporary password privately; sign-in requires a password change and authenticator enrollment."
+            : "Staff account already created. The temporary password cannot be displayed again; use verified operator recovery.",
         );
       } else {
-        showToast(data.error?.message || "Action failed", "error");
+        setModal(null);
+        setMessage("Program membership updated and audited.");
       }
-    } catch {
-      showToast("Connection error", "error");
+      setRefresh((v) => v + 1);
+    } catch (e) {
+      setError(
+        e instanceof Error
+          ? e.message
+          : "Connection interrupted. Retry the same action or verify the staff list.",
+      );
+    } finally {
+      setBusy(false);
     }
-  };
-
+  }
   return (
-    <div className={styles.page}>
-      <div className={styles.pageHeader}>
-        <h1 className={styles.pageTitle}>Staff</h1>
-      </div>
-
-      <div className={styles.toolbar}>
-        <button
-          className={styles.createBtn}
-          onClick={() => { setShowCreate(true); setTempPassword(""); setCreateError(""); }}
+    <>
+      <StaffCollection
+        endpoint="/api/admin/staff"
+        title="Program staff"
+        description="Roles and access apply only to this program. Disabling a membership revokes its active program sessions and does not deactivate an identity in another organization."
+        allowedRoles={["admin"]}
+        refresh={refresh}
+        statuses={[
+          { value: "all", label: "All memberships" },
+          { value: "active", label: "Active" },
+          { value: "inactive", label: "Inactive" },
+        ]}
+        columns={[
+          { key: "fullName", label: "Staff member", sort: "name" },
+          { key: "email", label: "Email" },
+          {
+            key: "role",
+            label: "Program role",
+            render: (r) =>
+              r.role === "admin" ? "Program administrator" : String(r.role),
+          },
+          {
+            key: "isActive",
+            label: "Membership",
+            render: (r) => (r.isActive ? "Active" : "Inactive"),
+          },
+          {
+            key: "createdAt",
+            label: "Created",
+            sort: "createdAt",
+            render: (r) => shortDate(r.createdAt),
+          },
+          {
+            key: "actions",
+            label: "Actions",
+            render: (r) =>
+              r.id === admin?.id ? (
+                "Your membership"
+              ) : (
+                <Button
+                  variant="secondary"
+                  onClick={() => open("membership", r)}
+                >
+                  {r.isActive ? "Disable membership" : "Reactivate membership"}
+                </Button>
+              ),
+          },
+        ]}
+      >
+        {message && <p role="status">{message}</p>}
+        <Button onClick={() => open("create")}>
+          Create program staff account
+        </Button>
+      </StaffCollection>
+      <Dialog
+        open={!!modal}
+        title={
+          modal === "create"
+            ? "Create program staff account"
+            : "Confirm membership change"
+        }
+        onClose={() => {
+          if (!busy) setModal(null);
+        }}
+      >
+        <form
+          className={styles.form}
+          onSubmit={(e) => {
+            e.preventDefault();
+            void save();
+          }}
         >
-          + New account
-        </button>
-      </div>
-
-      {showCreate && (
-        <div
-          className={styles.modalOverlay}
-          onClick={(e) => e.target === e.currentTarget && setShowCreate(false)}
-        >
-          <div className={styles.modal}>
-            <h2 className={styles.modalTitle}>Create Admin Account</h2>
-
-            {createError && <div className={styles.modalError}>{createError}</div>}
-
-            {tempPassword && (
-              <div className={styles.tempPassword}>
-                <div className={styles.tempPasswordLabel}>Temporary password (shown once)</div>
-                <div className={styles.tempPasswordValue}>{tempPassword}</div>
-                <div className={styles.tempPasswordNote}>
-                  Share this securely. The user should change it on first login.
-                </div>
-              </div>
-            )}
-
-            {!tempPassword && (
-              <form onSubmit={handleCreate}>
-                <div className={styles.modalField}>
-                  <label className={styles.modalLabel} htmlFor="staff-full-name">Full Name</label>
+          {modal === "create" ? (
+            password ? (
+              <>
+                <p>
+                  Temporary password, shown only now. Send it only through your
+                  verified private handoff.
+                </p>
+                <code style={{ overflowWrap: "anywhere" }}>{password}</code>
+                <p>
+                  The recipient must replace it and confirm authenticator MFA
+                  before seeing program records.
+                </p>
+              </>
+            ) : (
+              <>
+                <label>
+                  Full name
                   <input
-                    id="staff-full-name"
-                    className={styles.modalInput}
+                    required
+                    maxLength={120}
                     value={form.fullName}
-                    onChange={(e) => setForm((f) => ({ ...f, fullName: e.target.value }))}
-                    required
-                    autoComplete="name"
+                    onChange={(e) =>
+                      setForm({ ...form, fullName: e.target.value })
+                    }
                   />
-                </div>
-                <div className={styles.modalField}>
-                  <label className={styles.modalLabel} htmlFor="staff-email">Email</label>
+                </label>
+                <label>
+                  Email
                   <input
-                    id="staff-email"
                     type="email"
-                    className={styles.modalInput}
-                    value={form.email}
-                    onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
                     required
-                    autoComplete="email"
+                    value={form.email}
+                    onChange={(e) =>
+                      setForm({ ...form, email: e.target.value })
+                    }
                   />
-                </div>
-                <div className={styles.modalField}>
-                  <label className={styles.modalLabel} htmlFor="staff-role">Role</label>
+                </label>
+                <label>
+                  Program role
                   <select
-                    id="staff-role"
-                    className={styles.modalSelect}
                     value={form.role}
-                    onChange={(e) => setForm((f) => ({ ...f, role: e.target.value }))}
+                    onChange={(e) => setForm({ ...form, role: e.target.value })}
                   >
                     <option value="caseworker">Caseworker</option>
                     <option value="finance">Finance</option>
-                    <option value="admin">Admin</option>
+                    <option value="admin">Program administrator</option>
                   </select>
-                </div>
-                <div className={styles.modalActions}>
-                  <button type="submit" disabled={creating} className={styles.modalSaveBtn}>
-                    {creating ? "Creating..." : "Create account"}
-                  </button>
-                  <button type="button" className={styles.modalCancelBtn} onClick={() => setShowCreate(false)}>
-                    Cancel
-                  </button>
-                </div>
-              </form>
-            )}
-
-            {tempPassword && (
-              <div className={styles.modalActions}>
-                <button className={styles.modalSaveBtn} onClick={() => setShowCreate(false)}>Done</button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {loading ? (
-        <div className={styles.loading}>Loading...</div>
-      ) : (
-        <div className={styles.staffList}>
-          {staff.map((member) => (
-            <div key={member.id} className={styles.staffRow}>
-              <div className={styles.staffRowLeft}>
-                <div className={styles.staffAvatar}>
-                  {getInitials(member.fullName)}
-                </div>
-                <div className={styles.staffInfo}>
-                  <div className={styles.staffName}>{member.fullName}</div>
-                  <div className={styles.staffEmail}>{member.email}</div>
-                </div>
-              </div>
-              <div className={styles.staffMeta}>
-                <span className={styles.staffRole}>{member.role}</span>
-                <span className={styles.staffLastLogin}>Last login: {formatDate(member.lastLoginAt)}</span>
-                <span className={`${styles.statusBadge} ${member.isActive ? styles.statusActive : styles.statusInactive}`}>
-                  {member.isActive ? "Active" : "Inactive"}
-                </span>
-                {member.lockedUntil && new Date(member.lockedUntil) > new Date() && (
-                  <span className={`${styles.statusBadge} ${styles.statusLocked}`}>
-                    Locked
-                  </span>
-                )}
-              </div>
-              <div className={styles.staffActions}>
-                {member.id !== admin?.id && (
-                  member.isActive ? (
-                    <button className={styles.deactivateBtn} onClick={() => toggleActive(member)}>
-                      Deactivate
-                    </button>
-                  ) : (
-                    <button className={styles.reactivateBtn} onClick={() => toggleActive(member)}>
-                      Reactivate
-                    </button>
-                  )
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
+                </label>
+                <p>
+                  This grants access to <strong>{admin?.programName}</strong>.
+                  Existing identities cannot be overwritten or attached through
+                  this form; ask a verified operator to review those
+                  memberships.
+                </p>
+              </>
+            )
+          ) : (
+            <p>
+              {target?.isActive ? "Disable" : "Reactivate"}{" "}
+              <strong>{String(target?.fullName)}</strong> in{" "}
+              <strong>{admin?.programName}</strong>? Disabling revokes this
+              program’s sessions. Other program memberships and audit history
+              remain.
+            </p>
+          )}
+          {error && <Alert tone="error">{error}</Alert>}
+          {password ? (
+            <Button onClick={() => setModal(null)}>
+              I completed the private handoff
+            </Button>
+          ) : (
+            <Button
+              type="submit"
+              variant={
+                modal === "membership" && target?.isActive
+                  ? "danger"
+                  : "primary"
+              }
+              busy={busy}
+            >
+              Confirm and save
+            </Button>
+          )}
+        </form>
+      </Dialog>
+    </>
   );
 }

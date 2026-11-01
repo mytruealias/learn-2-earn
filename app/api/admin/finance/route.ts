@@ -1,3 +1,5 @@
+import { z } from "zod";
+import { parseQuery } from "@/lib/api-helpers";
 import { getAdminFromRequest } from "@/lib/admin-auth";
 import { apiError, apiOk } from "@/lib/api-helpers";
 import { financeData } from "@/lib/rewards/finance";
@@ -8,7 +10,14 @@ export async function GET(req: Request) {
     if (!a) return apiError("unauthorized", "Sign in as staff.", 401);
     if (!["admin", "finance"].includes(a.role))
       return apiError("forbidden", "Finance access required.", 403);
-    return apiOk(await financeData(), {
+    const query = parseQuery(
+      Object.fromEntries(new URL(req.url).searchParams),
+      z.object({
+        configPage: z.coerce.number().int().min(1).max(10000).default(1),
+      }),
+    );
+    if (!query.ok) return query.response;
+    return apiOk(await financeData(a, query.data.configPage), {
       headers: { "Cache-Control": "private, no-store" },
     });
   } catch (e) {

@@ -1,35 +1,54 @@
-import { NextResponse } from "next/server";
-import { getAdminSession, SESSION_COOKIE } from "@/lib/admin-auth";
-import { apiError, apiOk, apiServerError } from "@/lib/api-helpers";
-
-export async function GET() {
+import { apiServerError } from "@/lib/api-helpers";
+import {
+  getAdminFromRequest,
+  staffSession,
+  adminLogout,
+  writeStaffCookie,
+  SESSION_COOKIE,
+} from "@/lib/admin-auth";
+import { readCookie, sameOriginError } from "@/lib/user-session";
+import { apiError, apiOk } from "@/lib/api-helpers";
+export async function GET(req: Request) {
   try {
-    const admin = await getAdminSession();
-    if (!admin) {
-      return apiError("unauthorized", "Not signed in", 401);
+    const token = readCookie(req, SESSION_COOKIE),
+      s = token ? await staffSession(token) : null;
+    if (!s) return apiError("unauthorized", "Sign in again.", 401);
+    const admin = await getAdminFromRequest(req);
+    if (admin) {
+      const { sessionId: _sessionId, ...safe } = admin;
+      void _sessionId;
+      return apiOk({ authenticated: true, admin: safe });
     }
-    return NextResponse.json({ ok: true, authenticated: true, admin });
-  } catch (error) {
-    return apiServerError("admin/session", error);
+    return apiOk({
+      authenticated: false,
+      nextStep: s.admin.mustChangePassword
+        ? "password"
+        : !s.mfaVerifiedAt
+          ? s.admin.mfaConfirmedAt
+            ? "verify"
+            : "enroll"
+          : "program",
+    });
+  } catch {
+    return apiServerError(
+      "staff/identity",
+      new Error("Staff identity service unavailable."),
+    );
   }
 }
-
-export async function DELETE() {
+export async function DELETE(req: Request) {
   try {
-    const response = apiOk();
-    const rootDomain = process.env.ROOT_DOMAIN;
-    // The domain attribute on cookie deletion MUST match the one used at
-    // login time, otherwise the browser will not remove the cookie.
-    response.cookies.set(SESSION_COOKIE, "", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 0,
-      path: "/",
-      ...(rootDomain && { domain: `admin.${rootDomain}` }),
-    });
-    return response;
-  } catch (error) {
-    return apiServerError("admin/session/logout", error);
+    const origin = sameOriginError(req);
+    if (origin) return origin;
+    const token = readCookie(req, SESSION_COOKIE);
+    if (token) await adminLogout(token);
+    const res = apiOk();
+    writeStaffCookie(res, "");
+    return res;
+  } catch {
+    return apiServerError(
+      "staff/identity",
+      new Error("Staff identity service unavailable."),
+    );
   }
 }

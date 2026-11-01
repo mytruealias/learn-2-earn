@@ -1,3 +1,4 @@
+import { participantProgram } from "../program-scope";
 import type { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { getPayoutRules } from "../payout-rules";
@@ -80,7 +81,14 @@ export async function requestReward(
       "reconciliation_required",
       "Staff needs to reconcile your reward balance before a request can be accepted. Your learning and earned XP remain saved.",
     );
-  const rules = await getPayoutRules(a.programSlug, tx);
+  const programId = await participantProgram(tx, id);
+  if (!programId)
+    throw new RewardIssue(
+      "enrollment_required",
+      "Your learning is saved. Ask program staff to verify enrollment before requesting rewards.",
+      409,
+    );
+  const rules = await getPayoutRules(a.programSlug, tx, programId);
   if (data.ruleVersion !== rules.version)
     throw new RewardIssue(
       "rules_changed",
@@ -144,6 +152,7 @@ export async function requestReward(
   const payout = await tx.payoutRequest.create({
     data: {
       userId: id,
+      programId,
       xpAmount: data.xpAmount,
       amountCents: cents,
       dollarAmount: cents / 100,
@@ -178,12 +187,19 @@ export async function requestReward(
       }),
     },
   });
-  await audit(tx, "PAYOUT_REQUESTED", payout.id, null, {
-    xpAmount: data.xpAmount,
-    amountCents: cents,
-    ruleVersion: rules.version,
-    method: data.paymentMethod,
-  });
+  await audit(
+    tx,
+    "PAYOUT_REQUESTED",
+    payout.id,
+    null,
+    {
+      xpAmount: data.xpAmount,
+      amountCents: cents,
+      ruleVersion: rules.version,
+      method: data.paymentMethod,
+    },
+    programId,
+  );
   return { payout: payoutDto(payout), replayed: false };
 }
 export const decisionSchema = z

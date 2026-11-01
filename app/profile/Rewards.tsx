@@ -183,6 +183,7 @@ export default function Rewards() {
   const canRequest =
     data?.reconciled &&
     data.profileReady &&
+    data.programReady &&
     data.availableXp >= data.rules.minXp &&
     data.weeklyRemaining >= data.rules.minXp &&
     data.rules.methods.length > 0;
@@ -288,6 +289,13 @@ export default function Rewards() {
               Your historical reward records need staff reconciliation before a
               new request. Your learning and earned balances have not been
               erased. Ask your program’s trusted staff for help.
+            </Alert>
+          )}
+          {!data.programReady && (
+            <Alert tone="warning">
+              Your account is not yet connected to a verified program. Learning
+              stays saved; ask your program staff to confirm enrollment before
+              requesting rewards.
             </Alert>
           )}
           {!data.profileReady && (

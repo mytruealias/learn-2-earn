@@ -1,3 +1,5 @@
+import { staffTokenHash } from "@/lib/staff-security";
+import { getAdminSessionFromToken } from "@/lib/admin-auth";
 import { execFileSync } from "node:child_process";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { randomUUID } from "node:crypto";
@@ -15,7 +17,12 @@ import { POST as assign } from "@/app/api/admin/rewards/program/route";
 import { PATCH as correct } from "@/app/api/admin/users/[userId]/route";
 import { backfillRewards, reconciliationPlan } from "@/lib/rewards/accounting";
 import { financeData } from "@/lib/rewards/finance";
-import { clearDb, createUser, createAdmin } from "../helpers/factories";
+import {
+  clearDb,
+  createUser,
+  createAdmin,
+  ensureTestProgram,
+} from "../helpers/factories";
 import { makeRequest } from "../helpers/request";
 import { reconcileFixtures } from "../helpers/rewards";
 import { assertTestDatabase } from "@/lib/test-database-safety";
@@ -34,7 +41,9 @@ async function staff(role = "admin") {
   const token = randomUUID();
   await prisma.adminSession.create({
     data: {
-      token,
+      token: staffTokenHash(token),
+      mfaVerifiedAt: new Date(),
+      activeProgramId: "test-program",
       adminId: admin.id,
       expiresAt: new Date(Date.now() + 3600000),
     },
@@ -94,7 +103,10 @@ async function snapshot() {
   };
 }
 describe("auditable reward reservations and exact manual payments", () => {
-  beforeEach(clearDb);
+  beforeEach(async () => {
+    await clearDb();
+    await ensureTestProgram();
+  });
   it("requires signed identity and strict terms/idempotency fields", async () => {
     expect(
       (
@@ -197,6 +209,7 @@ describe("auditable reward reservations and exact manual payments", () => {
   it("snapshots rule terms and rejects stale new quotes after a rate change", async () => {
     const c = await prisma.payoutConfig.create({
         data: {
+          programId: "test-program",
           programSlug: "default",
           programName: "Synthetic program",
           xpToDollar: 0.05,
@@ -295,6 +308,7 @@ describe("auditable reward reservations and exact manual payments", () => {
   it("enforces role duties and an explicitly configured independent approver", async () => {
     await prisma.payoutConfig.create({
       data: {
+        programId: "test-program",
         programSlug: "default",
         programName: "Independent",
         separateApprover: true,
@@ -339,6 +353,7 @@ describe("auditable reward reservations and exact manual payments", () => {
             f.token,
             {
               requestKey: randomUUID(),
+              expectedBalanceCents: 0,
               amountCents: 1000,
               reason: "Synthetic funding",
             },
@@ -369,7 +384,7 @@ describe("auditable reward reservations and exact manual payments", () => {
     expect(
       (
         await prisma.poolBalance.findUniqueOrThrow({
-          where: { id: "singleton" },
+          where: { programId: "test-program" },
         })
       ).balanceCents,
     ).toBe(500);
@@ -393,6 +408,7 @@ describe("auditable reward reservations and exact manual payments", () => {
         f.token,
         {
           requestKey: randomUUID(),
+          expectedBalanceCents: 0,
           amountCents: 500,
           reason: "One payment only",
         },
@@ -411,7 +427,7 @@ describe("auditable reward reservations and exact manual payments", () => {
     expect(
       (
         await prisma.poolBalance.findUniqueOrThrow({
-          where: { id: "singleton" },
+          where: { programId: "test-program" },
         })
       ).balanceCents,
     ).toBe(0);
@@ -421,6 +437,7 @@ describe("auditable reward reservations and exact manual payments", () => {
         f.token,
         {
           requestKey: randomUUID(),
+          expectedBalanceCents: 0,
           amountCents: 500,
           reason: "Another payment",
         },
@@ -489,6 +506,7 @@ describe("auditable reward reservations and exact manual payments", () => {
     );
     await prisma.payoutConfig.create({
       data: {
+        programId: "test-program",
         programSlug: "default",
         programName: "Explicit manual Zelle",
         paymentMethods: '["zelle"]',
@@ -521,6 +539,7 @@ describe("auditable reward reservations and exact manual payments", () => {
   it("binds program rules through verified staff assignment, not edited city", async () => {
     await prisma.payoutConfig.create({
       data: {
+        programId: "test-program",
         programSlug: "special",
         programName: "Verified program",
         xpToDollar: 0.2,
@@ -561,6 +580,7 @@ describe("auditable reward reservations and exact manual payments", () => {
     const p = await makePayout(a, 80);
     const body = {
       requestKey: randomUUID(),
+      expectedVersion: 0,
       xpAdjustment: -30,
       xpReason: "Synthetic correction",
     };
@@ -633,6 +653,7 @@ describe("auditable reward reservations and exact manual payments", () => {
     const old = await prisma.payoutRequest.create({
       data: {
         userId: a.user.id,
+        programId: "test-program",
         xpAmount: 20,
         dollarAmount: 1.005,
         status: "completed",
@@ -652,7 +673,9 @@ describe("auditable reward reservations and exact manual payments", () => {
     expect(report.issues).toEqual([]);
     expect(report.uninitialized).toBe(0);
     expect(report.legacyRequests).toBe(0);
-    const finance = await financeData();
+    const finance = await financeData(
+      (await getAdminSessionFromToken((await staff()).token))!,
+    );
     expect(finance.windows.every((w) => w.count === 0)).toBe(true);
     expect(finance.legacyPaid.count).toBe(1);
   });
@@ -662,6 +685,7 @@ describe("auditable reward reservations and exact manual payments", () => {
     await prisma.payoutRequest.create({
       data: {
         userId: a.user.id,
+        programId: "test-program",
         xpAmount: 20,
         dollarAmount: 1,
         status: "paid",
@@ -680,6 +704,7 @@ describe("auditable reward reservations and exact manual payments", () => {
     await prisma.payoutRequest.create({
       data: {
         userId: a.user.id,
+        programId: "test-program",
         xpAmount: 500,
         dollarAmount: 25,
         status: "pending",
@@ -766,6 +791,7 @@ describe("auditable reward reservations and exact manual payments", () => {
         f.token,
         {
           requestKey: randomUUID(),
+          expectedBalanceCents: 0,
           amountCents: 1000,
           reason: "Synthetic funding",
         },
@@ -804,6 +830,7 @@ describe("auditable reward reservations and exact manual payments", () => {
     const old = await prisma.payoutRequest.create({
       data: {
         userId: a.user.id,
+        programId: "test-program",
         xpAmount: 20,
         dollarAmount: 1.005,
         status: "completed",

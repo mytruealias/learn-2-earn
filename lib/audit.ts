@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma";
 
 export async function logAudit({
+  programId,
   adminId,
   action,
   entity,
@@ -8,6 +9,7 @@ export async function logAudit({
   details,
   ipAddress,
 }: {
+  programId?: string | null;
   adminId?: string | null;
   action: string;
   entity: string;
@@ -18,6 +20,7 @@ export async function logAudit({
   try {
     await prisma.auditLog.create({
       data: {
+        programId: programId ?? null,
         adminId: adminId || null,
         action,
         entity,
@@ -26,7 +29,7 @@ export async function logAudit({
         ipAddress: ipAddress || null,
       },
     });
-  } catch (e) {
-    console.error("Audit log error:", e);
+  } catch {
+    console.error("Audit log could not be saved.");
   }
 }

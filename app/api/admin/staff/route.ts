@@ -1,84 +1,127 @@
+import { lockStaffScope } from "@/lib/program-scope";
+import { staffList } from "@/lib/staff/lists";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
-import crypto from "crypto";
-import { getAdminFromRequest, requireRole } from "@/lib/admin-auth";
-import { logAudit } from "@/lib/audit";
+import { randomBytes } from "node:crypto";
+import { getAdminFromRequest } from "@/lib/admin-auth";
+import { membershipRole } from "@/lib/program-scope";
 import prisma from "@/lib/prisma";
-import { apiError, apiOk, apiServerError, parseJson, getClientIp } from "@/lib/api-helpers";
-
-const PostSchema = z.object({
-  email: z.string().trim().toLowerCase().email("Enter a valid email").max(255),
-  fullName: z.string().trim().min(1).max(120),
-  role: z.enum(["admin", "caseworker", "finance"]),
-});
-
-export async function GET(req: Request) {
-  try {
-    const admin = await getAdminFromRequest(req);
-    if (!admin) return apiError("unauthorized", "Not signed in", 401);
-    if (!requireRole(admin.role, ["admin"])) return apiError("forbidden", "Admin role required", 403);
-
-    const staff = await prisma.adminUser.findMany({
-      select: {
-        id: true,
-        email: true,
-        fullName: true,
-        role: true,
-        isActive: true,
-        createdAt: true,
-        lastLoginAt: true,
-        loginFailures: true,
-        lockedUntil: true,
-      },
-      orderBy: { createdAt: "asc" },
-    });
-
-    return apiOk({ staff });
-  } catch (error) {
-    return apiServerError("admin/staff/list", error);
-  }
-}
+import { apiError, apiOk, apiServerError, parseJson } from "@/lib/api-helpers";
+const schema = z
+  .object({
+    requestKey: z.string().uuid(),
+    email: z.string().trim().toLowerCase().email().max(255),
+    fullName: z.string().trim().min(1).max(120),
+    role: z.enum(["admin", "caseworker", "finance"]),
+  })
+  .strict();
+export const GET = (req: Request) => staffList(req, "staff");
 
 export async function POST(req: Request) {
   try {
-    const admin = await getAdminFromRequest(req);
-    if (!admin) return apiError("unauthorized", "Not signed in", 401);
-    if (!requireRole(admin.role, ["admin"])) return apiError("forbidden", "Admin role required", 403);
-
-    const parsed = await parseJson(req, PostSchema);
-    if (!parsed.ok) return parsed.response;
-    const { email, fullName, role } = parsed.data;
-
-    const existing = await prisma.adminUser.findUnique({ where: { email } });
-    if (existing) return apiError("conflict", "Email already in use", 409);
-
-    const tempPassword = crypto.randomBytes(8).toString("hex");
-    const passwordHash = await bcrypt.hash(tempPassword, 12);
-
-    const newAdmin = await prisma.adminUser.create({
-      data: { email, fullName, role, passwordHash, isActive: true },
-      select: {
-        id: true,
-        email: true,
-        fullName: true,
-        role: true,
-        isActive: true,
-        createdAt: true,
-        lastLoginAt: true,
-      },
+    const a = await getAdminFromRequest(req);
+    if (!a) return apiError("unauthorized", "Sign in as staff.", 401);
+    if (a.role !== "admin")
+      return apiError("forbidden", "Program administrator required.", 403);
+    const p = await parseJson(req, schema);
+    if (!p.ok) return p.response;
+    const tempPassword = randomBytes(16).toString("base64url");
+    const hash = await bcrypt.hash(tempPassword, 12);
+    const fingerprint = (await import("@/lib/rewards/accounting")).hash(p.data);
+    let replayed = false;
+    const staff = await prisma.$transaction(async (tx) => {
+      await lockStaffScope(tx, a);
+      const current = await getAdminFromRequest(req, tx);
+      if (!current || current.role !== "admin") return null;
+      const receipt = await tx.staffActionReceipt.findUnique({
+        where: {
+          programId_requestKey: {
+            programId: a.programId,
+            requestKey: p.data.requestKey,
+          },
+        },
+      });
+      if (receipt) {
+        if (receipt.payloadHash !== fingerprint || receipt.adminId !== a.id)
+          return null;
+        replayed = true;
+        const prior = await tx.adminUser.findUnique({
+          where: { id: receipt.entityId },
+          select: {
+            id: true,
+            email: true,
+            fullName: true,
+            isActive: true,
+            createdAt: true,
+            lastLoginAt: true,
+          },
+        });
+        return prior ? { ...prior, role: p.data.role } : null;
+      }
+      // Never overwrite/recover an identity belonging to another program.
+      if (await tx.adminUser.findUnique({ where: { email: p.data.email } }))
+        return null;
+      const user = await tx.adminUser.create({
+        data: {
+          email: p.data.email,
+          fullName: p.data.fullName,
+          role: p.data.role,
+          passwordHash: hash,
+          mustChangePassword: true,
+          memberships: {
+            create: {
+              programId: a.programId,
+              role: membershipRole(p.data.role)!,
+            },
+          },
+        },
+        select: {
+          id: true,
+          email: true,
+          fullName: true,
+          isActive: true,
+          createdAt: true,
+          lastLoginAt: true,
+        },
+      });
+      await tx.auditLog.create({
+        data: {
+          programId: a.programId,
+          adminId: a.id,
+          action: "PROGRAM_STAFF_PROVISIONED",
+          entity: "AdminUser",
+          entityId: user.id,
+          details: JSON.stringify({
+            role: p.data.role,
+            credentialDelivery: "verified-manual-required",
+          }),
+        },
+      });
+      await tx.staffActionReceipt.create({
+        data: {
+          programId: a.programId,
+          adminId: a.id,
+          requestKey: p.data.requestKey,
+          payloadHash: fingerprint,
+          entity: "AdminUser",
+          entityId: user.id,
+          action: "provision",
+          version: 0,
+        },
+      });
+      return { ...user, role: p.data.role };
     });
-
-    await logAudit({
-      adminId: admin.id,
-      action: "STAFF_CREATE",
-      entity: "AdminUser",
-      entityId: newAdmin.id,
-      details: JSON.stringify({ email, fullName, role }),
-      ipAddress: getClientIp(req),
-    });
-
-    return apiOk({ staff: newAdmin, tempPassword });
-  } catch (error) {
-    return apiServerError("admin/staff/create", error);
+    if (!staff)
+      return apiError(
+        "conflict",
+        "Staff provisioning was not available. Ask your verified operator to review this identity or your permissions.",
+        409,
+      );
+    return apiOk(
+      { staff, tempPassword: replayed ? null : tempPassword, replayed },
+      { headers: { "Cache-Control": "private, no-store" } },
+    );
+  } catch (e) {
+    return apiServerError("staff/create", e);
   }
 }

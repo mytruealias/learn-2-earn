@@ -1,3 +1,4 @@
+import { verifyStaffRequest, enrollSyntheticUser } from "./helpers/staff";
 import { randomUUID } from "node:crypto";
 import { reconcileRewardFixtures } from "./helpers/rewards";
 import { test, expect } from "@playwright/test";
@@ -52,6 +53,9 @@ test.describe
 
     // Grant XP directly so the test does not depend on lesson seed details
     // or per-program rule changes.
+    await enrollSyntheticUser(
+      (await (await learnerCtx.get("/api/auth/session")).json()).user.id,
+    );
     await setUserXp(learnerEmail, 1000);
 
     await reconcileRewardFixtures();
@@ -73,12 +77,16 @@ test.describe
     await learnerCtx.dispose();
 
     // ── Admin side (separate request context, separate cookie jar) ──────
-    const adminCtx = await playwright.request.newContext({ baseURL });
+    const adminCtx = await playwright.request.newContext({
+      baseURL,
+      extraHTTPHeaders: { "x-l2e-program": "test-program" },
+    });
 
     const login = await adminCtx.post("/api/admin/login", {
       data: { email: ADMIN_EMAIL, password: ADMIN_PASSWORD },
     });
     expect(login.status(), "admin login").toBe(200);
+    await verifyStaffRequest(adminCtx, ADMIN_EMAIL);
 
     const review = await adminCtx.patch("/api/admin/payouts", {
       data: {

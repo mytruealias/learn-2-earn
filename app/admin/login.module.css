@@ -5,7 +5,7 @@
   align-items: center;
   justify-content: center;
   padding: 2rem;
-  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+  font-family: var(--font-inter), "Inter", system-ui, sans-serif;
 }
 
 .card {
@@ -80,7 +80,7 @@
   border-radius: var(--adm-radius-sm);
   color: var(--adm-text);
   font-size: 0.9rem;
-  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+  font-family: var(--font-inter), "Inter", system-ui, sans-serif;
   outline: none;
   box-sizing: border-box;
   transition: border-color 0.15s;
@@ -101,7 +101,7 @@
   color: var(--adm-on-color);
   border: none;
   border-radius: var(--adm-radius-sm);
-  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+  font-family: var(--font-inter), "Inter", system-ui, sans-serif;
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
@@ -118,3 +118,54 @@
   color: var(--adm-dim);
   cursor: default;
 }
+.card {
+  overflow-wrap: anywhere;
+}
+.card p {
+  line-height: 1.6;
+  margin: 1rem 0;
+}
+.card label {
+  display: block;
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+.input {
+  min-height: 44px;
+}
+.submitBtn {
+  min-height: 44px;
+  margin: 0.75rem 0;
+}
+.textBtn {
+  min-height: 44px;
+  padding: 0.5rem;
+  color: var(--adm-blue);
+  background: transparent;
+  border: 1px solid var(--adm-border);
+  border-radius: 12px;
+  margin: 0.5rem 0;
+  cursor: pointer;
+}
+.card :is(button, input, a):focus-visible {
+  outline: 3px solid var(--adm-blue);
+  outline-offset: 3px;
+}
+.codes {
+  padding-left: 1.25rem;
+  line-height: 2;
+}
+.support {
+  color: var(--adm-muted);
+  font-size: 0.875rem;
+}
+@media (max-width: 480px) {
+  .page {
+    padding: 1rem;
+  }
+  .card {
+    padding: 1.25rem;
+  }
+}
+
+.page[data-design] { --adm-bg:var(--l2e-canvas); --adm-surface:var(--l2e-surface); --adm-border:var(--l2e-border); --adm-text:var(--l2e-ink); --adm-muted:var(--l2e-muted); --adm-blue:var(--l2e-primary); --adm-blue-lt:var(--l2e-primary-hover); --adm-on-color:var(--l2e-on-color); --adm-radius:20px; --adm-radius-sm:12px; }

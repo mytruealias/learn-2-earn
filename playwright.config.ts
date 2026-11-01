@@ -3,9 +3,13 @@ import { getTestDatabaseUrl } from "./lib/test-database-safety";
 
 const testUrl = getTestDatabaseUrl();
 const E2E_PORT = Number(process.env.E2E_PORT || 5050);
-if (!Number.isInteger(E2E_PORT) || E2E_PORT < 1024 || E2E_PORT > 65535) throw new Error("Invalid local e2e port.");
+if (!Number.isInteger(E2E_PORT) || E2E_PORT < 1024 || E2E_PORT > 65535)
+  throw new Error("Invalid local e2e port.");
 const baseURL = `http://127.0.0.1:${E2E_PORT}`;
-if (process.env.PLAYWRIGHT_BASE_URL && process.env.PLAYWRIGHT_BASE_URL !== baseURL) {
+if (
+  process.env.PLAYWRIGHT_BASE_URL &&
+  process.env.PLAYWRIGHT_BASE_URL !== baseURL
+) {
   throw new Error("Remote or pre-existing test servers are refused.");
 }
 
@@ -24,7 +28,9 @@ export default defineConfig({
   use: {
     baseURL,
     screenshot: "only-on-failure",
-    launchOptions: { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE || undefined },
+    launchOptions: {
+      executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE || undefined,
+    },
   },
   projects: [
     {
@@ -45,9 +51,13 @@ export default defineConfig({
       DATABASE_URL: testUrl,
       DATABASE_URL_TEST: testUrl,
       TEST_DATABASE_NONCE: process.env.TEST_DATABASE_NONCE!,
-      ROOT_DOMAIN: "", OPENAI_API_KEY: "", STRIPE_SECRET_KEY: "",
+      STAFF_MFA_ENCRYPTION_KEY: process.env.STAFF_MFA_ENCRYPTION_KEY!,
+      ROOT_DOMAIN: "",
+      OPENAI_API_KEY: "",
+      STRIPE_SECRET_KEY: "",
       SESSION_SECRET:
-        process.env.E2E_SESSION_SECRET || "e2e-session-secret-do-not-use-in-prod",
+        process.env.E2E_SESSION_SECRET ||
+        "e2e-session-secret-do-not-use-in-prod",
       DEMO_ACCESS_CODE: process.env.DEMO_ACCESS_CODE || "LEARN2EARN",
       AUSTIN_ACCESS_PIN: process.env.AUSTIN_ACCESS_PIN || "1234",
       CITY_ACCESS_PIN: process.env.CITY_ACCESS_PIN || "9999",

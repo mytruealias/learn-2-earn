@@ -1,82 +1,118 @@
 import { z } from "zod";
-import OpenAI from "openai";
-import { getUserIdFromRequest } from "@/lib/user-session";
-import { apiError, apiServerError, parseJson, createRateLimiter, createUsageQuota } from "@/lib/api-helpers";
-
-const ttsLimiter = createRateLimiter({ max: 120, windowMs: 60 * 60 * 1000 });
-
-const TTS_DAILY_CHAR_CAP = Math.max(
-  1,
-  Number(process.env.TTS_DAILY_CHAR_CAP) || 20000,
-);
-const ttsDailyQuota = createUsageQuota({
-  max: TTS_DAILY_CHAR_CAP,
-  windowMs: 24 * 60 * 60 * 1000,
-});
-
-const Schema = z.object({
-  text: z.string().trim().min(1, "Text is required.").max(2000, "Text is too long."),
-});
-
+import { getUserIdFromRequest, sameOriginError } from "@/lib/user-session";
+import { apiError } from "@/lib/api-helpers";
+import { boundedJson } from "@/lib/support/bounded-json";
+import { supportProvider, requestCancellation } from "@/lib/support/provider";
+import { approvedSupportPolicy } from "@/lib/support/policy";
+import { reserveSupportUsage, SupportLimit } from "@/lib/support/usage";
 export async function POST(req: Request) {
-  const userId = await getUserIdFromRequest(req);
-  if (!userId) {
-    return apiError("unauthorized", "Please log in to use Hubert's voice.", 401);
-  }
-
-  const gate = ttsLimiter.check(userId);
-  if (!gate.allowed) {
-    return apiError(
-      "rate_limited",
-      "You've used Hubert's voice a lot this hour. Take a break and come back soon.",
-      429,
-      { headers: { "Retry-After": String(gate.retryAfterSec) } },
-    );
-  }
-
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) {
-    return apiError("service_unavailable", "Hubert's voice is not available right now.", 503);
-  }
-
-  const parsed = await parseJson(req, Schema);
-  if (!parsed.ok) return parsed.response;
-  const { text } = parsed.data;
-
-  const quotaGate = ttsDailyQuota.check(userId, text.length);
-  if (!quotaGate.allowed) {
-    return apiError(
-      "rate_limited",
-      "You've reached your daily limit for Hubert's voice. It will reset tomorrow.",
-      429,
-      { headers: { "Retry-After": String(quotaGate.retryAfterSec) } },
-    );
-  }
-
-  ttsLimiter.record(userId);
-
+  let release: (() => Promise<void>) | undefined,
+    cancel: ReturnType<typeof requestCancellation> | undefined;
   try {
-    const openai = new OpenAI({ apiKey });
-    const speech = await openai.audio.speech.create({
-      model: "gpt-4o-mini-tts",
-      voice: "alloy",
-      input: text,
-      response_format: "mp3",
-    });
-
-    const body = speech.body;
-    if (!body) {
-      return apiError("service_unavailable", "Hubert's voice is not available right now.", 503);
+    const origin = sameOriginError(req);
+    if (origin) return origin;
+    const raw = await boundedJson(req, 12288);
+    if (!raw.ok) return raw.response;
+    const p = z
+      .object({
+        expectedAccountId: z.string().min(1).max(120),
+        text: z.string().trim().min(1).max(2000),
+        consent: z.literal(true),
+      })
+      .strict()
+      .safeParse(raw.data);
+    if (!p.success)
+      return apiError(
+        "validation_error",
+        "Use up to 2,000 characters and confirm cloud voice processing.",
+        400,
+      );
+    const id = await getUserIdFromRequest(req);
+    if (!id)
+      return apiError(
+        "unauthorized",
+        "Sign in for optional cloud voice. Human help and text remain available.",
+        401,
+      );
+    if (p.data.expectedAccountId !== id)
+      return apiError(
+        "account_changed",
+        "Your signed-in account changed. Reload before using cloud voice.",
+        409,
+      );
+    if (!process.env.OPENAI_API_KEY || !approvedSupportPolicy())
+      return apiError(
+        "service_unavailable",
+        "Cloud voice is unavailable. You can keep reading or use human help.",
+        503,
+      );
+    release = await reserveSupportUsage(id, "tts", p.data.text.length);
+    cancel = requestCancellation(req, 20000);
+    const speech = await supportProvider().audio.speech.create(
+      {
+        model: "gpt-4o-mini-tts",
+        voice: "alloy",
+        input: p.data.text,
+        response_format: "mp3",
+      },
+      { signal: cancel.controller.signal },
+    );
+    if (!speech.body) throw new Error();
+    const reader = speech.body.getReader(),
+      free = release,
+      resources = cancel;
+    let finished = false,
+      total = 0;
+    async function finish() {
+      if (finished) return;
+      finished = true;
+      resources.controller.abort();
+      resources.cleanup();
+      await reader.cancel().catch(() => {});
+      await free();
     }
-
-    ttsDailyQuota.record(userId, text.length);
-    return new Response(body, {
-      headers: {
-        "Content-Type": "audio/mpeg",
-        "Cache-Control": "no-store",
+    const stream = new ReadableStream<Uint8Array>({
+      async pull(controller) {
+        try {
+          const { done, value } = await reader.read();
+          if (resources.controller.signal.aborted) throw new Error();
+          if (done) {
+            await finish();
+            controller.close();
+            return;
+          }
+          total += value.byteLength;
+          if (total > 4 * 1024 * 1024) throw new Error();
+          controller.enqueue(value);
+        } catch {
+          controller.error(new Error("Audio interrupted."));
+          await finish();
+        }
+      },
+      async cancel() {
+        await finish();
       },
     });
-  } catch (error) {
-    return apiServerError("tts", error);
+    release = undefined;
+    cancel = undefined;
+    return new Response(stream, {
+      headers: {
+        "Content-Type": "audio/mpeg",
+        "Cache-Control": "private, no-store",
+      },
+    });
+  } catch (e) {
+    cancel?.controller.abort();
+    cancel?.cleanup();
+    await release?.();
+    if (e instanceof SupportLimit)
+      return apiError("rate_limited", e.message, 429, {
+        headers: { "Retry-After": String(e.retryAfter) },
+      });
+    return apiError(
+      "service_unavailable",
+      "Audio could not be generated. Text and human-help resources remain available.",
+      503,
+    );
   }
 }

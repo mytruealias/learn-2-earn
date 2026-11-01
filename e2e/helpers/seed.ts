@@ -1,3 +1,4 @@
+import { provisionStaff } from "./staff";
 import {
   assertTestDatabase,
   getTestDatabaseUrl,
@@ -11,7 +12,6 @@ import {
  * global teardown removes the admin fixture.
  */
 import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcryptjs";
 
 const testDbUrl = getTestDatabaseUrl();
 
@@ -38,23 +38,7 @@ export async function ensureTestAdmin(
   password: string,
 ): Promise<void> {
   await assertTestDatabase(prisma);
-  const passwordHash = await bcrypt.hash(password, 4);
-  await prisma.adminUser.upsert({
-    where: { email },
-    update: {
-      passwordHash,
-      isActive: true,
-      role: "admin",
-      loginFailures: 0,
-      lockedUntil: null,
-    },
-    create: {
-      email,
-      passwordHash,
-      fullName: "E2E Test Admin",
-      role: "admin",
-    },
-  });
+  await provisionStaff(email, password);
 }
 
 export async function deleteUserByEmail(email: string): Promise<void> {
@@ -67,6 +51,9 @@ export async function deleteUserByEmail(email: string): Promise<void> {
   await prisma.progress.deleteMany({ where: { userId: user.id } });
   await prisma.consentRecord.deleteMany({ where: { userId: user.id } });
   await prisma.case.deleteMany({ where: { userId: user.id } });
+  await prisma.supportLease.deleteMany({ where: { userId: user.id } });
+  await prisma.supportUsage.deleteMany({ where: { userId: user.id } });
+  await prisma.participantEnrollment.deleteMany({ where: { userId: user.id } });
   await prisma.user.delete({ where: { id: user.id } });
 }
 

@@ -7,7 +7,7 @@
     "build": "npm run prisma:generate && tsx scripts/build.ts",
     "start": "next start -p 5000 -H 0.0.0.0",
     "lint": "eslint",
-    "test": "npm run test:unit && npm run test:api && npm run test:e2e && npm run test:browser && npm run test:design && npm run test:journey && npm run test:progression && npm run test:lesson && npm run test:rewards",
+    "test": "npm run test:unit && npm run test:api && npm run test:e2e && npm run test:browser && npm run test:design && npm run test:journey && npm run test:progression && npm run test:lesson && npm run test:rewards && npm run test:staff && npm run test:support",
     "test:api": "tsx scripts/run-tests.ts api",
     "test:api:watch": "tsx scripts/run-tests.ts api-watch",
     "test:e2e": "tsx scripts/run-tests.ts http",
@@ -28,7 +28,12 @@
     "test:lesson": "tsx scripts/run-tests.ts lesson",
     "audit:cards": "tsx scripts/audit-lesson-cards.ts",
     "rewards:reconcile": "tsx scripts/reconcile-rewards.ts",
-    "test:rewards": "tsx scripts/run-tests.ts rewards"
+    "test:rewards": "tsx scripts/run-tests.ts rewards",
+    "programs:reconcile": "tsx scripts/reconcile-programs.ts",
+    "staff:recover": "tsx scripts/recover-staff.ts",
+    "test:staff": "tsx scripts/run-tests.ts staff",
+    "programs:provision": "tsx scripts/provision-program.ts",
+    "test:support": "tsx scripts/run-tests.ts support"
   },
   "dependencies": {
     "@octokit/rest": "^22.0.0",
@@ -38,6 +43,7 @@
     "bcryptjs": "^3.0.3",
     "next": "^15.5.15",
     "openai": "^6.33.0",
+    "otpauth": "9.5.2",
     "prisma": "6.1.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
