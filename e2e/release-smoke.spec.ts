@@ -11,7 +11,7 @@ for (const width of [390, 1440]) {
     expect(response?.status()).toBe(200);
     await expect(page.locator("h1")).toBeVisible();
     await expect(
-      page.getByRole("link", { name: "Privacy Policy", exact: true }),
+      page.getByRole("link", { name: "Privacy", exact: true }),
     ).toBeVisible();
     expect(
       await page.evaluate(

@@ -298,6 +298,7 @@ export default function AdminLayout({
                 badge: 0,
               },
               { href: "/admin/staff", label: "Staff", icon: "staff", badge: 0 },
+              {href:"/admin/inquiries",label:"Partner inquiries",icon:"cases",badge:0},
             ],
           },
         ]

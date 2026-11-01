@@ -57,3 +57,6 @@ prisma/dev.db-journal
 attached_assets/
 replit.md
 .replit
+
+# Isolated public-only browser build cache (no database fixtures).
+/.next-marketing-tests/

@@ -79,6 +79,7 @@ for (const width of [360, 768, 1440])
       ["/admin/directory", "directory", "Service directory"],
       ["/admin/staff", "staff", "Program staff"],
       ["/admin/audit", "audit", "Audit trail"],
+      ["/admin/inquiries", "partner-inquiries", "Partner inquiries"],
     ];
     for (const [path, name, heading] of routes) {
       await page.goto(path);

@@ -1,4 +1,4 @@
-import { ScopeError } from "./program-scope";
+import { ScopeError } from "./scope-error";
 import { NextResponse } from "next/server";
 import { z, type ZodTypeAny } from "zod";
 import crypto from "crypto";

@@ -187,7 +187,7 @@ npm test
 
 | Command                    | Scope                                                                                                                                   |
 | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| `npm run test:unit`        | Isolation guard tests; no database needed                                                                                               |
+| `npm run test:unit`        | Logic/security tests; generated Prisma client needed, no database queries                                                                                               |
 | `npm run test:api`         | API integration + release safety tests on a fresh isolated DB                                                                           |
 | `npm run test:api:watch`   | Same isolated API database retained only for that watch session                                                                         |
 | `npm run test:e2e`         | Existing HTTP city/learner/payout tests; local server port 5050 and `.next-e2e` output                                                  |
@@ -219,3 +219,11 @@ This software is proprietary and confidential. Unauthorized copying, distributio
 Public `/lifeline` and Help keep human contacts available without AI, account access or lesson completion. Optional Hubert chat/cloud voice are gated behind a recorded, qualified policy review; program intake defaults off until the actual team and monitoring schedule are configured under staff security. Requests are scoped stored cases with explicit optional location consent, retry keys and genuine staff acknowledgment. Saving is not notification or emergency dispatch. Read the [support runbook, privacy limits and outstanding human review](docs/hubert-support/README.md) before enabling either service. No live provider or private conversation is used in tests; `npm run test:support` exercises synthetic browser flows. [Latest verification and exact changed files](docs/hubert-support/verification.md).
 
 Cloud verification note (2026-11-01 UTC): the final clean dependency install succeeded, but the workspace proxy blocked Prisma engine checksum downloads. Current runtime/client regeneration, final build and post-install type check require that network prerequisite; see the [exact verification record](docs/hubert-support/verification.md). Saved setup/network instructions require review/publication and were not applied to runtime. Do not ignore engine checksums.
+
+## Partner website and inquiry queue
+
+The public site describes supported adult learning and program oversight, with fictional product previews using the real lesson renderer and staff table. No published totals are inferred from seeds; live active curriculum supplies them, with an explicitly unavailable fallback. [Claims, route close-out and operations](docs/partner-website/README.md) explain what is implemented and what remains unverified.
+
+`npm run test:marketing` runs public contract tests and isolated Chromium checks without participant records, production credentials, provider calls or database resets. Its acknowledged inquiry UI receipt is synthetic; actual persistence/concurrency/role tests are in the guarded API suite. See [current verification](docs/partner-website/verification.md) for results and infrastructure limits.
+
+Partner inquiries default off. Enable only after the additive inquiry migration and staffing/privacy review, using the four private `PARTNER_INQUIRY_*` names in [.env.example](.env.example). The server stores a consentful receipt in `/admin/inquiries` for the configured program's authorized administrators; it sends no email or calendar booking. No hardcoded public mailbox or fake delivery is used. `NEXT_PUBLIC_SITE_URL` must be a verified HTTPS origin matching `ROOT_DOMAIN` when both are set; invalid/missing configuration withholds indexing/canonical claims. No domain or deployment change is included.

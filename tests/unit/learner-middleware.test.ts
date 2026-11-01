@@ -16,7 +16,7 @@ function token(time: number) {
   return `${Buffer.from(payload).toString("base64url")}.${createHmac("sha256", signingKey).update(payload).digest("hex")}`;
 }
 describe("learner middleware gate", () => {
-  it("keeps privacy and terms reachable on the public, learner and staff hosts", async () => {
+  it("keeps legal pages reachable on the canonical public host from learner and staff hosts", async () => {
     process.env.ROOT_DOMAIN = "example.test";
     for (const host of [
       "example.test",
@@ -27,8 +27,8 @@ describe("learner middleware gate", () => {
         const response = await middleware(
           new NextRequest(`https://${host}${path}`, { headers: { host } }),
         );
-        expect(response.status).toBe(200);
-        expect(response.headers.get("location")).toBeNull();
+        expect(response.status).toBe(host === "example.test" ? 200 : 301);
+        expect(response.headers.get("location")).toBe(host === "example.test" ? null : `https://example.test${path}`);
         expect(response.headers.get("x-robots-tag")).toBeNull();
       }
     }

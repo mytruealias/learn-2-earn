@@ -7,14 +7,8 @@ export interface StaffScope {
   programId: string;
   sessionId: string;
 }
-export class ScopeError extends Error {
-  constructor(
-    public status = 403,
-    message = "This action is unavailable in your active program.",
-  ) {
-    super(message);
-  }
-}
+import { ScopeError } from "./scope-error";
+export { ScopeError } from "./scope-error";
 export const participantWhere = (programId: string) => ({
   enrollment: { programId, status: "active" },
 });
@@ -87,6 +81,7 @@ const ownModels = new Set([
   "poolAdjustment",
   "staffActionReceipt",
   "staffMembership",
+  "partnerInquiry",
 ]);
 const userModels = new Set([
   "progress",

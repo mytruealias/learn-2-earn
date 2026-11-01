@@ -1,271 +1,157 @@
 "use client";
-
-import { useEffect, useState } from "react";
-
-const LESSONS = [
-  { title: "Daily Routines", path: "Stability Basics", xp: 10 },
-  { title: "Keeping Documents Safe", path: "Stability Basics", xp: 10 },
-  { title: "Basic Budgeting", path: "Financial Literacy", xp: 10 },
-  { title: "Finding Safe Shelter", path: "Survival & Systems", xp: 10 },
+import { useEffect, useRef, useState } from "react";
+import CardRenderer from "../lesson/[lessonId]/CardRenderers";
+import { adaptCard, evaluate, type AdaptedCard } from "@/lib/lesson/cards";
+import { Alert, Button, ButtonLink } from "./ui";
+import lessonStyles from "../lesson/[lessonId]/lesson.module.css";
+import styles from "./marketing/marketing.module.css";
+const source = [
+  {
+    id: "fictional-teach",
+    type: "INFO",
+    prompt: "Make room for one small step",
+    body: "Alex has a busy afternoon. Rather than solve everything at once, Alex chooses one useful action that can fit into the day.",
+  },
+  {
+    id: "fictional-question",
+    type: "MULTIPLE_CHOICE",
+    prompt: "What could Alex try next?",
+    choicesJson: JSON.stringify([
+      "Choose one manageable action and a time to try it",
+      "Wait until every problem can be solved at once",
+    ]),
+    answerJson: JSON.stringify(
+      "Choose one manageable action and a time to try it",
+    ),
+    explain:
+      "A small, specific action can make a plan easier to begin. Alex can adjust it if the day changes.",
+  },
+  {
+    id: "fictional-reflect",
+    type: "INFO",
+    subtype: "REFLECTION",
+    prompt: "What might make a small step easier?",
+    body: "You may think about this, write a note on this screen or skip. Please do not enter personal or participant information.",
+  },
 ];
-
-const CARDS = [
-  { q: "What is the best way to keep important documents safe?", a: "Store copies digitally and keep originals in a sealed bag" },
-  { q: "Which is a free way to start budgeting?", a: "Track spending for one week using pen and paper" },
-];
-
-type Phase = "home" | "lesson" | "card" | "correct" | "xp" | "complete" | "wallet" | "cashout";
-
+const cards = source
+  .map((s) => adaptCard(s))
+  .filter((r): r is { ok: true; card: AdaptedCard } => r.ok)
+  .map((r) => r.card);
 export default function AppDemo() {
-  const [mounted, setMounted] = useState(false);
-  const [phase, setPhase] = useState<Phase>("home");
-  const [lessonIdx, setLessonIdx] = useState(0);
-  const [cardIdx, setCardIdx] = useState(0);
-  const [totalXp, setTotalXp] = useState(20);
-  const [tapPulse, setTapPulse] = useState(false);
-  const [tapX, setTapX] = useState(50);
-  const [tapY, setTapY] = useState(50);
-
-  useEffect(() => { setMounted(true); }, []);
-
+  const [index, setIndex] = useState(0),
+    [selected, setSelected] = useState<number | null>(null),
+    [checked, setChecked] = useState(false),
+    [done, setDone] = useState(false),
+    focus = useRef<HTMLDivElement>(null),
+    card = cards[index];
   useEffect(() => {
-    if (!mounted) return;
-    const sequence: { phase: Phase; delay: number; tap?: [number, number]; lessonIdx?: number; cardIdx?: number; addXp?: number }[] = [
-      { phase: "home", delay: 1500, tap: [50, 42] },
-      { phase: "lesson", delay: 1800, tap: [50, 55] },
-      { phase: "card", delay: 2200, tap: [50, 72] },
-      { phase: "correct", delay: 1600 },
-      { phase: "xp", delay: 2000, addXp: 10 },
-      { phase: "home", delay: 1500, lessonIdx: 1, tap: [50, 52] },
-      { phase: "lesson", delay: 1800, tap: [50, 55], cardIdx: 1 },
-      { phase: "card", delay: 2200, tap: [50, 72] },
-      { phase: "correct", delay: 1600 },
-      { phase: "xp", delay: 2000, addXp: 10 },
-      { phase: "complete", delay: 2500 },
-      { phase: "wallet", delay: 2500, tap: [50, 72] },
-      { phase: "cashout", delay: 3000 },
-    ];
-
-    let timer: ReturnType<typeof setTimeout>;
-    let step = 0;
-
-    function run() {
-      if (step >= sequence.length) {
-        step = 0;
-        setTotalXp(20);
-        setLessonIdx(0);
-        setCardIdx(0);
-      }
-      const s = sequence[step];
-      if (s.lessonIdx !== undefined) setLessonIdx(s.lessonIdx);
-      if (s.cardIdx !== undefined) setCardIdx(s.cardIdx);
-      setPhase(s.phase);
-
-      if (s.tap) {
-        setTimeout(() => {
-          setTapX(s.tap![0]);
-          setTapY(s.tap![1]);
-          setTapPulse(true);
-          setTimeout(() => setTapPulse(false), 500);
-        }, s.delay * 0.5);
-      }
-
-      if (s.addXp) {
-        setTimeout(() => setTotalXp((x) => x + s.addXp!), 400);
-      }
-
-      step++;
-      timer = setTimeout(run, s.delay);
+    if (index > 0)
+      focus.current
+        ?.querySelector<HTMLElement>("#card-prompt")
+        ?.focus({ preventScroll: true });
+  }, [index]);
+  function next() {
+    if (index + 1 === cards.length) setDone(true);
+    else {
+      setIndex((n) => n + 1);
+      setSelected(null);
+      setChecked(false);
     }
-
-    run();
-    return () => clearTimeout(timer);
-  }, [mounted]);
-
-  const lesson = LESSONS[lessonIdx];
-  const card = CARDS[cardIdx];
-
-  if (!mounted) {
-    return (
-      <div className="demo-phone-container">
-      <p role="note">Illustration only. Sample records and XP do not create learner credit, approvals or payments.</p>
-        <div className="demo-phone">
-          <div className="demo-phone-notch"></div>
-          <div className="demo-phone-screen">
-            <div className="demo-screen-content" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <div style={{ color: "#475569", fontSize: "0.75rem" }}>Loading demo...</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
   }
-
+  const result =
+    card?.public.kind === "question" && selected !== null
+      ? evaluate(card, { kind: "choice", choice: selected })
+      : null;
   return (
-    <div className="demo-phone-container">
-      <p role="note">Illustration only. Sample records and XP do not create learner credit, approvals or payments.</p>
-      <div className="demo-phone">
-        <div className="demo-phone-notch"></div>
-
-        <div className="demo-phone-screen">
-          {phase === "home" && (
-            <div className="demo-screen-content demo-fade-in">
-              <div className="demo-app-header">
-                <div className="demo-app-xp-bar">
-                  <span className="demo-xp-icon">&#x2B50;</span>
-                  <span className="demo-xp-count">{totalXp} XP</span>
-                  <span className="demo-streak">&#x1F525; 3</span>
-                  <span className="demo-hearts">&#x2764;&#xFE0F; 5</span>
-                </div>
-                <div className="demo-app-title">Your Journeys</div>
-              </div>
-              <div className="demo-node-tree">
-                {LESSONS.map((l, i) => (
-                  <div
-                    key={i}
-                    className={`demo-node ${i < lessonIdx ? "demo-node-done" : i === lessonIdx ? "demo-node-active" : "demo-node-locked"}`}
-                  >
-                    <div className="demo-node-circle">
-                      {i < lessonIdx ? "✓" : i === lessonIdx ? "▶" : "🔒"}
-                    </div>
-                    <div className="demo-node-label">{l.title}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {phase === "lesson" && (
-            <div className="demo-screen-content demo-fade-in">
-              <div className="demo-lesson-header">
-                <div className="demo-lesson-path">{lesson.path}</div>
-                <div className="demo-lesson-title">{lesson.title}</div>
-                <div className="demo-lesson-progress">
-                  <div className="demo-progress-bar">
-                    <div className="demo-progress-fill" style={{ width: "30%" }}></div>
-                  </div>
-                  <span className="demo-progress-text">1 of 3</span>
-                </div>
-              </div>
-              <div className="demo-lesson-body">
-                <p className="demo-lesson-text">
-                  Tap below to start the lesson card and test your knowledge.
-                </p>
-                <div className="demo-lesson-btn">Start Card</div>
-              </div>
-            </div>
-          )}
-
-          {(phase === "card" || phase === "correct") && (
-            <div className="demo-screen-content demo-fade-in">
-              <div className="demo-card-container">
-                <div className="demo-card-question">{card.q}</div>
-                <div className="demo-card-answers">
-                  <div className={`demo-answer ${phase === "correct" ? "demo-answer-wrong" : ""}`}>
-                    Call 911 immediately
-                  </div>
-                  <div className={`demo-answer ${phase === "correct" ? "demo-answer-correct" : ""}`}>
-                    {card.a}
-                  </div>
-                  <div className={`demo-answer ${phase === "correct" ? "demo-answer-wrong" : ""}`}>
-                    Leave them with a friend
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {phase === "xp" && (
-            <div className="demo-screen-content demo-fade-in">
-              <div className="demo-xp-reward">
-                <div className="demo-xp-burst">+10 XP</div>
-                <div className="demo-xp-message">Lesson Complete!</div>
-                <div className="demo-xp-earning">Program terms apply</div>
-                <div className="demo-xp-continue">Continue</div>
-              </div>
-            </div>
-          )}
-
-          {phase === "complete" && (
-            <div className="demo-screen-content demo-fade-in">
-              <div className="demo-xp-reward">
-                <div className="demo-xp-burst" style={{ fontSize: "2rem" }}>&#x1F389;</div>
-                <div className="demo-xp-message">2 Lessons Done!</div>
-                <div className="demo-xp-earning">{totalXp} sample XP · no cash credited</div>
-                <div className="demo-xp-continue">Keep Going</div>
-              </div>
-            </div>
-          )}
-
-          {phase === "wallet" && (
-            <div className="demo-screen-content demo-fade-in">
-              <div className="demo-wallet-header">
-                <div className="demo-wallet-title">My Wallet</div>
-                <div className="demo-wallet-balance-label">Example rewards view</div>
-                <div className="demo-wallet-balance">Program quote</div>
-                <div className="demo-wallet-subtext">{totalXp} XP earned this session</div>
-              </div>
-              <div className="demo-wallet-history">
-                <div className="demo-wallet-row">
-                  <span className="demo-wallet-row-label">Daily Routines</span>
-                  <span className="demo-wallet-row-amount">Sample XP</span>
-                </div>
-                <div className="demo-wallet-row">
-                  <span className="demo-wallet-row-label">Keeping Documents Safe</span>
-                  <span className="demo-wallet-row-amount">Sample XP</span>
-                </div>
-              </div>
-              <div className="demo-cashout-btn">Review request</div>
-            </div>
-          )}
-
-          {phase === "cashout" && (
-            <div className="demo-screen-content demo-fade-in">
-              <div className="demo-xp-reward">
-                <div className="demo-cashout-icon">&#x2705;</div>
-                <div className="demo-xp-message">Example request</div>
-                <div className="demo-cashout-amount">Illustration only</div>
-                <div className="demo-cashout-subtext">Staff review is not a payment</div>
-              </div>
-            </div>
-          )}
-
-          <div className="demo-phone-navbar">
-            <div className={`demo-nav-item ${phase !== "wallet" && phase !== "cashout" ? "demo-nav-active" : ""}`}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h1v7c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-7h1a1 1 0 0 0 .7-1.7l-9-9a1 1 0 0 0-1.4 0l-9 9A1 1 0 0 0 3 13z"/></svg>
-              <span>Home</span>
-            </div>
-            <div className="demo-nav-item">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
-              <span>Lifeline</span>
-            </div>
-            <div className={`demo-nav-item ${phase === "wallet" || phase === "cashout" ? "demo-nav-active" : ""}`}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-              <span>Profile</span>
-            </div>
+    <section
+      className={styles.sample}
+      aria-label="Fictional sample lesson"
+      data-marketing-preview
+    >
+      <div className={styles.sampleHeader}>
+        <span className={styles.eyebrow}>Sample lesson · fictional Alex</span>
+        <span>No account needed</span>
+      </div>
+      <h2 className={styles.previewTitle}>Try a small learning step</h2>
+      <p className={styles.small}>
+        Explore three fictional learning steps. Nothing is submitted or saved;
+        this sample creates no real progress, XP or rewards.
+      </p>
+      {done ? (
+        <div className={styles.sampleComplete} role="status">
+          <h3>One small step, explored.</h3>
+          <p>
+            You have tried a teaching card, a question and an optional reflection.
+            This fictional sample has not saved progress or earned a reward.
+          </p>
+          <div className={styles.actions}>
+            <Button
+              onClick={() => {
+                setDone(false);
+                setIndex(0);
+                setSelected(null);
+                setChecked(false);
+              }}
+            >
+              Try the sample again
+            </Button>
+            <ButtonLink variant="secondary" href="/#contact">
+              Discuss your program
+            </ButtonLink>
           </div>
         </div>
-
-        {tapPulse && (
-          <div
-            className="demo-tap-indicator"
-            style={{ left: `${tapX}%`, top: `${tapY}%` }}
-          ></div>
-        )}
-      </div>
-
-      <div className="demo-caption">
-        <p>
-          {phase === "home" && "Learners see their journey map with lesson nodes"}
-          {phase === "lesson" && "Each lesson opens with a quick intro"}
-          {phase === "card" && "Interactive cards test knowledge"}
-          {phase === "correct" && "Instant feedback on answers"}
-          {phase === "xp" && "Sample XP; reward eligibility follows program terms"}
-          {phase === "complete" && "Progress tracked, every lesson counts"}
-          {phase === "wallet" && "Tap Review request to withdraw real earnings instantly"}
-          {phase === "cashout" && "Example request saved for review; no payment is sent"}
-        </p>
-      </div>
-    </div>
+      ) : (
+        <>
+          <div className={lessonStyles.progress}>
+            <label htmlFor="sample-progress">
+              Sample step {index + 1} of {cards.length}
+            </label>
+            <progress
+              id="sample-progress"
+              max={cards.length}
+              value={index + 1}
+            />
+          </div>
+          <div ref={focus} className={lessonStyles.card}>
+            <CardRenderer
+              key={card.public.id}
+              card={card.public}
+              selected={selected}
+              onSelect={setSelected}
+              disabled={checked}
+              headingLevel={3}
+            />
+          </div>
+          {checked && (
+            <Alert tone={result?.correct ? "success" : "info"}>
+              {result?.correct
+                ? "That is a manageable next step. "
+                : "A different approach to consider: "}
+              {card.explanation}
+            </Alert>
+          )}
+          <div className={styles.sampleAction}>
+            {card.public.kind === "question" && !checked ? (
+              <Button
+                disabled={selected === null}
+                disabledReason="Choose an answer to see the explanation."
+                onClick={() => setChecked(true)}
+              >
+                Check answer
+              </Button>
+            ) : (
+              <Button onClick={next}>
+                {card.public.kind === "reflection"
+                  ? "Finish sample (reflection optional)"
+                  : checked
+                    ? "Next step"
+                    : "Continue sample"}
+              </Button>
+            )}
+          </div>
+        </>
+      )}
+    </section>
   );
 }

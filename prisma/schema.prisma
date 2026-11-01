@@ -236,6 +236,7 @@ model PayoutRequest {
 
 model AdminUser {
   acknowledgedCases Case[] @relation("CaseAcknowledger")
+  partnerInquiries PartnerInquiry[]
   staffActions StaffActionReceipt[]
   memberships StaffMembership[]
   mfaSecretEncrypted String?
@@ -574,6 +575,7 @@ model Program {
   audits AuditLog[]
   configs PayoutConfig[]
   pool PoolBalance?
+  partnerInquiries PartnerInquiry[]
   staffActions StaffActionReceipt[]
   adjustments PoolAdjustment[]
 }
@@ -669,4 +671,29 @@ model SupportLease {
   expiresAt DateTime
   user User @relation(fields:[userId],references:[id],onDelete:Restrict)
   @@id([userId,kind])
+}
+
+// Partner prospects are routed to one explicitly configured intake program, never globally visible.
+model PartnerInquiry {
+  id String @id @default(cuid())
+  requestKey String @unique
+  payloadHash String
+  programId String
+  program Program @relation(fields:[programId],references:[id],onDelete:Restrict)
+  fullName String
+  organization String
+  email String
+  interest String
+  region String?
+  message String?
+  consentAt DateTime @default(now())
+  noticeSnapshot String
+  createdAt DateTime @default(now())
+  @@index([programId,createdAt,id])
+}
+// Abuse-control metadata only: HMAC keys, no email/message/raw IP.
+model PartnerInquiryRate {
+  key String @id
+  windowAt DateTime
+  count Int
 }

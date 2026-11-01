@@ -1,0 +1,20 @@
+{
+  "date": "2026-11-01",
+  "scope": "Exact new additive SQL only, on a minimal synthetic Program parent; not a full schema migration or Prisma/API integration",
+  "migration": "20261101010000_partner_inquiries",
+  "sha256": "4df90ea7a63b49ed81cb04b429f85f8a8f95a6125156f5dfcb681c9c85b98fb5",
+  "freshDatabase": true,
+  "restrictedRole": true,
+  "nonceCapabilityVerified": true,
+  "locallyControlledServerDirectoryVerified": true,
+  "existingParentPreserved": true,
+  "tests": {
+    "immutableProgram": true,
+    "immutableRequestKey": true,
+    "immutablePayloadHash": true,
+    "uniqueRequestKey": true,
+    "restrictProgramDeletion": true
+  },
+  "assertions": 5,
+  "cleanup": "Fresh database/role removed by finally"
+}

@@ -100,6 +100,10 @@ describe("exact additive program/staff migration and reviewed legacy mapping", (
       "prisma/migrations/20261101000000_support_integrity/migration.sql",
       "utf8",
     );
+    const partner = readFileSync(
+      "prisma/migrations/20261101010000_partner_inquiries/migration.sql",
+      "utf8",
+    );
     const rollback = new Error("synthetic rollback sentinel");
     let evidence: Record<string, unknown> = {};
     try {
@@ -112,6 +116,8 @@ describe("exact additive program/staff migration and reviewed legacy mapping", (
           for (const sql of statements(workflow))
             await tx.$executeRawUnsafe(sql);
           for (const sql of statements(support))
+            await tx.$executeRawUnsafe(sql);
+          for (const sql of statements(partner))
             await tx.$executeRawUnsafe(sql);
           expect(await tx.staffMembership.count()).toBe(0);
           expect(await tx.participantEnrollment.count()).toBe(0);
@@ -244,7 +250,34 @@ describe("exact additive program/staff migration and reviewed legacy mapping", (
               acknowledgedById: "synthetic-ack-actor",
             },
           });
+          const partnerInquiry = await tx.partnerInquiry.create({
+            data: {
+              programId: "legacy-program",
+              requestKey: "synthetic-migration-intent",
+              payloadHash: "synthetic-hash",
+              fullName: "Synthetic prospect",
+              organization: "Synthetic partner",
+              email: "synthetic@example.test",
+              interest: "pilot",
+              noticeSnapshot: "{}",
+            },
+          });
+          await tx.$executeRawUnsafe("SAVEPOINT partner_owner_guard");
+          let partnerOwnerBlocked = false;
+          try {
+            await tx.partnerInquiry.update({
+              where: { id: partnerInquiry.id },
+              data: { programId: "synthetic-other-program" },
+            });
+          } catch {
+            partnerOwnerBlocked = true;
+          }
+          await tx.$executeRawUnsafe(
+            "ROLLBACK TO SAVEPOINT partner_owner_guard",
+          );
+          expect(partnerOwnerBlocked).toBe(true);
           evidence = {
+            partnerOwnerBlocked,
             supportEvidenceBlocked,
             unauthorizedAckBlocked,
             authorizedAckRecorded: true,
@@ -252,6 +285,7 @@ describe("exact additive program/staff migration and reviewed legacy mapping", (
               "20261027040000_program_boundaries",
               "20261029000000_staff_workflows",
               "20261101000000_support_integrity",
+              "20261101010000_partner_inquiries",
             ],
             source: "nonce-attested disposable PostgreSQL",
             exactAdditiveSqlApplied: true,

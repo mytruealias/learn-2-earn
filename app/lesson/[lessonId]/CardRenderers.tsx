@@ -4,11 +4,26 @@ import type { PublicCard } from "@/lib/lesson/cards";
 import styles from "./lesson.module.css";
 type Props = {
   card: PublicCard;
+  headingLevel?: 1 | 2 | 3;
   selected: number | null;
   onSelect: (n: number) => void;
   disabled: boolean;
 };
-function Teaching({ card }: Props) {
+function Prompt({
+  level = 1,
+  children,
+}: {
+  level?: 1 | 2 | 3;
+  children: React.ReactNode;
+}) {
+  const Tag = level === 3 ? "h3" : level === 2 ? "h2" : "h1";
+  return (
+    <Tag id="card-prompt" tabIndex={-1}>
+      {children}
+    </Tag>
+  );
+}
+function Teaching({ card, headingLevel }: Props) {
   return (
     <>
       <p className={styles.label}>
@@ -16,9 +31,7 @@ function Teaching({ card }: Props) {
           ? "Optional activity"
           : "Learn"}
       </p>
-      <h1 id="card-prompt" tabIndex={-1}>
-        {card.prompt}
-      </h1>
+      <Prompt level={headingLevel}>{card.prompt}</Prompt>
       {card.body && <p className={styles.body}>{card.body}</p>}
       {card.kind === "teaching" && card.activity && (
         <p className={styles.note}>
@@ -29,14 +42,12 @@ function Teaching({ card }: Props) {
     </>
   );
 }
-function Reflection({ card, disabled }: Props) {
+function Reflection({ card, disabled, headingLevel }: Props) {
   const [text, setText] = useState("");
   return (
     <>
       <p className={styles.label}>Optional reflection</p>
-      <h1 id="card-prompt" tabIndex={-1}>
-        {card.prompt}
-      </h1>
+      <Prompt level={headingLevel}>{card.prompt}</Prompt>
       {card.body && <p className={styles.body}>{card.body}</p>}
       <label className={styles.field}>
         A note for yourself (optional)
@@ -57,7 +68,7 @@ function Reflection({ card, disabled }: Props) {
     </>
   );
 }
-function Question({ card, selected, onSelect, disabled }: Props) {
+function Question({ card, selected, onSelect, disabled, headingLevel }: Props) {
   if (!("choices" in card)) return null;
   return (
     <>
@@ -66,9 +77,7 @@ function Question({ card, selected, onSelect, disabled }: Props) {
           ? "A decision to consider"
           : "Check your understanding"}
       </p>
-      <h1 id="card-prompt" tabIndex={-1}>
-        {card.prompt}
-      </h1>
+      <Prompt level={headingLevel}>{card.prompt}</Prompt>
       {card.body && <p className={styles.body}>{card.body}</p>}
       <fieldset className={styles.choices} disabled={disabled}>
         <legend>Choose one answer</legend>

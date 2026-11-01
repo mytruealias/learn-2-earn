@@ -1,16 +1,5 @@
 import CityDeckUnlock from "../../components/CityDeck/CityDeckUnlock";
-import { houstonConfig as cfg } from "../../components/CityDeck/configs/houston";
-
-export const metadata = { title: "Houston Pilot – Access Required" };
-
-export default function HoustonUnlockPage() {
-  return (
-    <CityDeckUnlock
-      slug={cfg.slug}
-      basePath={cfg.metadata.path}
-      badge={cfg.unlockBadge}
-      sub={cfg.unlockSub}
-      theme={cfg.theme}
-    />
-  );
-}
+import {houstonConfig} from "../../components/CityDeck/configs/houston";
+import{marketingMetadata}from"@/lib/marketing/metadata";
+export const metadata=marketingMetadata("Houston — access required","/houston/unlock",houstonConfig.metadata.description,true);
+export default function Page(){return <CityDeckUnlock slug="houston" basePath="/houston" badge={houstonConfig.unlockBadge} sub={houstonConfig.unlockSub} theme={houstonConfig.theme}/>;}

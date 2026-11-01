@@ -1,3 +1,4 @@
+import { configuredRootDomain } from "./lib/site-identity";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { parseSessionPayload } from "./lib/session-policy";
@@ -153,6 +154,7 @@ function passThrough(pathname: string) {
   if (
     pathname.startsWith("/admin") ||
     pathname.startsWith("/api/admin") ||
+    pathname === "/api/partner-inquiries" ||
     ["/api/support", "/api/stress-signal", "/api/chat", "/api/tts"].includes(
       pathname,
     ) ||
@@ -174,7 +176,7 @@ function passThrough(pathname: string) {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const search = request.nextUrl.search;
-  const rootDomain = process.env.ROOT_DOMAIN;
+  const rootDomain = configuredRootDomain();
 
   // ── SUBDOMAIN ROUTING ──────────────────────────────────────────────────────
   // Only active when ROOT_DOMAIN env var is set (i.e. production with real
@@ -203,8 +205,12 @@ export async function middleware(request: NextRequest) {
 
       // API routes always pass through — no subdomain restriction on the API layer
       if (!isApiPath) {
-        if (pathname === "/privacy" || pathname === "/terms")
-          return passThrough(pathname);
+        if (
+          ["/privacy", "/terms", "/demo", "/opengraph-image"].includes(pathname)
+        )
+          return isRoot
+            ? passThrough(pathname)
+            : redirect301(`https://${rootDomain}${pathname}${search}`);
         if (isRoot) {
           // Root domain serves / and the city-partnership decks (each PIN-gated)
           if (!isRootPath && !isCityPagePath) {
