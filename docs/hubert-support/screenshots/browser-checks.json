@@ -1,0 +1,62 @@
+[
+  {
+    "screen": "human-help",
+    "width": 360,
+    "axeViolations": 0,
+    "noOverflow": true
+  },
+  {
+    "screen": "ai-unavailable",
+    "width": 360,
+    "axeViolations": 0,
+    "noOverflow": true
+  },
+  {
+    "screen": "human-help",
+    "width": 768,
+    "axeViolations": 0,
+    "noOverflow": true
+  },
+  {
+    "screen": "ai-unavailable",
+    "width": 768,
+    "axeViolations": 0,
+    "noOverflow": true
+  },
+  {
+    "screen": "human-help",
+    "width": 1440,
+    "axeViolations": 0,
+    "noOverflow": true
+  },
+  {
+    "screen": "ai-unavailable",
+    "width": 1440,
+    "axeViolations": 0,
+    "noOverflow": true
+  },
+  {
+    "screen": "request-saved",
+    "width": 360,
+    "axeViolations": 0,
+    "noOverflow": true
+  },
+  {
+    "screen": "mocked-ai-interrupted",
+    "width": 1280,
+    "axeViolations": 0,
+    "noOverflow": true
+  },
+  {
+    "screen": "intake-settings",
+    "width": 1440,
+    "axeViolations": 0,
+    "noOverflow": true
+  },
+  {
+    "screen": "support-service-unavailable",
+    "width": 360,
+    "axeViolations": 0,
+    "noOverflow": true
+  }
+]

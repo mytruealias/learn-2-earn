@@ -12,6 +12,9 @@
 
 # testing
 /coverage
+/test-results/*
+!/test-results/.last-run.json
+/playwright-report/
 
 # next.js
 /.next/
@@ -33,6 +36,8 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
+!.env.test.example
 
 # vercel
 .vercel
@@ -52,3 +57,9 @@ prisma/dev.db-journal
 attached_assets/
 replit.md
 .replit
+
+# Isolated public-only browser build cache (no database fixtures).
+/.next-marketing-tests/
+
+.next-reliability-tests/
+.next-release-tests/

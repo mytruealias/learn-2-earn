@@ -1,0 +1,128 @@
+[
+  {
+    "screen": "teaching",
+    "width": 360,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "helpful-feedback",
+    "width": 360,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "first-completion",
+    "width": 360,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "practice-due",
+    "width": 360,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "practice-completion",
+    "width": 360,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "teaching",
+    "width": 768,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "helpful-feedback",
+    "width": 768,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "first-completion",
+    "width": 768,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "practice-due",
+    "width": 768,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "practice-completion",
+    "width": 768,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "teaching",
+    "width": 1440,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "helpful-feedback",
+    "width": 1440,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "first-completion",
+    "width": 1440,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "practice-due",
+    "width": 1440,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "practice-completion",
+    "width": 1440,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "reflection-text-200",
+    "width": 360,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "failed-save",
+    "width": 1440,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "content-issue",
+    "width": 1440,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  }
+]

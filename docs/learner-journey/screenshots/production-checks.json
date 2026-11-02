@@ -1,0 +1,50 @@
+[
+  {
+    "route": "/recover",
+    "status": 200,
+    "mode": "production",
+    "applicationDatabaseAvailable": false
+  },
+  {
+    "route": "/lifeline",
+    "status": 200,
+    "mode": "production",
+    "applicationDatabaseAvailable": false
+  },
+  {
+    "route": "/dev/design-system",
+    "status": 404,
+    "mode": "production",
+    "applicationDatabaseAvailable": false
+  },
+  {
+    "route": "/api/access",
+    "status": 503,
+    "mode": "production",
+    "applicationDatabaseAvailable": false
+  },
+  {
+    "route": "/profile",
+    "status": 307,
+    "mode": "production",
+    "applicationDatabaseAvailable": false
+  },
+  {
+    "route": "/app",
+    "status": 307,
+    "mode": "production",
+    "applicationDatabaseAvailable": false
+  },
+  {
+    "route": "/api/auth/session",
+    "status": 401,
+    "mode": "production",
+    "applicationDatabaseAvailable": false
+  },
+  {
+    "route": "/api/auth/session",
+    "status": 200,
+    "mode": "production",
+    "applicationDatabaseAvailable": false
+  }
+]

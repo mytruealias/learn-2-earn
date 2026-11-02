@@ -1,16 +1,5 @@
 import CityDeckUnlock from "../../components/CityDeck/CityDeckUnlock";
-import { sanFranciscoConfig as cfg } from "../../components/CityDeck/configs/san-francisco";
-
-export const metadata = { title: "San Francisco Pilot – Access Required" };
-
-export default function SanFranciscoUnlockPage() {
-  return (
-    <CityDeckUnlock
-      slug={cfg.slug}
-      basePath={cfg.metadata.path}
-      badge={cfg.unlockBadge}
-      sub={cfg.unlockSub}
-      theme={cfg.theme}
-    />
-  );
-}
+import {sanFranciscoConfig} from "../../components/CityDeck/configs/san-francisco";
+import{marketingMetadata}from"@/lib/marketing/metadata";
+export const metadata=marketingMetadata("San Francisco — access required","/san-francisco/unlock",sanFranciscoConfig.metadata.description,true);
+export default function Page(){return <CityDeckUnlock slug="san-francisco" basePath="/san-francisco" badge={sanFranciscoConfig.unlockBadge} sub={sanFranciscoConfig.unlockSub} theme={sanFranciscoConfig.theme}/>;}

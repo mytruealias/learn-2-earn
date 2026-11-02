@@ -1,0 +1,1290 @@
+"use client";
+import { clientFetch } from "@/lib/reliability/client-fetch";
+import Rewards from "./Rewards";
+import { usd } from "@/lib/rewards/money";
+
+import { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import styles from "./profile.module.css";
+import { Button, ButtonLink, ErrorState, Skeleton } from "../components/ui";
+import HelpButton from "../components/HelpButton";
+import {
+  StarIcon,
+  BookIcon,
+  WalletIcon,
+  CashIcon,
+  LightbulbIcon,
+  ClipboardIcon,
+  ChevronRightIcon,
+} from "../components/icons";
+
+interface PayoutRequest {
+  id: string;
+  xpAmount: number;
+  dollarAmount: number;
+  status: string;
+  note: string | null;
+  paymentMethod: string | null;
+  paymentHandle: string | null;
+  createdAt: string;
+}
+
+interface Badge {
+  id: string;
+  label: string;
+  icon: string;
+  description: string;
+  earned: boolean;
+}
+
+interface PayoutRules {
+  minXp: number;
+  xpToDollar: number;
+  weeklyXpCap: number;
+  programSlug: string | null;
+  programName: string | null;
+  source: "program" | "default" | "fallback";
+}
+
+interface UserProfile {
+  id: string;
+  email: string | null;
+  fullName: string | null;
+  dateOfBirth: string | null;
+  phone: string | null;
+  city: string | null;
+  state: string | null;
+  zipCode: string | null;
+  caseNumber: string | null;
+  emergencyContactName: string | null;
+  emergencyContactPhone: string | null;
+  totalXp: number;
+  hearts: number;
+  streak: number;
+  streakFreezes?: number;
+  lastFreezeUsedAt?: string | null;
+  lessonsCompleted: number;
+  availableXp: number;
+  availableBalance: number;
+  totalEarnings: number | null;
+  rewards?: { paidCents: string | null };
+  payoutRequests: PayoutRequest[];
+  badges?: Badge[];
+  payoutRules?: PayoutRules;
+}
+
+const BADGE_GROUPS = [
+  {
+    label: "Lessons",
+    ids: [
+      "first_lesson",
+      "lessons_5",
+      "lessons_10",
+      "lessons_25",
+      "lessons_50",
+    ],
+  },
+  { label: "Streaks", ids: ["streak_3", "streak_7", "streak_14", "streak_30"] },
+  { label: "Earnings", ids: ["xp_50", "xp_100", "xp_500", "first_payout"] },
+  { label: "Paths", ids: ["first_path", "paths_2", "paths_3"] },
+  { label: "Perfect Play", ids: ["perfect_lesson", "perfect_3", "perfect_5"] },
+];
+
+const BADGE_HOW_TO: Record<string, string> = {
+  first_lesson: "Complete your very first lesson on any learning path.",
+  lessons_5: "Finish 5 lessons total, mix any paths you like.",
+  lessons_10: "Complete 10 lessons total across any paths.",
+  lessons_25: "Keep going, 25 lessons completed across any paths.",
+  lessons_50: "A true scholar. Complete 50 lessons total.",
+  streak_3: "Log in and complete at least one lesson 3 days in a row.",
+  streak_7: "Keep your streak alive for 7 consecutive days.",
+  streak_14: "Two weeks of showing up, 14 days in a row.",
+  streak_30: "A full month of daily learning, 30 days in a row.",
+  xp_50:
+    "Earn 50 lifetime learning XP. Reward value follows your program terms.",
+  xp_100: "Earn 100 lifetime learning XP.",
+  xp_500: "Earn 500 lifetime learning XP. Program payout caps are separate.",
+  first_payout: "Request your first cash payout from the Earnings tab.",
+  first_path: "Complete every single lesson in one full learning path.",
+  paths_2: "Finish all lessons in 2 different learning paths.",
+  paths_3: "Master 3 complete learning paths from start to finish.",
+  perfect_lesson: "Complete a lesson with every question correct on the first try.",
+  perfect_3: "Earn a perfect first completion on three lessons.",
+  perfect_5: "Earn a perfect first completion on five lessons.",
+};
+
+export default function ProfileClient({
+  initialTab = "overview",
+}: {
+  initialTab?: "overview" | "earnings" | "achievements" | "info";
+}) {
+  const router = useRouter();
+  const [profileError, setProfileError] = useState("");
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [tab, setTab] = useState<
+    "overview" | "earnings" | "achievements" | "info"
+  >(initialTab);
+  const [selectedBadge, setSelectedBadge] = useState<string | null>(null);
+  const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveMsg, setSaveMsg] = useState("");
+  const [editForm, setEditForm] = useState({
+    fullName: "",
+    dateOfBirth: "",
+    phone: "",
+    city: "",
+    state: "",
+    zipCode: "",
+    emergencyContactName: "",
+    emergencyContactPhone: "",
+  });
+
+  useEffect(() => {
+    setTab(initialTab);
+  }, [initialTab]);
+
+  const loadProfile = useCallback(async () => {
+    setProfileError("");
+    try {
+      const res = await clientFetch("/api/auth/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: "{}",
+      });
+
+      if (res.status === 401 || res.status === 404) {
+        router.replace("/login?reason=expired&next=/profile");
+        return;
+      }
+      if (!res.ok) throw new Error();
+
+      const data = await res.json();
+      setUser(data.user);
+    } catch {
+      setProfileError("Your profile could not load. Reconnect and try again.");
+    } finally {
+      setLoading(false);
+    }
+  }, [router]);
+
+  useEffect(() => {
+    loadProfile();
+  }, [loadProfile]);
+
+  const startEdit = () => {
+    if (!user) return;
+    setEditForm({
+      fullName: user.fullName || "",
+      dateOfBirth: user.dateOfBirth || "",
+      phone: user.phone || "",
+      city: user.city || "",
+      state: user.state || "",
+      zipCode: user.zipCode || "",
+      emergencyContactName: user.emergencyContactName || "",
+      emergencyContactPhone: user.emergencyContactPhone || "",
+    });
+    setSaveMsg("");
+    setEditing(true);
+  };
+
+  const saveProfile = async () => {
+    setSaving(true);
+    setSaveMsg("");
+    try {
+      const res = await clientFetch("/api/user/profile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editForm),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error?.message || "Save failed");
+      setUser((prev) => (prev ? { ...prev, ...data.user } : prev));
+      setEditing(false);
+      setSaveMsg("Saved!");
+
+    } catch (err: unknown) {
+      setSaveMsg(err instanceof Error ? err.message : "Something went wrong");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) {
+    return <main data-design="profile" className={styles.profile} style={{ padding: "2rem 1rem" }}>
+      <h1>Your profile</h1>
+      <Skeleton label="Loading your profile" />
+    </main>;
+  }
+
+  if (profileError)
+    return (
+      <main style={{ padding: "2rem" }}>
+        <h1>Your profile could not load</h1>
+        <ErrorState onRetry={() => void loadProfile()}>
+          {profileError}
+        </ErrorState>
+      </main>
+    );
+  if (!user) return null;
+
+  if (tab === "earnings") return <main><Rewards /></main>;
+  return (
+    <main
+      data-design="profile"
+      className={styles.profile}
+      style={{ minHeight: "100vh", padding: "0 0 6rem 0" }}
+    >
+      <header
+        style={{
+          padding: "1.5rem 1.5rem",
+          background:
+            "linear-gradient(180deg, rgba(59,158,255,0.07) 0%, rgba(167,139,250,0.04) 50%, transparent 100%)",
+          borderBottom: "1px solid var(--border-color)",
+        }}
+      >
+        <div style={{ maxWidth: "700px", margin: "0 auto" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "1rem",
+            }}
+          >
+            <Link
+              href="/app"
+              style={{
+                color: "var(--accent-green)",
+                fontSize: "0.85rem",
+                fontWeight: "600",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.25rem",
+              }}
+            >
+              <div style={{ transform: "rotate(180deg)", display: "flex" }}>
+                <ChevronRightIcon size={16} color="var(--accent-green)" />
+              </div>
+              Back to Home
+            </Link>
+          </div>
+          <div
+            style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}
+          >
+            <div
+              style={{
+                width: "48px",
+                height: "48px",
+                borderRadius: "50%",
+                background:
+                  "linear-gradient(135deg, var(--accent-blue), var(--accent-purple))",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "1.5rem",
+                color: "#fff",
+                fontWeight: "700",
+              }}
+            >
+              {(user.fullName || "M").charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <h1
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontSize: "1.5rem",
+                  fontWeight: "700",
+                }}
+              >
+                {user.fullName || "Member"}
+              </h1>
+              {user.email && (
+                <div
+                  style={{
+                    color: "var(--text-secondary)",
+                    fontSize: "0.85rem",
+                  }}
+                >
+                  {user.email}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div
+        style={{ maxWidth: "700px", margin: "0 auto", padding: "1rem 1.5rem" }}
+      >
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(3, 1fr)",
+            gap: "0.5rem",
+            marginBottom: "1.5rem",
+          }}
+        >
+          {[
+            {
+              label: "Total XP",
+              value: user.totalXp.toLocaleString(),
+              color: "var(--accent-green)",
+              icon: <StarIcon size={20} color="var(--accent-green)" />,
+            },
+            {
+              label: "Lessons",
+              value: user.lessonsCompleted.toString(),
+              color: "var(--accent-blue)",
+              icon: <BookIcon size={20} color="var(--accent-blue)" />,
+            },
+            {
+              label: "Recorded paid",
+              value:
+                user.rewards?.paidCents == null
+                  ? "Needs reconciliation"
+                  : usd(user.rewards.paidCents),
+              color: "var(--accent-gold)",
+              icon: <WalletIcon size={20} color="var(--accent-gold)" />,
+            },
+          ].map((stat) => (
+            <div
+              key={stat.label}
+              style={{
+                backgroundColor: "var(--bg-card)",
+                border: "1px solid var(--border-color)",
+                borderRadius: "14px",
+                padding: "1rem",
+                textAlign: "center",
+              }}
+            >
+              <div
+                style={{
+                  marginBottom: "0.3rem",
+                  display: "flex",
+                  justifyContent: "center",
+                }}
+              >
+                {stat.icon}
+              </div>
+              <div
+                style={{
+                  fontSize: "1.4rem",
+                  fontWeight: "700",
+                  color: stat.color,
+                }}
+              >
+                {stat.value}
+              </div>
+              <div
+                style={{
+                  fontSize: "0.65rem",
+                  fontWeight: "600",
+                  color: "var(--text-muted)",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.05em",
+                }}
+              >
+                {stat.label}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            gap: "0",
+            marginBottom: "1.5rem",
+            borderRadius: "12px",
+            overflow: "hidden",
+            border: "1px solid var(--border-color)",
+          }}
+        >
+          {(["overview", "earnings", "achievements", "info"] as const).map(
+            (t, i, arr) => {
+              const active = tab === t;
+              const color = active
+                ? "var(--accent-green)"
+                : "var(--text-muted)";
+              return (
+                <button
+                  key={t}
+                  aria-pressed={active}
+                  onClick={() => {
+                    setTab(t);
+                    router.replace(
+                      t === "overview" ? "/profile" : `/profile?tab=${t}`,
+                      { scroll: false },
+                    );
+                  }}
+                  style={{
+                    flex: 1,
+                    padding: "0.7rem 0.25rem",
+                    backgroundColor: active
+                      ? "var(--bg-card-hover)"
+                      : "var(--bg-card)",
+                    color,
+                    borderRight:
+                      i < arr.length - 1
+                        ? "1px solid var(--border-color)"
+                        : "none",
+                    fontSize: "0.65rem",
+                    fontWeight: "700",
+                    letterSpacing: "0.04em",
+                    textTransform: "uppercase",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "0.25rem",
+                  }}
+                >
+                  {t === "overview" && (
+                    <LightbulbIcon size={15} color={color} />
+                  )}
+                  {t === "earnings" && <CashIcon size={15} color={color} />}
+                  {t === "achievements" && (
+                    <span style={{ fontSize: "15px", lineHeight: 1 }}>🏆</span>
+                  )}
+                  {t === "info" && <ClipboardIcon size={15} color={color} />}
+                  {t === "overview"
+                    ? "Overview"
+                    : t === "earnings"
+                      ? "Earnings"
+                      : t === "achievements"
+                        ? "Awards"
+                        : "Info"}
+                </button>
+              );
+            },
+          )}
+        </div>
+
+        {tab === "overview" && (
+          <div style={{ display: "grid", gap: "0.75rem" }}>
+            <div
+              style={{
+                backgroundColor: "var(--bg-card)",
+                border: "1px solid var(--border-color)",
+                borderRadius: "14px",
+                padding: "1rem 1.25rem",
+                display: "flex",
+                alignItems: "center",
+                gap: "1rem",
+                flexWrap: "wrap",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  flex: 1,
+                }}
+              >
+                <span style={{ fontSize: "1.5rem" }}>🔥</span>
+                <div>
+                  <div
+                    style={{
+                      fontSize: "1.25rem",
+                      fontWeight: "700",
+                      color: "var(--accent-gold)",
+                    }}
+                  >
+                    {user.streak} day streak
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "0.7rem",
+                      color: "var(--text-muted)",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.05em",
+                    }}
+                  >
+                    Current Streak
+                  </div>
+                </div>
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  backgroundColor:
+                    (user.streakFreezes ?? 1) > 0
+                      ? "rgba(59,158,255,0.1)"
+                      : "rgba(136,146,176,0.08)",
+                  border: `1px solid ${(user.streakFreezes ?? 1) > 0 ? "rgba(59,158,255,0.3)" : "rgba(136,146,176,0.2)"}`,
+                  borderRadius: "8px",
+                  padding: "0.5rem 0.85rem",
+                  opacity: (user.streakFreezes ?? 1) > 0 ? 1 : 0.6,
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: "1.1rem",
+                    filter:
+                      (user.streakFreezes ?? 1) > 0 ? "none" : "grayscale(1)",
+                  }}
+                >
+                  ❄️
+                </span>
+                <div>
+                  <div
+                    style={{
+                      fontSize: "0.8rem",
+                      fontWeight: "700",
+                      color:
+                        (user.streakFreezes ?? 1) > 0
+                          ? "var(--accent-blue)"
+                          : "var(--text-muted)",
+                    }}
+                  >
+                    {(user.streakFreezes ?? 1) > 0
+                      ? "Freeze Ready"
+                      : "Freeze Used"}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "0.65rem",
+                      color: "var(--text-muted)",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.04em",
+                    }}
+                  >
+                    {(user.streakFreezes ?? 1) > 0
+                      ? "Protects 1 missed day"
+                      : "Earns back at 7-day streak"}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div id="payout-request">
+              <ButtonLink href="/profile?tab=earnings">
+                Open rewards and request eligibility
+              </ButtonLink>
+              <p>
+                See available value, reserved XP, staff approvals and recorded
+                payments separately.
+              </p>
+            </div>
+
+            {/* Achievements teaser */}
+            {user.badges &&
+              user.badges.length > 0 &&
+              (() => {
+                const earned = user.badges.filter((b) => b.earned).length;
+                const total = user.badges.length;
+                const pct = Math.round((earned / total) * 100);
+                const recent = user.badges.filter((b) => b.earned).slice(-3);
+                return (
+                  <button
+                    onClick={() => {
+                      setTab("achievements");
+                      router.replace("/profile?tab=achievements", {
+                        scroll: false,
+                      });
+                    }}
+                    style={{
+                      width: "100%",
+                      background: "none",
+                      padding: 0,
+                      border: "none",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                  >
+                    <div
+                      style={{
+                        backgroundColor: "var(--bg-card)",
+                        border: "1px solid rgba(167,139,250,0.3)",
+                        borderRadius: "14px",
+                        padding: "1rem 1.25rem",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          marginBottom: "0.6rem",
+                        }}
+                      >
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "0.5rem",
+                          }}
+                        >
+                          <span style={{ fontSize: "1.1rem" }}>🏆</span>
+                          <div
+                            style={{
+                              fontSize: "0.75rem",
+                              fontWeight: "700",
+                              color: "var(--accent-purple)",
+                              letterSpacing: "0.08em",
+                              textTransform: "uppercase",
+                            }}
+                          >
+                            Achievements
+                          </div>
+                        </div>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "0.4rem",
+                          }}
+                        >
+                          <div
+                            style={{
+                              fontSize: "0.75rem",
+                              fontWeight: "700",
+                              color: "var(--text-muted)",
+                            }}
+                          >
+                            {earned}/{total}
+                          </div>
+                          <span
+                            style={{
+                              fontSize: "0.7rem",
+                              color: "var(--accent-purple)",
+                            }}
+                          >
+                            →
+                          </span>
+                        </div>
+                      </div>
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: "0.75rem",
+                          alignItems: "center",
+                        }}
+                      >
+                        <div style={{ flex: 1 }}>
+                          <div
+                            style={{
+                              height: "5px",
+                              borderRadius: "var(--radius-pill)",
+                              backgroundColor: "rgba(15,25,35,0.08)",
+                              overflow: "hidden",
+                            }}
+                          >
+                            <div
+                              style={{
+                                height: "100%",
+                                width: `${pct}%`,
+                                background:
+                                  "linear-gradient(90deg, var(--accent-purple), var(--accent-blue))",
+                                borderRadius: "var(--radius-pill)",
+                              }}
+                            />
+                          </div>
+                          <div
+                            style={{
+                              fontSize: "0.65rem",
+                              color: "var(--text-muted)",
+                              marginTop: "0.3rem",
+                            }}
+                          >
+                            {pct}% complete, tap to see all
+                          </div>
+                        </div>
+                        {recent.length > 0 && (
+                          <div style={{ display: "flex", gap: "0.25rem" }}>
+                            {recent.map((b) => (
+                              <span key={b.id} style={{ fontSize: "1.25rem" }}>
+                                {b.icon}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </button>
+                );
+              })()}
+          </div>
+        )}
+
+
+        {tab === "achievements" && (
+          <div style={{ display: "grid", gap: "0.75rem" }}>
+            {(() => {
+              const badges = user.badges ?? [];
+              const earnedCount = badges.filter((b) => b.earned).length;
+              const totalCount = badges.length;
+              const byId = Object.fromEntries(badges.map((b) => [b.id, b]));
+              return (
+                <>
+                  {/* Header bar */}
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontSize: "0.75rem",
+                        fontWeight: "700",
+                        color: "var(--accent-purple)",
+                        letterSpacing: "0.1em",
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      All Achievements
+                    </div>
+                    <div
+                      style={{
+                        fontSize: "0.75rem",
+                        fontWeight: "700",
+                        color: "var(--text-muted)",
+                        background: "var(--bg-card)",
+                        border: "1px solid var(--border-color)",
+                        borderRadius: "20px",
+                        padding: "0.2rem 0.75rem",
+                      }}
+                    >
+                      {earnedCount} / {totalCount} earned
+                    </div>
+                  </div>
+
+                  {/* Progress bar */}
+                  <div
+                    style={{
+                      height: "6px",
+                      borderRadius: "var(--radius-pill)",
+                      backgroundColor: "rgba(15,25,35,0.08)",
+                      overflow: "hidden",
+                    }}
+                  >
+                    <div
+                      style={{
+                        height: "100%",
+                        width: `${totalCount > 0 ? Math.round((earnedCount / totalCount) * 100) : 0}%`,
+                        background:
+                          "linear-gradient(90deg, var(--accent-purple), var(--accent-blue))",
+                        borderRadius: "var(--radius-pill)",
+                        transition: "width 0.5s ease",
+                      }}
+                    />
+                  </div>
+
+                  {/* Badge groups */}
+                  {(() => {
+                    return BADGE_GROUPS.map((group) => {
+                      const groupBadges = group.ids
+                        .map((id) => byId[id])
+                        .filter(Boolean);
+                      if (groupBadges.length === 0) return null;
+                      const groupEarned = groupBadges.filter(
+                        (b) => b.earned,
+                      ).length;
+                      return (
+                        <div
+                          key={group.label}
+                          style={{
+                            backgroundColor: "var(--bg-card)",
+                            border: "1px solid var(--border-color)",
+                            borderRadius: "14px",
+                            overflow: "hidden",
+                          }}
+                        >
+                          {/* Group header */}
+                          <div
+                            style={{
+                              padding: "0.65rem 1rem",
+                              borderBottom: "1px solid var(--border-color)",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "space-between",
+                              backgroundColor: "rgba(15,25,35,0.04)",
+                            }}
+                          >
+                            <div
+                              style={{
+                                fontSize: "0.7rem",
+                                fontWeight: "700",
+                                color: "var(--accent-purple)",
+                                letterSpacing: "0.08em",
+                                textTransform: "uppercase",
+                              }}
+                            >
+                              {group.label}
+                            </div>
+                            <div
+                              style={{
+                                fontSize: "0.65rem",
+                                color: "var(--text-muted)",
+                                fontWeight: "600",
+                              }}
+                            >
+                              {groupEarned}/{groupBadges.length}
+                            </div>
+                          </div>
+
+                          {/* Badge rows */}
+                          <div>
+                            {groupBadges.map((badge, idx) => {
+                              const isOpen = selectedBadge === badge.id;
+                              const howTo =
+                                BADGE_HOW_TO[badge.id] || badge.description;
+                              return (
+                                <div key={badge.id}>
+                                  <button
+                                    aria-expanded={isOpen}
+                                    onClick={() =>
+                                      setSelectedBadge(isOpen ? null : badge.id)
+                                    }
+                                    style={{
+                                      width: "100%",
+                                      background: "transparent",
+                                      border: "none",
+                                      borderTop:
+                                        idx > 0
+                                          ? "1px solid var(--border-color)"
+                                          : "none",
+                                      cursor: "pointer",
+                                      padding: "0.75rem 1rem",
+                                      display: "flex",
+                                      alignItems: "center",
+                                      gap: "0.85rem",
+                                      textAlign: "left",
+                                    }}
+                                  >
+                                    {/* Icon */}
+                                    <div
+                                      style={{
+                                        width: "42px",
+                                        height: "42px",
+                                        borderRadius: "10px",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        fontSize: "1.4rem",
+                                        flexShrink: 0,
+                                        backgroundColor: badge.earned
+                                          ? "rgba(167,139,250,0.15)"
+                                          : "rgba(255,255,255,0.03)",
+                                        border: `1px solid ${badge.earned ? "rgba(167,139,250,0.4)" : "var(--border-color)"}`,
+                                        filter: badge.earned
+                                          ? "none"
+                                          : "grayscale(1)",
+                                        opacity: badge.earned ? 1 : 0.45,
+                                      }}
+                                    >
+                                      {badge.icon}
+                                    </div>
+
+                                    {/* Name + description */}
+                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                      <div
+                                        style={{
+                                          fontSize: "0.85rem",
+                                          fontWeight: "700",
+                                          color: badge.earned
+                                            ? "var(--text-primary)"
+                                            : "var(--text-secondary)",
+                                          marginBottom: "0.15rem",
+                                        }}
+                                      >
+                                        {badge.label}
+                                      </div>
+                                      <div
+                                        style={{
+                                          fontSize: "0.7rem",
+                                          color: "var(--text-muted)",
+                                          lineHeight: "1.3",
+                                        }}
+                                      >
+                                        {badge.description}
+                                      </div>
+                                    </div>
+
+                                    {/* Status pill */}
+                                    <div
+                                      style={{
+                                        flexShrink: 0,
+                                        fontSize: "0.65rem",
+                                        fontWeight: "700",
+                                        padding: "0.2rem 0.55rem",
+                                        borderRadius: "20px",
+                                        backgroundColor: badge.earned
+                                          ? "rgba(52,211,153,0.15)"
+                                          : "rgba(255,255,255,0.05)",
+                                        color: badge.earned
+                                          ? "var(--accent-green)"
+                                          : "var(--text-muted)",
+                                        border: `1px solid ${badge.earned ? "rgba(52,211,153,0.3)" : "var(--border-color)"}`,
+                                        letterSpacing: "0.04em",
+                                      }}
+                                    >
+                                      {badge.earned ? "✓ Earned" : "Locked"}
+                                    </div>
+                                  </button>
+
+                                  {/* Expandable how-to panel */}
+                                  {isOpen && (
+                                    <div
+                                      style={{
+                                        margin: "0 1rem 0.75rem",
+                                        padding: "0.75rem 1rem",
+                                        borderRadius: "10px",
+                                        backgroundColor: badge.earned
+                                          ? "rgba(52,211,153,0.08)"
+                                          : "rgba(59,158,255,0.08)",
+                                        border: `1px solid ${badge.earned ? "rgba(52,211,153,0.25)" : "rgba(59,158,255,0.25)"}`,
+                                      }}
+                                    >
+                                      {badge.earned ? (
+                                        <div
+                                          style={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: "0.5rem",
+                                          }}
+                                        >
+                                          <span style={{ fontSize: "1.1rem" }}>
+                                            🎉
+                                          </span>
+                                          <div>
+                                            <div
+                                              style={{
+                                                fontSize: "0.75rem",
+                                                fontWeight: "700",
+                                                color: "var(--accent-green)",
+                                                marginBottom: "0.1rem",
+                                              }}
+                                            >
+                                              Achievement Unlocked!
+                                            </div>
+                                            <div
+                                              style={{
+                                                fontSize: "0.72rem",
+                                                color: "var(--text-secondary)",
+                                                lineHeight: "1.4",
+                                              }}
+                                            >
+                                              You&apos;ve earned this badge.
+                                              Keep it up!
+                                            </div>
+                                          </div>
+                                        </div>
+                                      ) : (
+                                        <div
+                                          style={{
+                                            display: "flex",
+                                            alignItems: "flex-start",
+                                            gap: "0.5rem",
+                                          }}
+                                        >
+                                          <span
+                                            style={{
+                                              fontSize: "1rem",
+                                              marginTop: "0.05rem",
+                                            }}
+                                          >
+                                            💡
+                                          </span>
+                                          <div>
+                                            <div
+                                              style={{
+                                                fontSize: "0.7rem",
+                                                fontWeight: "700",
+                                                color: "var(--accent-blue)",
+                                                marginBottom: "0.2rem",
+                                                textTransform: "uppercase",
+                                                letterSpacing: "0.06em",
+                                              }}
+                                            >
+                                              How to earn
+                                            </div>
+                                            <div
+                                              style={{
+                                                fontSize: "0.78rem",
+                                                color: "var(--text-secondary)",
+                                                lineHeight: "1.5",
+                                              }}
+                                            >
+                                              {howTo}
+                                            </div>
+                                          </div>
+                                        </div>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    });
+                  })()}
+                </>
+              );
+            })()}
+          </div>
+        )}
+
+        {tab === "info" && (
+          <div style={{ display: "grid", gap: "0.5rem" }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginBottom: "0.25rem",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: "0.75rem",
+                  fontWeight: "700",
+                  color: "var(--accent-green)",
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                }}
+              >
+                Your Information
+              </div>
+              {!editing ? (
+                <button
+                  onClick={startEdit}
+                  style={{
+                    background: "rgba(59,158,255,0.12)",
+                    border: "1px solid rgba(59,158,255,0.3)",
+                    color: "var(--accent-blue)",
+                    borderRadius: "8px",
+                    padding: "0.3rem 0.85rem",
+                    fontSize: "0.75rem",
+                    fontWeight: "700",
+                    cursor: "pointer",
+                    letterSpacing: "0.04em",
+                  }}
+                >
+                  Edit
+                </button>
+              ) : (
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "0.5rem",
+                    alignItems: "center",
+                  }}
+                >
+                  {saveMsg && (
+                    <span
+                      role={saveMsg === "Saved!" ? "status" : "alert"}
+                      style={{
+                        fontSize: "0.75rem",
+                        color:
+                          saveMsg === "Saved!"
+                            ? "var(--accent-green)"
+                            : "var(--accent-red)",
+                        fontWeight: "600",
+                      }}
+                    >
+                      {saveMsg}
+                    </span>
+                  )}
+                  <button
+                    onClick={() => {
+                      setEditing(false);
+                      setSaveMsg("");
+                    }}
+                    disabled={saving}
+                    style={{
+                      background: "transparent",
+                      border: "1px solid var(--border-color)",
+                      color: "var(--text-muted)",
+                      borderRadius: "8px",
+                      padding: "0.3rem 0.75rem",
+                      fontSize: "0.75rem",
+                      fontWeight: "700",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <Button onClick={saveProfile} busy={saving} disabledReason="Waiting for the profile save response. Please wait.">{saving ? "Saving…" : "Save"}</Button>
+                </div>
+              )}
+            </div>
+
+            {/* Read-only fields */}
+            {[
+              { label: "Email", value: user.email },
+              { label: "Case Number", value: user.caseNumber },
+            ].map((field) => (
+              <div
+                key={field.label}
+                style={{
+                  backgroundColor: "rgba(15,25,35,0.04)",
+                  border: "1px solid var(--border-color)",
+                  borderRadius: "10px",
+                  padding: "0.65rem 1rem",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  opacity: 0.7,
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: "0.75rem",
+                    fontWeight: "600",
+                    color: "var(--text-muted)",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.05em",
+                  }}
+                >
+                  {field.label}
+                </div>
+                <div
+                  style={{
+                    fontSize: "0.85rem",
+                    fontWeight: "600",
+                    color: "var(--text-secondary)",
+                  }}
+                >
+                  {field.value || "N/A"}
+                </div>
+              </div>
+            ))}
+
+            {/* Editable fields */}
+            {[
+              {
+                label: "Full Name",
+                key: "fullName",
+                placeholder: "Your full name",
+              },
+              {
+                label: "Date of Birth",
+                key: "dateOfBirth",
+                placeholder: "MM/DD/YYYY",
+              },
+              {
+                label: "Phone",
+                key: "phone",
+                placeholder: "Your phone number",
+              },
+              { label: "City", key: "city", placeholder: "Your city" },
+              { label: "State", key: "state", placeholder: "Your state" },
+              {
+                label: "Zip Code",
+                key: "zipCode",
+                placeholder: "Your zip code",
+              },
+              {
+                label: "Emergency Contact",
+                key: "emergencyContactName",
+                placeholder: "Contact name",
+              },
+              {
+                label: "Emergency Phone",
+                key: "emergencyContactPhone",
+                placeholder: "Contact phone number",
+              },
+            ].map((field) => {
+              const key = field.key as keyof typeof editForm;
+              const currentValue = user[field.key as keyof UserProfile] as
+                | string
+                | null;
+              return (
+                <div
+                  key={field.key}
+                  data-profile-field
+                  style={{
+                    backgroundColor: editing
+                      ? "rgba(59,158,255,0.04)"
+                      : "var(--bg-card)",
+                    border: `1px solid ${editing ? "rgba(59,158,255,0.2)" : "var(--border-color)"}`,
+                    borderRadius: "10px",
+                    padding: "0.65rem 1rem",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: "0.75rem",
+                    transition: "all 0.2s",
+                  }}
+                >
+                  <label
+                    htmlFor={`profile-edit-${key}`}
+                    style={{
+                      fontSize: "0.75rem",
+                      fontWeight: "600",
+                      color: "var(--text-muted)",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.05em",
+                      flexShrink: 0,
+                    }}
+                  >
+                    {field.label}
+                  </label>
+                  {editing ? (
+                    <input
+                      id={`profile-edit-${key}`}
+                      value={editForm[key]}
+                      onChange={(e) =>
+                        setEditForm((f) => ({ ...f, [key]: e.target.value }))
+                      }
+                      placeholder={field.placeholder}
+                      style={{
+                        background: "transparent",
+                        border: "none",
+                        outline: "none",
+                        color: "var(--text-primary)",
+                        fontSize: "0.9rem",
+                        fontWeight: "600",
+                        textAlign: "right",
+                        flex: 1,
+                        fontFamily: "inherit",
+                      }}
+                    />
+                  ) : (
+                    <div
+                      style={{
+                        fontSize: "0.9rem",
+                        fontWeight: "600",
+                        color: currentValue
+                          ? "var(--text-primary)"
+                          : "var(--text-muted)",
+                      }}
+                    >
+                      {currentValue || "N/A"}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+
+            {!editing && saveMsg === "Saved!" && (
+              <div role="status"
+                style={{
+                  textAlign: "center",
+                  color: "var(--accent-green)",
+                  fontSize: "0.8rem",
+                  fontWeight: "600",
+                  marginTop: "0.25rem",
+                }}
+              >
+                ✓ Changes saved
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      <HelpButton />
+    </main>
+  );
+}

@@ -10,82 +10,105 @@ Learn 2 Earn is a mission-driven platform that rewards learners with small cash 
 
 The platform has three access layers:
 
-| Layer | Path | Audience |
-|---|---|---|
-| Investor / Partner landing page | `/` | City officials, funders, continuums of care |
-| Learner app | `/app` | Program participants (code-gated) |
-| Admin dashboard | `/admin` | Case workers, program managers, finance |
+| Layer                           | Path     | Audience                                    |
+| ------------------------------- | -------- | ------------------------------------------- |
+| Investor / Partner landing page | `/`      | City officials, funders, continuums of care |
+| Learner app                     | `/app`   | Program participants (code-gated)           |
+| Admin dashboard                 | `/admin` | Case workers, program managers, finance     |
 
 ---
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Framework | [Next.js 15](https://nextjs.org/) (App Router) |
-| Language | TypeScript |
-| ORM | [Prisma 6](https://www.prisma.io/) |
-| Database | PostgreSQL |
-| Styling | CSS Modules + global CSS |
-| Auth | Cookie-based sessions, bcrypt |
+| Layer      | Technology                                                  |
+| ---------- | ----------------------------------------------------------- |
+| Framework  | [Next.js 15](https://nextjs.org/) (App Router)              |
+| Language   | TypeScript                                                  |
+| ORM        | [Prisma 6](https://www.prisma.io/)                          |
+| Database   | PostgreSQL                                                  |
+| Styling    | CSS Modules + global CSS                                    |
+| Auth       | Cookie-based sessions, bcrypt                               |
 | Deployment | Any Node.js-compatible host (Vercel, Railway, Render, etc.) |
 
 ---
 
+## Release review
+
+[Current release-readiness report](docs/release-readiness.md): **no-go for deployment/live pilot** until the listed build, integration, migration/restore, dependency and operational blockers close. `npm run test:release:public` adds public four-width/keyboard/offline and native image smoke checks; it does not replace authenticated suites.
+
+## Upgrade plan and verified baseline
+
+See the [current architecture and route inventory](docs/current-architecture.md), [staged upgrade checklist](docs/upgrade-plan.md), [baseline evidence](docs/upgrade-baseline.md), and [stage status](docs/upgrade-status.md) before starting improvement work. The baseline records known setup-documentation differences below.
+
+## Design system
+
+[Design conventions and development workshop](docs/design-system/README.md) · [Browser screenshots](docs/design-system/screenshots/README.md) · [Verification and limits](docs/design-system/verification.md). Representative migrations cover learner paths and the staff services directory; remaining routes migrate separately.
+
+## Learner access and onboarding
+
+[Journey, session safety and rollout](docs/learner-journey/README.md) · [Browser evidence](docs/learner-journey/screenshots/README.md). Program invitations lead to minimal signup, two short welcome steps or explicit guest exploration. Identity and guest association come from server sessions. No localStorage flag proves login. Recovery delivery is unconfigured, so `/recover` gives honest staff-assisted instructions and sends nothing. Apply the additive learner-session migration before running this version; see DEPLOYMENT.md. Learn/Practice/Rewards/Profile/Help navigation uses real routes.
+
+## Learning progression
+
+[State/data conventions and rollout](docs/learning-progression/README.md) · [Browser evidence](docs/learning-progression/screenshots/README.md) · [Verification](docs/learning-progression/verification.md). Home prioritizes a real next lesson, optional daily goal and My paths. Visual and linear lesson lists share the same published content and actions; opening a lesson never awards XP. Apply the additive preference/visit migration after the secure-session migration before running this version.
+
+## Lessons and Practice
+
+[Server lesson engine, review rules and rollout](docs/lesson-flow/README.md) · [Card inventory](docs/lesson-flow/card-inventory.md) · [Browser evidence](docs/lesson-flow/screenshots/README.md) · [Verification](docs/lesson-flow/verification.md). Checked answers and position resume across devices. Completion and XP are atomic and derive from server evidence; repeat practice never adds monetary credit. Practice includes missed-question review, topics and explained 1/3/7/14-day scheduling. Daily goals/streaks use a saved timezone, then optional `PROGRAM_TIMEZONE`, then UTC. Apply the additive attempt/review migration before running this version. `npm run audit:cards` validates authored formats without a database; `npm run test:lesson` runs the real browser lesson/practice sequence in an isolated database.
+
+## Reward accounting and manual payments
+
+[Audited rules, ledger and state machine](docs/reward-accounting/README.md) · [Baseline findings](docs/reward-accounting/audit.md) · [Verification and exact files](docs/reward-accounting/verification.md) · [Browser evidence](docs/reward-accounting/screenshots/README.md). Rewards uses one versioned program contract, exact cents and audited XP reservations; approvals are distinct from recorded payments. Financial program assignment is separate from editable contact city. Apply the additive accounting migration and complete the explicit hash-reviewed legacy reconciliation **before enabling financial writes**. No build/start command performs a backfill, sends money or silently repairs history. See DEPLOYMENT.md for gates and rollback restrictions.
+
+## Program boundaries and staff operations
+
+[Program authorization, permission matrix, MFA and reviewed legacy mapping](docs/program-boundaries/README.md) · [Staff workflow conventions and route close-out](docs/staff-operations/README.md). Staff must complete MFA and select an active authorized program. Existing staff roles receive no automatic organization-wide grant. City names/subdomains do not authorize access. Program-scoped queues, versioned case workflows, participant detail, bounded tables and defined aggregate reports use the shared design system. The two additive migrations and explicit ownership review are release gates; this is not a multi-organization production-readiness claim.
+
 ## Getting Started
 
-### Prerequisites
-
-- Node.js 20+
-- PostgreSQL 14+ (local or hosted)
-- `npm` or `pnpm`
-
-### Installation
+Use Node.js 24 (the CI runtime), npm and PostgreSQL 14+. Retain `package-lock.json`.
 
 ```bash
-git clone https://github.com/mytruealias/learn-2-earn.git
-cd learn-2-earn
-npm install
-```
-
-### Environment variables
-
-Copy `.env.example` to `.env` and fill in the values:
-
-```bash
+npm ci --include=dev
+npm run prisma:generate
 cp .env.example .env
 ```
 
-Required variables:
+Fill `.env` privately with `DATABASE_URL`, a strong `SESSION_SECRET`, and your desired `DEMO_ACCESS_CODE`. City proposals use `AUSTIN_ACCESS_PIN` / `CITY_ACCESS_PIN`. Optional AI and Stripe bindings are described in [deployment guidance](DEPLOYMENT.md). Do not commit filled environment files or print credentials.
 
-```
-DATABASE_URL      PostgreSQL connection string
-SESSION_SECRET    Long random string for signing session tokens
-DEMO_ACCESS_CODE  Learner app access code (default: LEARN2EARN)
-ADMIN_USERNAME    Initial admin account username
-ADMIN_PASSWORD    Initial admin account password
-```
-
-### Database setup
+For a **new local development database only**, set DATABASE_URL to that loopback database, then explicitly confirm its name:
 
 ```bash
-# Apply migrations
-npx prisma migrate deploy
-
-# Seed curriculum content
-npx ts-node prisma/seed.ts
-
-# Seed admin user
-npx ts-node prisma/seed-admin.ts
-```
-
-### Run in development
-
-```bash
+npm run db:prepare-dev -- --confirm-database your_local_database
+npm run release:content -- --confirm-database your_local_database
 npm run dev
 ```
 
-The app will be available at `http://localhost:3000`.
+The application binds **0.0.0.0:5000**. `db:prepare-dev` is a non-production, loopback schema push with no reset or data-loss acceptance; it must not replace production migrations. The tracked migrations lack the original initial schema, so a completely fresh production database requires the verified baseline procedure in DEPLOYMENT.md.
+
+### Build and release are separate
+
+```bash
+npm run lint
+npm run build
+npm run typecheck
+npm start
+```
+
+`build` generates Prisma client and runs Next with an unreachable build-only database binding and provider/bootstrap bindings disabled. It performs no migration, history repair, content synchronization or admin provisioning. Lint/type errors are no longer suppressed during Next build. `start` only starts the built server on 0.0.0.0:5000 using runtime settings.
+
+Database changes require an operator-reviewed target, a tested backup/restore plan, and separate explicit commands:
+
+| Command                                                                        | Effect                                                                                                                                                 |
+| ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `npm run release:migrate -- --confirm-database reviewed_database_name`         | Apply tracked migrations to a verified existing migration baseline; no seeds/repair                                                                    |
+| `npm run release:content -- --confirm-database reviewed_database_name`         | Insert missing curriculum/slots; preserve existing content, IDs, rewards, user progress and payment history                                            |
+| `npm run release:bootstrap-admin -- --confirm-database reviewed_database_name` | Create first admin only when **no staff rows exist**; requires `ADMIN_BOOTSTRAP_EMAIL` and `ADMIN_DEFAULT_PASSWORD` (16+ characters) supplied securely |
+| `npm run recovery:inspect`                                                     | Read-only status of the historic init migration; never changes migration history                                                                       |
+
+Do not set bootstrap variables in ordinary build/start settings; remove them immediately after deliberate first provisioning. Existing staff must be managed through authenticated staff management or a separately reviewed recovery procedure. Content sync does not overwrite existing metadata or rewards; corrections to existing content require an explicit reviewed backfill. No payout-rate change occurs here.
+
+See [the release runbook](DEPLOYMENT.md) for development/deployment settings, migration sequencing, recovery prerequisites and rollback compatibility. Replit's actual configuration is not present in this checkout; verify its selected commands before deploying. No deployment was performed by this change.
 
 ---
 
@@ -113,15 +136,17 @@ The app will be available at `http://localhost:3000`.
 
 ## Curriculum
 
-11 learning journeys — 139 lessons:
+The seed sources define learning journeys across life skills and recovery. Measure current lesson/card counts from those sources rather than this list or the curriculum snapshot:
 
 **Life Skills**
+
 - Stability Basics
 - Survival & Systems
 - Building Your Future
 - Financial Literacy
 
 **Addiction & Recovery**
+
 - Foundations of Recovery
 - Harm Reduction & Safety
 - Treatment & Recovery Navigation
@@ -129,13 +154,13 @@ The app will be available at `http://localhost:3000`.
 - Substance-Specific Safety
 - Supporter & Family Skills
 
-All content is trauma-informed and written at a 6th-grade reading level.
+Curriculum aims for plain adult language. Sensitive recovery content requires qualified human review before a pilot; structural card checks do not establish clinical approval or a verified reading level.
 
 ---
 
 ## Incentive System
 
-Learners earn XP for completing lessons. XP converts to cash at a configurable rate (default: $1 = 3 XP). Payout requests flow through an admin approval workflow before disbursement.
+Learners earn XP for completing lessons. XP converts to cash at a configurable rate (fallback: $0.05 per XP; active program configuration takes precedence). Payout requests flow through an admin approval workflow before disbursement.
 
 ---
 
@@ -145,75 +170,45 @@ The admin panel (`/admin`) provides:
 
 - **User management** — view accounts, XP balances, enrollment status
 - **Payout workflow** — review, approve, or reject payout requests
-- **Audit log** — immutable record of all admin actions
+- **Audit log** — program-scoped history of recorded staff actions
 
-Role levels: `admin`, `caseworker`, `finance`.
+Program membership roles: `program_admin`, `caseworker`, `finance`. Historical `AdminUser.role` is preserved but grants no runtime program access. The compatibility API label `admin` means the selected membership is a program administrator. Staff sign-in includes required MFA; see the permission matrix above.
 
 ---
 
 ## Running the tests
 
-The project ships with two test suites:
-
-| Suite | Tooling | Scope |
-|---|---|---|
-| API integration tests | [Vitest](https://vitest.dev/) | Calls Next.js route handlers directly against a dedicated Postgres test DB |
-| End-to-end tests | [Playwright](https://playwright.dev/) | Drives a Next.js server (spawned by Playwright) over real HTTP against the dedicated test DB |
-
-Both suites use the **same dedicated test database** (`DATABASE_URL_TEST`) and never touch the dev DB.
-
-### One-time setup
-
-1. Create a separate, throw-away Postgres database for tests. The database **name** (URL path) must contain the word `test` — the runner refuses to wipe a DB that doesn't look like a test DB.
-2. Copy the example env file and fill it in:
-   ```bash
-   cp .env.test.example .env.test
-   # edit DATABASE_URL_TEST (required), and DATABASE_URL (optional — see below)
-   ```
-   `.env.test` is loaded automatically by both Vitest and Playwright.
-3. (Optional) If you also set `DATABASE_URL` in `.env.test` to the same test DB, the Playwright-spawned Next server will use it directly. Otherwise Playwright passes `DATABASE_URL_TEST` through as `DATABASE_URL` for the spawned server.
-
-The API test runner resets the test database (`prisma db push --force-reset`) at the start of every Vitest run; the Playwright global setup does the same and seeds lessons + recovery content. Both refuse to run if the DB name doesn't contain `test`.
-
-### Commands
+The harness provisions a **new database and restricted role for each suite** on a local PostgreSQL instance. It never resets a pre-existing application database. Test fixtures and reset commands require matching injected bindings, a random server-side capability marker, verified database ownership and a role without superuser/CREATE DATABASE/CREATE ROLE privileges. A name containing `test` is not enough. Remote database targets and remote/pre-existing HTTP servers are refused.
 
 ```bash
-npm run test:api        # Vitest API tests (default part of `npm test`)
-npm run test:api:watch  # Vitest in watch mode
-npm run test:e2e        # Playwright e2e — spawns its own Next server on port 5050
-                        # against the test DB, with an isolated `.next-e2e` build dir
-npm test                # API tests + e2e
-npm run test:e2e:ui     # Browser-driven e2e (e2e/admin.spec.ts) — requires Chromium
-                        # system libraries (libglib2.0 etc.) to be installed
-npm run test:all        # Everything above
+cp .env.test.example .env.test
+# Privately configure TEST_DATABASE_ADMIN_URL for local /postgres with provisioning permissions.
+npx playwright install chromium
+npm test
 ```
 
-The e2e specs in `npm run test:e2e` (`city-pin`, `learner-flow`, `payout-approval`) use Playwright's `APIRequestContext` (no browser launch), so they run anywhere Node + Postgres are available. The legacy browser-driven admin suite is kept under `test:e2e:ui` for environments with a real browser.
+`.env.test` supplies only the maintenance connection used to create/drop fresh databases/roles and an optional `PLAYWRIGHT_CHROMIUM_EXECUTABLE` path. It cannot override the child suite's isolated application bindings. No production credentials are required. For a preinstalled browser, export `PLAYWRIGHT_CHROMIUM_EXECUTABLE` with its local executable path. The bundled Playwright browser is the CI default.
 
-### What's covered
+| Command                    | Scope                                                                                                                                   |
+| -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run test:unit`        | Pure logic/security checks, including MFA cryptography; no database connection or generated client needed |
+| `npm run test:api`         | API integration + release safety tests on a fresh isolated DB                                                                           |
+| `npm run test:api:watch`   | Same isolated API database retained only for that watch session                                                                         |
+| `npm run test:e2e`         | Existing HTTP city/learner/payout tests; local server port 5050 and `.next-e2e` output                                                  |
+| `npm run test:browser`     | Actual Chromium: responsive public page, learner UI login/path/lesson, staff UI login/dashboard                                         |
+| `npm run test:design`      | Actual Chromium + axe: design states, real CRUD/progress, keyboard, contrast, reflow and touch targets                                  |
+| `npm run test:journey`     | Actual Chromium: invitation/signup/login/onboarding/home/logout, signed guest association, expiry and interruption recovery             |
+| `npm run test:progression` | Actual Chromium: next lesson, both path views, all lesson/program states, selections/goals and navigation without XP                    |
+| `npm run test:staff`       | Real staff MFA, scoped routes, pagination/exports and concurrent workflow browser checks                                                |
+| `npm run test:support`     | Human help, unavailable/interrupted mocked AI, idempotent intake/reload and real staff acknowledgment/settings                          |
+| `npm test`                 | Unit → API → HTTP → browser smoke → design → learner journey → progression → lessons/Practice → rewards → staff → support, sequentially |
+| `npm run test:e2e:ui`      | Preserved legacy command now runs the real synthetic staff/reward browser suites, including MFA and role checks                         |
 
-- `tests/api/auth.test.ts` — register / login / session including duplicate-email, bad password, invalid JSON, tampered cookie
-- `tests/api/payout.test.ts` — auth gate, supported payment methods, balance + weekly cap, body/session userId mismatch
-- `tests/api/progress.test.ts` — XP award, idempotent re-completion, unknown lesson, session mismatch
-- `tests/api/admin-login.test.ts` — wrong credentials, audit log writes on success and failure
-- `tests/api/city-access.test.ts` — wrong PIN, correct PIN, per-IP+city lockout after 10 wrong attempts, different-IP isolation
-- `tests/api/access.test.ts` — demo gate code (case-insensitive), 15-attempt lockout
-- `e2e/city-pin.spec.ts` — deterministic PIN lockout, correct-PIN cookie issuance, landing CTA via SSR HTML
-- `e2e/learner-flow.spec.ts` — demo gate → register → complete real seeded lesson → totalXp visible via session API
-- `e2e/payout-approval.spec.ts` — register learner, submit payout, admin login, review → approve transitions, payout reflected in admin list
-- `e2e/admin.spec.ts` (browser-only, `test:e2e:ui`) — admin dashboard UI flows
-
----
+The harness drops only the resources it created on exit and preserves suite failure status. Separate invocations use separate random databases. If a machine/process is forcibly killed, remove only verified orphan resources from that run; never point cleanup at the development DB. The former legacy suite's missing-fixture and swallowed-assertion branches are replaced by the current staff/reward flows; they fail on missing controls or wrong results.
 
 ## Deployment
 
-The app runs on any Node.js host. Ensure the following before deploying to production:
-
-1. `DATABASE_URL` points to a production PostgreSQL instance
-2. `SESSION_SECRET` is a strong, unique secret (not shared with dev)
-3. `DEMO_ACCESS_CODE` is set to your desired access code
-4. Run `npx prisma migrate deploy` after each release
-5. Set `ALLOWED_DEV_ORIGINS` to blank (not needed in production)
+[DEPLOYMENT.md](DEPLOYMENT.md) is the release/recovery runbook. [GitHub CI](.github/workflows/checks.yml) uses an ephemeral PostgreSQL 17 service, fresh restricted suite roles, no repository/production secrets, and independent lint/type/build/test gates. The existing Replit runtime remains the hosting target. A passing CI check does not authorize deployment or prove live Replit settings.
 
 ---
 
@@ -222,3 +217,25 @@ The app runs on any Node.js host. Ensure the following before deploying to produ
 Copyright © 2025 Learn 2 Earn. All rights reserved.
 
 This software is proprietary and confidential. Unauthorized copying, distribution, or use is strictly prohibited.
+
+### Hubert and human help
+
+Public `/lifeline` and Help keep human contacts available without AI, account access or lesson completion. Optional Hubert chat/cloud voice are gated behind a recorded, qualified policy review; program intake defaults off until the actual team and monitoring schedule are configured under staff security. Requests are scoped stored cases with explicit optional location consent, retry keys and genuine staff acknowledgment. Saving is not notification or emergency dispatch. Read the [support runbook, privacy limits and outstanding human review](docs/hubert-support/README.md) before enabling either service. No live provider or private conversation is used in tests; `npm run test:support` exercises synthetic browser flows. [Latest verification and exact changed files](docs/hubert-support/verification.md).
+
+Cloud verification note (2026-11-01 UTC): the final clean dependency install succeeded, but the workspace proxy blocked Prisma engine checksum downloads. Current runtime/client regeneration, final build and post-install type check require that network prerequisite; see the [exact verification record](docs/hubert-support/verification.md). Saved setup/network instructions require review/publication and were not applied to runtime. Do not ignore engine checksums.
+
+## Partner website and inquiry queue
+
+The public site describes supported adult learning and program oversight, with fictional product previews using the real lesson renderer and staff table. No published totals are inferred from seeds; live active curriculum supplies them, with an explicitly unavailable fallback. [Claims, route close-out and operations](docs/partner-website/README.md) explain what is implemented and what remains unverified.
+
+`npm run test:marketing` runs public contract tests and isolated Chromium checks without participant records, production credentials, provider calls or database resets. Its acknowledged inquiry UI receipt is synthetic; actual persistence/concurrency/role tests are in the guarded API suite. See [current verification](docs/partner-website/verification.md) for results and infrastructure limits.
+
+Partner inquiries default off. Enable only after the additive inquiry migration and staffing/privacy review, using the four private `PARTNER_INQUIRY_*` names in [.env.example](.env.example). The server stores a consentful receipt in `/admin/inquiries` for the configured program's authorized administrators; it sends no email or calendar booking. No hardcoded public mailbox or fake delivery is used. `NEXT_PUBLIC_SITE_URL` must be a verified HTTPS origin matching `ROOT_DOMAIN` when both are set; invalid/missing configuration withholds indexing/canonical claims. No domain or deployment change is included.
+
+## Accessibility, resilience and operational checks
+
+[Current audit, every route/state and verification](docs/accessibility-reliability/README.md) replace historical accessibility checkmarks with explicit observed/source-reviewed/blocked status. The platform targets WCAG 2.2 AA; automated scores, Chromium accessibility-tree inspection and text reflow are not platform screen-reader/native-zoom certification.
+
+`npm run test:reliability` runs bounded transport/redaction/query contracts and actual isolated public/degraded Chromium checks. It uses no production records/providers; staff responses are explicitly synthetic. `npm run test:performance` uses the guarded disposable database harness and a fresh **safe production build**, with throttled mobile conditions, realistic synthetic fixtures and no external browser origins. [Current lab status](docs/accessibility-reliability/lab/README.md) is blocked by Prisma checksum access; no field-performance numbers are claimed.
+
+Apply the additive `20261102000000_http_rate_limits` after the inquiry migration before enabling this version’s access/login/PIN/guest endpoints. They use shared PostgreSQL admission; unavailable storage fails closed, never falls back to process memory. Review trusted ingress headers and retention/cleanup. `/api/health/live` and `/api/health/ready` separate process liveness from generic configuration/core-schema readiness without exposing values. Optional first-party technical error reports default off; `OPERATIONAL_TELEMETRY_ENABLED` must be reviewed at build/runtime. Error logs contain allowlisted codes/templates and opaque references, not personal content or raw exceptions. Read the runbook for precise guarantees and host-log limits. No service worker, offline money, automatic financial replay, notification provider or deployment was introduced.

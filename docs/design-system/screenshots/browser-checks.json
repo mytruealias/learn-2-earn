@@ -1,0 +1,86 @@
+[
+  {
+    "screen": "showcase",
+    "width": 360,
+    "axeViolations": 0,
+    "targetsAtLeast44": true,
+    "noOverflow": true
+  },
+  {
+    "screen": "learner-path",
+    "width": 360,
+    "axeViolations": 0,
+    "targetsAtLeast44": true,
+    "noOverflow": true
+  },
+  {
+    "screen": "staff-directory",
+    "width": 360,
+    "axeViolations": 0,
+    "targetsAtLeast44": true,
+    "noOverflow": true
+  },
+  {
+    "screen": "all-three",
+    "width": 360,
+    "rootTextSize": "200%",
+    "axeViolations": 0,
+    "noOverflow": true
+  },
+  {
+    "screen": "showcase",
+    "width": 768,
+    "axeViolations": 0,
+    "targetsAtLeast44": true,
+    "noOverflow": true
+  },
+  {
+    "screen": "learner-path",
+    "width": 768,
+    "axeViolations": 0,
+    "targetsAtLeast44": true,
+    "noOverflow": true
+  },
+  {
+    "screen": "staff-directory",
+    "width": 768,
+    "axeViolations": 0,
+    "targetsAtLeast44": true,
+    "noOverflow": true
+  },
+  {
+    "screen": "all-three",
+    "width": 768,
+    "rootTextSize": "200%",
+    "axeViolations": 0,
+    "noOverflow": true
+  },
+  {
+    "screen": "showcase",
+    "width": 1440,
+    "axeViolations": 0,
+    "targetsAtLeast44": true,
+    "noOverflow": true
+  },
+  {
+    "screen": "learner-path",
+    "width": 1440,
+    "axeViolations": 0,
+    "targetsAtLeast44": true,
+    "noOverflow": true
+  },
+  {
+    "screen": "staff-directory",
+    "width": 1440,
+    "axeViolations": 0,
+    "targetsAtLeast44": true,
+    "noOverflow": true
+  },
+  {
+    "screen": "all-three",
+    "width": 1440,
+    "rootTextSize": "200%",
+    "axeViolations": 0,
+    "noOverflow": true
+  }
+]

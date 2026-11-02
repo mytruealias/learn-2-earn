@@ -1,0 +1,7 @@
+.profile { min-width: 0; background: var(--l2e-canvas); }
+.profile :is(button, a, input) { min-height: 44px; }
+.profile button { min-width: 44px; }
+.profile input { max-width: 100%; min-width: 0; }
+.profile [data-profile-field] { flex-wrap: wrap; }
+.profile [data-profile-field] label { flex-shrink: 1 !important; }
+@media (prefers-reduced-motion: reduce) { .profile *, .profile *::before, .profile *::after { animation: none !important; transition: none !important; } }

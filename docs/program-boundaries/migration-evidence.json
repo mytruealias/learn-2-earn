@@ -1,0 +1,25 @@
+{
+  "supportEvidenceBlocked": true,
+  "unauthorizedAckBlocked": true,
+  "authorizedAckRecorded": true,
+  "exactMigrationNames": [
+    "20261027040000_program_boundaries",
+    "20261029000000_staff_workflows",
+    "20261101000000_support_integrity"
+  ],
+  "source": "nonce-attested disposable PostgreSQL",
+  "exactAdditiveSqlApplied": true,
+  "automaticMemberships": 0,
+  "automaticEnrollments": 0,
+  "reviewedEnrollments": 1,
+  "lifetimeXpBefore": 77,
+  "lifetimeXpAfter": 77,
+  "recordedFloatBefore": 1.005,
+  "recordedFloatAfter": 1.005,
+  "exactCentsNotRepriced": true,
+  "remainingAssignments": 0,
+  "ownerChangeBlocked": true,
+  "idempotentAuditCount": 1,
+  "transactionRolledBack": true,
+  "originalRowsPreserved": true
+}

@@ -1,0 +1,198 @@
+[
+  {
+    "screen": "access",
+    "width": 360,
+    "axeViolations": 0,
+    "targetsAtLeast44": true,
+    "noOverflow": true
+  },
+  {
+    "screen": "signup",
+    "width": 360,
+    "axeViolations": 0,
+    "targetsAtLeast44": true,
+    "noOverflow": true
+  },
+  {
+    "screen": "welcome",
+    "width": 360,
+    "axeViolations": 0,
+    "targetsAtLeast44": true,
+    "noOverflow": true
+  },
+  {
+    "screen": "privacy-pace",
+    "width": 360,
+    "axeViolations": 0,
+    "targetsAtLeast44": true,
+    "noOverflow": true
+  },
+  {
+    "screen": "learner-home",
+    "width": 360,
+    "axeViolations": 0,
+    "targetsAtLeast44": true,
+    "noOverflow": true
+  },
+  {
+    "screen": "learner-home",
+    "width": 360,
+    "rootTextSize": "200%",
+    "axeViolations": 0,
+    "noOverflow": true
+  },
+  {
+    "screen": "signed-out",
+    "width": 360,
+    "axeViolations": 0,
+    "targetsAtLeast44": true,
+    "noOverflow": true
+  },
+  {
+    "screen": "access",
+    "width": 768,
+    "axeViolations": 0,
+    "targetsAtLeast44": true,
+    "noOverflow": true
+  },
+  {
+    "screen": "signup",
+    "width": 768,
+    "axeViolations": 0,
+    "targetsAtLeast44": true,
+    "noOverflow": true
+  },
+  {
+    "screen": "welcome",
+    "width": 768,
+    "axeViolations": 0,
+    "targetsAtLeast44": true,
+    "noOverflow": true
+  },
+  {
+    "screen": "privacy-pace",
+    "width": 768,
+    "axeViolations": 0,
+    "targetsAtLeast44": true,
+    "noOverflow": true
+  },
+  {
+    "screen": "learner-home",
+    "width": 768,
+    "axeViolations": 0,
+    "targetsAtLeast44": true,
+    "noOverflow": true
+  },
+  {
+    "screen": "learner-home",
+    "width": 768,
+    "rootTextSize": "200%",
+    "axeViolations": 0,
+    "noOverflow": true
+  },
+  {
+    "screen": "signed-out",
+    "width": 768,
+    "axeViolations": 0,
+    "targetsAtLeast44": true,
+    "noOverflow": true
+  },
+  {
+    "screen": "access",
+    "width": 1440,
+    "axeViolations": 0,
+    "targetsAtLeast44": true,
+    "noOverflow": true
+  },
+  {
+    "screen": "signup",
+    "width": 1440,
+    "axeViolations": 0,
+    "targetsAtLeast44": true,
+    "noOverflow": true
+  },
+  {
+    "screen": "welcome",
+    "width": 1440,
+    "axeViolations": 0,
+    "targetsAtLeast44": true,
+    "noOverflow": true
+  },
+  {
+    "screen": "privacy-pace",
+    "width": 1440,
+    "axeViolations": 0,
+    "targetsAtLeast44": true,
+    "noOverflow": true
+  },
+  {
+    "screen": "learner-home",
+    "width": 1440,
+    "axeViolations": 0,
+    "targetsAtLeast44": true,
+    "noOverflow": true
+  },
+  {
+    "screen": "learner-home",
+    "width": 1440,
+    "rootTextSize": "200%",
+    "axeViolations": 0,
+    "noOverflow": true
+  },
+  {
+    "screen": "signed-out",
+    "width": 1440,
+    "axeViolations": 0,
+    "targetsAtLeast44": true,
+    "noOverflow": true
+  },
+  {
+    "screen": "guest-home",
+    "width": 360,
+    "axeViolations": 0,
+    "targetsAtLeast44": true,
+    "noOverflow": true
+  },
+  {
+    "screen": "expired-session",
+    "width": 360,
+    "axeViolations": 0,
+    "targetsAtLeast44": true,
+    "noOverflow": true
+  },
+  {
+    "screen": "interrupted-signup",
+    "width": 360,
+    "axeViolations": 0,
+    "targetsAtLeast44": true,
+    "noOverflow": true
+  },
+  {
+    "screen": "account-recovery",
+    "width": 360,
+    "axeViolations": 0,
+    "targetsAtLeast44": true,
+    "noOverflow": true
+  },
+  {
+    "screen": "session-read-error",
+    "width": 360,
+    "axeViolations": 0,
+    "targetsAtLeast44": true,
+    "noOverflow": true
+  },
+  {
+    "screen": "guest-signout",
+    "width": 360,
+    "axeViolations": 0,
+    "targetsAtLeast44": true,
+    "noOverflow": true
+  },
+  {
+    "screen": "shared-device-reset",
+    "width": 360,
+    "axeViolations": 0,
+    "targetsAtLeast44": true,
+    "noOverflow": true
+  }
+]

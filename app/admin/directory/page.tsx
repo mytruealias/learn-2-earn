@@ -1,368 +1,285 @@
 "use client";
-
-import { useState, useEffect, useCallback, useRef } from "react";
-import styles from "./directory.module.css";
-
-interface ServiceEntry {
-  id: string;
-  name: string;
-  category: string;
-  address: string | null;
-  phone: string | null;
-  hours: string | null;
-  notes: string | null;
-  website: string | null;
-}
-
-const CATEGORIES = ["Shelter", "Food", "Healthcare", "Legal", "Recovery", "Employment", "Crisis Line"];
-
-const CATEGORY_EMOJI: Record<string, string> = {
-  Shelter: "🏠",
-  Food: "🍽️",
-  Healthcare: "🏥",
-  Legal: "⚖️",
-  Recovery: "💚",
-  Employment: "💼",
-  "Crisis Line": "🚨",
+import { useRef, useState } from "react";
+import { StaffCollection, type StaffRow } from "../components/StaffTable";
+import { useAdmin } from "../AdminContext";
+import { staffFetch } from "@/lib/staff-fetch";
+import { Alert, Button, Dialog } from "@/app/components/ui";
+import styles from "../components/staff.module.css";
+const blank = {
+  name: "",
+  category: "Shelter",
+  address: "",
+  phone: "",
+  hours: "",
+  notes: "",
+  website: "",
 };
-
-const EMPTY_FORM = {
-  name: "", category: "Shelter", address: "", phone: "", hours: "", notes: "", website: "",
-};
-
-function CopyBtn({ value, label }: { value: string; label: string }) {
-  const [copied, setCopied] = useState(false);
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const copy = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    navigator.clipboard.writeText(value).then(() => {
-      setCopied(true);
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-      timeoutRef.current = setTimeout(() => setCopied(false), 1500);
-    });
-  };
-  return (
-    <button
-      onClick={copy}
-      title={`Copy ${label}`}
-      style={{
-        background: "none",
-        border: "none",
-        cursor: "pointer",
-        padding: "1px 4px",
-        borderRadius: "var(--adm-radius-sm)",
-        fontSize: "0.7rem",
-        color: copied ? "var(--adm-green)" : "var(--adm-dim)",
-        fontFamily: "inherit",
-        transition: "color 0.15s",
-        flexShrink: 0,
-      }}
-    >
-      {copied ? "✓" : "⎘"}
-    </button>
-  );
-}
-
-export default function AdminDirectoryPage() {
-  const [entries, setEntries] = useState<ServiceEntry[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("all");
-  const [modal, setModal] = useState<null | "add" | "edit">(null);
-  const [editTarget, setEditTarget] = useState<ServiceEntry | null>(null);
-  const [form, setForm] = useState(EMPTY_FORM);
-  const [saving, setSaving] = useState(false);
-
-  const fetchEntries = useCallback(async () => {
-    setLoading(true);
-    const params = new URLSearchParams();
-    if (categoryFilter !== "all") params.set("category", categoryFilter);
-    if (search.trim()) params.set("search", search.trim());
-    const res = await fetch(`/api/admin/directory?${params}`, { credentials: "include" });
-    const data = await res.json();
-    if (data.ok) setEntries(data.entries);
-    setLoading(false);
-  }, [search, categoryFilter]);
-
-  useEffect(() => { fetchEntries(); }, [fetchEntries]);
-
-  const openAdd = () => {
-    setForm(EMPTY_FORM);
-    setEditTarget(null);
-    setModal("add");
-  };
-
-  const openEdit = (entry: ServiceEntry) => {
-    setEditTarget(entry);
-    setForm({
-      name: entry.name,
-      category: entry.category,
-      address: entry.address || "",
-      phone: entry.phone || "",
-      hours: entry.hours || "",
-      notes: entry.notes || "",
-      website: entry.website || "",
-    });
-    setModal("edit");
-  };
-
-  const handleSave = async () => {
-    if (!form.name.trim()) return;
-    setSaving(true);
-    const body = {
-      name: form.name.trim(),
-      category: form.category,
-      address: form.address.trim() || null,
-      phone: form.phone.trim() || null,
-      hours: form.hours.trim() || null,
-      notes: form.notes.trim() || null,
-      website: form.website.trim() || null,
-    };
-    const res = modal === "edit" && editTarget
-      ? await fetch(`/api/admin/directory/${editTarget.id}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify(body),
-        })
-      : await fetch("/api/admin/directory", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify(body),
-        });
-    if (res.ok) {
+export default function Page() {
+  const { admin } = useAdmin(),
+    [refresh, setRefresh] = useState(0),
+    [target, setTarget] = useState<StaffRow | null>(null),
+    [modal, setModal] = useState<"add" | "edit" | "remove" | null>(null),
+    [form, setForm] = useState(blank),
+    [error, setError] = useState(""),
+    [message, setMessage] = useState(""),
+    [busy, setBusy] = useState(false),
+    [key, setKey] = useState(""),
+    lock = useRef(false),
+    retry = useRef<object | null>(null),
+    canEdit = admin?.role !== "finance";
+  function open(action: "add" | "edit" | "remove", row?: StaffRow) {
+    setTarget(row || null);
+    setModal(action);
+    setError("");
+    setKey(crypto.randomUUID());
+    retry.current = null;
+    setForm(
+      row
+        ? (Object.fromEntries(
+            Object.keys(blank).map((k) => [k, String(row[k] ?? "")]),
+          ) as typeof blank)
+        : blank,
+    );
+  }
+  async function save() {
+    if (!modal || lock.current) return;
+    lock.current = true;
+    setBusy(true);
+    setError("");
+    try {
+      const body = retry.current || {
+        requestKey: key,
+        ...(target ? { expectedVersion: target.version } : {}),
+        ...(modal !== "remove"
+          ? Object.fromEntries(
+              Object.entries(form).map(([k, v]) => [
+                k,
+                ["name", "category"].includes(k) ? v.trim() : v.trim() || null,
+              ]),
+            )
+          : {}),
+      };
+      retry.current = body;
+      const r = await staffFetch(
+          target ? `/api/admin/directory/${target.id}` : "/api/admin/directory",
+          {
+            method:
+              modal === "remove"
+                ? "DELETE"
+                : modal === "edit"
+                  ? "PATCH"
+                  : "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+          },
+        ),
+        d = await r.json();
+      if (!r.ok)
+        throw new Error(
+          d.error?.message || "Service change could not be confirmed.",
+        );
       setModal(null);
-      fetchEntries();
+      setMessage(
+        modal === "remove"
+          ? "Service removed from the active directory. Historical records remain."
+          : "Service saved and audited.",
+      );
+      setRefresh((v) => v + 1);
+      retry.current = null;
+    } catch (e) {
+      setError(
+        e instanceof Error
+          ? e.message
+          : "Connection interrupted. Retry unchanged details, or reload the directory to verify.",
+      );
+    } finally {
+      lock.current = false;
+      setBusy(false);
     }
-    setSaving(false);
-  };
-
-  const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`Remove "${name}" from the directory?`)) return;
-    await fetch(`/api/admin/directory/${id}`, {
-      method: "DELETE",
-      credentials: "include",
-    });
-    fetchEntries();
-  };
-
-  const grouped = CATEGORIES.reduce<Record<string, ServiceEntry[]>>((acc, cat) => {
-    acc[cat] = entries.filter(e => e.category === cat);
-    return acc;
-  }, {});
-
-  const visibleCategories = categoryFilter === "all"
-    ? CATEGORIES.filter(cat => grouped[cat].length > 0)
-    : CATEGORIES.filter(cat => cat === categoryFilter);
-
+  }
   return (
-    <div className={styles.page}>
-      <div className={styles.pageHeader}>
-        <h1 className={styles.pageTitle}>Austin Services Directory</h1>
-        <button className={styles.addBtn} onClick={openAdd}>+ Add Service</button>
-      </div>
-
-      <div className={styles.filters} role="search">
-        <label htmlFor="directory-search" className="sr-only">Search services</label>
-        <input
-          id="directory-search"
-          type="search"
-          className={styles.filterInput}
-          placeholder="Search services..."
-          aria-label="Search services"
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-        />
-        <label htmlFor="directory-category" className="sr-only">Filter by category</label>
-        <select
-          id="directory-category"
-          className={styles.filterSelect}
-          aria-label="Filter by category"
-          value={categoryFilter}
-          onChange={e => setCategoryFilter(e.target.value)}
+    <>
+      <StaffCollection
+        endpoint="/api/admin/directory"
+        title="Service directory"
+        categories={[
+          { value: "all", label: "All categories" },
+          ...[
+            "Shelter",
+            "Food",
+            "Healthcare",
+            "Legal",
+            "Recovery",
+            "Employment",
+            "Crisis Line",
+          ].map((value) => ({ value, label: value })),
+        ]}
+        description="Program-specific service contacts. Verify contact information before a referral; a listing is not a guarantee of service availability."
+        refresh={refresh}
+        columns={[
+          { key: "name", label: "Service", sort: "name" },
+          { key: "category", label: "Category" },
+          {
+            key: "phone",
+            label: "Phone",
+            render: (r) =>
+              r.phone ? (
+                <a href={`tel:${r.phone}`}>{String(r.phone)}</a>
+              ) : (
+                "Not recorded"
+              ),
+          },
+          {
+            key: "contact",
+            label: "Contact details",
+            render: (r) => (
+              <details>
+                <summary style={{ minHeight: 44, cursor: "pointer" }}>
+                  View contact details
+                </summary>
+                <p>{String(r.address || "No address recorded")}</p>
+                <p>{String(r.notes || "No additional service notes")}</p>
+                {!!r.website && (
+                  <a
+                    href={String(r.website)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Service website
+                  </a>
+                )}
+              </details>
+            ),
+          },
+          { key: "hours", label: "Hours" },
+          {
+            key: "actions",
+            label: "Actions",
+            render: (r) =>
+              canEdit ? (
+                <div className={styles.actions}>
+                  <Button
+                    variant="secondary"
+                    onClick={() => open("edit", r)}
+                    aria-label={`Edit ${r.name}`}
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    variant="quiet"
+                    onClick={() => open("remove", r)}
+                    aria-label={`Remove ${r.name}`}
+                  >
+                    Remove
+                  </Button>
+                </div>
+              ) : (
+                "Read only"
+              ),
+          },
+        ]}
+      >
+        {message && <p role="status">{message}</p>}
+        {canEdit && <Button onClick={() => open("add")}>Add service</Button>}
+      </StaffCollection>
+      <Dialog
+        open={!!modal}
+        title={
+          modal === "remove"
+            ? "Remove this service?"
+            : modal === "edit"
+              ? "Edit service"
+              : "Add service"
+        }
+        onClose={() => {
+          if (!busy) setModal(null);
+        }}
+      >
+        <form
+          className={styles.form}
+          onSubmit={(e) => {
+            e.preventDefault();
+            void save();
+          }}
         >
-          <option value="all">All categories</option>
-          {CATEGORIES.map(cat => (
-            <option key={cat} value={cat}>{cat}</option>
-          ))}
-        </select>
-      </div>
-
-      {loading ? (
-        <div className={styles.empty}>Loading directory...</div>
-      ) : entries.length === 0 ? (
-        <div className={styles.empty}>
-          No services found.
-          {entries.length === 0 && search === "" && categoryFilter === "all" && (
-            <div style={{ marginTop: "0.5rem", fontSize: "0.85rem" }}>
-              The directory is empty. Add services above or seed the database.
-            </div>
+          {modal === "remove" ? (
+            <p>
+              Remove <strong>{String(target?.name)}</strong> from the active
+              directory in <strong>{admin?.programName}</strong>. Historical
+              service allocations and audit records remain.
+            </p>
+          ) : (
+            Object.keys(blank).map((k) => (
+              <label key={k}>
+                {k === "name"
+                  ? "Service name"
+                  : k[0].toUpperCase() + k.slice(1)}
+                {k === "category" ? (
+                  <select
+                    value={form.category}
+                    onChange={(e) =>
+                      setForm({ ...form, category: e.target.value })
+                    }
+                  >
+                    {[
+                      "Shelter",
+                      "Food",
+                      "Healthcare",
+                      "Legal",
+                      "Recovery",
+                      "Employment",
+                      "Crisis Line",
+                    ].map((c) => (
+                      <option key={c}>{c}</option>
+                    ))}
+                  </select>
+                ) : k === "notes" ? (
+                  <textarea
+                    maxLength={2000}
+                    value={form.notes}
+                    onChange={(e) =>
+                      setForm({ ...form, notes: e.target.value })
+                    }
+                  />
+                ) : (
+                  <input
+                    required={k === "name"}
+                    type={k === "website" ? "url" : "text"}
+                    value={form[k as keyof typeof blank]}
+                    onChange={(e) => setForm({ ...form, [k]: e.target.value })}
+                    maxLength={
+                      k === "phone" ? 60 : k === "website" ? 500 : 2000
+                    }
+                  />
+                )}
+              </label>
+            ))
           )}
-        </div>
-      ) : (
-        visibleCategories.map(cat => (
-          grouped[cat].length === 0 ? null : (
-            <div key={cat} className={styles.categorySection}>
-              <div className={styles.categoryHeading}>
-                {CATEGORY_EMOJI[cat]} {cat}
-              </div>
-              <div className={styles.entryList}>
-                {grouped[cat].map(entry => (
-                  <div key={entry.id} className={styles.entryCard}>
-                    <div className={styles.entryMain}>
-                      <div className={styles.entryName}>{entry.name}</div>
-                      <div className={styles.entryMeta}>
-                        {entry.phone && (
-                          <span style={{ display: "inline-flex", alignItems: "center", gap: "0.2rem" }}>
-                            📞 {entry.phone}
-                            <CopyBtn value={entry.phone} label="phone number" />
-                          </span>
-                        )}
-                        {entry.address && (
-                          <span style={{ display: "inline-flex", alignItems: "center", gap: "0.2rem" }}>
-                            📍 {entry.address}
-                            <CopyBtn value={entry.address} label="address" />
-                          </span>
-                        )}
-                        {entry.hours && <span>🕐 {entry.hours}</span>}
-                        {entry.website && (
-                          <a
-                            href={entry.website}
-                            target="_blank"
-                            rel="noreferrer"
-                            style={{ color: "var(--adm-blue)" }}
-                            onClick={e => e.stopPropagation()}
-                          >
-                            🌐 Website
-                          </a>
-                        )}
-                      </div>
-                      {entry.notes && (
-                        <div className={styles.entryNotes}>{entry.notes}</div>
-                      )}
-                    </div>
-                    <div className={styles.entryActions}>
-                      <button className={styles.editBtn} onClick={() => openEdit(entry)}>Edit</button>
-                      <button className={styles.deleteBtn} onClick={() => handleDelete(entry.id, entry.name)}>Remove</button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )
-        ))
-      )}
-
-      {modal && (
-        <div className={styles.modalOverlay} onClick={() => setModal(null)}>
-          <div className={styles.modal} onClick={e => e.stopPropagation()}>
-            <div className={styles.modalTitle}>
-              {modal === "add" ? "Add Service" : "Edit Service"}
-            </div>
-
-            <div className={styles.formRow}>
-              <div className={styles.formField} style={{ gridColumn: "1 / -1" }}>
-                <label className={styles.formLabel} htmlFor="dir-org-name">Organization Name *</label>
-                <input
-                  id="dir-org-name"
-                  className={styles.formInput}
-                  value={form.name}
-                  onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                  placeholder="e.g. Austin Resource Center for the Homeless"
-                  required
-                  aria-required="true"
-                />
-              </div>
-            </div>
-
-            <div className={styles.formRow}>
-              <div className={styles.formField}>
-                <label className={styles.formLabel} htmlFor="dir-category">Category *</label>
-                <select
-                  id="dir-category"
-                  className={styles.formSelect}
-                  value={form.category}
-                  onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
-                  required
-                  aria-required="true"
-                >
-                  {CATEGORIES.map(cat => (
-                    <option key={cat} value={cat}>{cat}</option>
-                  ))}
-                </select>
-              </div>
-              <div className={styles.formField}>
-                <label className={styles.formLabel} htmlFor="dir-phone">Phone</label>
-                <input
-                  id="dir-phone"
-                  type="tel"
-                  autoComplete="tel"
-                  className={styles.formInput}
-                  value={form.phone}
-                  onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
-                  placeholder="(512) 555-0000"
-                />
-              </div>
-            </div>
-
-            <div className={styles.formField}>
-              <label className={styles.formLabel} htmlFor="dir-address">Address</label>
-              <input
-                id="dir-address"
-                autoComplete="street-address"
-                className={styles.formInput}
-                value={form.address}
-                onChange={e => setForm(f => ({ ...f, address: e.target.value }))}
-                placeholder="123 Main St, Austin, TX 78701"
-              />
-            </div>
-
-            <div className={styles.formRow}>
-              <div className={styles.formField}>
-                <label className={styles.formLabel} htmlFor="dir-hours">Hours</label>
-                <input
-                  id="dir-hours"
-                  className={styles.formInput}
-                  value={form.hours}
-                  onChange={e => setForm(f => ({ ...f, hours: e.target.value }))}
-                  placeholder="Mon–Fri 8am–5pm"
-                />
-              </div>
-              <div className={styles.formField}>
-                <label className={styles.formLabel} htmlFor="dir-website">Website</label>
-                <input
-                  id="dir-website"
-                  type="url"
-                  autoComplete="url"
-                  className={styles.formInput}
-                  value={form.website}
-                  onChange={e => setForm(f => ({ ...f, website: e.target.value }))}
-                  placeholder="https://example.org"
-                />
-              </div>
-            </div>
-
-            <div className={styles.formField}>
-              <label className={styles.formLabel} htmlFor="dir-notes">Notes</label>
-              <textarea
-                id="dir-notes"
-                className={styles.formTextarea}
-                value={form.notes}
-                onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
-                placeholder="Walk-in welcome, ID required, etc."
-              />
-            </div>
-
-            <div className={styles.modalActions}>
-              <button className={styles.cancelBtn} onClick={() => setModal(null)}>Cancel</button>
-              <button className={styles.saveBtn} onClick={handleSave} disabled={saving || !form.name.trim()}>
-                {saving ? "Saving..." : modal === "add" ? "Add Service" : "Save Changes"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+          {error && (
+            <Alert tone="error">
+              {error}{" "}
+              <Button
+                variant="quiet"
+                onClick={() => {
+                  setModal(null);
+                  setRefresh((v) => v + 1);
+                }}
+              >
+                Reload directory before another change
+              </Button>
+            </Alert>
+          )}
+          <Button
+            type="submit"
+            variant={modal === "remove" ? "danger" : "primary"}
+            busy={busy}
+            disabled={modal !== "remove" && !form.name.trim()}
+            disabledReason="Enter a service name to save this service."
+          >
+            {modal === "remove" ? "Confirm removal" : "Save service"}
+          </Button>
+        </form>
+      </Dialog>
+    </>
   );
 }

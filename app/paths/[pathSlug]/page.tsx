@@ -1,141 +1,64 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import prisma from "@/lib/prisma";
-import HelpButton from "../../components/HelpButton";
-import LessonList from "../../components/LessonList";
-import PathProgressBar from "../../components/PathProgressBar";
-import {
-  ShelterIcon,
-  ShieldIcon,
-  RocketIcon,
-  WalletIcon,
-  SproutIcon,
-  BrainIcon,
-  LifeRingIcon,
-  MedicalIcon,
-  KeyIcon,
-  WarningIcon,
-  HeartCareIcon,
-  StarIcon,
-  ChevronRightIcon,
-} from "../../components/icons";
-
+import { requireLearner } from "@/lib/learner-server";
+import { publishedPaths } from "@/lib/learning-data";
+import { availableLessons } from "@/lib/learning-progression";
+import PathLearning from "../../components/PathLearning";
+import { ButtonLink } from "../../components/ui";
+import { HubertIcon } from "../../components/icons";
+import styles from "./path.module.css";
 export const dynamic = "force-dynamic";
-
-function getPathIcon(emoji: string, color: string, size = 28) {
-  const map: Record<string, React.ReactNode> = {
-    "🏠": <ShelterIcon size={size} color={color} />,
-    "🛡️": <ShieldIcon size={size} color={color} />,
-    "🚀": <RocketIcon size={size} color={color} />,
-    "💰": <WalletIcon size={size} color={color} />,
-    "🌱": <SproutIcon size={size} color={color} />,
-    "🧠": <BrainIcon size={size} color={color} />,
-    "🛟": <LifeRingIcon size={size} color={color} />,
-    "🏥": <MedicalIcon size={size} color={color} />,
-    "🔒": <KeyIcon size={size} color={color} />,
-    "⚠️": <WarningIcon size={size} color={color} />,
-    "💛": <HeartCareIcon size={size} color={color} />,
-  };
-  return map[emoji] ?? <StarIcon size={size} color={color} />;
-}
-
-export default async function PathPage({ params }: { params: Promise<{ pathSlug: string }> }) {
+export default async function PathPage({
+  params,
+}: {
+  params: Promise<{ pathSlug: string }>;
+}) {
   const { pathSlug } = await params;
-
-  const path = await prisma.path.findUnique({
-    where: { slug: pathSlug },
-    include: {
-      modules: {
-        where: { isActive: true },
-        orderBy: { order: "asc" },
-        include: {
-          lessons: {
-            where: { isActive: true },
-            orderBy: { order: "asc" },
-          },
-        },
-      },
-    },
-  });
-
-  if (!path) {
-    notFound();
-  }
-
-  const allLessonIds = path.modules.flatMap((m) => m.lessons.map((l) => l.id));
-
-  const modulesData = path.modules.map((mod) => ({
-    id: mod.id,
-    title: mod.title,
-    order: mod.order,
-    lessons: mod.lessons.map((l) => ({
-      id: l.id,
-      title: l.title,
-      xpReward: l.xpReward,
-      order: l.order,
-    })),
-  }));
-
+  await requireLearner(`/paths/${pathSlug}`);
+  const [path] = await publishedPaths(pathSlug);
+  if (!path) notFound();
+  const lessons = availableLessons(path),
+    minutes = lessons.reduce(
+      (sum, l) => sum + Math.max(0, l.estimatedMinutes),
+      0,
+    );
   return (
-    <div className="grid-bg" style={{ minHeight: "100vh", padding: "0 0 6rem 0" }}>
-      <header style={{
-        padding: "1.5rem 1.5rem",
-        background: "linear-gradient(180deg, rgba(59,158,255,0.07) 0%, transparent 100%)",
-        borderBottom: "1px solid var(--border-color)",
-      }}>
-        <div style={{ maxWidth: "700px", margin: "0 auto" }}>
-          <Link href="/app" style={{
-            color: "var(--accent-green)",
-            fontSize: "0.85rem",
-            fontWeight: "600",
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "0.25rem",
-            marginBottom: "1rem",
-          }}>
-            <div style={{ transform: "rotate(180deg)", display: "flex" }}>
-              <ChevronRightIcon size={16} color="var(--accent-green)" />
-            </div>
-            Back to Paths
-          </Link>
-          <div style={{ display: "flex", alignItems: "center", gap: "1.25rem" }}>
-            <div style={{
-              width: "60px",
-              height: "60px",
-              borderRadius: "16px",
-              border: "2px solid var(--accent-green)",
-              backgroundColor: "rgba(59,158,255,0.1)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
-            }}>
-              {getPathIcon(path.icon, "var(--accent-green)", 28)}
-            </div>
-            <div>
-              <h1 style={{
-                fontFamily: "var(--font-display)",
-                fontSize: "1.75rem",
-                fontWeight: "700",
-                marginBottom: "0.25rem",
-                letterSpacing: "0.02em",
-              }}>{path.title}</h1>
-              <p style={{
-                color: "var(--text-secondary)",
-                fontSize: "0.85rem",
-                lineHeight: "1.5",
-              }}>{path.description}</p>
-            </div>
+    <div data-design="learner" data-ui-shell="learner" className={styles.page}>
+      <a className="ds-skip-link" href="#path-content">
+        Skip to lessons
+      </a>
+      <div className={styles.topbar}>
+        <ButtonLink href="/app" variant="quiet">
+          Back to paths
+        </ButtonLink>
+      </div>
+      <header className={styles.hero}>
+        <div>
+          <p className={styles.eyebrow}>Your learning path</p>
+          <h1>{path.title}</h1>
+          <p className={styles.description}>{path.description}</p>
+          <div className={styles.facts}>
+            <span>
+              {path.modules.length}{" "}
+              {path.modules.length === 1 ? "unit" : "units"}
+            </span>
+            <span>{lessons.length} available lessons</span>
+            {minutes > 0 && <span>About {minutes} minutes total</span>}
           </div>
         </div>
+        <aside className={styles.companion} aria-label="A reminder from Hubert">
+          <HubertIcon size={42} />
+          <div>
+            <strong>Small steps count.</strong>
+            <p>
+              Choose what helps you today. Your completed work stays saved when
+              you take a break.
+            </p>
+          </div>
+        </aside>
       </header>
-
-      <main style={{ maxWidth: "700px", margin: "0 auto", padding: "1.5rem 1.5rem" }}>
-        <PathProgressBar allLessonIds={allLessonIds} />
-        <LessonList modules={modulesData} />
+      <main id="path-content" tabIndex={-1} className={styles.content}>
+        <PathLearning modules={path.modules} />
       </main>
-
-      <HelpButton />
     </div>
   );
 }

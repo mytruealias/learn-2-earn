@@ -1,6 +1,8 @@
 "use client";
 
 import { createContext, useContext, useState, useCallback, ReactNode } from "react";
+import { IconButton } from "../components/ui";
+import { CloseIcon } from "../components/icons";
 import styles from "./toast.module.css";
 
 type ToastType = "success" | "error" | "info";
@@ -27,9 +29,6 @@ export function AdminToastProvider({ children }: { children: ReactNode }) {
   const showToast = useCallback((message: string, type: ToastType = "info") => {
     const id = Math.random().toString(36).slice(2);
     setToasts((prev) => [...prev, { id, message, type }]);
-    setTimeout(() => {
-      setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, 4000);
   }, []);
 
   const dismiss = (id: string) => {
@@ -47,9 +46,9 @@ export function AdminToastProvider({ children }: { children: ReactNode }) {
       {children}
       <div className={styles.toastContainer}>
         {toasts.map((t) => (
-          <div key={t.id} className={`${styles.toast} ${typeClass[t.type]}`}>
+          <div key={t.id} data-design="notification" role={t.type === "error" ? "alert" : "status"} aria-atomic="true" className={`${styles.toast} ${typeClass[t.type]}`}>
             <span className={styles.toastMsg}>{t.message}</span>
-            <button className={styles.toastClose} onClick={() => dismiss(t.id)}>×</button>
+            <IconButton label="Dismiss notification" onClick={() => dismiss(t.id)}><CloseIcon /></IconButton>
           </div>
         ))}
       </div>

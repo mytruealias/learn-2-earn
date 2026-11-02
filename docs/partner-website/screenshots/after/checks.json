@@ -1,0 +1,191 @@
+[
+  {
+    "screen": "home",
+    "width": 360,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "demo",
+    "width": 360,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "privacy",
+    "width": 360,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "terms",
+    "width": 360,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "city-unlock",
+    "width": 360,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "city-deck",
+    "width": 360,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "home",
+    "width": 390,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "demo",
+    "width": 390,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "privacy",
+    "width": 390,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "terms",
+    "width": 390,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "city-unlock",
+    "width": 390,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "city-deck",
+    "width": 390,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "home",
+    "width": 768,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "demo",
+    "width": 768,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "privacy",
+    "width": 768,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "terms",
+    "width": 768,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "city-unlock",
+    "width": 768,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "city-deck",
+    "width": 768,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "home",
+    "width": 1440,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "demo",
+    "width": 1440,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "privacy",
+    "width": 1440,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "terms",
+    "width": 1440,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "city-unlock",
+    "width": 1440,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "city-deck",
+    "width": 1440,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "inquiry-uncertain",
+    "width": 390,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "inquiry-saved",
+    "width": 390,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "home-text-200",
+    "width": 360,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  }
+]

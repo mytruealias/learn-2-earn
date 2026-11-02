@@ -1,46 +1,57 @@
-import { createHmac } from "crypto";
+import { createHmac, timingSafeEqual } from "crypto";
 import { NextResponse } from "next/server";
+import { readCookie } from "./request-cookie";
+import { SESSION_SECONDS } from "./session-policy";
 
-const SECRET = process.env.SESSION_SECRET || process.env.DEMO_ACCESS_CODE || "l2e-fallback-secret";
-
+function secret() {
+  const value = process.env.SESSION_SECRET;
+  if (!value) throw new Error("Configure SESSION_SECRET for program access.");
+  return value;
+}
 export function createAccessToken(): string {
   const payload = `demo-access:${Date.now()}`;
-  const signature = createHmac("sha256", SECRET).update(payload).digest("hex");
-  return `${Buffer.from(payload).toString("base64")}.${signature}`;
+  return `${Buffer.from(payload).toString("base64url")}.${createHmac("sha256", secret()).update(payload).digest("hex")}`;
 }
-
 export function setDemoAccessCookie(res: NextResponse): void {
-  const token = createAccessToken();
   const rootDomain = process.env.ROOT_DOMAIN;
-  res.cookies.set("l2e_demo_access", token, {
+  res.cookies.set("l2e_demo_access", createAccessToken(), {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
-    maxAge: 60 * 60 * 24 * 30,
+    maxAge: SESSION_SECONDS,
     path: "/",
     ...(rootDomain && { domain: `app.${rootDomain}` }),
   });
 }
-
 export function verifyAccessToken(token: string): boolean {
   try {
-    const parts = token.split(".");
-    if (parts.length !== 2) return false;
-
-    const [encodedPayload, signature] = parts;
-    const payload = Buffer.from(encodedPayload, "base64").toString();
-
-    if (!payload.startsWith("demo-access:")) return false;
-
-    const expectedSig = createHmac("sha256", SECRET).update(payload).digest("hex");
-    if (signature !== expectedSig) return false;
-
-    const timestamp = parseInt(payload.split(":")[1], 10);
-    const thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
-    if (Date.now() - timestamp > thirtyDaysMs) return false;
-
-    return true;
+    const [encoded, signature, extra] = token.split(".");
+    if (
+      extra ||
+      !encoded ||
+      signature?.length !== 64 ||
+      !/^[a-f0-9]{64}$/.test(signature)
+    )
+      return false;
+    const payload = Buffer.from(encoded, "base64").toString("utf8");
+    if (!/^demo-access:\d{13}$/.test(payload)) return false;
+    if (
+      !timingSafeEqual(
+        Buffer.from(signature, "hex"),
+        createHmac("sha256", secret()).update(payload).digest(),
+      )
+    )
+      return false;
+    const timestamp = Number(payload.slice("demo-access:".length));
+    return (
+      timestamp <= Date.now() + 60_000 &&
+      Date.now() - timestamp < SESSION_SECONDS * 1000
+    );
   } catch {
     return false;
   }
+}
+export function hasProgramAccess(req: Request): boolean {
+  const token = readCookie(req, "l2e_demo_access");
+  return !!token && verifyAccessToken(token);
 }

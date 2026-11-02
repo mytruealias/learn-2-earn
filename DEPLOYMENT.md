@@ -1,139 +1,196 @@
-# Deployment Guide — Subdomain Routing (Option A)
+# Build, release and Replit operations
 
-This guide covers everything needed to go live with three separate subdomains
-all served from a single Learn2Earn deployment.
+This runbook separates build artifacts from database operations. Application source uses Next.js App Router, Prisma/PostgreSQL and the existing integrations. No deployment or production database operation is authorized by running validation commands.
 
----
+## Current release decision
 
-## How it works
+[2026-11-02 release-readiness report](docs/release-readiness.md) is the current no-go decision and deployment checklist. It distinguishes blocked native generation/build/API/restore work from passing public/logic checks, records current advisory updates and Zod remediation, and requires an exact approved SHA plus preservation of newer Replit edits. This runbook is not deployment authorization.
 
-The same Next.js app answers for all three domains. A `ROOT_DOMAIN` environment
-variable activates subdomain-aware routing in the middleware. When unset (local
-dev or Replit preview), every route is accessible as normal — no change to your
-development workflow.
+## Verified settings versus uninspected host settings
 
-| Domain | Serves |
-|---|---|
-| `learn2earn.org` | Investor / partner landing page (`/`) |
-| `app.learn2earn.org` | Learner app (`/app`, `/paths`, `/lesson`, etc.) |
-| `admin.learn2earn.org` | Admin portal (`/admin/*`) |
-| `www.learn2earn.org` | Redirects to `learn2earn.org` |
+There is no tracked or local `.replit` / `replit.nix` in this checkout. `.gitignore` excludes `.replit` and `replit.md`. Therefore live Replit workspace modules, deployment commands, port mapping and Secrets remain **unverified**. Inspect the actual Replit workspace/deployment configuration read-only before changing it; do not infer it from an old publish commit or silently generate a replacement configuration.
 
-Cross-domain requests are redirected automatically (301). For example:
-- `learn2earn.org/app` → `app.learn2earn.org/app`
-- `app.learn2earn.org/admin` → `admin.learn2earn.org/admin`
-- `admin.learn2earn.org/` → `admin.learn2earn.org/admin`
+This safety guarantee applies to the repository commands. An uninspected custom Replit command might still invoke Prisma migrations directly; verify and update any old custom build chain to the reviewed commands before deploying.
 
----
+The executable package scripts bind **0.0.0.0:5000** for both `npm run dev` and `npm start`. Preserve that binding unless the actual workspace provides a different reviewed requirement.
 
-## Step 1 — Set the ROOT_DOMAIN environment variable
+| Context                        | Intended command/settings to verify in Replit                      | Database behavior                                                                            |
+| ------------------------------ | ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------- |
+| Dependency preparation         | Node 24, `npm ci --include=dev`, `npm run prisma:generate`         | No database mutation                                                                         |
+| Workspace development          | `npm run dev`; forward port 5000; local/dev DB runtime binding     | Application activity only; no automatic seeds/migrations                                     |
+| Deployment build               | `npm ci --include=dev` then `npm run build`                        | Prisma generation + Next compilation with build-only unreachable DB; no release side effects |
+| Deployment run                 | `npm start`; 0.0.0.0:5000; reviewed runtime Secrets                | Real application operations; no automatic bootstrap                                          |
+| Reviewed database release step | Explicit `release:migrate` / `release:content` outside build/start | Operator-confirmed mutations only                                                            |
+| First installation only        | Explicit `release:bootstrap-admin` once                            | Refuses any existing staff, including inactive accounts                                      |
 
-In Replit Deployments → Secrets (or your hosting provider's env config), add:
+`scripts/post-merge.sh` now runs `npm ci --include=dev` and Prisma generation only. It no longer installs unpinned dependencies or runs `db push --accept-data-loss`. Direct old seed invocations refuse writes without release-operation confirmation. The Prisma implicit seed configuration was removed; use named commands.
 
+## Runtime variable names
+
+Store values in the host's secure settings; never commit filled `.env`, print credentials or pass passwords as command arguments.
+
+| Names                                             | Use                                                                                                                                               |
+| ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `PROGRAM_TIMEZONE`                                | Optional IANA learning-day fallback; saved learner timezone takes priority, otherwise UTC                                                         |
+| `DATABASE_URL`                                    | Runtime DB or explicitly reviewed release target; not needed for compilation                                                                      |
+| `SESSION_SECRET`                                  | Required private HMAC signing secret for learner/demo/city tokens (never replace it with the shared invitation code); **not** an admin JWT secret |
+| `DEMO_ACCESS_CODE`                                | Learner demo gate; not a substitute for a private session secret in production                                                                    |
+| `AUSTIN_ACCESS_PIN`, `CITY_ACCESS_PIN`            | Austin proposal PIN and shared PIN for the other city decks                                                                                       |
+| `ROOT_DOMAIN`                                     | Optional bare domain enabling apex/app/admin routing; leave unset for local/Replit preview                                                        |
+| `NEXT_PUBLIC_SITE_URL`                            | Canonical public metadata URL; verify it matches the intended host                                                                                |
+| `ALLOWED_DEV_ORIGINS`                             | Reviewed development origins if needed; normally unset for production                                                                             |
+| `OPENAI_API_KEY`, `TTS_DAILY_CHAR_CAP`            | Optional Hubert chat/TTS and usage setting                                                                                                        |
+| `STRIPE_SECRET_KEY`                               | Optional finance account/balance reads; does not automatically send payouts                                                                       |
+| `GITHUB_TOKEN`                                    | Optional existing Octokit helper; not needed for native platform Git auth or builds                                                               |
+| `ADMIN_BOOTSTRAP_EMAIL`, `ADMIN_DEFAULT_PASSWORD` | **Temporary explicit first-admin provisioning only**, password at least 16 characters                                                             |
+| `TEST_DATABASE_ADMIN_URL`                         | Local test-instance `/postgres` maintenance connection; never production                                                                          |
+| `PLAYWRIGHT_CHROMIUM_EXECUTABLE`, `E2E_PORT`      | Optional local browser executable and test port; CI installs bundled Chromium                                                                     |
+
+`DATABASE_URL_TEST` and `TEST_DATABASE_NONCE` are generated by the test harness. Do not persist or manually substitute production/development targets. Test processes receive empty external AI/payment bindings, ROOT_DOMAIN unset, and fresh test credentials. Browser tests only use the spawned loopback server; arbitrary PLAYWRIGHT_BASE_URL values are refused.
+
+## Program authorization and staff workflow release gate
+
+Apply `20261027040000_program_boundaries`, then `20261029000000_staff_workflows`, after the reward migration and its preceding migrations. New ownership/membership/session/MFA/receipt fields preserve records and grant no automatic access. Existing staff must re-enter and complete authenticator enrollment; unassigned legacy data remains quarantined until the target-confirmed, hash-reviewed `programs:reconcile` operation. Review original financial configs/defaults alongside memberships so program scoping does not silently replace configured terms. Cases/payouts with ambiguous actors remain unassigned. New invitation eligibility is marked only on new accounts; pre-migration accounts cannot self-claim legacy records through an invitation.
+
+Privately configure `STAFF_MFA_ENCRYPTION_KEY` as 32 random bytes encoded as 64 hex characters. Preserve it with verified encrypted backups; do not expose it in public build settings, screenshots or logs. Build disables this binding. MFA is verified by OTPAuth 9.5.2; ten single-use recovery codes and a separately verified operator recovery command are implemented. Quiesce old staff/financial writers, verify backups/restoration and actual Replit proxy/secure-cookie settings, apply schema, review/map ownership, reconcile original money/learning/pool totals, and verify real staff enrollment before enabling multi-organization operations. No build/start command performs these actions.
+
+Named deliberate operations: `programs:reconcile` (reviewed legacy ownership), `programs:provision` (reviewed new program/explicit staff grants), and `staff:recover` (verified identity recovery). Read the [exact runbook and permission matrix](docs/program-boundaries/README.md) before invoking them. New-program first-admin provisioning uses private `STAFF_PROVISION_PASSWORD`; recovery uses private `STAFF_RECOVERY_PASSWORD`. These are temporary release bindings, never ordinary runtime/build credentials. Optional first-install display names are `ADMIN_BOOTSTRAP_ORGANIZATION_NAME` / `ADMIN_BOOTSTRAP_PROGRAM_NAME`; the original bootstrap still refuses any existing staff.
+
+Runtime remains **0.0.0.0:5000**. No SSO/SCIM/provider is added. Do not run a pre-boundary binary against these records: it authorizes globally and cannot preserve ownership/receipts. Retain additive fields, secure auth/accounting and evidence; disable private writes while forward-fixing or performing a separately reviewed restore. Never erase subsequent payments/awards or broadly map quarantine as a rollback.
+
+## Reward-accounting release gate
+
+This version requires **20261027030000_reward_accounting** after the earlier session, preferences and lesson-attempt migrations. It adds RewardAccount/RewardEntry and nullable exact-money/snapshot/payment-evidence fields; Float originals and existing records remain. It installs conservation/nonnegative checks, append-only ledger and immutable accepted-term/payment-evidence triggers. Build/start still run no migrations or seeds, and Replit runtime remains **0.0.0.0:5000**. No new provider credential is required.
+
+Quiesce old financial and XP-correction writers, verify backups/restoration and the actual target/migration baseline, apply the additive migration, then run `npm run rewards:reconcile -- --confirm-database VERIFIED_DATABASE`. This is read-only and prints aggregate counts, exact totals and a review hash, never learner contacts. Review program assignments inherited from editable legacy city, legacy XP differences, decimal half-up rounding, original payment history and the manual pool opening. Apply only after review using `--apply --expected-hash REVIEWED_HASH`; add `--accept-legacy-xp-differences` only after reconciling those explicit opening adjustments. Re-read the report and independently confirm money totals, zero uninitialized accounts, zero missing exact snapshots and zero discrepancies before reopening writes. Detailed sequence and limits: [reward reconciliation](docs/reward-accounting/README.md#release-and-reconciliation-gates).
+
+Do not call the production migration complete from a passing disposable test or from schema deployment alone. Unknown statuses, unpayable open requests, overspent accounts, invalid values and ledger mismatches require verified recovery rather than silent repair. Legacy recorded amounts are converted once using canonical-decimal half-up cents, while Float originals stay intact. Historical rates and actual paid dates/references are not inferred. Historical payments do not debit the pool a second time; new manual payment records debit the verified bookkeeping balance once. Stripe remains read-only, and methods including Zelle require verified manual staff workflows.
+
+Rollback retains all additive evidence/schema. Keep a compatible credit/accounting server or disable financial/correction writers; a pre-ledger binary cannot maintain the new invariants or display corrected entitlement accurately. Never restore old client-trusted completion, nontransactional payout checks or approval-as-payment totals. Reconcile subsequent awards/payments before any verified backup recovery. No production operation was run for this implementation.
+
+## Lesson-attempt and practice migration compatibility
+
+The lesson/Practice version requires **20261027020000_lesson_attempts_review** after the session/onboarding and learning-preferences/visits migrations, before the new application starts. It adds LessonAttempt, LessonAnswer and LessonReview, plus nullable User.learningTimezone/lastLearningAt. It changes no historical account, Progress, earned balance, payment record or curriculum identifier, and requires no content seed or financial backfill. Explicit release migration sequencing and backup/restore prerequisites below still apply; production migration status remains unverified.
+
+Deploy the corresponding UI and strict APIs together. Cached old clients submitting bonuses or lesson-only completion bodies must reload. Keep the hardened completion endpoint during rollback, or disable new completions until a compatible server is ready; reverting to the former client-trusted endpoint reopens award forgery. Keep additive schema and new evidence when reverting presentation. Do not erase subsequent activity with an unverified backup restore. See [lesson/Practice recovery and rollback](docs/lesson-flow/README.md#release-recovery-and-rollback), including the explicit limitation for content changed during an unfinished attempt.
+
+`PROGRAM_TIMEZONE` is an optional IANA learning-day fallback. The learner's explicitly saved timezone takes priority; invalid/missing program settings fall back to UTC. This does not set payout rules or financial dates. Existing users have null preferences and no automatic rewrite. Device read-aloud uses browser speech only after a click; it adds no provider binding. No reminders or delivery integration is introduced. Development/start remain **0.0.0.0:5000**; no Replit deployment setting is changed.
+
+## Learner-session migration compatibility
+
+The learner-journey version requires `20261027000000_learner_sessions_onboarding` **before the new application starts**. It adds `LearnerSession` (hashed signed-cookie tokens with expiry/revocation) and nullable `User.onboardingState` / `User.learningGoal`. No earned balance, payment history, curriculum key or account ID is rewritten. Existing accounts keep null onboarding fields; new accounts resume the two-step introduction. No content seed/backfill is necessary.
+
+Use the reviewed backup/restore and migration sequence below, against the verified existing migration baseline. Do not use test schema push or the historical migration repair in production. Tests exercise the additive SQL only in an attested disposable database and compare account/progress/payment records before and after. Actual production migration status remains unverified.
+
+Require a strong private `SESSION_SECRET`; the demo/program code is no longer accepted as a signing secret. Keep the reviewed existing secret stable for legitimate guest continuity. Registered legacy cookies must sign in again because the old bootstrap could mint another account's token. Signed unexpired legacy guests retain their original IDs/progress through bounded lazy session registration. Unproven localStorage IDs and expired/lost guest cookies cannot safely authorize an account claim.
+
+Logout revokes the current learner DB session and clears its browser credentials; other devices remain signed in. `GET /api/auth/session` is a minimal no-store navigation description, POST retains the private profile API, and DELETE performs real logout. Current staff sessions are separate server-owned records with expiry, revocation, MFA and active program membership; staff logout revokes the current record. See the current program authorization gate above rather than the historical pre-upgrade logout defect.
+
+Recovery email/SMS delivery and a learner-reset endpoint are absent. `/recover` explicitly sends nothing and directs users to trusted program staff for operator escalation and identity review. Do not promise a message, add an unverified support address, or use `ADMIN_DEFAULT_PASSWORD` to recover a learner. Any automated reset needs a separately verified delivery/reset workflow.
+
+Keep the additive schema when reverting presentation changes. A server rollback must retain the corrected ownership, expiry and revocation checks or temporarily disable bootstrap/signup; do not redeploy arbitrary-ID identity minting. Stale clients sending identity fields to ensure/register fail closed and should reload. No automatic session cleanup, seed, migration repair or provisioning is added to build/start/release. Port/binding remain 0.0.0.0:5000; actual Replit deployment settings still need inspection.
+
+## Learning preferences and opened-state compatibility
+
+The learning progression artifact additionally needs `20261027010000_learning_preferences_visits`, applied after the learner-session migration. It adds nullable `User.dailyGoal`, `PathSelection` and `LessonVisit` with owner/curriculum relations and indexes. No historical attempt, completion, XP, balance, payment or curriculum backfill occurs. Visits mean only “opened”; they are not award evidence. Selections are preferences, not permission or enrollment boundaries.
+
+Apply only through the reviewed release migration sequence below against a verified existing baseline and tested backup/restore. No content seed or new environment binding is required; build/start and port 5000 remain unchanged. The safe build never applies this migration. Tests apply its SQL only in a transaction inside an attested disposable database and compare preserved history.
+
+An active lesson without cards is unavailable to start/complete; inactive parents/content remain hidden/guarded. Existing history stays intact. Rollback can keep the additive schema while reverting this stage's UI/API support; retain secure sessions and active-content protections, never delete history or subtract earned XP. Physical device, live Replit, remote CI and production migration verification remain separate.
+
+## Normal release sequence
+
+1. Inspect the exact release diff and current deployment configuration. Verify runtime database identity privately, migration status and the schema/data version required by both the old and new application. The explicit database-name confirmation prevents targeting mistakes; it is **not** a substitute for host/account inspection or authorization.
+2. Take a consistent database backup with the provider's supported tool or `pg_dump` using a secure connection mechanism. Retain schema, data, migration history, ownership and necessary extensions in access-controlled storage. Restore it into an isolated non-production database and verify account IDs, curriculum keys, progress/XP, payout totals/statuses and audit history. A backup file alone is not a verified recovery path.
+3. Validate from the lockfile: `npm ci --include=dev`, `npm run lint`, `npm run build`, `npm run typecheck`, `npm test`. Tests use fresh local databases, never the restored production copy. Stage any actual migration against a separate restored copy with appropriate access controls and verify reconciliation.
+4. After that verification and explicit release authorization, point the operator's `DATABASE_URL` at the reviewed target and run:
+
+   ```bash
+   npm run release:migrate -- --confirm-database reviewed_database_name
+   ```
+
+   This executes only `prisma migrate deploy`. No content/admin seeds or migration-history repair follow. A failure stops the command with a nonzero status. Resolve the diagnosed prerequisite instead of editing history to force success.
+
+5. If the release adds curriculum, review the authored content and run separately:
+
+   ```bash
+   npm run release:content -- --confirm-database reviewed_database_name
+   ```
+
+   This inserts missing paths/modules/lessons/cards while preserving existing rows, identifiers, activation, order, content edits, rewards and all learner/payment records. New-lesson derived metadata is initialized only for those new rows. Existing metadata corrections or financial changes require their own reviewed, additive backfill and reconciliation; rerunning content sync will not overwrite them. Missing card slots are filled by order; no existing cards are replaced/deleted. Named release operations are serialized with a database advisory lock.
+
+6. Provision the first admin **only for a genuinely empty staff table**. Set temporary bootstrap email/password securely, then deliberately run:
+
+   ```bash
+   npm run release:bootstrap-admin -- --confirm-database reviewed_database_name
+   ```
+
+   The serializable transaction/advisory lock checks for **any** staff account and refuses if one exists. No fixed email, upsert, password reset, inactive-account recreation or routine-deploy bootstrap. Remove bootstrap settings afterward. For an existing installation with inaccessible staff, use a separately reviewed account-recovery procedure instead of deleting accounts.
+
+7. Start the reviewed artifact with `npm start` only when authorized. Check public landing, signed learner session/progress, staff session/permissions and payout review without sending real payments. The current audit has not performed this production step. Do not treat approval as evidence that a transfer occurred.
+
+## Migration baseline and verified recovery
+
+The tracked history begins with `20250406000000_curriculum_schema_upgrade`, which ALTERs existing tables. It does not contain the original initial schema. The Zelle/config migrations are later additions. **`release:migrate` cannot initialize a totally empty production database from this incomplete history.**
+
+- For a new disposable local dev DB, `npm run db:prepare-dev -- --confirm-database your_local_database` performs a loopback, non-production schema push with no reset/data-loss acceptance. Do not use this as a production migration strategy. The test harness also uses schema push, solely on databases/roles it just created and attested.
+- For existing production databases, inspect `prisma migrate status` privately and reconcile every tracked migration with actual schema and `_prisma_migrations` before release. Preserve exact SQL/checksums and local history. Test against a restored copy first.
+- A production fresh-install/baseline plan must restore the original reviewed migration artifacts or establish a reviewed baseline from the verified existing schema. This change does not invent an initial migration, rewrite checksums, mark all migrations applied, or claim production history is healthy.
+
+The historic `20260214235843_init_postgresql` workaround previously marked an unfinished record successful by raw SQL during build. It has been removed. The old filename is now a **read-only** diagnostic:
+
+```bash
+npm run recovery:inspect
 ```
-ROOT_DOMAIN=learn2earn.org
-```
 
-> Do NOT include `https://` or a trailing slash. Just the bare domain.
+Inspection shows only the count and finished/rolled-back flags for that named record, without DB connection values or log contents. It changes nothing and exits nonzero on failure.
 
----
+A migration-resolution operation is a separate recovery change, not part of deploy. Before any `prisma migrate resolve` command, an operator must:
 
-## Step 2 — Deploy the app
+1. Verify and restore-test the backup and record the specific failed migration, exact original artifact/checksum and actual schema/data effects.
+2. Recover the original migration artifact from trusted history. That init artifact is absent in this checkout. If it cannot be recovered or its effects cannot be proven, **stop**; neither this script nor this runbook authorizes guessing.
+3. On a restored copy, prove whether every intended effect was applied or actually rolled back. Use Prisma's documented `migrate resolve --applied <verified_migration_name>` only for verified applied effects, or `--rolled-back` only after verified rollback. These are templates, not instructions to mark the historic name applied now. Resolution records history and does not execute missing schema/data changes.
+4. Re-run migration status/deploy and schema/data reconciliation on the restored copy. Review the recovery diff and evidence separately, then obtain the required release/recovery authorization. Never set finished_at manually or treat a failed record as proof that the DDL succeeded.
 
-Deploy as normal via Replit Deployments. Note the `.replit.app` deployment
-domain (e.g. `learn2earn-abc123.replit.app`) — you will need it for DNS.
+## Host routing and session behavior
 
----
+With ROOT_DOMAIN configured, middleware routes learner pages to `app.<domain>`, staff pages to `admin.<domain>`, and city proposal decks to the apex; www redirects to apex. APIs do not inherit a host-based partner boundary. Verify DNS/TLS and all hosts, including privacy/terms, before changing live routing. The baseline records a legal-page redirect mismatch; this workflow change does not redesign routing.
 
-## Step 3 — Register your domain
+- Learner identity: HttpOnly `l2e_user_session`, HMAC-signed user ID/timestamp, SameSite Lax, Secure in production. Demo access: `l2e_demo_access`, optional app-host cookie domain. City proposal cookies are separate `l2e_<slug>_access` gates.
+- Staff: HttpOnly **`l2e_admin_session`**, random opaque token backed by `AdminSession` with eight-hour DB expiry; optional admin-host cookie domain. This is not JWT auth.
+- Registered login and guest bootstrap/session lifecycle defects remain in the baseline. In particular B17 unauthenticated existing-user bootstrap, B18 staff logout revocation and B20 learner server-side expiry are **not fixed here**. Do not infer production security readiness from safer release tooling or a green build.
+- Partner membership isolation is absent; city PINs/rate config are not tenant boundaries. No rollout should promise isolated partner portals without the separate reviewed membership work.
 
-Purchase `learn2earn.org` (or your chosen domain) from any registrar:
-Namecheap, Google Domains, Cloudflare Registrar, GoDaddy, etc.
+## Rollback compatibility
 
----
+Keep the prior application artifact/commit and a tested restore plan. Prefer code rollback only when both versions are compatible with the current additive schema. Retain newly inserted curriculum and admin accounts; do not delete records or decrement balances to undo a code deployment. Never roll back to the old build that automatically repaired history/seeded data: retain the safe workflow while correcting application regressions.
 
-## Step 4 — Add DNS records
+For migrations/backfills, document backward compatibility and reconciliation before execution; do not auto-run destructive down migrations. A full database restore can discard later writes, accounts, earnings and payouts: require an authorized outage/restore plan, preserve/reconcile post-backup activity, and verify IDs/totals/history afterward. This change adds no schema migration and requires no data rollback.
 
-In your DNS provider, create the following records. Replace
-`your-deployment.replit.app` with your actual Replit deployment domain.
+## Hubert/help release gates
 
-| Type | Name | Value | TTL |
-|---|---|---|---|
-| CNAME | `@` (or blank) | `your-deployment.replit.app` | 3600 |
-| CNAME | `www` | `your-deployment.replit.app` | 3600 |
-| CNAME | `app` | `your-deployment.replit.app` | 3600 |
-| CNAME | `admin` | `your-deployment.replit.app` | 3600 |
+After the program and staff migrations, additive `20261101000000_support_integrity` adds optional case-intake/acknowledgment evidence, disabled program support settings and metadata-only usage/lease tables. No seeding, financial repricing, automatic team provisioning or historical consent/acknowledgment backfill is performed. Verify target/baseline, backup/restore and the exact migration plan before using the named release command. Roll back presentation compatibly, retaining stored cases/evidence and guarded endpoints; disable AI/new intake during incompatible rollback. See [support runbook](docs/hubert-support/README.md).
 
-> Some registrars do not allow a CNAME on the root (`@`). If that is the case,
-> use an **ALIAS** or **ANAME** record instead (Cloudflare calls it a "Proxied
-> A/AAAA record" — enable the orange cloud proxy).
+AI remains off unless private `OPENAI_API_KEY`, `HUBERT_APPROVED_POLICY_VERSION` matching the reviewed policy and `HUBERT_REVIEW_REFERENCE` are present. No qualified human approval is supplied by this change; do not fill these with test references. The existing optional `TTS_DAILY_CHAR_CAP` defaults to 20,000. Build/tests suppress provider/approval bindings. There is no new notification/delivery provider. New program intake defaults off; an authorized program administrator must verify real staffing/hours/timezone/absence coverage, resource region, privacy/retention and review reference before enabling it. Saved cases are not notifications; acknowledgment is an explicit audited staff action.
 
-> DNS propagation typically takes 5–30 minutes but can take up to 48 hours.
+Live resource pages (911/988/211/SAMHSA) and OpenAI retention documentation could not be fetched through this workspace’s CONNECT proxy (HTTP 403). Verify official regional contacts, actual provider/hosting logs/body capture/retention, lawful case retention/deletion, privacy contact and qualified response policy review before rollout. No production conversation, Replit logging setting, regional deployment or staffed monitoring was verified. Do not promise constant monitoring, automatic emergency dispatch or zero storage/retention. Human resources remain public when AI/intake fail or are disabled.
 
----
+## Public website / partner intake release
 
-## Step 5 — Add custom domains in Replit
+The public URL contract is strict: `NEXT_PUBLIC_SITE_URL` is an HTTPS origin only (no credentials, path, query, hash or port); it must match validated bare `ROOT_DOMAIN` when both are set. With only ROOT_DOMAIN the apex HTTPS origin is used; with neither or a mismatch, canonical/indexing claims are withheld and robots disallows crawling. Verify domain ownership/apex/app/admin routing and social metadata on the actual host. Gated city decks remain gated/noindex and are not in sitemap. No DNS/publication was performed.
 
-1. Open your deployment in the Replit dashboard.
-2. Go to **Settings → Custom Domains**.
-3. Add all four domains, one at a time:
-   - `learn2earn.org`
-   - `www.learn2earn.org`
-   - `app.learn2earn.org`
-   - `admin.learn2earn.org`
-4. Replit will verify DNS and provision TLS certificates automatically.
+Apply additive `20261101010000_partner_inquiries` only after the preceding support integrity migration, verified backups/restore and disposable integration/migration checks. It adds two tables and no historical-data rewrite. Build/start do not migrate or seed. **Current local Prisma engine download is blocked; this new SQL/persistence has not yet passed integration checks.** Do not deploy on browser-only evidence.
 
----
+Optional private runtime names: `PARTNER_INQUIRY_PROGRAM_ID`, `PARTNER_INQUIRY_TEAM_NAME`, `PARTNER_INQUIRY_MONITORING_NOTICE`, `PARTNER_INQUIRY_REVIEW_REFERENCE`, plus existing SESSION_SECRET. Leave all inquiry configuration off until an active organization/program has active MFA-enrolled program-admin staffing, genuine monitoring notice, reviewed privacy/consent/retention/deletion and a controlled review record. No synthetic approval, email or booking is supplied. Staff must review `/admin/inquiries` in the correct active program; finance/caseworker roles do not read contact records. Verify host IP-header handling, ingress rate protection and logging/redaction. [Operations and rollback](docs/partner-website/README.md) detail exact limits, storage, routes and retained evidence. Roll back by disabling intake first and retaining additive receipts/audit/schema; never delete collected inquiries or undo earlier security/accounting guards.
 
-## Step 6 — Verify
+## Resilience and accessibility release gate
 
-Once DNS has propagated and Replit has issued certificates, test each domain:
+Additive `20261102000000_http_rate_limits` follows `20261101010000_partner_inquiries`. It adds only a shared hashed counter table and positive-count guard, with no backfill or participant/financial/curriculum change. Login/access/PIN/guest limits now require it; missing/unavailable storage must remain 503. Preserve the established limits, shared SESSION_SECRET across instances and reviewed ingress client-IP handling. Success refunds only its own slot for failed-only gates. Exact SQL/service concurrency was verified in a fresh restricted database; generated Prisma/API/full migration verification is still blocked by pinned checksum HTTP 403. Do not release based only on public/mock browser checks.
 
-```
-https://learn2earn.org            → landing page
-https://www.learn2earn.org        → redirects to https://learn2earn.org
-https://app.learn2earn.org        → redirects to /app (access gate)
-https://app.learn2earn.org/admin  → redirects to admin.learn2earn.org/admin
-https://admin.learn2earn.org      → redirects to /admin (login)
-https://admin.learn2earn.org/app  → redirects to app.learn2earn.org/app
-```
+Runtime connection/pool waits are bounded at five seconds (shorter configured values remain), with 5-second wait/15-second transaction defaults; explicit existing transaction budgets remain. Shared limit transactions add 3-second statement/1-second lock deadlines. Ordinary nontransactional queries do not gain a global statement timeout; review database role/query budgets and realistic plans at the actual host. No speculative secondary index was added. Expired rate rows are reused; retention/deletion maintenance is not scheduled. Review a separate expired-counter cleanup, never a reset of app/history tables.
 
-> **Important — 301 redirect caching:** All cross-domain redirects use HTTP 301
-> (permanent). Browsers cache 301 redirects aggressively. During initial rollout
-> or if you need to change routing rules, test in an incognito/private window or
-> clear browser cache. Staff using the admin portal should also clear their cache
-> if they ever accessed the admin at the old URL.
+Use `/api/health/live` GET for process checks and `/api/health/ready` GET for generic readiness (signing/MFA-key shape and core schema query, no values or provider calls). Protect/bound health polling at ingress. Readiness does not certify reviewed ownership mapping, financial reconciliation, staff enrollment, legal/clinical policy, retention or provider availability. All API/redirect responses are no-store; authenticated HTML remains private and no service worker is added.
 
----
+Optional `OPERATIONAL_TELEMETRY_ENABLED` defaults off. Reviewed enabling must agree at build/runtime for static/shared layouts; a runtime-only change may not enable an already rendered layout. The client reports only fixed error category and route template; no error object/stack/query/chat/answers/participant IDs or offline queue. It has a local interval and persisted server limit. The application log channel uses sanitized metadata and request references; actual hosting/proxy/APM capture and lawful retention remain operator verification, not a blanket redaction/zero-retention guarantee. API/provider retries are not enabled by this flag.
 
-## Cookie isolation
-
-When `ROOT_DOMAIN` is set:
-
-- The admin session cookie (`admin_session`) is scoped to `admin.learn2earn.org`
-  — it is never sent to `app.learn2earn.org` or `learn2earn.org`.
-- The learner access cookie (`l2e_demo_access`) is scoped to `app.learn2earn.org`
-  — it is never sent to `admin.learn2earn.org` or `learn2earn.org`.
-
-This means if a learner's session were ever compromised, it could not be used
-to access the admin portal.
-
----
-
-## Environment variables reference
-
-| Variable | Required | Example | Purpose |
-|---|---|---|---|
-| `ROOT_DOMAIN` | Production only | `learn2earn.org` | Activates subdomain routing |
-| `DATABASE_URL` | Yes | `postgresql://...` | Prisma / PostgreSQL connection |
-| `SESSION_SECRET` | Yes | 64-char random string | JWT signing for admin sessions |
-| `DEMO_ACCESS_CODE` | Yes | `LEARN2EARN` | Access gate code for learner app |
-| `STRIPE_SECRET_KEY` | Optional | `sk_live_...` | Finance pool Stripe integration |
-
----
-
-## Rollback
-
-To disable subdomain routing at any time, simply remove or unset `ROOT_DOMAIN`
-from your deployment environment variables and redeploy. All routes will
-immediately become accessible from any domain again.
+Before release, restore normal Prisma downloads without bypasses and run lint/types/safe build, all guarded API/browser suites, then `npm run test:performance`. The lab starts its own local production server at 5080 with attested disposable fixtures and refuses stale artifacts/pre-existing servers; never point it at a live site. CI runs it sequentially after existing checks, with only its disposable PostgreSQL service. Replit dev/start remain 0.0.0.0:5000; actual live settings are unverified. Roll back presentation/transport compatibly while retaining shared limits/table, session/program/ledger/attempt guards and evidence. Disable optional reporting at build/runtime if needed; never restore blind financial replay or a process-local security bypass. [Exact routes, results, limits and rollback](docs/accessibility-reliability/README.md).

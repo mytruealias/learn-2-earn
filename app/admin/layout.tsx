@@ -1,25 +1,14 @@
 "use client";
 
-import { useState, useEffect, createContext, useContext } from "react";
+import { staffFetch, setStaffProgramHint } from "@/lib/staff-fetch";
+
+import { useState, useEffect, useRef, useCallback } from "react";
+import { useModalA11y } from "@/lib/use-modal-a11y";
+import { IconButton, ErrorState, Button } from "@/app/components/ui";
 import { usePathname, useRouter } from "next/navigation";
 import { AdminToastProvider } from "./AdminToastContext";
+import { AdminContext, type AdminUser } from "./AdminContext";
 import styles from "./layout.module.css";
-
-interface AdminUser {
-  id: string;
-  email: string;
-  fullName: string;
-  role: string;
-}
-
-const AdminContext = createContext<{ admin: AdminUser | null; logout: () => void }>({
-  admin: null,
-  logout: () => {},
-});
-
-export function useAdmin() {
-  return useContext(AdminContext);
-}
 
 function getInitials(name: string): string {
   return name
@@ -32,6 +21,8 @@ function getInitials(name: string): string {
 
 function NavIcon({ name }: { name: string }) {
   const iconProps = {
+    "aria-hidden": true as const,
+    focusable: false as const,
     width: 16,
     height: 16,
     viewBox: "0 0 24 24",
@@ -121,35 +112,76 @@ function NavIcon({ name }: { name: string }) {
   }
 }
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const [admin, setAdmin] = useState<AdminUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [sessionError, setSessionError] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [newCaseCount, setNewCaseCount] = useState(0);
   const pathname = usePathname();
   const router = useRouter();
-  const isLoginPage = pathname === "/admin/login";
-
+  const isLoginPage =
+    pathname === "/admin/login" || pathname === "/admin/programs";
+  const modern = true;
+  const [compact, setCompact] = useState(false);
+  const sidebarRef = useRef<HTMLElement>(null);
+  const closeSidebar = useCallback(() => setSidebarOpen(false), []);
   useEffect(() => {
-    fetch("/api/admin/session", { credentials: "include" })
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.authenticated) {
-          setAdmin(data.admin);
-        } else if (!isLoginPage) {
-          router.push("/admin/login");
+    const query = matchMedia("(max-width: 768px)");
+    const update = () => setCompact(query.matches);
+    update();
+    query.addEventListener("change", update);
+    return () => query.removeEventListener("change", update);
+  }, []);
+  useModalA11y(modern && compact && sidebarOpen, sidebarRef, closeSidebar);
+
+  const checkSession = useCallback(async () => {
+    setLoading(true);
+    setSessionError("");
+    try {
+      const r = await staffFetch("/api/admin/session"),
+        data = await r.json();
+      if (!r.ok && r.status !== 401) throw new Error();
+      if (data.authenticated) {
+        setStaffProgramHint(data.admin.programId);
+        setAdmin(data.admin);
+      } else {
+        setAdmin(null);
+        setStaffProgramHint(null);
+        if (!isLoginPage) {
+        router.push(
+          data.nextStep === "program" ? "/admin/programs" : "/admin/login",
+        );
         }
-      })
-      .catch(() => {
-        if (!isLoginPage) router.push("/admin/login");
-      })
-      .finally(() => setLoading(false));
+      }
+    } catch {
+      setSessionError(
+        "Your staff session could not be checked. Check your connection and retry; program records are hidden until the check succeeds.",
+      );
+    } finally {
+      setLoading(false);
+    }
   }, [isLoginPage, router]);
+  useEffect(() => {
+    void checkSession();
+  }, [checkSession]);
+  useEffect(() => {
+    const recheck = () => { if (!document.hidden) void checkSession(); };
+    const restored = (event: PageTransitionEvent) => { if (event.persisted) recheck(); };
+    window.addEventListener("pageshow", restored);
+    return () => { window.removeEventListener("pageshow", restored); };
+  }, [checkSession]);
 
   useEffect(() => {
-    if (!admin || isLoginPage) return;
+    if (!admin || isLoginPage || admin.role === "finance") return;
     const fetchNewCases = () => {
-      fetch("/api/admin/cases?status=new&limit=1", { credentials: "include" })
+      staffFetch("/api/admin/cases?status=new&limit=1", {
+        credentials: "include",
+      })
         .then((r) => r.json())
         .then((data) => {
           if (data.ok) setNewCaseCount(data.pagination?.total ?? 0);
@@ -162,18 +194,34 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }, [admin, isLoginPage]);
 
   const logout = async () => {
-    await fetch("/api/admin/session", { method: "DELETE", credentials: "include" });
+    try {
+      const r = await staffFetch("/api/admin/session", { method: "DELETE" });
+      if (!r.ok) throw new Error();
+    } catch {
+      setSessionError(
+        "Sign-out could not be confirmed. Retry signing out; your session is not claimed revoked.",
+      );
+      return;
+    }
+    setStaffProgramHint(null);
     setAdmin(null);
     router.push("/admin/login");
   };
 
   if (loading) {
-    return (
-      <div className={styles.loadingScreen}>
-        Loading...
-      </div>
-    );
+    return <main className={styles.loadingScreen} data-design="staff"><h1>Checking your staff session</h1><p role="status">Please wait. Program records stay hidden until the check succeeds.</p></main>;
   }
+
+  if (sessionError)
+    return (
+      <main className={styles.loadingScreen} data-design="staff">
+        <h1>Staff access could not be checked</h1>
+        <ErrorState onRetry={() => void checkSession()}>
+          {sessionError}
+        </ErrorState>
+        {admin && <Button onClick={logout}>Retry sign out</Button>}
+      </main>
+    );
 
   if (isLoginPage) {
     return (
@@ -205,13 +253,27 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     {
       label: "Case Management",
       items: [
-        { href: "/admin/cases", label: "Cases", icon: "cases", badge: newCaseCount },
+        ...(admin.role === "finance"
+          ? []
+          : [
+              {
+                href: "/admin/cases",
+                label: "Cases",
+                icon: "cases",
+                badge: newCaseCount,
+              },
+            ]),
       ],
     },
     {
       label: "Directory",
       items: [
-        { href: "/admin/directory", label: "Directory", icon: "directory", badge: 0 },
+        {
+          href: "/admin/directory",
+          label: "Directory",
+          icon: "directory",
+          badge: 0,
+        },
       ],
     },
     {
@@ -221,21 +283,36 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       ],
     },
     ...(["admin", "finance"].includes(admin.role)
-      ? [{
-          label: "Finance",
-          items: [
-            { href: "/admin/finance", label: "Finance", icon: "finance", badge: 0 },
-          ],
-        }]
+      ? [
+          {
+            label: "Finance",
+            items: [
+              {
+                href: "/admin/finance",
+                label: "Finance",
+                icon: "finance",
+                badge: 0,
+              },
+            ],
+          },
+        ]
       : []),
     ...(admin.role === "admin"
-      ? [{
-          label: "Administration",
-          items: [
-            { href: "/admin/audit", label: "Audit Log", icon: "audit", badge: 0 },
-            { href: "/admin/staff", label: "Staff", icon: "staff", badge: 0 },
-          ],
-        }]
+      ? [
+          {
+            label: "Administration",
+            items: [
+              {
+                href: "/admin/audit",
+                label: "Audit Log",
+                icon: "audit",
+                badge: 0,
+              },
+              { href: "/admin/staff", label: "Staff", icon: "staff", badge: 0 },
+              {href:"/admin/inquiries",label:"Partner inquiries",icon:"cases",badge:0},
+            ],
+          },
+        ]
       : []),
   ];
 
@@ -245,11 +322,22 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <AdminContext.Provider value={{ admin, logout }}>
       <AdminToastProvider>
-        <div className={styles.adminShell}>
+        <div
+          className={`${styles.adminShell} ${modern ? styles.designShell : ""}`}
+          data-ui-shell="staff"
+          data-design={modern ? "staff" : undefined}
+        >
+          {modern && (
+            <a className="ds-skip-link" href="#staff-content">
+              Skip to staff content
+            </a>
+          )}
           <button
             className={styles.hamburger}
             onClick={() => setSidebarOpen((o) => !o)}
             aria-label="Toggle sidebar"
+            aria-expanded={sidebarOpen}
+            aria-controls="staff-sidebar"
           >
             {sidebarOpen ? "✕" : "☰"}
           </button>
@@ -261,16 +349,41 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             />
           )}
 
-          <aside className={`${styles.sidebar} ${sidebarOpen ? styles.sidebarOpen : ""}`}>
+          <aside
+            id="staff-sidebar"
+            ref={sidebarRef}
+            inert={modern && compact && !sidebarOpen}
+            role={modern && compact && sidebarOpen ? "dialog" : undefined}
+            aria-modal={modern && compact && sidebarOpen ? true : undefined}
+            aria-label="Staff navigation"
+            tabIndex={-1}
+            className={`${styles.sidebar} ${sidebarOpen ? styles.sidebarOpen : ""}`}
+          >
             <div className={styles.sidebarBrand}>
+              {modern && compact && sidebarOpen && (
+                <IconButton label="Close navigation" onClick={closeSidebar}>
+                  ×
+                </IconButton>
+              )}
               <div className={styles.brandWordmark}>
                 Learn<span>2</span>Earn
               </div>
-              <div className={styles.brandSubtitle}>Admin Portal</div>
+              <div className={styles.brandSubtitle}>Staff portal</div>
+              <p className={styles.scopeLabel}>
+                <strong>{admin.programName}</strong>
+                <br />
+                {admin.organizationName}
+              </p>
+              <a href="/admin/programs" className={styles.scopeLink}>
+                Change program
+              </a>
+              <a href="/admin/security" className={styles.scopeLink}>
+                Security and recovery
+              </a>
             </div>
 
             <nav className={styles.sidebarNav}>
-              {navGroups.map((group, gi) => (
+              {navGroups.filter(group=>group.items.length>0).map((group, gi) => (
                 <div key={gi} className={styles.navGroup}>
                   {group.label && (
                     <div className={styles.navGroupLabel}>{group.label}</div>
@@ -280,29 +393,38 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                       key={item.href}
                       href={item.href}
                       className={`${styles.navLink} ${isActive(item.href) ? styles.navLinkActive : ""}`}
+                      aria-current={isActive(item.href) ? "page" : undefined}
                       onClick={() => setSidebarOpen(false)}
                       style={{ justifyContent: "space-between" }}
                     >
-                      <span style={{ display: "flex", alignItems: "center", gap: "0.625rem" }}>
+                      <span
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "0.625rem",
+                        }}
+                      >
                         <NavIcon name={item.icon} />
                         {item.label}
                       </span>
                       {item.badge > 0 && (
-                        <span style={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          minWidth: "18px",
-                          height: "18px",
-                          padding: "0 4px",
-                          borderRadius: "999px",
-                          background: "var(--adm-red)",
-                          color: "#fff",
-                          fontSize: "0.65rem",
-                          fontWeight: 700,
-                          lineHeight: 1,
-                          flexShrink: 0,
-                        }}>
+                        <span
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            minWidth: "18px",
+                            height: "18px",
+                            padding: "0 4px",
+                            borderRadius: "999px",
+                            background: "var(--adm-red)",
+                            color: "#fff",
+                            fontSize: "0.65rem",
+                            fontWeight: 700,
+                            lineHeight: 1,
+                            flexShrink: 0,
+                          }}
+                        >
                           {item.badge > 99 ? "99+" : item.badge}
                         </span>
                       )}
@@ -324,7 +446,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
           </aside>
 
-          <main className={styles.mainContent}>
+          <main
+            id="staff-content"
+            tabIndex={modern ? -1 : undefined}
+            inert={modern && compact && sidebarOpen}
+            className={styles.mainContent}
+          >
+            <p className={styles.scopeBanner}>
+              <strong>{admin.programName}</strong> · {admin.organizationName} ·{" "}
+              {admin.membershipRole.replaceAll("_", " ")}
+            </p>
             {children}
           </main>
         </div>

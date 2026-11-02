@@ -1,116 +1,110 @@
 "use client";
-
-import { useState, Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { clientFetch } from "@/lib/reliability/client-fetch";
 import Link from "next/link";
-import "./city-deck.css";
+import { useState, useRef, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import MarketingShell from "../marketing/MarketingShell";
+import { Alert, Button } from "../ui";
+import styles from "../marketing/marketing.module.css";
 import type { CitySlug, CityDeckTheme } from "./types";
-
-interface Props {
+type Props = {
   slug: CitySlug;
   basePath: string;
   badge: string;
   sub: string;
   theme: CityDeckTheme;
-}
-
-function UnlockForm({ slug, basePath, badge, sub }: Omit<Props, "theme">) {
-  const [pin, setPin] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const next = searchParams.get("next") || basePath;
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+};
+function Form({ slug, basePath, badge, sub }: Omit<Props, "theme">) {
+  const [pin, setPin] = useState(""),
+    [error, setError] = useState(""),
+    [busy, setBusy] = useState(false),
+    lock = useRef(false),
+    params = useSearchParams(),
+    router = useRouter();
+  async function submit() {
+    if (lock.current) return;
+    lock.current = true;
+    setBusy(true);
     setError("");
-    setLoading(true);
-
     try {
-      const res = await fetch(`/api/city-access/${slug}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pin: pin.trim() }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.error?.message || "Invalid PIN");
-        setLoading(false);
-        return;
+      const r = await clientFetch(`/api/city-access/${slug}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ pin: pin.trim() }),
+          signal: AbortSignal.timeout(15000),
+        }),
+        d = await r.json();
+      if (!r.ok)
+        throw new Error(d.error?.message || "Access could not be confirmed.");
+      let next = basePath;
+      try {
+        const u = new URL(params.get("next") || basePath, location.origin);
+        if (u.origin === location.origin && u.pathname === basePath)
+          next = u.pathname + u.search + u.hash;
+      } catch {
+        /* Keep the known deck. */
       }
-
-      router.push(next.startsWith(basePath) ? next : basePath);
-    } catch {
-      setError("Something went wrong. Please try again.");
-      setLoading(false);
+      router.push(next);
+    } catch (e) {
+      setError(
+        e instanceof Error
+          ? e.message
+          : "Access could not be confirmed. Retry when connected.",
+      );
+    } finally {
+      lock.current = false;
+      setBusy(false);
     }
   }
-
-  const inputId = `cd-pin-${slug}`;
-
   return (
-    <div className="cd-unlock-card">
-      <div className="cd-unlock-header">
-        <div className="cd-hero-badge">{badge}</div>
-        <h1 className="cd-unlock-title">Enter Access PIN</h1>
-        <p className="cd-unlock-sub">{sub}</p>
-      </div>
-
-      <form onSubmit={handleSubmit} className="cd-unlock-form">
-        <label className="cd-unlock-label" htmlFor={inputId}>
+    <div className={styles.demoPage}>
+      <p className={styles.eyebrow}>{badge}</p>
+      <h1>Access required</h1>
+      <p>{sub}</p>
+      {error && <Alert tone="error">{error}</Alert>}
+      <form
+        className={styles.form}
+        onSubmit={(e) => {
+          e.preventDefault();
+          void submit();
+        }}
+      >
+        <label>
           Access PIN
+          <input
+            type="password"
+            autoComplete="off"
+            maxLength={40}
+            required
+            value={pin}
+            disabled={busy}
+            onChange={(e) => setPin(e.target.value)}
+          />
         </label>
-        <input
-          id={inputId}
-          type="password"
-          inputMode="text"
-          value={pin}
-          onChange={(e) => setPin(e.target.value)}
-          placeholder="Enter your PIN"
-          autoFocus
-          autoComplete="off"
-          className="cd-unlock-input"
-        />
-        {error && <p className="cd-unlock-error">{error}</p>}
-
-        <button
+        <Button
           type="submit"
-          disabled={loading || !pin.trim()}
-          className="cd-btn-primary cd-unlock-submit"
+          busy={busy}
+          disabled={!pin.trim()}
+          disabledReason="Enter the PIN supplied for this private discussion."
         >
-          {loading ? "Verifying..." : "Unlock Deck"}
-        </button>
+          Unlock deck
+        </Button>
       </form>
-
-      <div className="cd-unlock-footer">
-        <p className="cd-unlock-help">
-          Need a PIN? <a href="mailto:partners@learn2earn.org">Contact us</a>
-        </p>
-        <Link href="/" className="cd-unlock-back">
-          &larr; Back to Homepage
-        </Link>
-      </div>
+      <a className={styles.textLink} href={`/?city=${slug}#contact`}>
+        Ask about a pilot or deck access
+      </a>
+      <Link className={styles.textLink} href="/">
+        Back to homepage
+      </Link>
     </div>
   );
 }
-
-export default function CityDeckUnlock({ slug, basePath, badge, sub, theme }: Props) {
+export default function CityDeckUnlock({ theme: _theme, ...props }: Props) {
   return (
-    <div className="cd-page cd-unlock-page" style={theme.themeStyle}>
-      <div className="cd-unlock-bg">
-        <Suspense
-          fallback={
-            <div className="cd-unlock-card">
-              <p className="cd-unlock-sub">Loading...</p>
-            </div>
-          }
-        >
-          <UnlockForm slug={slug} basePath={basePath} badge={badge} sub={sub} />
-        </Suspense>
-      </div>
-    </div>
+    <MarketingShell>
+      <Suspense fallback={<p role="status">Loading the access form…</p>}>
+        <Form {...props} />
+      </Suspense>
+    </MarketingShell>
   );
 }

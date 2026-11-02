@@ -1,4 +1,5 @@
 "use client";
+import { Button } from "../ui";
 
 interface Props {
   className?: string;
@@ -6,8 +7,8 @@ interface Props {
 }
 
 export default function CityDeckPrintButton({
-  className = "cd-btn-outline",
-  label = "Download PDF",
+  className,
+  label = "Print discussion outline",
 }: Props) {
   const handleClick = () => {
     if (typeof window !== "undefined") {
@@ -16,13 +17,14 @@ export default function CityDeckPrintButton({
   };
 
   return (
-    <button
+    <Button
+      variant="secondary"
       type="button"
       onClick={handleClick}
-      className={`${className} cd-print-btn`}
-      aria-label="Print or save this deck as a PDF"
+      className={className}
+      aria-label={`${label}: print or save as PDF`}
     >
       {label}
-    </button>
+    </Button>
   );
 }

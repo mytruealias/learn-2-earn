@@ -1,3 +1,4 @@
+import { configuredRootDomain } from "./lib/site-identity";
 import type { NextConfig } from "next";
 
 const devOrigins = process.env.ALLOWED_DEV_ORIGINS
@@ -6,7 +7,7 @@ const devOrigins = process.env.ALLOWED_DEV_ORIGINS
 
 // When ROOT_DOMAIN is set, include all three subdomain origins so that
 // Server Actions and cross-subdomain requests are accepted.
-const rootDomain = process.env.ROOT_DOMAIN;
+const rootDomain = configuredRootDomain();
 const subdomainOrigins = rootDomain
   ? [
       `https://${rootDomain}`,
@@ -25,20 +26,17 @@ const nextConfig: NextConfig = {
   ...(allAllowedOrigins.length > 0 && { allowedDevOrigins: allAllowedOrigins }),
   experimental: {
     serverActions: {
-      ...(allAllowedOrigins.length > 0 && { allowedOrigins: allAllowedOrigins }),
+      ...(allAllowedOrigins.length > 0 && {
+        allowedOrigins: allAllowedOrigins,
+      }),
     },
-  },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
   },
   async headers() {
     return [
       {
         // Only HTML pages — not static JS/CSS/image assets
-        source: "/((?!_next/static|_next/image|favicon\\.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|woff|woff2|ttf|otf|eot)$).*)",
+        source:
+          "/((?!_next/static|_next/image|favicon\\.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|woff|woff2|ttf|otf|eot)$).*)",
         headers: [
           {
             key: "Vary",

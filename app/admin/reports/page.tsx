@@ -1,323 +1,271 @@
 "use client";
-
-import { useState, useEffect, Fragment } from "react";
-import styles from "./reports.module.css";
-
-interface EngagementPoint {
-  date: string;
-  count: number;
-}
-
-interface ModuleDropoff {
-  title: string;
-  totalLessons: number;
-  uniqueStarters: number;
-  uniqueCompleters: number;
-  completionRate: number;
-}
-
-interface PathDropoff {
-  pathTitle: string;
-  modules: ModuleDropoff[];
-  totalLessons: number;
-  uniqueStarters: number;
-  uniqueCompleters: number;
-  completionRate: number;
-}
-
-interface ReportsData {
-  engagement: EngagementPoint[];
-  dropoff: PathDropoff[];
-  milestones: {
-    pathCompletions: number;
-    moduleCompletions: number;
-    lessonsCompleted: number;
-  };
-  summary: {
-    totalUsers: number;
-    registeredUsers: number;
-    guestUsers: number;
-    activeWeek: number;
-    activeMonth: number;
-    totalXpDistributed: number;
-    totalLessonsCompleted: number;
-    totalPayoutRequests: number;
-    totalPayoutDollars: number;
-    completedPayouts: number;
-    completedPayoutDollars: number;
-    pathCompletions: number;
-    moduleCompletions: number;
-  };
-}
-
-type Range = "30" | "60" | "90";
-
-function groupByWeek(data: EngagementPoint[]): EngagementPoint[] {
-  const weeks = new Map<string, number>();
-  for (const d of data) {
-    const date = new Date(d.date);
-    const weekStart = new Date(date);
-    weekStart.setDate(date.getDate() - date.getDay());
-    const key = weekStart.toISOString().slice(0, 10);
-    weeks.set(key, (weeks.get(key) || 0) + d.count);
-  }
-  return Array.from(weeks.entries())
-    .map(([date, count]) => ({ date, count }))
-    .sort((a, b) => a.date.localeCompare(b.date));
-}
-
-function EngagementChart({ data, range }: { data: EngagementPoint[]; range: Range }) {
-  const days = parseInt(range);
-  const now = new Date();
-  const cutoff = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
-  const filtered = data.filter((d) => new Date(d.date) >= cutoff);
-
-  if (filtered.length === 0) {
-    return <div className={styles.noData}>No engagement data for this period</div>;
-  }
-
-  const chartData = days > 30 ? groupByWeek(filtered) : filtered;
-  const values = chartData.map((d) => d.count);
-  const max = Math.max(...values, 1);
-  const min = 0;
-  const range_ = max - min || 1;
-  const w = 600;
-  const h = 120;
-  const pad = 6;
-
-  const points = values.map((v, i) => {
-    const x = pad + (i / (values.length - 1 || 1)) * (w - pad * 2);
-    const y = h - pad - ((v - min) / range_) * (h - pad * 2);
-    return `${x},${y}`;
-  });
-
-  const polyline = points.join(" ");
-  const areaPoints = [`${pad},${h - pad}`, ...points, `${w - pad},${h - pad}`].join(" ");
-
+import { Suspense, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useAdmin } from "../AdminContext";
+import { staffFetch } from "@/lib/staff-fetch";
+import { Alert, Button, Card, Skeleton } from "@/app/components/ui";
+import { DataTable } from "../components/StaffTable";
+import { usd } from "@/lib/rewards/money";
+import type { programReport } from "@/lib/staff/reporting";
+import styles from "../components/staff.module.css";
+type Report = Awaited<ReturnType<typeof programReport>>;
+export default function Page() {
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} className={styles.chartArea} preserveAspectRatio="none">
-      <polygon points={areaPoints} fill="#22c55e" fillOpacity="0.1" />
-      <polyline
-        points={polyline}
-        fill="none"
-        stroke="#22c55e"
-        strokeWidth="2"
-        strokeLinejoin="round"
-        strokeLinecap="round"
-      />
-      {values.map((v, i) => {
-        const [px, py] = points[i].split(",").map(Number);
-        return (
-          <g key={i}>
-            <circle cx={px} cy={py} r="3" fill="#22c55e" />
-            <title>{chartData[i].date}: {v} lessons</title>
-          </g>
-        );
-      })}
-    </svg>
+    <Suspense fallback={<Skeleton label="Loading report filters…" />}>
+      <Reports />
+    </Suspense>
   );
 }
-
-function RateBar({ rate }: { rate: number }) {
-  const colorClass = rate >= 60 ? styles.rateGreen : rate >= 30 ? styles.rateYellow : styles.rateRed;
-  const textColor = rate >= 60 ? "var(--adm-green)" : rate >= 30 ? "var(--adm-amber)" : "var(--adm-red)";
-
-  return (
-    <div className={styles.rateBar}>
-      <div className={styles.rateTrack}>
-        <div
-          className={`${styles.rateFill} ${colorClass}`}
-          style={{ width: `${Math.min(rate, 100)}%` }}
-        />
-      </div>
-      <span className={styles.rateText} style={{ color: textColor }}>{rate}%</span>
-    </div>
-  );
-}
-
-function csvEscape(value: string): string {
-  const escaped = value.replace(/"/g, '""');
-  if (escaped.includes(",") || escaped.includes('"') || escaped.includes("\n")) {
-    return `"${escaped}"`;
-  }
-  return escaped;
-}
-
-function exportReportCSV(data: ReportsData) {
-  const s = data.summary;
-  const lines: string[] = [];
-
-  lines.push("Learn2Earn Engagement & Outcomes Report");
-  lines.push(`Generated: ${new Date().toISOString().slice(0, 10)}`);
-  lines.push("");
-
-  lines.push("ENROLLMENT");
-  lines.push(`Total Users,${s.totalUsers}`);
-  lines.push(`Registered Users,${s.registeredUsers}`);
-  lines.push(`Guest Users,${s.guestUsers}`);
-  lines.push(`Active (7 days),${s.activeWeek}`);
-  lines.push(`Active (30 days),${s.activeMonth}`);
-  lines.push("");
-
-  lines.push("LEARNING OUTCOMES");
-  lines.push(`Total Lessons Completed,${s.totalLessonsCompleted}`);
-  lines.push(`Total XP Distributed,${s.totalXpDistributed}`);
-  lines.push(`Path Completions (milestones),${s.pathCompletions}`);
-  lines.push(`Module Completions (milestones),${s.moduleCompletions}`);
-  lines.push("");
-
-  lines.push("PAYOUTS");
-  lines.push(`Total Payout Requests,${s.totalPayoutRequests}`);
-  lines.push(`Total Payout Value,$${s.totalPayoutDollars.toFixed(2)}`);
-  lines.push(`Completed Payouts,${s.completedPayouts}`);
-  lines.push(`Completed Payout Value,$${s.completedPayoutDollars.toFixed(2)}`);
-  lines.push("");
-
-  lines.push("ENGAGEMENT BY DAY (Past 90 Days)");
-  lines.push("Date,Lessons Completed");
-  for (const e of data.engagement) {
-    lines.push(`${e.date},${e.count}`);
-  }
-  lines.push("");
-
-  lines.push("DROP-OFF ANALYSIS BY PATH");
-  lines.push("Path,Total Lessons,Starters,Completers,Starter Completion Rate");
-  for (const p of data.dropoff) {
-    lines.push(`${csvEscape(p.pathTitle)},${p.totalLessons},${p.uniqueStarters},${p.uniqueCompleters},${p.completionRate}%`);
-    for (const m of p.modules) {
-      lines.push(`${csvEscape("  " + m.title)},${m.totalLessons},${m.uniqueStarters},${m.uniqueCompleters},${m.completionRate}%`);
+function Reports() {
+  const { admin } = useAdmin(),
+    p = useSearchParams(),
+    router = useRouter(),
+    path = usePathname(),
+    [report, setReport] = useState<Report | null>(null),
+    [error, setError] = useState(""),
+    [busy, setBusy] = useState(false),
+    [exporting, setExporting] = useState(false),
+    [start, setStart] = useState(
+      p.get("start") ||
+        new Date(Date.now() - 29 * 86400000).toISOString().slice(0, 10),
+    ),
+    [end, setEnd] = useState(
+      p.get("end") || new Date().toISOString().slice(0, 10),
+    ),
+    [timezone, setTimezone] = useState(p.get("timezone") || "UTC"),
+    [retry, setRetry] = useState(0);
+  const [initial] = useState({ start, end, timezone });
+  const query = new URLSearchParams({
+    start: p.get("start") || initial.start,
+    end: p.get("end") || initial.end,
+    timezone: p.get("timezone") || initial.timezone,
+    programId: admin?.programId || "",
+  }).toString();
+  useEffect(() => {
+    const controller = new AbortController();
+    setBusy(true);
+    setError("");
+    staffFetch(`/api/admin/stats/reports?${query}`, {
+      signal: controller.signal,
+    })
+      .then(async (r) => {
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error?.message || "Report unavailable.");
+        setReport(d.report);
+      })
+      .catch((e) => {
+        if (!controller.signal.aborted)
+          setError(e instanceof Error ? e.message : "Report unavailable.");
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setBusy(false);
+      });
+    return () => controller.abort();
+  }, [query, retry]);
+  async function exportReport() {
+    setExporting(true);
+    setError("");
+    try {
+      const r = await staffFetch(
+        `/api/admin/stats/reports?${query}&format=csv`,
+      );
+      if (!r.ok) {
+        const d = await r.json();
+        throw new Error(d.error?.message || "Export unavailable.");
+      }
+      const url = URL.createObjectURL(await r.blob()),
+        a = document.createElement("a");
+      a.href = url;
+      a.download = "program-participation-report.csv";
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Export unavailable.");
+    } finally {
+      setExporting(false);
     }
   }
-
-  const csv = lines.join("\n");
-  const blob = new Blob([csv], { type: "text/csv" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `learn2earn_report_${new Date().toISOString().slice(0, 10)}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-export default function ReportsPage() {
-  const [data, setData] = useState<ReportsData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [range, setRange] = useState<Range>("30");
-  const [expandedPaths, setExpandedPaths] = useState<Set<string>>(new Set());
-
-  useEffect(() => {
-    fetch("/api/admin/stats/reports", { credentials: "include" })
-      .then((r) => r.json())
-      .then((res) => {
-        if (res.ok) setData(res.reports);
-      })
-      .finally(() => setLoading(false));
-  }, []);
-
-  const togglePath = (title: string) => {
-    setExpandedPaths((prev) => {
-      const next = new Set(prev);
-      if (next.has(title)) next.delete(title);
-      else next.add(title);
-      return next;
-    });
-  };
-
-  if (loading) return <div className={styles.loading}>Loading reports...</div>;
-  if (!data) return <div className={styles.error}>Failed to load report data</div>;
-
   return (
-    <div className={styles.page}>
-      <div className={styles.pageHeader}>
-        <h1 className={styles.pageTitle}>Reports</h1>
-        <button className={styles.exportBtn} onClick={() => exportReportCSV(data)}>
-          ↓ Download Full Report (CSV)
-        </button>
-      </div>
-
-      <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>Milestones Achieved</h2>
-        <div className={styles.milestonesGrid}>
-          <div className={`${styles.milestoneCard} ${styles.milestoneGreen}`}>
-            <div className={styles.milestoneLabel}>Lessons Completed</div>
-            <div className={styles.milestoneValue}>{data.milestones.lessonsCompleted.toLocaleString()}</div>
+    <section className={styles.page} data-design="staff">
+      <header>
+        <h1>Program reports</h1>
+        <p>
+          Learning participation, service activity and recorded payments remain
+          separate. These records do not demonstrate causal impact.
+        </p>
+      </header>
+      <form
+        className={styles.toolbar}
+        onSubmit={(e) => {
+          e.preventDefault();
+          router.replace(
+            `${path}?${new URLSearchParams({ start, end, timezone })}`,
+            { scroll: false },
+          );
+        }}
+      >
+        <label>
+          Program
+          <select
+            value={admin?.programId || ""}
+            disabled
+            aria-describedby="program-scope-note"
+          >
+            <option value={admin?.programId}>{admin?.programName}</option>
+          </select>
+        </label>
+        <label>
+          Start date
+          <input
+            type="date"
+            value={start}
+            onChange={(e) => setStart(e.target.value)}
+            required
+          />
+        </label>
+        <label>
+          End date, inclusive
+          <input
+            type="date"
+            value={end}
+            onChange={(e) => setEnd(e.target.value)}
+            required
+          />
+        </label>
+        <label>
+          IANA timezone
+          <input
+            value={timezone}
+            onChange={(e) => setTimezone(e.target.value)}
+            list="report-timezones"
+            required
+          />
+        </label>
+        <datalist id="report-timezones">
+          <option value="UTC" />
+          <option value="America/Chicago" />
+          <option value="America/Denver" />
+          <option value="America/Los_Angeles" />
+          <option value="America/New_York" />
+        </datalist>
+        <Button type="submit" busy={busy}>
+          Apply report filters
+        </Button>
+      </form>
+      <p id="program-scope-note">
+        Reports use your active program. To report on another authorized
+        program, use Change program in navigation. Choose up to 366 local
+        calendar days.
+      </p>
+      {error && (
+        <Alert tone="error">
+          {error}{" "}
+          <Button variant="secondary" onClick={() => setRetry((v) => v + 1)}>
+            Retry report
+          </Button>
+        </Alert>
+      )}
+      {!report ? (
+        <Skeleton label="Calculating program metrics…" />
+      ) : (
+        <>
+          <p role="status">
+            {busy
+              ? "Updating report… Previous results remain visible."
+              : `${report.filters.start} through ${report.filters.end} in ${report.filters.timezone}.`}
+          </p>
+          <div className={styles.grid}>
+            <Card>
+              <h2>Learning participation</h2>
+              <p className={styles.metric}>
+                {report.summary.active} / {report.summary.enrolled}
+              </p>
+              <p>
+                {report.summary.participationPercent === null
+                  ? "No enrolled denominator"
+                  : `${report.summary.participationPercent}% of currently enrolled accounts participated.`}
+              </p>
+              <p>
+                {report.summary.first} first completions ·{" "}
+                {report.summary.practice} completed practice sessions
+              </p>
+              <p>{report.definitions.denominator}</p>
+              <p>{report.definitions.participation}</p>
+            </Card>
+            <Card>
+              <h2>Service activity</h2>
+              <p className={styles.metric}>{report.summary.services}</p>
+              <p>
+                {report.summary.quantity} allocated units.{" "}
+                {report.summary.cases} support cases created in range.
+              </p>
+              <p>{report.definitions.service}</p>
+            </Card>
+            <Card>
+              <h2>Recorded incentives paid</h2>
+              <p className={styles.metric}>
+                {report.summary.paidCents === null
+                  ? "Needs reconciliation"
+                  : usd(report.summary.paidCents)}
+              </p>
+              <p>
+                {report.summary.paidCount} recorded payments ·{" "}
+                {report.summary.paidParticipants} participants
+              </p>
+              <p>{report.definitions.paid}</p>
+              <p>
+                {report.summary.legacyPaid} undated completed legacy requests
+                excluded (all time).
+              </p>
+            </Card>
           </div>
-          <div className={styles.milestoneCard}>
-            <div className={styles.milestoneLabel}>Module Completions</div>
-            <div className={styles.milestoneValue}>{data.milestones.moduleCompletions.toLocaleString()}</div>
-          </div>
-          <div className={`${styles.milestoneCard} ${styles.milestoneBlue}`}>
-            <div className={styles.milestoneLabel}>Path Completions</div>
-            <div className={styles.milestoneValue}>{data.milestones.pathCompletions.toLocaleString()}</div>
-          </div>
-        </div>
-      </div>
-
-      <div className={styles.section}>
-        <div className={styles.chartCard}>
-          <div className={styles.chartHeader}>
-            <span className={styles.chartTitle}>
-              Lessons Completed {range === "30" ? "Per Day" : "Per Week"}
-            </span>
-            <div className={styles.rangePicker}>
-              {(["30", "60", "90"] as Range[]).map((r) => (
-                <button
-                  key={r}
-                  className={`${styles.rangeBtn} ${range === r ? styles.rangeBtnActive : ""}`}
-                  onClick={() => setRange(r)}
-                >
-                  {r}d
-                </button>
-              ))}
-            </div>
-          </div>
-          <EngagementChart data={data.engagement} range={range} />
-        </div>
-      </div>
-
-      <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>Drop-Off Analysis</h2>
-        <table className={styles.dropoffTable}>
-          <thead>
-            <tr>
-              <th>Path / Module</th>
-              <th>Lessons</th>
-              <th>Starters</th>
-              <th>Completers</th>
-              <th>Starter Completion Rate</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.dropoff.map((path) => (
-              <Fragment key={path.pathTitle}>
-                <tr
-                  className={styles.pathRow}
-                  onClick={() => togglePath(path.pathTitle)}
-                  style={{ cursor: "pointer" }}
-                >
-                  <td>
-                    {expandedPaths.has(path.pathTitle) ? "▾" : "▸"} {path.pathTitle}
-                  </td>
-                  <td>{path.totalLessons}</td>
-                  <td>{path.uniqueStarters}</td>
-                  <td>{path.uniqueCompleters}</td>
-                  <td><RateBar rate={path.completionRate} /></td>
-                </tr>
-                {expandedPaths.has(path.pathTitle) &&
-                  path.modules.map((mod) => (
-                    <tr key={`${path.pathTitle}-${mod.title}`} className={styles.moduleRow}>
-                      <td>{mod.title}</td>
-                      <td>{mod.totalLessons}</td>
-                      <td>{mod.uniqueStarters}</td>
-                      <td>{mod.uniqueCompleters}</td>
-                      <td><RateBar rate={mod.completionRate} /></td>
-                    </tr>
-                  ))}
-              </Fragment>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
+          <Card>
+            <h2>Daily first completions</h2>
+            {report.daily.length ? (
+              <DataTable
+                rows={report.daily.map((d) => ({ id: d.date, ...d }))}
+                columns={[
+                  {
+                    key: "date",
+                    label: `Local date (${report.filters.timezone})`,
+                  },
+                  { key: "completions", label: "First completions" },
+                ]}
+                caption="Only dates with recorded first completions appear. Missing dates have no recorded completions in this scope."
+              />
+            ) : (
+              <p>
+                No first completions in this range. Practice and service
+                activity are reported separately.
+              </p>
+            )}
+          </Card>
+          <Card>
+            <h2>Definitions and limits</h2>
+            <p>{report.definitions.first}</p>
+            <p>{report.definitions.practice}</p>
+            <p>{report.definitions.outcomes}</p>
+            <p>
+              Exact query boundaries: {report.filters.startUtc} to{" "}
+              {report.filters.endExclusiveUtc} (exclusive). Reports reflect
+              records available when calculated.
+            </p>
+          </Card>
+          <p>
+            Export contains aggregate counts, exact paid cents, program/filter
+            metadata and daily counts. It excludes names, contacts, notes,
+            reflections and payment handles.
+          </p>
+          <Button
+            busy={exporting}
+            disabled={busy}
+            disabledReason="Wait for the filtered report before exporting."
+            onClick={exportReport}
+          >
+            Export authorized report
+          </Button>
+        </>
+      )}
+    </section>
   );
 }

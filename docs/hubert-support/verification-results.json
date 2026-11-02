@@ -1,0 +1,45 @@
+{
+  "branch": "feat/program-boundaries",
+  "baseline": "4e979ba",
+  "recordedOn": "2026-11-01 UTC",
+  "uniqueFunctionalCasesPassed": 264,
+  "aggregateNpmTestPassed": false,
+  "passedSuites": {
+    "unit": 76,
+    "api": 123,
+    "http": 6,
+    "smoke": 4,
+    "design": 8,
+    "journey": 11,
+    "progression": 9,
+    "lesson": 7,
+    "rewards": 5,
+    "staff": 8,
+    "support": 7
+  },
+  "legacyAliasRepeatedCasesPassed": 13,
+  "lint": "passed after clean install; zero warnings",
+  "typecheck": "passed at pre-clean checkpoint; final blocked by missing generated client",
+  "dependencyInstall": "passed; 404 packages",
+  "prismaGeneration": "blocked: CONNECT proxy HTTP 403 for pinned engine checksums",
+  "finalBuild": "not executed past generation prerequisite",
+  "productionModeChecks": "not executed",
+  "currentEnvironmentReady": false,
+  "cloudDraft": "saved; requires publication; runtime unchanged",
+  "screenshots": {
+    "staff": 33,
+    "help": 10,
+    "axeViolations": 0,
+    "horizontalOverflow": false
+  },
+  "productionDatabaseUsed": false,
+  "livePersonalConversationsUsed": false,
+  "liveProviderCallsUsed": false,
+  "deployed": false,
+  "collaboration": {
+    "implementationCommit": "351368d",
+    "pushed": false,
+    "prCreated": false,
+    "reason": "Native Git authentication unavailable; configured GitHub CLI binding rejected by Git and API returned Forbidden"
+  }
+}

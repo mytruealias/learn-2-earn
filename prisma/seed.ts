@@ -1,6 +1,10 @@
 import { PrismaClient } from "@prisma/client";
 
+import { assertDatabaseOperation } from "../scripts/database-operation";
+import { addMissingCards } from "./seed-support";
+
 const prisma = new PrismaClient();
+const newLessonIds = new Set<string>();
 
 async function upsertPath(data: { title: string; slug: string; description: string; icon: string; order: number; color?: string; estimatedHours?: number; targetAudience?: string; difficulty?: string }) {
   const newFields = {
@@ -11,7 +15,7 @@ async function upsertPath(data: { title: string; slug: string; description: stri
   };
   return prisma.path.upsert({
     where: { slug: data.slug },
-    update: newFields,
+    update: {},
     create: { ...data, ...newFields },
   });
 }
@@ -23,18 +27,13 @@ async function upsertModule(data: { pathId: string; title: string; slug: string;
   };
   return prisma.module.upsert({
     where: { pathId_slug: { pathId: data.pathId, slug: data.slug } },
-    update: { ...newFields, order: data.order },
+    update: {},
     create: { ...data, ...newFields },
   });
 }
 
 async function expandCards(lessonId: string, allCards: Array<{ type: string; order: number; prompt: string; body?: string; choicesJson?: string; answerJson?: string; explain?: string; subtype?: string }>) {
-  const existing = await prisma.card.findMany({ where: { lessonId }, select: { order: true } });
-  const existingOrders = new Set(existing.map((c) => c.order));
-  const toCreate = allCards.filter((c) => !existingOrders.has(c.order));
-  if (toCreate.length > 0) {
-    await prisma.card.createMany({ data: toCreate.map((c) => ({ lessonId, ...c })) });
-  }
+  await addMissingCards(prisma, lessonId, allCards);
 }
 
 async function upsertLesson(data: { moduleId: string; title: string; slug: string; order: number; xpReward: number; type?: string; lessonType?: string; estimatedMinutes?: number; learningObjectives?: string; difficulty?: string }) {
@@ -47,69 +46,30 @@ async function upsertLesson(data: { moduleId: string; title: string; slug: strin
     learningObjectives: data.learningObjectives || "[]",
     difficulty: data.difficulty || "foundational",
   };
-  return prisma.lesson.upsert({
-    where: { moduleId_slug: { moduleId: data.moduleId, slug: data.slug } },
-    update: { ...newFields, xpReward: data.xpReward, order: data.order },
-    create: { ...data, ...newFields },
-  });
+  const where = { moduleId_slug: { moduleId: data.moduleId, slug: data.slug } };
+  const existing = await prisma.lesson.findUnique({ where });
+  if (existing) return existing;
+  const created = await prisma.lesson.create({ data: { ...data, ...newFields } });
+  newLessonIds.add(created.id);
+  return created;
 }
 
-// INFO card subtype domain: MISSION ("Mission:" prefix), REFLECTION ("Reflect:" prefix), "" (all others)
-function resolveInfoSubtype(prompt: string): string {
-  if (prompt.startsWith("Mission:")) return "MISSION";
-  if (prompt.startsWith("Reflect:")) return "REFLECTION";
-  return "";
-}
-
+// Initialize derived metadata only for lessons inserted by this invocation.
 async function reconcileLessonMetadata() {
-  const lessons = await prisma.lesson.findMany({
-    select: {
-      id: true,
-      lessonType: true,
-      estimatedMinutes: true,
-      _count: { select: { cards: true } },
-    },
-  });
-  for (const lesson of lessons) {
-    const lessonType = lesson.lessonType || "learn";
-    // Auto-calculate estimatedMinutes for "learn" only; checkpoint/capstone keep explicit values.
-    const estimatedMinutes =
-      lessonType === "learn"
-        ? Math.max(5, lesson._count.cards * 2)
-        : lesson.estimatedMinutes;
-    await prisma.lesson.update({
-      where: { id: lesson.id },
-      data: { lessonType, estimatedMinutes },
-    });
-  }
-
-  // Reconcile Card.subtype for all INFO cards (idempotent).
-  const infoCards = await prisma.card.findMany({
-    where: { type: "INFO" },
-    select: { id: true, prompt: true, subtype: true },
-  });
-  let updated = 0;
-  for (const card of infoCards) {
-    const subtype = resolveInfoSubtype(card.prompt);
-    if (card.subtype !== subtype) {
-      await prisma.card.update({ where: { id: card.id }, data: { subtype } });
-      updated++;
+  for (const id of newLessonIds) {
+    const lesson = await prisma.lesson.findUniqueOrThrow({ where: { id }, include: { _count: { select: { cards: true } } } });
+    if (lesson.lessonType === "learn") {
+      await prisma.lesson.update({ where: { id }, data: { estimatedMinutes: Math.max(5, lesson._count.cards * 2) } });
     }
   }
-  const learnCount = lessons.filter((l) => l.lessonType === "learn").length;
-  const specialCount = lessons.length - learnCount;
-  console.log(`  ↳ Reconciled metadata for ${lessons.length} lessons (${learnCount} learn, ${specialCount} checkpoint/capstone)`);
-  console.log(`  ↳ Reconciled subtype on ${updated} INFO cards (MISSION/REFLECTION)`);
 }
 
 async function seedCards(lessonId: string, cards: Array<{ type: string; order: number; prompt: string; body?: string; choicesJson?: string; answerJson?: string; explain?: string; subtype?: string }>) {
-  const count = await prisma.card.count({ where: { lessonId } });
-  if (count === 0) {
-    await prisma.card.createMany({ data: cards.map((c) => ({ lessonId, ...c })) });
-  }
+  await addMissingCards(prisma, lessonId, cards);
 }
 
 async function main() {
+  await assertDatabaseOperation(prisma, "content-sync");
   // =====================================================
   // JOURNEY A: Stability Basics
   // =====================================================
@@ -1850,8 +1810,8 @@ async function main() {
 
 main()
   .then(() => prisma.$disconnect())
-  .catch((e) => {
-    console.error(e);
+  .catch(() => {
+    console.error("Content synchronization failed. No connection details are logged; check the release runbook.");
     prisma.$disconnect();
     process.exit(1);
   });

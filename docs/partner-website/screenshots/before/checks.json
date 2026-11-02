@@ -1,0 +1,102 @@
+[
+  {
+    "screen": "home",
+    "width": 360,
+    "status": 200
+  },
+  {
+    "screen": "privacy",
+    "width": 360,
+    "status": 200
+  },
+  {
+    "screen": "terms",
+    "width": 360,
+    "status": 200
+  },
+  {
+    "screen": "city-unlock",
+    "width": 360,
+    "status": 200
+  },
+  {
+    "screen": "city-deck",
+    "width": 360,
+    "status": 200
+  },
+  {
+    "screen": "home",
+    "width": 390,
+    "status": 200
+  },
+  {
+    "screen": "privacy",
+    "width": 390,
+    "status": 200
+  },
+  {
+    "screen": "terms",
+    "width": 390,
+    "status": 200
+  },
+  {
+    "screen": "city-unlock",
+    "width": 390,
+    "status": 200
+  },
+  {
+    "screen": "city-deck",
+    "width": 390,
+    "status": 200
+  },
+  {
+    "screen": "home",
+    "width": 768,
+    "status": 200
+  },
+  {
+    "screen": "privacy",
+    "width": 768,
+    "status": 200
+  },
+  {
+    "screen": "terms",
+    "width": 768,
+    "status": 200
+  },
+  {
+    "screen": "city-unlock",
+    "width": 768,
+    "status": 200
+  },
+  {
+    "screen": "city-deck",
+    "width": 768,
+    "status": 200
+  },
+  {
+    "screen": "home",
+    "width": 1440,
+    "status": 200
+  },
+  {
+    "screen": "privacy",
+    "width": 1440,
+    "status": 200
+  },
+  {
+    "screen": "terms",
+    "width": 1440,
+    "status": 200
+  },
+  {
+    "screen": "city-unlock",
+    "width": 1440,
+    "status": 200
+  },
+  {
+    "screen": "city-deck",
+    "width": 1440,
+    "status": 200
+  }
+]

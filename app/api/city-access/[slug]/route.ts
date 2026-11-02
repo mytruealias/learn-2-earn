@@ -1,3 +1,5 @@
+import { sameOriginError } from "@/lib/request-origin";
+import { consumeRateLimit } from "@/lib/reliability/rate-limit";
 import { z } from "zod";
 import { setCityAccessCookie, getExpectedPin, getCityAccess, type CitySlug } from "@/lib/city-access";
 import {
@@ -8,12 +10,10 @@ import {
   parseParam,
   slugParamSchema,
   getClientIp,
-  createRateLimiter,
   rateLimitResponse,
 } from "@/lib/api-helpers";
 
-// 10 PIN attempts per IP+city per 10 minutes.
-const limiter = createRateLimiter({ max: 10, windowMs: 10 * 60 * 1000 });
+// Ten admitted PIN attempts per IP/city per ten minutes, shared across instances.
 
 const Schema = z.object({
   pin: z.string().min(1, "PIN is required").max(40),
@@ -24,6 +24,8 @@ export async function POST(
   context: { params: Promise<{ slug: string }> },
 ) {
   try {
+    const origin = sameOriginError(req);
+    if (origin) return origin;
     const { slug: rawSlug } = await context.params;
     const slugCheck = parseParam(rawSlug, slugParamSchema, "slug");
     if (!slugCheck.ok) return slugCheck.response;
@@ -33,9 +35,8 @@ export async function POST(
     }
 
     const ip = getClientIp(req);
-    const rateKey = `${ip}:${citySlug}`;
 
-    const gate = limiter.check(rateKey);
+    const gate = await consumeRateLimit(`city:${citySlug}`, ip, 10, 10 * 60 * 1000);
     if (!gate.allowed) {
       const minutes = Math.max(1, Math.ceil(gate.retryAfterSec / 60));
       return rateLimitResponse(
@@ -53,11 +54,11 @@ export async function POST(
     }
 
     if (parsed.data.pin.trim() !== expected) {
-      limiter.record(rateKey);
+
       return apiError("unauthorized", "Invalid PIN", 401);
     }
 
-    limiter.reset(rateKey);
+    await gate.release?.();
     const response = apiOk();
     setCityAccessCookie(response, citySlug);
     return response;

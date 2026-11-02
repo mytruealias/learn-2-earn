@@ -1,0 +1,10 @@
+.connection { position: relative; background: var(--l2e-milestone-soft); color: var(--l2e-ink); border-bottom: 2px solid var(--l2e-milestone); padding: .75rem max(1rem, env(safe-area-inset-left)); font-family: var(--l2e-font-body); font-size: 1rem; line-height: 1.6; }
+.connection p { max-width: 75rem; margin: auto; }
+.connection > div { max-width: 75rem; margin: auto; display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; }
+.connection a { color: var(--l2e-primary); min-height: 44px; display: inline-flex; align-items: center; }
+.connection a:focus-visible { outline: 3px solid var(--l2e-focus); outline-offset: 3px; }
+.error { max-width: 48rem; margin: auto; padding: 3rem 1rem; font-family: var(--l2e-font-body); color: var(--l2e-ink); }
+.error h1 { line-height: 1.2; }
+.error p { line-height: 1.6; }
+.error > div { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 1rem; margin-block: 1rem; }
+@media print { .connection { display: none; } }

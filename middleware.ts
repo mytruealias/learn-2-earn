@@ -1,26 +1,47 @@
+import { newRequestId, REQUEST_ID_HEADER } from "./lib/reliability/correlation";
+import { configuredRootDomain } from "./lib/site-identity";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { parseSessionPayload } from "./lib/session-policy";
+import { safeLearnerDestination } from "./lib/learner-navigation";
 
-const PROTECTED_PATHS = ["/app", "/paths", "/lesson", "/profile", "/lifeline", "/signup"];
+const PROTECTED_PATHS = [
+  "/app",
+  "/practice",
+  "/paths",
+  "/lesson",
+  "/profile",
+  "/signup",
+  "/onboarding",
+];
 
 const LEARNER_PATHS = [
-  "/app", "/paths", "/lesson", "/profile",
-  "/lifeline", "/signup", "/login", "/access",
+  "/app",
+  "/practice",
+  "/paths",
+  "/lesson",
+  "/profile",
+  "/lifeline",
+  "/signup",
+  "/login",
+  "/access",
+  "/onboarding",
+  "/recover",
 ];
 
 async function verifyHmacToken(
   token: string,
   secret: string,
-  prefix: string,
+  prefix: string | null,
 ): Promise<boolean> {
   try {
     const parts = token.split(".");
     if (parts.length !== 2) return false;
 
     const [encodedPayload, signature] = parts;
-    const payload = atob(encodedPayload);
+    const payload = atob(encodedPayload.replace(/-/g, "+").replace(/_/g, "/"));
 
-    if (!payload.startsWith(prefix)) return false;
+    if (prefix !== null && !payload.startsWith(prefix)) return false;
 
     const encoder = new TextEncoder();
     const key = await crypto.subtle.importKey(
@@ -28,7 +49,7 @@ async function verifyHmacToken(
       encoder.encode(secret),
       { name: "HMAC", hash: "SHA-256" },
       false,
-      ["sign"]
+      ["sign"],
     );
     const sig = await crypto.subtle.sign("HMAC", key, encoder.encode(payload));
     const expectedSig = Array.from(new Uint8Array(sig))
@@ -37,10 +58,17 @@ async function verifyHmacToken(
 
     if (signature !== expectedSig) return false;
 
-    const timestamp = parseInt(payload.slice(prefix.length), 10);
+    if (prefix === null) return !!parseSessionPayload(payload);
+    const rawTime = payload.slice(prefix.length);
+    if (!/^\d{13}$/.test(rawTime)) return false;
+    const timestamp = Number(rawTime);
     if (!Number.isFinite(timestamp)) return false;
     const thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
-    if (Date.now() - timestamp > thirtyDaysMs) return false;
+    if (
+      timestamp > Date.now() + 60_000 ||
+      Date.now() - timestamp >= thirtyDaysMs
+    )
+      return false;
 
     return true;
   } catch {
@@ -53,27 +81,63 @@ async function verifyToken(token: string, secret: string): Promise<boolean> {
 }
 
 interface CityGate {
-  slug: string;          // url segment, e.g. "austin", "los-angeles"
-  basePath: string;      // "/austin"
-  unlockPath: string;    // "/austin/unlock"
-  cookie: string;        // "l2e_austin_access"
-  prefix: string;        // "austin-access:"
-  pinEnv: string;        // "AUSTIN_ACCESS_PIN" or "CITY_ACCESS_PIN"
+  slug: string; // url segment, e.g. "austin", "los-angeles"
+  basePath: string; // "/austin"
+  unlockPath: string; // "/austin/unlock"
+  cookie: string; // "l2e_austin_access"
+  prefix: string; // "austin-access:"
+  pinEnv: string; // "AUSTIN_ACCESS_PIN" or "CITY_ACCESS_PIN"
 }
 
 const CITY_GATES: CityGate[] = [
-  { slug: "austin", basePath: "/austin", unlockPath: "/austin/unlock",
-    cookie: "l2e_austin_access", prefix: "austin-access:", pinEnv: "AUSTIN_ACCESS_PIN" },
-  { slug: "dallas", basePath: "/dallas", unlockPath: "/dallas/unlock",
-    cookie: "l2e_dallas_access", prefix: "dallas-access:", pinEnv: "CITY_ACCESS_PIN" },
-  { slug: "houston", basePath: "/houston", unlockPath: "/houston/unlock",
-    cookie: "l2e_houston_access", prefix: "houston-access:", pinEnv: "CITY_ACCESS_PIN" },
-  { slug: "denver", basePath: "/denver", unlockPath: "/denver/unlock",
-    cookie: "l2e_denver_access", prefix: "denver-access:", pinEnv: "CITY_ACCESS_PIN" },
-  { slug: "los-angeles", basePath: "/los-angeles", unlockPath: "/los-angeles/unlock",
-    cookie: "l2e_los-angeles_access", prefix: "los-angeles-access:", pinEnv: "CITY_ACCESS_PIN" },
-  { slug: "san-francisco", basePath: "/san-francisco", unlockPath: "/san-francisco/unlock",
-    cookie: "l2e_san-francisco_access", prefix: "san-francisco-access:", pinEnv: "CITY_ACCESS_PIN" },
+  {
+    slug: "austin",
+    basePath: "/austin",
+    unlockPath: "/austin/unlock",
+    cookie: "l2e_austin_access",
+    prefix: "austin-access:",
+    pinEnv: "AUSTIN_ACCESS_PIN",
+  },
+  {
+    slug: "dallas",
+    basePath: "/dallas",
+    unlockPath: "/dallas/unlock",
+    cookie: "l2e_dallas_access",
+    prefix: "dallas-access:",
+    pinEnv: "CITY_ACCESS_PIN",
+  },
+  {
+    slug: "houston",
+    basePath: "/houston",
+    unlockPath: "/houston/unlock",
+    cookie: "l2e_houston_access",
+    prefix: "houston-access:",
+    pinEnv: "CITY_ACCESS_PIN",
+  },
+  {
+    slug: "denver",
+    basePath: "/denver",
+    unlockPath: "/denver/unlock",
+    cookie: "l2e_denver_access",
+    prefix: "denver-access:",
+    pinEnv: "CITY_ACCESS_PIN",
+  },
+  {
+    slug: "los-angeles",
+    basePath: "/los-angeles",
+    unlockPath: "/los-angeles/unlock",
+    cookie: "l2e_los-angeles_access",
+    prefix: "los-angeles-access:",
+    pinEnv: "CITY_ACCESS_PIN",
+  },
+  {
+    slug: "san-francisco",
+    basePath: "/san-francisco",
+    unlockPath: "/san-francisco/unlock",
+    cookie: "l2e_san-francisco_access",
+    prefix: "san-francisco-access:",
+    pinEnv: "CITY_ACCESS_PIN",
+  },
 ];
 
 function isCityDeckPath(pathname: string): boolean {
@@ -86,10 +150,43 @@ function redirect301(url: string): NextResponse {
   return NextResponse.redirect(url, { status: 301 });
 }
 
+function passThrough(pathname: string, forwarded: Headers) {
+  const response = NextResponse.next({ request: { headers: forwarded } });
+  if (
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/api/admin") ||
+    pathname === "/api/partner-inquiries" ||
+    ["/api/support", "/api/stress-signal", "/api/chat", "/api/tts"].includes(
+      pathname,
+    ) ||
+    pathname === "/api/rewards" ||
+    pathname.startsWith("/api/payout") ||
+    LEARNER_PATHS.some((p) => pathname === p || pathname.startsWith(p + "/")) ||
+    pathname.startsWith("/api/auth/") ||
+    pathname.startsWith("/api/user/") ||
+    pathname.startsWith("/api/lesson/") ||
+    pathname.startsWith("/api/progress/") ||
+    pathname === "/api/practice"
+  ) {
+    response.headers.set("Cache-Control", "private, no-store");
+    response.headers.set("X-Robots-Tag", "noindex, nofollow");
+  }
+  return response;
+}
+
 export async function middleware(request: NextRequest) {
+  const forwarded = new Headers(request.headers), id = newRequestId();
+  forwarded.set(REQUEST_ID_HEADER, id);
+  const response = await routeRequest(request, forwarded);
+  response.headers.set(REQUEST_ID_HEADER, id);
+  if (request.nextUrl.pathname.startsWith("/api/")) response.headers.set("X-Robots-Tag", "noindex, nofollow");
+  if (request.nextUrl.pathname.startsWith("/api/") || response.status >= 300) response.headers.set("Cache-Control", "private, no-store");
+  return response;
+}
+async function routeRequest(request: NextRequest, forwarded: Headers) {
   const { pathname } = request.nextUrl;
   const search = request.nextUrl.search;
-  const rootDomain = process.env.ROOT_DOMAIN;
+  const rootDomain = configuredRootDomain();
 
   // ── SUBDOMAIN ROUTING ──────────────────────────────────────────────────────
   // Only active when ROOT_DOMAIN env var is set (i.e. production with real
@@ -102,41 +199,63 @@ export async function middleware(request: NextRequest) {
       return redirect301(`https://${rootDomain}${pathname}${search}`);
     }
 
-    const isRoot  = hostname === rootDomain;
-    const isApp   = hostname === `app.${rootDomain}`;
+    const isRoot = hostname === rootDomain;
+    const isApp = hostname === `app.${rootDomain}`;
     const isAdmin = hostname === `admin.${rootDomain}`;
 
     if (isRoot || isApp || isAdmin) {
-      const isApiPath   = pathname.startsWith("/api/");
-      const isAdminPath = pathname === "/admin" || pathname.startsWith("/admin/");
+      const isApiPath = pathname.startsWith("/api/");
+      const isAdminPath =
+        pathname === "/admin" || pathname.startsWith("/admin/");
       const isLearnerPath = LEARNER_PATHS.some(
-        (p) => pathname === p || pathname.startsWith(p + "/")
+        (p) => pathname === p || pathname.startsWith(p + "/"),
       );
       const isCityPagePath = isCityDeckPath(pathname);
       const isRootPath = pathname === "/";
 
       // API routes always pass through — no subdomain restriction on the API layer
       if (!isApiPath) {
+        if (
+          ["/privacy", "/terms", "/demo", "/opengraph-image"].includes(pathname)
+        )
+          return isRoot
+            ? passThrough(pathname, forwarded)
+            : redirect301(`https://${rootDomain}${pathname}${search}`);
         if (isRoot) {
           // Root domain serves / and the city-partnership decks (each PIN-gated)
           if (!isRootPath && !isCityPagePath) {
-            if (isAdminPath)   return redirect301(`https://admin.${rootDomain}${pathname}${search}`);
-            if (isLearnerPath) return redirect301(`https://app.${rootDomain}${pathname}${search}`);
+            if (isAdminPath)
+              return redirect301(
+                `https://admin.${rootDomain}${pathname}${search}`,
+              );
+            if (isLearnerPath)
+              return redirect301(
+                `https://app.${rootDomain}${pathname}${search}`,
+              );
             return redirect301(`https://${rootDomain}/`);
           }
         } else if (isApp) {
           // App subdomain: learner routes only
-          if (isRootPath)  return redirect301(`https://app.${rootDomain}/app`);
-          if (isAdminPath) return redirect301(`https://admin.${rootDomain}${pathname}${search}`);
-          if (isCityPagePath) return redirect301(`https://${rootDomain}${pathname}${search}`);
-          if (!isLearnerPath) return redirect301(`https://app.${rootDomain}/app`);
+          if (isRootPath) return redirect301(`https://app.${rootDomain}/app`);
+          if (isAdminPath)
+            return redirect301(
+              `https://admin.${rootDomain}${pathname}${search}`,
+            );
+          if (isCityPagePath)
+            return redirect301(`https://${rootDomain}${pathname}${search}`);
+          if (!isLearnerPath)
+            return redirect301(`https://app.${rootDomain}/app`);
         } else if (isAdmin) {
           // Admin subdomain: admin routes only
           // Learner paths → route to the app subdomain (not trapped on admin)
-          if (isRootPath)     return redirect301(`https://admin.${rootDomain}/admin`);
-          if (isLearnerPath)  return redirect301(`https://app.${rootDomain}${pathname}${search}`);
-          if (isCityPagePath) return redirect301(`https://${rootDomain}${pathname}${search}`);
-          if (!isAdminPath)   return redirect301(`https://admin.${rootDomain}/admin`);
+          if (isRootPath)
+            return redirect301(`https://admin.${rootDomain}/admin`);
+          if (isLearnerPath)
+            return redirect301(`https://app.${rootDomain}${pathname}${search}`);
+          if (isCityPagePath)
+            return redirect301(`https://${rootDomain}${pathname}${search}`);
+          if (!isAdminPath)
+            return redirect301(`https://admin.${rootDomain}/admin`);
         }
       }
     }
@@ -149,15 +268,15 @@ export async function middleware(request: NextRequest) {
   // must stay reachable.
   for (const gate of CITY_GATES) {
     const inGate =
-      (pathname === gate.basePath || pathname.startsWith(gate.basePath + "/")) &&
+      (pathname === gate.basePath ||
+        pathname.startsWith(gate.basePath + "/")) &&
       pathname !== gate.unlockPath &&
       !pathname.startsWith(gate.unlockPath + "/");
     if (!inGate) continue;
 
     const cityToken = request.cookies.get(gate.cookie)?.value;
     let cityOk = false;
-    const citySecret =
-      process.env.SESSION_SECRET || process.env[gate.pinEnv];
+    const citySecret = process.env.SESSION_SECRET || process.env[gate.pinEnv];
     if (cityToken && citySecret) {
       cityOk = await verifyHmacToken(cityToken, citySecret, gate.prefix);
     }
@@ -168,39 +287,47 @@ export async function middleware(request: NextRequest) {
       url.searchParams.set("next", pathname);
       return NextResponse.redirect(url);
     }
-    return NextResponse.next();
+    return passThrough(pathname, forwarded);
   }
 
   // ── DEMO ACCESS GATE ───────────────────────────────────────────────────────
   const isProtected = PROTECTED_PATHS.some(
-    (p) => pathname === p || pathname.startsWith(p + "/")
+    (p) => pathname === p || pathname.startsWith(p + "/"),
   );
 
   if (!isProtected) {
-    return NextResponse.next();
+    return passThrough(pathname, forwarded);
   }
 
   // Allow through if they have a valid demo access token
   const accessToken = request.cookies.get("l2e_demo_access")?.value;
   if (accessToken) {
-    const secret = process.env.SESSION_SECRET || process.env.DEMO_ACCESS_CODE || "l2e-fallback-secret";
-    const valid = await verifyToken(accessToken, secret);
+    const secret = process.env.SESSION_SECRET;
+    const valid = secret ? await verifyToken(accessToken, secret) : false;
     if (valid) {
-      return NextResponse.next();
+      return passThrough(pathname, forwarded);
     }
   }
 
-  // Also allow through if they have a user session cookie (logged-in users)
-  // This ensures registered users are never blocked by the demo gate.
-  // The actual session validity is enforced on every API call.
+  // Only signed, age-valid user tokens bypass the invitation gate. The server
+  // pages and APIs also check DB revocation, expiry, active account and onboarding.
   const userSession = request.cookies.get("l2e_user_session")?.value;
-  if (userSession && userSession.length > 10) {
-    return NextResponse.next();
+  if (
+    userSession &&
+    process.env.SESSION_SECRET &&
+    (await verifyHmacToken(userSession, process.env.SESSION_SECRET, null))
+  ) {
+    return passThrough(pathname, forwarded);
   }
 
   const url = request.nextUrl.clone();
   url.pathname = "/access";
-  url.searchParams.set("next", pathname);
+  url.search = "";
+  if (userSession) {
+    url.pathname = "/login";
+    url.searchParams.set("reason", "expired");
+  }
+  url.searchParams.set("next", safeLearnerDestination(pathname + search));
   return NextResponse.redirect(url);
 }
 

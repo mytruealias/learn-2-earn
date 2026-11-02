@@ -1,0 +1,47 @@
+[
+  {
+    "key": "911",
+    "url": "https://www.911.gov/calling-911/",
+    "verification": "blocked",
+    "errorType": "URLError",
+    "attemptedOn": "2026-10-31",
+    "verifiedAt": null,
+    "observedFailure": "Workspace CONNECT proxy HTTP 403; retry after network permission remained blocked"
+  },
+  {
+    "key": "988",
+    "url": "https://988lifeline.org/help-someone-else/",
+    "verification": "blocked",
+    "errorType": "URLError",
+    "attemptedOn": "2026-10-31",
+    "verifiedAt": null,
+    "observedFailure": "Workspace CONNECT proxy HTTP 403; retry after network permission remained blocked"
+  },
+  {
+    "key": "211",
+    "url": "https://www.211.org/get-help",
+    "verification": "blocked",
+    "errorType": "URLError",
+    "attemptedOn": "2026-10-31",
+    "verifiedAt": null,
+    "observedFailure": "Workspace CONNECT proxy HTTP 403; retry after network permission remained blocked"
+  },
+  {
+    "key": "samhsa",
+    "url": "https://www.samhsa.gov/find-help/national-helpline",
+    "verification": "blocked",
+    "errorType": "URLError",
+    "attemptedOn": "2026-10-31",
+    "verifiedAt": null,
+    "observedFailure": "Workspace CONNECT proxy HTTP 403; retry after network permission remained blocked"
+  },
+  {
+    "key": "privacy",
+    "url": "https://developers.openai.com/api/docs/guides/your-data",
+    "verification": "blocked",
+    "errorType": "URLError",
+    "attemptedOn": "2026-10-31",
+    "verifiedAt": null,
+    "observedFailure": "Workspace CONNECT proxy HTTP 403; retry after network permission remained blocked"
+  }
+]

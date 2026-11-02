@@ -1,12 +1,10 @@
 import { ImageResponse } from "next/og";
-
 export const runtime = "edge";
 export const alt =
-  "Learn2Earn, a Texas nonprofit helping people experiencing homelessness build life skills and earn verified incentives.";
+  "Learn2Earn — supported adult learning and clear program oversight";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
-
-export default async function OpengraphImage() {
+export default function Image() {
   return new ImageResponse(
     (
       <div
@@ -16,86 +14,78 @@ export default async function OpengraphImage() {
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          padding: "80px 96px",
-          background:
-            "linear-gradient(135deg, #00467F 0%, #0C5DA5 55%, #2E7D32 100%)",
-          color: "#ffffff",
+          padding: "64px 80px",
+          background: "#faf8f3",
+          color: "#172f38",
           fontFamily: "sans-serif",
-          position: "relative",
         }}
       >
         <div
           style={{
             display: "flex",
             alignItems: "center",
-            gap: 18,
-            fontSize: 32,
-            fontWeight: 600,
-            letterSpacing: 1,
-            textTransform: "uppercase",
-            opacity: 0.92,
+            gap: 20,
+            fontSize: 36,
+            fontWeight: 700,
+            color: "#075d72",
           }}
         >
           <div
             style={{
-              width: 56,
-              height: 56,
-              borderRadius: 14,
-              background: "rgba(255,255,255,0.18)",
               display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 32,
-              fontWeight: 800,
+              alignItems: "flex-end",
+              gap: 7,
+              padding: 14,
+              background: "#075d72",
+              borderRadius: 16,
             }}
           >
-            L2
+            {[16, 28, 40].map((h) => (
+              <div
+                key={h}
+                style={{
+                  width: 8,
+                  height: h,
+                  background: "white",
+                  borderRadius: 2,
+                }}
+              />
+            ))}
           </div>
-          <span>Learn2Earn</span>
+          Learn2Earn
         </div>
-
-        <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
           <div
             style={{
-              fontSize: 88,
-              fontWeight: 800,
-              lineHeight: 1.05,
-              letterSpacing: -1.5,
-              maxWidth: 980,
+              display: "flex",
+              flexDirection: "column",
+              fontSize: 76,
+              fontWeight: 700,
+              lineHeight: 1.1,
+              letterSpacing: -3,
             }}
           >
-            A Hand Up,
+            Learning with support.
             <br />
-            Not a Handout.
+            Progress with purpose.
           </div>
-          <div
-            style={{
-              fontSize: 32,
-              fontWeight: 400,
-              lineHeight: 1.4,
-              opacity: 0.92,
-              maxWidth: 900,
-            }}
-          >
-            Incentive-based learning for people experiencing homelessness,
-            built with cities, shelters, and local partners.
+          <div style={{ fontSize: 28, lineHeight: 1.4 }}>
+            Adult learning, program-defined incentives and human oversight.
           </div>
         </div>
-
         <div
           style={{
             display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            fontSize: 24,
-            opacity: 0.85,
+            borderTop: "2px solid #bdccd0",
+            paddingTop: 20,
+            fontSize: 22,
+            color: "#48626c",
           }}
         >
-          <span>A Texas nonprofit, 4 years in the community</span>
-          <span style={{ fontWeight: 600 }}>learn2earn-usa.com</span>
+          For cities, shelters and community partners
         </div>
       </div>
     ),
-    { ...size },
+    size,
   );
 }

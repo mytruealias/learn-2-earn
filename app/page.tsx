@@ -1,719 +1,380 @@
-import type { Metadata } from "next";
-import "./invest/invest.css";
-import "./invest/demo-phone.css";
-
-export const metadata: Metadata = {
-  alternates: { canonical: "/" },
-};
-
+import { Suspense } from "react";
+import MarketingShell from "./components/marketing/MarketingShell";
+import styles from "./components/marketing/marketing.module.css";
 import AppDemo from "./components/AppDemo";
 import AdminDemo from "./components/AdminDemo";
-import LandingNav from "./components/LandingNav";
-import LandingFooter from "./components/LandingFooter";
-import {
-  TrendingUpIcon, HomeIcon, TrendingDownIcon, BarChartIcon,
-  WalkingIcon, HeartPlusIcon, BriefcaseIcon,
-  SmartphoneIcon, ClipboardIcon, CoinIcon,
-  ShieldIcon, TargetIcon, DollarIcon, HeartIcon, HandshakeIcon,
-  MessageIcon, UsersIcon, LockIcon, UserIcon, FileTextIcon,
-  CheckCircleIcon, GlobeIcon, BuildingIcon,
-  BotIcon, MapPinAlertIcon, RadioIcon,
-} from "./components/LandingIcons";
-
-const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://learn2earn-usa.com";
-
-const organizationJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "NGO",
-  name: "Learn2Earn",
-  alternateName: "Learn 2 Earn",
-  url: SITE_URL,
-  logo: `${SITE_URL}/opengraph-image`,
-  image: `${SITE_URL}/opengraph-image`,
-  description:
-    "Texas nonprofit helping people experiencing homelessness build life skills, complete recovery-focused learning, and earn small verified cash incentives, in partnership with cities, shelters, and local case workers.",
-  foundingDate: "2022",
-  areaServed: [
-    { "@type": "AdministrativeArea", name: "Texas, USA" },
-    { "@type": "AdministrativeArea", name: "United States" },
-  ],
-  address: {
-    "@type": "PostalAddress",
-    addressLocality: "Austin",
-    addressRegion: "TX",
-    addressCountry: "US",
-  },
-  contactPoint: [
-    {
-      "@type": "ContactPoint",
-      contactType: "partnerships",
-      email: "partners@learn2earn.org",
-      availableLanguage: ["English"],
-    },
-  ],
-  knowsAbout: [
-    "Homelessness services",
-    "Life skills education",
-    "Addiction recovery",
-    "Workforce readiness",
-    "Case worker tools",
-    "Incentive-based learning",
-  ],
-};
-
-export default function HomePage() {
+import PartnerInquiryForm from "./components/marketing/PartnerInquiryForm";
+import { ButtonLink } from "./components/ui";
+import { HubertIcon } from "./components/icons";
+import { marketingMetadata } from "@/lib/marketing/metadata";
+import { publishedCatalog, authoredExamples } from "@/lib/marketing/catalog";
+import { siteOrigin } from "@/lib/site-identity";
+export const dynamic = "force-dynamic";
+export const metadata = marketingMetadata(
+  "Learn2Earn — supported learning for community programs",
+  "/",
+);
+async function Pathways() {
+  const c = await publishedCatalog();
   return (
-    <div className="inv-page">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(organizationJsonLd),
-        }}
-      />
-      <LandingNav />
-
-      <section className="inv-hero">
-        <div className="inv-hero-glow inv-hero-glow-1"></div>
-        <div className="inv-hero-glow inv-hero-glow-2"></div>
-        <div className="inv-hero-glow inv-hero-glow-3"></div>
-
-        <div className="inv-hero-badge">
-          A Texas Nonprofit · 4 Years in the Community · Final Pilot Stage
-        </div>
-        <h1>
-          A Hand Up,<br />
-          <em>Not a Handout.</em>
-        </h1>
+    <>
+      {c.available ? (
         <p>
-          Learn to Earn is a Texas nonprofit working alongside cities, shelters,
-          and local partners to help people experiencing homelessness build life
-          skills, complete recovery-focused learning, and earn small cash
-          incentives with case worker approval. Partners get real-time
-          reporting and clear, compliance-ready oversight throughout the pilot.
+          {c.lessonCount} active lessons across {c.pathCount} published pathways
+          with available learning cards. This is a curriculum snapshot, not a
+          participation or impact measure.
         </p>
-        <div className="inv-hero-actions">
-          <a href="#demo" className="inv-btn inv-btn-primary inv-btn-lg">
-            Book a Demo
-          </a>
-          <a href="#contact" className="inv-btn inv-btn-outline inv-btn-lg">
-            Request a Pilot Plan
-          </a>
-        </div>
-        <div className="inv-hero-secondary">
-          <a href="/app">View Learner Experience &rarr;</a>
-        </div>
-
-        <div className="inv-trust-bar">
-          <div className="inv-trust-item">
-            <div className="inv-trust-check">&#x2713;</div>
-            248 micro-lessons across 11 pathways
-          </div>
-          <div className="inv-trust-item">
-            <div className="inv-trust-check">&#x2713;</div>
-            $1 per 3 lessons completed (configurable)
-          </div>
-          <div className="inv-trust-item">
-            <div className="inv-trust-check">&#x2713;</div>
-            Phone-first, no app required
-          </div>
-          <div className="inv-trust-item">
-            <div className="inv-trust-check">&#x2713;</div>
-            AI emotional support companion (Hubert)
-          </div>
-          <div className="inv-trust-item">
-            <div className="inv-trust-check">&#x2713;</div>
-            24/7 crisis resources + Zelle disbursements
-          </div>
-          <div className="inv-trust-item">
-            <div className="inv-trust-check">&#x2713;</div>
-            Audit trail + role-based approvals
-          </div>
-        </div>
-
-        <div className="inv-hero-scroll">
-          <span>Scroll</span>
-          <div className="inv-hero-scroll-line"></div>
-        </div>
-      </section>
-
-      <div className="inv-section-divider"></div>
-
-      <section className="inv-section" id="how-it-works">
-        <div className="inv-container">
-          <div className="inv-section-header">
-            <div className="inv-section-label">How It Works</div>
-            <h2 className="inv-section-title">
-              The Program in Four Steps
-            </h2>
-            <p className="inv-section-subtitle">
-              A simple loop that puts partners in charge of who joins, what
-              gets approved, and how progress is measured.
-            </p>
-          </div>
-
-          <ol className="inv-howit-grid">
-            <li className="inv-howit-step">
-              <div className="inv-howit-num">01</div>
-              <div className="inv-howit-icon inv-icon-blue">
-                <HandshakeIcon size={28} stroke="#0C5DA5" />
-              </div>
-              <h3>Partner enrolls learners</h3>
-              <p>
-                A city, shelter, or local nonprofit signs on as a partner and
-                invites people in their program to join.
-              </p>
-            </li>
-
-            <li className="inv-howit-step">
-              <div className="inv-howit-num">02</div>
-              <div className="inv-howit-icon inv-icon-green">
-                <SmartphoneIcon size={28} stroke="#00467F" />
-              </div>
-              <h3>Learners take short lessons</h3>
-              <p>
-                Learners open the app in any browser and work through
-                bite-sized, trauma-informed lessons at their own pace.
-              </p>
-            </li>
-
-            <li className="inv-howit-step">
-              <div className="inv-howit-num">03</div>
-              <div className="inv-howit-icon inv-icon-gold">
-                <CoinIcon size={28} stroke="#2E7D32" />
-              </div>
-              <h3>Lessons turn into small payouts</h3>
-              <p>
-                Completed lessons earn XP. Learners can convert that XP into
-                a small cash payout through Zelle, Venmo, PayPal, Cash App,
-                or check.
-              </p>
-            </li>
-
-            <li className="inv-howit-step">
-              <div className="inv-howit-num">04</div>
-              <div className="inv-howit-icon inv-icon-purple">
-                <CheckCircleIcon size={28} stroke="#5E35B1" />
-              </div>
-              <h3>Case worker approves, partner sees results</h3>
-              <p>
-                Every payout is reviewed and approved by a case worker.
-                Partners see real-time reporting on participation, progress,
-                and disbursements.
-              </p>
-            </li>
-          </ol>
-
-          <div className="inv-section-cta">
-            <a href="#demo" className="inv-btn inv-btn-outline inv-btn-lg">
-              See It in the Demo
-            </a>
-          </div>
-        </div>
-      </section>
-
-      <div className="inv-section-divider"></div>
-
-      <section className="inv-section" id="platform">
-        <div className="inv-container">
-          <div className="inv-section-header">
-            <div className="inv-section-label">Platform</div>
-            <h2 className="inv-section-title">
-              What Learn to Earn Includes
-            </h2>
-            <p className="inv-section-subtitle">
-              A complete system for running incentivized learning programs
-              with oversight, reporting, and built-in safety features.
-            </p>
-          </div>
-          <div className="inv-pillar-grid">
-            <div className="inv-pillar-card">
-              <div className="inv-pillar-icon inv-pillar-icon-blue">
-                <SmartphoneIcon size={22} stroke="#0C5DA5" />
-              </div>
-              <h3>Learner Experience</h3>
-              <ul className="inv-pillar-list">
-                <li>Bite-sized lessons, low reading level, trauma-informed</li>
-                <li>Hubert, AI emotional support companion, available 24/7</li>
-                <li>Works in browser, minimal friction, no app download needed</li>
-                <li>Built-in safety net (988, 211, SAMHSA, DV hotline, text line)</li>
-              </ul>
+      ) : (
+        <p className={styles.notice}>
+          The published curriculum is temporarily unavailable. These examples
+          come from the authored curriculum; a program’s available selection
+          must be confirmed before enrollment.
+        </p>
+      )}
+      <ul className={styles.pathRows}>
+        {(c.available ? c.paths : authoredExamples).map((p) => (
+          <li key={p.title}>
+            <div>
+              <h3>{p.title}</h3>
+              {"lessons" in p && <span>{p.lessons} active lessons</span>}
             </div>
-            <div className="inv-pillar-card">
-              <div className="inv-pillar-icon inv-pillar-icon-purple">
-                <ClipboardIcon size={22} stroke="#5E35B1" />
-              </div>
-              <h3>Case Worker & Admin Tools</h3>
-              <ul className="inv-pillar-list">
-                <li>Participant view, progress tracking, payout review workflow</li>
-                <li>Engagement and completion analytics for reporting</li>
-                <li>Permissions, audit logs, and approval controls</li>
-              </ul>
-            </div>
-            <div className="inv-pillar-card">
-              <div className="inv-pillar-icon inv-pillar-icon-gold">
-                <CoinIcon size={22} stroke="#2E7D32" />
-              </div>
-              <h3>Incentive System</h3>
-              <ul className="inv-pillar-list">
-                <li>Micro-incentives tied to verified completion</li>
-                <li>Disbursements via Zelle, Venmo, PayPal, Cash App, or check</li>
-                <li>Configurable payout rules per program</li>
-                <li>Built for oversight, not automatic cash</li>
-              </ul>
-            </div>
-          </div>
-          <div className="inv-section-cta">
-            <a href="#demo" className="inv-btn inv-btn-outline inv-btn-lg">
-              See the Admin Dashboard Demo
-            </a>
-          </div>
-        </div>
-      </section>
-
-      <section className="inv-section inv-section-alt" id="safety">
-        <div className="inv-container">
-          <div className="inv-section-header">
-            <div className="inv-section-label">Built-In Safety Net</div>
-            <h2 className="inv-section-title">
-              Support That Goes Beyond<br />the Classroom
-            </h2>
-            <p className="inv-section-subtitle">
-              Learning matters, but so does knowing someone has your back.
-              Learn to Earn has two built-in tools that bridge the gap between
-              education and real-world help.
-            </p>
-          </div>
-
-          <div className="inv-safety-grid">
-            <div className="inv-safety-card inv-safety-hubert">
-              <div className="inv-safety-icon-wrap">
-                <div className="inv-safety-icon inv-safety-icon-green">
-                  <BotIcon size={32} stroke="#00467F" />
-                </div>
-                <span className="inv-safety-badge">AI-Powered</span>
-              </div>
-              <h3>Meet Hubert</h3>
-              <p className="inv-safety-tagline">
-                Your AI emotional support companion, available 24/7, right inside the app.
-              </p>
-              <ul className="inv-pillar-list">
-                <li>Warm, trauma-informed conversations at a 6th-grade reading level</li>
-                <li>Knows when to listen and when to connect you with real help</li>
-                <li>Immediate crisis escalation, surfaces 988, 911, and Crisis Text Line when needed</li>
-                <li>No data stored, every conversation is private and ephemeral</li>
-                <li>Accessible from the Lifeline page or the SOS help button on any screen</li>
-              </ul>
-              <div className="inv-safety-footer">
-                <span className="inv-safety-note">
-                  Hubert is not a therapist, he&apos;s a supportive friend who&apos;s always there.
-                </span>
-              </div>
-            </div>
-
-            <div className="inv-safety-card inv-safety-signal">
-              <div className="inv-safety-icon-wrap">
-                <div className="inv-safety-icon inv-safety-icon-red">
-                  <MapPinAlertIcon size={32} stroke="#C62828" />
-                </div>
-                <span className="inv-safety-badge inv-safety-badge-red">Dispatch</span>
-              </div>
-              <h3>Help Request & Ground Response</h3>
-              <p className="inv-safety-tagline">
-                When a learner is in trouble, their team can know and act.
-              </p>
-              <ul className="inv-pillar-list">
-                <li>Learners can send an urgent help request directly from the app</li>
-                <li>Message and optional location are included so teams know where to go</li>
-                <li>Creates a high-priority case in the admin dashboard instantly</li>
-                <li>Case workers can dispatch resources, coordinate services, and track follow-up</li>
-                <li>Full integration with the admin casework hub and services directory</li>
-              </ul>
-              <div className="inv-safety-footer">
-                <div className="inv-safety-flow">
-                  <div className="inv-safety-flow-step">
-                    <RadioIcon size={16} stroke="#C62828" />
-                    <span>Learner sends signal</span>
-                  </div>
-                  <div className="inv-safety-flow-arrow">&rarr;</div>
-                  <div className="inv-safety-flow-step">
-                    <ClipboardIcon size={16} stroke="#0C5DA5" />
-                    <span>Case created</span>
-                  </div>
-                  <div className="inv-safety-flow-arrow">&rarr;</div>
-                  <div className="inv-safety-flow-step">
-                    <MapPinAlertIcon size={16} stroke="#00467F" />
-                    <span>Resources dispatched</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="inv-section" id="impact">
-        <div className="inv-container">
-          <div className="inv-section-header">
-            <div className="inv-section-label">Impact</div>
-            <h2 className="inv-section-title">
-              Why This Works
-            </h2>
-            <p className="inv-section-subtitle">
-              Real engagement, real skills, real accountability, designed to
-              create measurable change for the people and programs that need it most.
-            </p>
-          </div>
-          <div className="inv-stats">
-            <div className="inv-stat-card">
-              <div className="inv-stat-icon inv-stat-icon-green"><TrendingUpIcon size={32} stroke="#00467F" /></div>
-              <div className="inv-stat-label">Engagement</div>
-              <p className="inv-stat-desc">Incentives increase follow-through on learning and routines</p>
-            </div>
-            <div className="inv-stat-card">
-              <div className="inv-stat-icon inv-stat-icon-blue"><HomeIcon size={32} stroke="#0C5DA5" /></div>
-              <div className="inv-stat-label">Stability</div>
-              <p className="inv-stat-desc">Skills pathways support housing, employment readiness, and recovery</p>
-            </div>
-            <div className="inv-stat-card">
-              <div className="inv-stat-icon inv-stat-icon-red"><TrendingDownIcon size={32} stroke="#C62828" /></div>
-              <div className="inv-stat-label">Cost Reduction</div>
-              <p className="inv-stat-desc">Better engagement can reduce avoidable emergency utilization over time</p>
-            </div>
-            <div className="inv-stat-card">
-              <div className="inv-stat-icon inv-stat-icon-purple"><BarChartIcon size={32} stroke="#5E35B1" /></div>
-              <div className="inv-stat-label">Measurable Outcomes</div>
-              <p className="inv-stat-desc">Completions, time in program, milestones, referrals, payout activity</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="inv-section" id="usecases">
-        <div className="inv-container">
-          <div className="inv-section-header">
-            <div className="inv-section-label">Use Cases</div>
-            <h2 className="inv-section-title">
-              Built for the Teams<br />on the Front Line
-            </h2>
-            <p className="inv-section-subtitle">
-              Whether you operate a shelter, run street outreach, or manage
-              a workforce readiness program, Learn to Earn adapts to your workflow.
-            </p>
-          </div>
-          <div className="inv-usecase-grid">
-            <div className="inv-usecase-card">
-              <div className="inv-usecase-icon inv-icon-blue">
-                <HomeIcon size={26} stroke="#0C5DA5" />
-              </div>
-              <h3>Shelter & Navigation Centers</h3>
-              <p>Deploy on shared devices or personal phones. Track participation and progress across your facility.</p>
-            </div>
-            <div className="inv-usecase-card">
-              <div className="inv-usecase-icon inv-icon-green">
-                <WalkingIcon size={26} stroke="#00467F" />
-              </div>
-              <h3>Street Outreach Teams</h3>
-              <p>Low barrier entry, quick lesson starts, connect to resources instantly, no signup required.</p>
-            </div>
-            <div className="inv-usecase-card">
-              <div className="inv-usecase-icon inv-icon-purple">
-                <HeartPlusIcon size={26} stroke="#5E35B1" />
-              </div>
-              <h3>Recovery & Re-entry Programs</h3>
-              <p>Structured learning tracks, routines, relapse prevention, and incentives with oversight.</p>
-            </div>
-            <div className="inv-usecase-card">
-              <div className="inv-usecase-icon inv-icon-gold">
-                <BriefcaseIcon size={26} stroke="#2E7D32" />
-              </div>
-              <h3>Workforce Readiness</h3>
-              <p>Financial literacy, document preparation, job readiness, and systems navigation.</p>
-            </div>
-          </div>
-          <div className="inv-section-cta">
-            <a href="#contact" className="inv-btn inv-btn-primary inv-btn-lg">
-              Request a 90-Day Pilot Plan
-            </a>
-          </div>
-        </div>
-      </section>
-
-      <section className="inv-section inv-section-alt" id="demo">
-        <div className="inv-container">
-          <div className="inv-section-header">
-            <div className="inv-section-label">Demo</div>
-            <h2 className="inv-section-title">
-              See It in Action
-            </h2>
-            <p className="inv-section-subtitle">
-              Watch a quick overview, explore the platform, and see exactly
-              what a 90-day pilot includes.
-            </p>
-          </div>
-
-          <div className="inv-demo-block">
-            <h3 className="inv-demo-sub">The Learner Experience</h3>
-            <AppDemo />
-          </div>
-
-          <div className="inv-video-block">
-            <h3 className="inv-demo-sub">Watch the 2-Minute Overview</h3>
-            <div className="inv-video-wrap">
-              <video
-                controls
-                playsInline
-                preload="metadata"
-                poster="/images/invest/hero-community.jpg"
-                x-webkit-airplay="allow"
-              >
-                <source src="/images/invest/presentation-web.mp4" type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
-            </div>
-          </div>
-
-          <div className="inv-demo-block">
-            <h3 className="inv-demo-sub">The Admin Dashboard</h3>
-            <AdminDemo />
-          </div>
-
-          <div className="inv-demo-block">
-            <h3 className="inv-demo-sub">Explore the Platform</h3>
-            <div className="inv-steps">
-              <div className="inv-step">
-                <div className="inv-step-number"><SmartphoneIcon size={32} stroke="#00467F" /></div>
-                <h3>Learner Experience</h3>
-                <p>
-                  Preview the learner-facing app, bite-sized lessons, progress tracking, and earning.
-                </p>
-                <div className="inv-step-cta">
-                  <a href="/app" className="inv-btn inv-btn-glass inv-btn-sm">
-                    Try It Live
-                  </a>
-                </div>
-              </div>
-              <div className="inv-step">
-                <div className="inv-step-number"><ClipboardIcon size={32} stroke="#0C5DA5" /></div>
-                <h3>Admin Dashboard</h3>
-                <p>
-                  See the case worker and admin tools, participant management, analytics, and approvals.
-                </p>
-                <div className="inv-step-cta">
-                  <a href="/admin" className="inv-btn inv-btn-glass inv-btn-sm">
-                    View Dashboard
-                  </a>
-                </div>
-              </div>
-              <div className="inv-step">
-                <div className="inv-step-number"><CoinIcon size={32} stroke="#2E7D32" /></div>
-                <h3>Payout Workflow</h3>
-                <p>
-                  Multi-step payout approval with audit trail, review, approve, and disburse with full oversight.
-                </p>
-                <div className="inv-step-cta">
-                  <a href="/admin" className="inv-btn inv-btn-glass inv-btn-sm">
-                    See Workflow
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="inv-demo-block">
-            <h3 className="inv-demo-sub">What a Pilot Includes</h3>
-            <div className="inv-pilot-grid">
-              <div className="inv-pilot-item">
-                <div className="inv-pilot-num">01</div>
-                <h4>Onboarding & Training</h4>
-                <p>Staff training on the platform and participant onboarding best practices</p>
-              </div>
-              <div className="inv-pilot-item">
-                <div className="inv-pilot-num">02</div>
-                <h4>Program Configuration</h4>
-                <p>Custom lesson paths and configurable payout rules for your program</p>
-              </div>
-              <div className="inv-pilot-item">
-                <div className="inv-pilot-num">03</div>
-                <h4>Admin Setup & Reporting</h4>
-                <p>Dashboard access, role configuration, and reporting templates</p>
-              </div>
-              <div className="inv-pilot-item">
-                <div className="inv-pilot-num">04</div>
-                <h4>Ongoing Support</h4>
-                <p>Weekly check-ins, success support, and program optimization</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="inv-section-cta">
-            <a href="#contact" className="inv-btn inv-btn-primary inv-btn-lg">
-              Book a Demo
-            </a>
-          </div>
-        </div>
-      </section>
-
-      <section className="inv-section" id="curriculum">
-        <div className="inv-container">
-          <div className="inv-section-header">
-            <div className="inv-section-label">Curriculum</div>
-            <h2 className="inv-section-title">
-              248 Lessons Across<br />11 Structured Paths
-            </h2>
-            <p className="inv-section-subtitle">
-              Evidence-based, trauma-informed content covering the skills
-              that most directly accelerate housing stability and self-sufficiency.
-            </p>
-          </div>
-          <div className="inv-curriculum-grid">
-            <div className="inv-curriculum-card">
-              <div className="inv-curriculum-icon inv-icon-green"><HomeIcon size={22} stroke="#00467F" /></div>
-              <div>
-                <h4>Stability Basics</h4>
-                <p>Daily routines, communication, document safety.</p>
-              </div>
-            </div>
-            <div className="inv-curriculum-card">
-              <div className="inv-curriculum-icon inv-icon-blue"><ShieldIcon size={22} stroke="#0C5DA5" /></div>
-              <div>
-                <h4>Survival & Systems</h4>
-                <p>Housing navigation, benefits access, work readiness.</p>
-              </div>
-            </div>
-            <div className="inv-curriculum-card">
-              <div className="inv-curriculum-icon inv-icon-purple"><TargetIcon size={22} stroke="#5E35B1" /></div>
-              <div>
-                <h4>Building Your Future</h4>
-                <p>Goal-setting, values alignment, sustainable habits.</p>
-              </div>
-            </div>
-            <div className="inv-curriculum-card">
-              <div className="inv-curriculum-icon inv-icon-gold"><DollarIcon size={22} stroke="#2E7D32" /></div>
-              <div>
-                <h4>Financial Literacy</h4>
-                <p>Budgeting, banking basics, scam prevention.</p>
-              </div>
-            </div>
-            <div className="inv-curriculum-card">
-              <div className="inv-curriculum-icon inv-icon-red"><HeartIcon size={22} stroke="#C62828" /></div>
-              <div>
-                <h4>Addiction & Recovery</h4>
-                <p>108 lessons from understanding addiction to sustained recovery.</p>
-              </div>
-            </div>
-            <div className="inv-curriculum-card">
-              <div className="inv-curriculum-icon inv-icon-cyan"><HandshakeIcon size={22} stroke="#1976D2" /></div>
-              <div>
-                <h4>Harm Reduction</h4>
-                <p>Naloxone training, overdose response, safety planning.</p>
-              </div>
-            </div>
-            <div className="inv-curriculum-card">
-              <div className="inv-curriculum-icon inv-icon-purple"><MessageIcon size={22} stroke="#5E35B1" /></div>
-              <div>
-                <h4>Life & Communication</h4>
-                <p>Conflict resolution, digital skills, self-advocacy.</p>
-              </div>
-            </div>
-            <div className="inv-curriculum-card">
-              <div className="inv-curriculum-icon inv-icon-green"><UsersIcon size={22} stroke="#00467F" /></div>
-              <div>
-                <h4>Family & Supporters</h4>
-                <p>Boundary-setting, caregiver burnout, healthy support.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="inv-section inv-section-alt" id="compliance">
-        <div className="inv-container">
-          <div className="inv-section-header">
-            <div className="inv-section-label">Compliance & Reporting</div>
-            <h2 className="inv-section-title">
-              ROI and Accountability
-            </h2>
-            <p className="inv-section-subtitle">
-              Built from the ground up to meet the compliance, privacy, and
-              audit requirements of government-funded social programs.
-            </p>
-          </div>
-          <div className="inv-features-grid">
-            <div className="inv-feature">
-              <div className="inv-feature-icon"><LockIcon size={22} stroke="#00467F" /></div>
-              <div>
-                <h4>Full Audit Trail</h4>
-                <p>Every action logged with timestamps, IP addresses, and user attribution.</p>
-              </div>
-            </div>
-            <div className="inv-feature">
-              <div className="inv-feature-icon"><UserIcon size={22} stroke="#0C5DA5" /></div>
-              <div>
-                <h4>Role-Based Permissions</h4>
-                <p>Admin, case worker, and finance roles with separation of duties.</p>
-              </div>
-            </div>
-            <div className="inv-feature">
-              <div className="inv-feature-icon"><FileTextIcon size={22} stroke="#5E35B1" /></div>
-              <div>
-                <h4>Data Privacy & Consent</h4>
-                <p>Built-in consent management designed for serving vulnerable populations.</p>
-              </div>
-            </div>
-            <div className="inv-feature">
-              <div className="inv-feature-icon"><BarChartIcon size={22} stroke="#2E7D32" /></div>
-              <div>
-                <h4>Reporting Exports</h4>
-                <p>Export engagement and outcome data for HUD, CDBG, and CoC requirements.</p>
-              </div>
-            </div>
-            <div className="inv-feature">
-              <div className="inv-feature-icon"><CheckCircleIcon size={22} stroke="#00467F" /></div>
-              <div>
-                <h4>Multi-Step Approvals</h4>
-                <p>Multi-step payout approval prevents single points of failure.</p>
-              </div>
-            </div>
-            <div className="inv-feature">
-              <div className="inv-feature-icon"><GlobeIcon size={22} stroke="#1976D2" /></div>
-              <div>
-                <h4>Works at Any Scale</h4>
-                <p>Cloud-based platform that fits a single shelter or an entire city.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="inv-cta" id="contact">
-        <div className="inv-cta-glow inv-cta-glow-1"></div>
-        <div className="inv-cta-glow inv-cta-glow-2"></div>
-        <div className="inv-container">
-          <h2>Ready to Launch a Pilot?</h2>
-          <p>
-            Whether you represent a city, a shelter network, or a funding
-            organization, we&apos;d love to partner with you to bring Learn to Earn
-            to your community.
+            <p>{p.description}</p>
+          </li>
+        ))}
+      </ul>
+      {c.available && !c.paths.length && (
+        <p>
+          No published pathways are available right now. Agree a content-review
+          and publication plan before inviting learners.
+        </p>
+      )}
+    </>
+  );
+}
+export default function HomePage() {
+  const origin = siteOrigin();
+  return (
+    <MarketingShell>
+      {origin && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              name: "Learn2Earn",
+              url: origin,
+              description: "Supported adult learning and program oversight.",
+            }).replace(/</g, "\\u003c"),
+          }}
+        />
+      )}
+      <section className={styles.hero}>
+        <div className={styles.heroCopy}>
+          <p className={styles.eyebrow}>
+            For cities, shelters and community partners
           </p>
-          <div className="inv-cta-actions">
-            <a href="mailto:partners@learn2earn.org" className="inv-btn inv-btn-primary inv-btn-lg">
-              Book a Demo
-            </a>
-            <a href="mailto:partners@learn2earn.org" className="inv-btn inv-btn-outline inv-btn-lg">
-              Request a Pilot Plan
-            </a>
+          <h1>
+            Learning with support.
+            <br />
+            Progress with purpose.
+          </h1>
+          <p className={styles.lead}>
+            A clearer way to offer adult learning to people navigating housing
+            instability or recovery—with manageable lessons, program-defined
+            incentives and human oversight.
+          </p>
+          <div className={styles.actions}>
+            <ButtonLink href="/#contact">Discuss a pilot</ButtonLink>
+            <ButtonLink href="/demo" variant="secondary">
+              Try a sample lesson
+            </ButtonLink>
           </div>
-          <div className="inv-cta-badges">
-            <span className="inv-cta-badge"><BuildingIcon size={14} stroke="#64748b" /> City & Agency Partnerships</span>
-            <span className="inv-cta-badge"><DollarIcon size={14} stroke="#64748b" /> Funders & Investors</span>
-            <span className="inv-cta-badge"><HandshakeIcon size={14} stroke="#64748b" /> Implementation Partners</span>
-          </div>
-          <p className="inv-cta-response">Response within 1 business day</p>
+          <p className={styles.heroNote}>
+            Built to work alongside the people and services learners already
+            rely on. Start with a sample, then discuss your setting.
+          </p>
+        </div>
+        <div id="demo">
+          <AppDemo />
         </div>
       </section>
-
-      <LandingFooter />
-    </div>
+      <section className={styles.section} id="how-it-works">
+        <div className={styles.sectionHead}>
+          <div>
+            <p className={styles.eyebrow}>A clear program loop</p>
+            <h2>
+              Small steps for learners.
+              <br />
+              Clear decisions for staff.
+            </h2>
+          </div>
+          <p>
+            Keep enrollment, learning evidence, incentive decisions and
+            follow-up connected—without treating them as the same thing.
+          </p>
+        </div>
+        <ol className={styles.process}>
+          {[
+            [
+              "Invite and enroll",
+              "Staff invite learners into their program and explain access, privacy and available support.",
+            ],
+            [
+              "Learn and return",
+              "Short lessons, saved attempts and practice help people pick up where they left off.",
+            ],
+            [
+              "Review incentives",
+              "Eligible first completions follow the program’s saved terms. Approval and an actual payment record are separate steps.",
+            ],
+            [
+              "Oversee and support",
+              "Authorized staff review queues, record support activity and use defined participation reports.",
+            ],
+          ].map(([h, p]) => (
+            <li key={h}>
+              <h3>{h}</h3>
+              <p>{p}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+      <section className={styles.section} id="platform">
+        <div className={styles.product}>
+          <div className={styles.productCopy}>
+            <p className={styles.eyebrow}>The learner experience</p>
+            <h2>A next step that feels possible.</h2>
+            <p>
+              Clear pathways, readable choices and useful explanations keep
+              attention on learning. People can return after an interruption,
+              practice again and reach human-help resources without finishing a
+              lesson.
+            </p>
+            <ul>
+              <li>
+                Visible progress, without public rankings or forced competition.
+              </li>
+              <li>
+                Saved lesson attempts; optional reflections do not require
+                disclosure.
+              </li>
+              <li>
+                Rewards explained separately from lifetime learning progress.
+              </li>
+            </ul>
+            <ButtonLink href="/demo" variant="secondary">
+              Explore the learner sample
+            </ButtonLink>
+          </div>
+          <div>
+            <p className={styles.eyebrow}>What the sample shows</p>
+            <h3>Teach. Try. Explain. Reflect if useful.</h3>
+            <p className={styles.lead}>
+              Try a teaching card, a question with an explanation and an optional
+              reflection—the same interaction learners use, with fictional content.
+            </p>
+            <div className={styles.hubert}>
+              <HubertIcon size={40} />
+              <p>
+                Hubert is an optional AI support tool with limits. It is not a
+                clinician or monitored service. Availability depends on program
+                setup and qualified review. Human-help resources remain separate.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className={styles.product}>
+          <div className={styles.productCopy}>
+            <p className={styles.eyebrow}>The staff experience</p>
+            <h2>Know what needs a person.</h2>
+            <p>
+              Program-scoped workspaces bring review queues, case follow-ups,
+              participant progress and recorded payments into a readable
+              workflow.
+            </p>
+            <ul>
+              <li>Staff use two-factor sign-in and see their authorized program.</li>
+              <li>
+                Conflicting edits are flagged so staff can review the latest
+                information before deciding.
+              </li>
+              <li>Recorded decisions and payment references support review.</li>
+            </ul>
+            <p className={styles.small}>
+              Before launch, agree who reviews requests, how records are handled
+              and how staff provide follow-up.
+            </p>
+          </div>
+          <AdminDemo />
+        </div>
+      </section>
+      <section className={styles.section} id="pathways">
+        <div className={styles.sectionHead}>
+          <div>
+            <p className={styles.eyebrow}>Practical learning</p>
+            <h2>Start with what matters to your program.</h2>
+          </div>
+          <p>
+            Review content for your participants, region and delivery setting.
+            Recovery-related information needs qualified human review; it is not
+            clinical treatment.
+          </p>
+        </div>
+        <Suspense
+          fallback={
+            <p role="status">
+              Checking published curriculum… The sample lesson remains
+              available.
+            </p>
+          }
+        >
+          <Pathways />
+        </Suspense>
+      </section>
+      <section className={styles.section} id="accountability">
+        <span id="impact" />
+        <span id="compliance" />
+        <div className={styles.sectionHead}>
+          <div>
+            <p className={styles.eyebrow}>Accountability, described plainly</p>
+            <h2>
+              Useful evidence.
+              <br />
+              Honest limits.
+            </h2>
+          </div>
+          <p>
+            Learning participation, service activity and paid incentives answer
+            different questions. They should stay distinct in a partner’s
+            evaluation.
+          </p>
+        </div>
+        <div className={styles.accountability}>
+          <div>
+            <h3>Records that can be reviewed</h3>
+            <p>
+              The product records learning evidence and staff decisions. Payout
+              requests retain accepted terms; staff record verified external
+              payments separately. Scoped exports and date/timezone filters
+              support defined participation reporting.
+            </p>
+            <p>
+              Review your reporting obligations before a pilot. Learning records
+              describe participation; they do not establish housing or recovery
+              outcomes.
+            </p>
+          </div>
+          <div>
+            <h3>Privacy is an operating responsibility</h3>
+            <p>
+              Program membership controls access. Optional reflections stay on
+              their screen. Separately submitted help requests become stored
+              cases. AI processing and hosting retention require verification;
+              there is no blanket confidentiality or zero-retention promise.
+            </p>
+            <a href="/privacy">Read the privacy summary</a>
+          </div>
+        </div>
+      </section>
+      <section className={styles.section} id="pilot">
+        <span id="usecases" />
+        <div className={styles.sectionHead}>
+          <div>
+            <p className={styles.eyebrow}>A considered pilot</p>
+            <h2>Start focused. Agree the details.</h2>
+          </div>
+          <p>
+            A conversation is the first step—not a signed partnership, funding
+            commitment, price quote or booked meeting.
+          </p>
+        </div>
+        <div className={styles.pilot}>
+          <div>
+            <h3>1. Understand the setting</h3>
+            <p>
+              Discuss who the program serves, existing support, access needs and
+              the staff responsible for follow-up.
+            </p>
+          </div>
+          <div>
+            <h3>2. Agree readiness and scope</h3>
+            <p>
+              Review content, privacy, permissions, incentive funding and manual
+              payment operations. Define timing, responsibilities and evaluation
+              before launch.
+            </p>
+          </div>
+          <div>
+            <h3>3. Review what happened</h3>
+            <p>
+              Assess participation, recorded services, payment records and
+              qualitative feedback separately. Decide together whether to adapt,
+              continue or stop.
+            </p>
+          </div>
+        </div>
+      </section>
+      <section className={`${styles.section} ${styles.faq}`} id="faq">
+        <p className={styles.eyebrow}>Questions partners ask</p>
+        <h2>Before you begin.</h2>
+        {[
+          [
+            "Does Learn2Earn replace casework or treatment?",
+            "No. It supports adult learning and program oversight alongside human services. It is not clinical care, crisis monitoring or emergency dispatch.",
+          ],
+          [
+            "How are incentives calculated and paid?",
+            "Each program has configured terms, limits and available manual payment methods. Learners see those terms in Rewards; accepted requests keep a snapshot. Approval is not payment, and the platform does not automatically transfer funds.",
+          ],
+          [
+            "Can I use the sample without creating an account?",
+            "Yes. The fictional sample uses the same lesson interaction as the learner app. It does not access participant records, save progress or award rewards.",
+          ],
+          [
+            "Are cities or funders already partners?",
+            "The site does not name confirmed partners. City-specific decks are private discussion outlines; an actual partnership requires a separate agreement.",
+          ],
+          [
+            "What does an inquiry do?",
+            "When a reviewed intake queue is configured, your inquiry is stored for its authorized program administrators. A server receipt confirms storage only. No email, calendar booking or response time is promised.",
+          ],
+          [
+            "What must be ready before a pilot?",
+            "Reviewed content and privacy practices, agreed program responsibilities, secure staff access, real monitoring arrangements, funded incentive procedures and a verified technical release plan.",
+          ],
+        ].map(([q, a]) => (
+          <details key={q}>
+            <summary>{q}</summary>
+            <p>{a}</p>
+          </details>
+        ))}
+      </section>
+      <section className={styles.section} id="contact">
+        <div className={styles.contact}>
+          <div className={styles.contactCopy}>
+            <p className={styles.eyebrow}>Let’s understand your program</p>
+            <h2>
+              Bring your questions.
+              <br />
+              Start a pilot conversation.
+            </h2>
+            <p>
+              Tell the intake team about your organization and what you would
+              like to explore. Please leave out participant names, health
+              details, payment handles and other sensitive information.
+            </p>
+            <p className={styles.small}>
+              This is a partner inquiry, not a request for urgent help or
+              learner account recovery.
+            </p>
+            <a className={styles.textLink} href="/lifeline">
+              Need human support instead?
+            </a>
+          </div>
+          <PartnerInquiryForm />
+        </div>
+      </section>
+    </MarketingShell>
   );
 }

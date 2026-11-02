@@ -20,6 +20,7 @@ model Path {
   targetAudience  String   @default("All learners")
   difficulty      String   @default("foundational")
   modules         Module[]
+  selections      PathSelection[]
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }
@@ -57,6 +58,9 @@ model Lesson {
   module    Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   cards     Card[]
   progress  Progress[]
+  visits    LessonVisit[]
+  attempts  LessonAttempt[]
+  reviews LessonReview[]
 
   @@unique([moduleId, slug])
 }
@@ -84,6 +88,12 @@ model Card {
 }
 
 model User {
+  supportUsage SupportUsage[]
+  supportLeases SupportLease[]
+  programEnrollmentState String @default("legacy_quarantine")
+  staffVersion Int @default(0)
+  enrollment ParticipantEnrollment?
+
   id            String   @id @default(cuid())
   guestId       String?  @unique
   email         String?  @unique
@@ -108,10 +118,55 @@ model User {
   consentGiven  Boolean  @default(false)
   consentAt     DateTime?
   earnedBadges  String   @default("[]")
+  onboardingState String?
+  learningGoal    String?
+  dailyGoal       Int?
+  learningTimezone String?
+  lastLearningAt DateTime?
+  lessonAttempts LessonAttempt[]
+  lessonReviews LessonReview[]
+  pathSelections  PathSelection[]
+  lessonVisits    LessonVisit[]
+  sessions      LearnerSession[]
   progress      Progress[]
   payoutRequests PayoutRequest[]
+  rewardAccount RewardAccount?
+  rewardEntries RewardEntry[]
   consents      ConsentRecord[]
   cases         Case[]
+}
+
+model LearnerSession {
+  tokenHash String   @id
+  userId    String
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+  revokedAt DateTime?
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+// Preferences organize learning; they never grant or remove curriculum access.
+model PathSelection {
+  userId String
+  pathId String
+  selectedAt DateTime @default(now())
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  path Path @relation(fields: [pathId], references: [id], onDelete: Cascade)
+  @@id([userId, pathId])
+}
+
+// Opening a lesson records no answer, score, completion or XP award.
+model LessonVisit {
+  userId String
+  lessonId String
+  openedAt DateTime @default(now())
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  @@id([userId, lessonId])
+  @@index([userId, openedAt])
 }
 
 model Progress {
@@ -141,10 +196,25 @@ enum PaymentMethod {
 }
 
 model PayoutRequest {
+  programId String?
+  program Program? @relation(fields: [programId], references: [id], onDelete: Restrict)
+  @@index([programId])
+
   id            String         @id @default(cuid())
   userId        String
   xpAmount      Int
   dollarAmount  Float
+  amountCents Int?
+  rulesSnapshot String?
+  requestKey String?
+  payloadHash String?
+  paymentReference String?
+  paidAt DateTime?
+  paidById String?
+  rewardEntries RewardEntry[]
+  paidBy AdminUser? @relation("PayoutPayer", fields: [paidById], references: [id])
+  @@unique([userId, requestKey])
+  @@unique([programId, paymentMethod, paymentReference])
   status        String         @default("pending")
   note          String?
   paymentMethod PaymentMethod?
@@ -161,9 +231,20 @@ model PayoutRequest {
   user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   reviewedBy    AdminUser?   @relation("PayoutReviewer", fields: [reviewedById], references: [id])
   approvedBy    AdminUser?   @relation("PayoutApprover", fields: [approvedById], references: [id])
+  @@index([programId, status, createdAt])
 }
 
 model AdminUser {
+  acknowledgedCases Case[] @relation("CaseAcknowledger")
+  partnerInquiries PartnerInquiry[]
+  staffActions StaffActionReceipt[]
+  memberships StaffMembership[]
+  mfaSecretEncrypted String?
+  mfaConfirmedAt DateTime?
+  mfaLastStep BigInt?
+  recoveryCodes StaffRecoveryCode[]
+  mustChangePassword Boolean @default(false)
+
   id              String    @id @default(cuid())
   email           String    @unique
   passwordHash    String
@@ -175,6 +256,8 @@ model AdminUser {
   loginFailures   Int       @default(0)
   lockedUntil     DateTime?
 
+  paidPayouts PayoutRequest[] @relation("PayoutPayer")
+  rewardEntries RewardEntry[]
   reviewedPayouts  PayoutRequest[]    @relation("PayoutReviewer")
   approvedPayouts  PayoutRequest[]    @relation("PayoutApprover")
   auditLogs        AuditLog[]
@@ -186,6 +269,22 @@ model AdminUser {
 }
 
 model Case {
+  intakeKey String?
+  intakePayloadHash String?
+  intakeSnapshot String?
+  locationConsentAt DateTime?
+  acknowledgedAt DateTime?
+  acknowledgedById String?
+  acknowledgedBy AdminUser? @relation("CaseAcknowledger",fields:[acknowledgedById],references:[id],onDelete:Restrict)
+  @@unique([userId,intakeKey])
+  @@index([programId,acknowledgedAt])
+  followUpAt DateTime?
+  resolvedAt DateTime?
+  version Int @default(0)
+  programId String?
+  program Program? @relation(fields: [programId], references: [id], onDelete: Restrict)
+  @@index([programId])
+
   id           String   @id @default(cuid())
   userId       String
   status       String   @default("new")
@@ -205,6 +304,8 @@ model Case {
   @@index([userId])
   @@index([status])
   @@index([createdAt])
+  @@index([programId, status, createdAt])
+  @@index([programId, followUpAt])
 }
 
 model CaseNote {
@@ -237,6 +338,11 @@ model ResourceAllocation {
 }
 
 model ServiceDirectory {
+  version Int @default(0)
+  programId String?
+  program Program? @relation(fields: [programId], references: [id], onDelete: Restrict)
+  @@index([programId])
+
   id        String   @id @default(cuid())
   name      String
   category  String
@@ -250,9 +356,16 @@ model ServiceDirectory {
   updatedAt DateTime @updatedAt
 
   @@index([category])
+  @@index([programId, isActive, name])
 }
 
 model AdminSession {
+  activeProgramId String?
+  activeProgram Program? @relation(fields: [activeProgramId], references: [id], onDelete: Restrict)
+  revokedAt DateTime?
+  mfaVerifiedAt DateTime?
+  lastSeenAt DateTime @default(now())
+
   id        String   @id @default(cuid())
   token     String   @unique
   adminId   String
@@ -265,6 +378,10 @@ model AdminSession {
 }
 
 model AuditLog {
+  programId String?
+  program Program? @relation(fields: [programId], references: [id], onDelete: Restrict)
+  @@index([programId])
+
   id          String   @id @default(cuid())
   adminId     String?
   action      String
@@ -279,6 +396,7 @@ model AuditLog {
   @@index([entity, entityId])
   @@index([adminId])
   @@index([createdAt])
+  @@index([programId, createdAt])
 }
 
 model ConsentRecord {
@@ -296,10 +414,18 @@ model ConsentRecord {
 }
 
 model PayoutConfig {
+  programId String?
+  program Program? @relation(fields: [programId], references: [id], onDelete: Restrict)
+  @@index([programId])
+
   id            String   @id @default(cuid())
   programSlug   String   @unique
   programName   String
   xpToDollar    Float    @default(0.05)
+  rateExact String?
+  version Int @default(1)
+  paymentMethods String?
+  separateApprover Boolean @default(false)
   minimumXp     Int      @default(20)
   weeklyXpCap   Int      @default(500)
   isActive      Boolean  @default(true)
@@ -308,6 +434,11 @@ model PayoutConfig {
 }
 
 model PoolBalance {
+  programId String?
+  program Program? @relation(fields: [programId], references: [id], onDelete: Restrict)
+  @@index([programId])
+  @@unique([programId])
+
   id          String   @id @default(cuid())
   balanceCents Int     @default(0)
   updatedAt   DateTime @updatedAt
@@ -315,6 +446,13 @@ model PoolBalance {
 }
 
 model PoolAdjustment {
+  @@unique([programId, requestKey])
+  programId String?
+  program Program? @relation(fields: [programId], references: [id], onDelete: Restrict)
+  @@index([programId])
+
+  requestKey String?
+  payoutId String? @unique
   id          String   @id @default(cuid())
   adminId     String
   amountCents Int
@@ -324,4 +462,245 @@ model PoolAdjustment {
   admin       AdminUser @relation(fields: [adminId], references: [id])
 
   @@index([createdAt])
+}
+
+// Choice evidence and acknowledgements only. Personal reflection text is never stored here.
+model LessonAttempt {
+ id String @id @default(cuid())
+ userId String
+ lessonId String
+ mode String
+ contentHash String
+ position Int @default(0)
+ createdAt DateTime @default(now())
+ completedAt DateTime?
+ resultJson String?
+ user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+ lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+ answers LessonAnswer[]
+ @@index([userId, lessonId, createdAt])
+}
+model LessonAnswer {
+ attemptId String
+ cardId String
+ ordinal Int
+ choice Int?
+ correct Boolean?
+ skipped Boolean @default(false)
+ answeredAt DateTime @default(now())
+ attempt LessonAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+ @@id([attemptId, cardId])
+ @@unique([attemptId, ordinal])
+}
+model LessonReview {
+ userId String
+ lessonId String
+ successes Int @default(0)
+ missedCardIds String @default("[]")
+ dueAt DateTime
+ lastReviewedAt DateTime
+ user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+ lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+ @@id([userId, lessonId])
+ @@index([userId, dueAt])
+}
+
+// Lifetime credit = available + reserved + spent. User.totalXp remains lifetime learning XP.
+model RewardAccount {
+ userId String @id
+ learningXp Int @default(0)
+ programSlug String?
+ creditedXp Int
+ availableXp Int
+ reservedXp Int @default(0)
+ spentXp Int @default(0)
+ openingAdjustmentXp Int @default(0)
+ createdAt DateTime @default(now())
+ user User @relation(fields: [userId], references: [id], onDelete: Restrict)
+}
+// Append-only evidence. Source key makes credits, reservations and decisions idempotent.
+model RewardEntry {
+ id String @id @default(cuid())
+ userId String
+ sourceKey String
+ kind String
+ payoutId String?
+ adminId String?
+ availableDelta Int @default(0)
+ reservedDelta Int @default(0)
+ spentDelta Int @default(0)
+ creditedDelta Int @default(0)
+ amountCents Int?
+ fromStatus String?
+ toStatus String?
+ metadata String @default("{}")
+ createdAt DateTime @default(now())
+ user User @relation(fields: [userId], references: [id], onDelete: Restrict)
+ payout PayoutRequest? @relation(fields: [payoutId], references: [id], onDelete: Restrict)
+ admin AdminUser? @relation(fields: [adminId], references: [id], onDelete: Restrict)
+ @@unique([userId, sourceKey])
+ @@index([payoutId, createdAt])
+}
+
+// Security boundaries are independent of city labels and financial configuration slugs.
+model Organization {
+  id String @id @default(cuid())
+  name String
+  isActive Boolean @default(true)
+  createdAt DateTime @default(now())
+  programs Program[]
+}
+model Program {
+  supportRegion String?
+  supportEnabled Boolean @default(false)
+  supportTeamName String?
+  supportMonitoring String?
+  supportReviewReference String?
+  supportVersion Int @default(0)
+  id String @id @default(cuid())
+  organizationId String
+  slug String @unique
+  name String
+  isActive Boolean @default(true)
+  defaultConfigSlug String?
+  createdAt DateTime @default(now())
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  memberships StaffMembership[]
+  enrollments ParticipantEnrollment[]
+  invitations ProgramInvitation[]
+  sessions AdminSession[]
+  payouts PayoutRequest[]
+  cases Case[]
+  services ServiceDirectory[]
+  audits AuditLog[]
+  configs PayoutConfig[]
+  pool PoolBalance?
+  partnerInquiries PartnerInquiry[]
+  staffActions StaffActionReceipt[]
+  adjustments PoolAdjustment[]
+}
+enum StaffProgramRole {
+  program_admin
+  caseworker
+  finance
+}
+model StaffMembership {
+  version Int @default(0)
+  id String @id @default(cuid())
+  adminId String
+  programId String
+  role StaffProgramRole
+  isActive Boolean @default(true)
+  createdAt DateTime @default(now())
+  revokedAt DateTime?
+  admin AdminUser @relation(fields: [adminId], references: [id], onDelete: Restrict)
+  program Program @relation(fields: [programId], references: [id], onDelete: Restrict)
+  @@unique([adminId, programId])
+  @@index([programId, isActive])
+}
+model ParticipantEnrollment {
+  // One security owner for this account and all its existing learning/financial history.
+  // Transfers/multiple concurrent enrollments require a separate reviewed history design.
+  userId String @id
+  programId String
+  status String @default("active")
+  createdAt DateTime @default(now())
+  reviewedById String?
+  user User @relation(fields: [userId], references: [id], onDelete: Restrict)
+  program Program @relation(fields: [programId], references: [id], onDelete: Restrict)
+  @@index([programId, status])
+}
+model ProgramInvitation {
+  id String @id @default(cuid())
+  programId String
+  tokenHash String @unique
+  expiresAt DateTime
+  isActive Boolean @default(true)
+  createdAt DateTime @default(now())
+  program Program @relation(fields: [programId], references: [id], onDelete: Restrict)
+}
+model StaffRecoveryCode {
+  id String @id @default(cuid())
+  adminId String
+  codeHash String @unique
+  usedAt DateTime?
+  createdAt DateTime @default(now())
+  admin AdminUser @relation(fields: [adminId], references: [id], onDelete: Restrict)
+  @@index([adminId])
+}
+
+model StaffAuthThrottle {
+  key String @id
+  failures Int @default(0)
+  windowAt DateTime @default(now())
+  lockedUntil DateTime?
+}
+
+model StaffActionReceipt {
+  id String @id @default(cuid())
+  programId String
+  adminId String
+  requestKey String
+  payloadHash String
+  entity String
+  entityId String
+  action String
+  version Int
+  createdAt DateTime @default(now())
+  program Program @relation(fields: [programId], references: [id], onDelete: Restrict)
+  admin AdminUser @relation(fields: [adminId], references: [id], onDelete: Restrict)
+  @@unique([programId, requestKey])
+  @@index([programId, entity, entityId, createdAt])
+}
+
+// Metadata only. No chat text, audio, location or support-request text.
+model SupportUsage {
+  userId String
+  kind String
+  windowAt DateTime
+  count Int @default(0)
+  units Int @default(0)
+  policyVersion String?
+  user User @relation(fields:[userId],references:[id],onDelete:Restrict)
+  @@id([userId,kind])
+}
+model SupportLease {
+  userId String
+  kind String
+  token String
+  expiresAt DateTime
+  user User @relation(fields:[userId],references:[id],onDelete:Restrict)
+  @@id([userId,kind])
+}
+
+// Partner prospects are routed to one explicitly configured intake program, never globally visible.
+model PartnerInquiry {
+  id String @id @default(cuid())
+  requestKey String @unique
+  payloadHash String
+  programId String
+  program Program @relation(fields:[programId],references:[id],onDelete:Restrict)
+  fullName String
+  organization String
+  email String
+  interest String
+  region String?
+  message String?
+  consentAt DateTime @default(now())
+  noticeSnapshot String
+  createdAt DateTime @default(now())
+  @@index([programId,createdAt,id])
+}
+// Abuse-control metadata only: HMAC keys, no email/message/raw IP.
+model PartnerInquiryRate {
+  key String @id
+  windowAt DateTime
+  count Int
+}
+
+// Shared fixed-window admission limits; hashed identities only, no request/learner payloads.
+model HttpRateLimit {
+  key String @id
+  count Int
+  resetAt DateTime
 }

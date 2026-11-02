@@ -1,173 +1,173 @@
 "use client";
-
-import { useState, useEffect } from "react";
 import Link from "next/link";
-import { CheckCircleIcon, ChevronRightIcon } from "./icons";
-
-interface Lesson {
-  id: string;
-  title: string;
-  xpReward: number;
-  order: number;
-  lessonType?: string;
-  estimatedMinutes?: number;
-  difficulty?: string;
-}
-
-interface Module {
-  id: string;
-  title: string;
-  order: number;
-  lessons: Lesson[];
-}
-
-interface LessonListProps {
-  modules: Module[];
-}
-
-const colors = ["var(--accent-green)", "var(--accent-blue)", "var(--accent-purple)", "var(--accent-gold)", "var(--accent-red)"];
-
-export default function LessonList({ modules }: LessonListProps) {
-  const [completedIds, setCompletedIds] = useState<Set<string>>(new Set());
-
-  useEffect(() => {
-    const userId = localStorage.getItem("l2e_user_id");
-    if (!userId) return;
-
-    fetch("/api/progress/list", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId }),
-    })
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.ok && data.completedLessonIds) {
-          setCompletedIds(new Set(data.completedLessonIds));
-        }
-      })
-      .catch(() => {});
-  }, []);
-
+import { CheckCircleIcon, BookIcon } from "./icons";
+import { StatusBadge } from "./ui";
+import {
+  lessonState,
+  STATE_LABELS,
+  type LearningUnit,
+} from "@/lib/learning-progression";
+import styles from "../paths/[pathSlug]/path.module.css";
+export type ModuleSummary = LearningUnit;
+export default function LessonList({
+  modules,
+  completedIds,
+  visitedIds,
+  reviewIds,
+  nextId,
+  progressKnown,
+  view,
+}: {
+  modules: LearningUnit[];
+  completedIds: string[];
+  visitedIds: string[];
+  reviewIds: string[];
+  nextId?: string;
+  progressKnown: boolean;
+  view: "path" | "list";
+}) {
+  const completed = new Set(completedIds),
+    visited = new Set(visitedIds),
+    reviews = new Set(reviewIds);
   return (
-    <div style={{ display: "grid", gap: "2rem" }}>
-      {modules.map((mod, modIdx) => (
-        <section key={mod.id}>
-          <div style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "0.75rem",
-            marginBottom: "0.75rem",
-            paddingBottom: "0.5rem",
-            borderBottom: "1px solid var(--border-color)",
-          }}>
-            <div style={{
-              fontSize: "0.7rem",
-              fontWeight: "700",
-              letterSpacing: "0.1em",
-              textTransform: "uppercase",
-              color: "var(--accent-green)",
-              backgroundColor: "rgba(59,158,255,0.12)",
-              padding: "0.25rem 0.75rem",
-              borderRadius: "999px",
-            }}>
-              Unit {modIdx + 1}
-            </div>
-            <h2 style={{
-              fontSize: "1rem",
-              fontWeight: "700",
-              color: "var(--text-primary)",
-              letterSpacing: "0.02em",
-            }}>{mod.title}</h2>
-          </div>
-
-          <div style={{ display: "grid", gap: "0.5rem" }}>
-            {mod.lessons.map((lesson, lessonIdx) => {
-              const done = completedIds.has(lesson.id);
-              const color = colors[(modIdx * 3 + lessonIdx) % colors.length];
-
-              return (
-                <Link key={lesson.id} href={`/lesson/${lesson.id}`}>
-                  <div className="cyber-card" style={{
-                    padding: "0.85rem 1.25rem",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "1rem",
-                    borderLeft: `3px solid ${done ? "var(--accent-green)" : color}`,
-                    opacity: done ? 0.8 : 1,
-                  }}>
-                    <div style={{
-                      fontSize: "0.75rem",
-                      fontWeight: "700",
-                      color: "var(--text-muted)",
-                      minWidth: "24px",
-                    }}>
-                      {lessonIdx + 1}
-                    </div>
-                    {done ? (
-                      <div style={{
-                        width: "24px",
-                        height: "24px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        flexShrink: 0,
-                        color: "var(--accent-green)",
-                      }}>
-                        <CheckCircleIcon size={22} color="var(--accent-green)" />
-                      </div>
-                    ) : (
-                      <div style={{
-                        width: "24px",
-                        height: "24px",
-                        borderRadius: "50%",
-                        border: `2px solid ${color}`,
-                        flexShrink: 0,
-                      }} />
-                    )}
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{
-                        fontSize: "0.95rem",
-                        fontWeight: "600",
-                        color: done ? "var(--text-secondary)" : "var(--text-primary)",
-                        letterSpacing: "0.01em",
-                      }}>
-                        {lesson.title}
-                      </div>
-                    </div>
-                    <div style={{
-                      fontSize: "0.7rem",
-                      fontWeight: "700",
-                      color: done ? "var(--accent-green)" : color,
-                      flexShrink: 0,
-                      background: done ? "rgba(88,204,2,0.1)" : `${color}15`,
-                      padding: "0.2rem 0.6rem",
-                      borderRadius: "999px",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "0.25rem",
-                    }}>
-                      {done ? (
-                        <>
-                          <CheckCircleIcon size={11} color="var(--accent-green)" />
-                          Done
-                        </>
+    <div
+      className={`${styles.units} ${view === "path" ? styles.pathMode : styles.linearMode}`}
+      aria-label={
+        view === "path" ? "Vertical learning path" : "Linear lesson list"
+      }
+    >
+      {modules.map((unit, index) => {
+        const available = unit.lessons.filter((l) => l.available),
+          count = available.filter((l) => completed.has(l.id)).length;
+        return (
+          <section
+            key={unit.id}
+            aria-labelledby={`unit-${unit.id}`}
+            className={styles.unit}
+          >
+            <header className={styles.unitHeading}>
+              <span className={styles.landmark} aria-hidden="true">
+                {index + 1}
+              </span>
+              <div>
+                <p className={styles.eyebrow}>Unit {index + 1}</p>
+                <h2 id={`unit-${unit.id}`}>{unit.title}</h2>
+                {unit.description && (
+                  <p className={styles.muted}>{unit.description}</p>
+                )}
+                <p className={styles.unitCount}>
+                  {progressKnown
+                    ? available.length
+                      ? `${count} of ${available.length} available lessons complete`
+                      : "No lessons ready to start in this unit"
+                    : "Completion status is loading or unavailable"}
+                </p>
+              </div>
+            </header>
+            {unit.lessons.length ? (
+              <ol className={styles.lessonList}>
+                {unit.lessons.map((lesson, order) => {
+                  const state = lessonState(
+                      lesson,
+                      completed,
+                      visited,
+                      reviews,
+                    ),
+                    done =
+                      state === "completed" || state === "review_suggested",
+                    known = progressKnown || state === "unavailable";
+                  const content = (
+                    <>
+                      <span
+                        className={`${styles.node} ${done ? styles.done : ""} ${nextId === lesson.id ? styles.currentNode : ""}`}
+                        aria-hidden="true"
+                      >
+                        {done ? (
+                          <CheckCircleIcon size={24} />
+                        ) : (
+                          <BookIcon size={22} />
+                        )}
+                      </span>
+                      <span className={styles.lessonBody}>
+                        <span className={styles.lessonOrder}>
+                          Lesson {order + 1}
+                        </span>
+                        <span className={styles.lessonTitle}>
+                          {lesson.title}
+                        </span>
+                        <span className={styles.lessonMeta}>
+                          <StatusBadge
+                            tone={
+                              state === "unavailable"
+                                ? "warning"
+                                : done
+                                  ? "success"
+                                  : "info"
+                            }
+                          >
+                            {known ? STATE_LABELS[state] : "Status unavailable"}
+                          </StatusBadge>
+                          {lesson.estimatedMinutes > 0 && (
+                            <span>About {lesson.estimatedMinutes} min</span>
+                          )}
+                          {nextId === lesson.id && <span>Up next</span>}
+                          {lesson.lessonType !== "learn" && (
+                            <span>
+                              {lesson.lessonType === "capstone"
+                                ? "Final challenge"
+                                : "Checkpoint"}
+                            </span>
+                          )}
+                        </span>
+                        <span className={styles.lessonExplanation}>
+                          {state === "unavailable"
+                            ? "The learning content is being prepared. Choose another lesson."
+                            : !known
+                              ? "You can open this lesson while progress is unavailable."
+                              : state === "in_progress"
+                                ? "You opened this lesson. It opens from the beginning until completed."
+                                : state === "review_suggested"
+                                  ? "Saved questions are marked to revisit. Review is optional."
+                                  : state === "completed"
+                                    ? "Your completion is saved. Review anytime."
+                                    : "Available to start. You can choose any ready lesson."}
+                        </span>
+                      </span>
+                    </>
+                  );
+                  return (
+                    <li
+                      key={lesson.id}
+                      className={styles.step}
+                      data-lesson-state={known ? state : "unknown"}
+                    >
+                      {lesson.available ? (
+                        <Link
+                          href={`/lesson/${lesson.id}`}
+                          className={`${styles.lesson} ${nextId === lesson.id ? styles.lessonCurrent : ""}`}
+                        >
+                          {content}
+                        </Link>
                       ) : (
-                        `+${lesson.xpReward} XP`
+                        <div
+                          className={`${styles.lesson} ${styles.unavailable}`}
+                        >
+                          {content}
+                        </div>
                       )}
-                    </div>
-                    <div style={{
-                      color: "var(--text-muted)",
-                      flexShrink: 0,
-                    }}>
-                      <ChevronRightIcon size={18} color="var(--text-muted)" />
-                    </div>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        </section>
-      ))}
+                    </li>
+                  );
+                })}
+              </ol>
+            ) : (
+              <p className={styles.emptyUnit}>
+                No published lessons in this unit yet. Other units and Help
+                remain available.
+              </p>
+            )}
+          </section>
+        );
+      })}
     </div>
   );
 }

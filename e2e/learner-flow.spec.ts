@@ -1,3 +1,4 @@
+import { completeLesson } from "./helpers/lesson";
 import { test, expect } from "@playwright/test";
 import {
   findAnyLessonId,
@@ -9,7 +10,8 @@ import {
 // Match the value the Playwright webServer is spawned with.
 const DEMO_CODE = process.env.DEMO_ACCESS_CODE || "LEARN2EARN";
 
-test.describe.serial("Learner: signup → complete lesson → XP visible in profile", () => {
+test.describe
+  .serial("Learner: signup → complete lesson → XP visible in profile", () => {
   let email: string;
 
   test.beforeAll(async () => {
@@ -23,7 +25,9 @@ test.describe.serial("Learner: signup → complete lesson → XP visible in prof
 
   test("end-to-end learner XP flow", async ({ request }) => {
     // 1. Pass the demo gate so middleware allows access to /app and /profile.
-    const access = await request.post("/api/access", { data: { code: DEMO_CODE } });
+    const access = await request.post("/api/access", {
+      data: { code: DEMO_CODE },
+    });
     expect(access.status(), "demo access code accepted").toBe(200);
 
     // 2. Register the learner. This is the same endpoint the multi-step UI
@@ -34,15 +38,12 @@ test.describe.serial("Learner: signup → complete lesson → XP visible in prof
     });
     expect(reg.status(), "registration succeeded").toBe(200);
     const regBody = await reg.json();
-    const userId = regBody.user.id as string;
     expect(regBody.user.totalXp).toBe(0);
 
     // 3. Complete a real seeded lesson through the same endpoint the
     //    LessonPlayer hits when the learner finishes the cards.
     const lessonId = await findAnyLessonId();
-    const complete = await request.post("/api/progress/complete", {
-      data: { userId, lessonId },
-    });
+    const complete = await completeLesson(request, lessonId);
     expect(complete.status(), "lesson completion succeeded").toBe(200);
     const completeBody = await complete.json();
     const xpAwarded = completeBody.xpAwarded as number;

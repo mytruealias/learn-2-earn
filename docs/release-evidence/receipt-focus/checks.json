@@ -1,0 +1,16 @@
+[
+  {
+    "screen": "inquiry-uncertain",
+    "width": 390,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  },
+  {
+    "screen": "inquiry-saved",
+    "width": 390,
+    "axeViolations": 0,
+    "noOverflow": true,
+    "targetsAtLeast44": true
+  }
+]

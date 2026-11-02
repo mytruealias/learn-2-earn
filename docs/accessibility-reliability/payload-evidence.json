@@ -1,0 +1,9 @@
+{
+  "date": "2026-11-02",
+  "scope": "Synthetic serialization microbenchmark of actual summarizePath; not measured route JavaScript, latency or production Web Vitals",
+  "syntheticLessons": 200,
+  "beforeBytes": 29117,
+  "afterBytes": 177,
+  "reductionPercent": 99.39,
+  "publishedProductionCountsVerified": false
+}

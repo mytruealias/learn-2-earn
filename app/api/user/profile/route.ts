@@ -7,7 +7,7 @@ const optStr = (max: number) =>
   z.string().trim().max(max).optional().or(z.literal("").transform(() => undefined));
 
 const Schema = z.object({
-  userId: z.string().min(1).max(120),
+  userId: z.string().min(1).max(120).optional(),
   fullName: optStr(120),
   dateOfBirth: optStr(20),
   phone: optStr(40),
@@ -20,16 +20,17 @@ const Schema = z.object({
 
 export async function POST(req: Request) {
   try {
-    const sessionUserId = getUserIdFromRequest(req);
+    const sessionUserId = await getUserIdFromRequest(req);
     if (!sessionUserId) {
       return apiError("unauthorized", "Please sign in to update your profile.", 401);
     }
 
     const parsed = await parseJson(req, Schema);
     if (!parsed.ok) return parsed.response;
-    const { userId, ...rest } = parsed.data;
+    const { userId: bodyUserId, ...rest } = parsed.data;
+    const userId = sessionUserId;
 
-    if (userId !== sessionUserId) {
+    if (bodyUserId && bodyUserId !== sessionUserId) {
       return apiError("forbidden", "You can only edit your own profile.", 403);
     }
 

@@ -1,0 +1,57 @@
+name: Checks
+on:
+  pull_request:
+  workflow_dispatch:
+  push:
+    branches: [main, feat/release-readiness]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable-ci-only
+          POSTGRES_DB: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      # This credential exists only inside the disposable service; no repository secrets.
+      TEST_DATABASE_ADMIN_URL: postgresql://postgres:disposable-ci-only@127.0.0.1:5432/postgres
+      NEXT_TELEMETRY_DISABLED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --include=dev
+      - run: npm run prisma:generate
+      - run: npm run lint
+      - run: npm run build
+      - run: npm run typecheck
+      - run: npx playwright install --with-deps chromium
+      # Each suite gets a fresh DB + restricted role; scripts run sequentially.
+      - run: npm test
+      - run: npm run test:release:public
+        env:
+          MARKETING_EVIDENCE_DIR: ${{ runner.temp }}/release-marketing
+          RELEASE_EVIDENCE_DIR: ${{ runner.temp }}/release-public
+      - run: npm run typecheck
+      - run: npm run test:performance
+      # Keep the known high Zod advisory visible as a failing release gate.
+      - run: npm audit --omit=dev --audit-level=high
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: synthetic-production-lab
+          path: docs/accessibility-reliability/lab/production-lab.json
+          if-no-files-found: ignore

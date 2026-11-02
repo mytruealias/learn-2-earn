@@ -62,55 +62,16 @@ test.describe("City PIN gate", () => {
 });
 
 test.describe("Landing page", () => {
-  test("Book-a-Demo CTA target is reachable", async ({ request }) => {
-    const landing = await request.get("/", {
-      headers: { "x-forwarded-for": LANDING_IP },
-    });
+  test("partner pilot CTA points to the real inquiry section", async ({ request }) => {
+    const landing = await request.get("/", { headers: { "x-forwarded-for": LANDING_IP } });
     expect(landing.status()).toBe(200);
     const html = await landing.text();
-
-    // 1. CTA copy must be present in the SSR HTML.
-    expect(html.toLowerCase()).toMatch(/book a demo|request demo|contact/);
-
-    // 2. Find the *specific* anchor whose visible text mentions the CTA.
-    //    Match <a href="..." ...>...book a demo / request demo / contact...</a>
-    const anchorRe = /<a\b[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/gi;
-    let ctaHref: string | null = null;
-    for (const m of html.matchAll(anchorRe)) {
-      const href = m[1];
-      const text = m[2].replace(/<[^>]+>/g, "").trim().toLowerCase();
-      if (/book a demo|request demo|contact/.test(text)) {
-        ctaHref = href;
-        break;
-      }
-    }
-    expect(ctaHref, "landing page must expose a Book-a-Demo / Contact CTA anchor").not.toBeNull();
-
-    const href = ctaHref!;
-    // 3. Validate the CTA target. Accept in-page anchors, mailto/tel
-    //    (just assert well-formed), and HTTP routes (must resolve).
-    if (href.startsWith("#")) {
-      const id = href.slice(1);
-      expect(id.length, "in-page CTA must have a non-empty fragment").toBeGreaterThan(0);
-      // Section the fragment points at must exist in the SSR HTML.
-      expect(html).toMatch(new RegExp(`id=["']${id}["']`));
-    } else if (href.startsWith("mailto:") || href.startsWith("tel:")) {
-      expect(href.length).toBeGreaterThan(7);
-    } else if (href.startsWith("/") && !href.startsWith("//")) {
-      const probe = await request.get(href, {
-        headers: { "x-forwarded-for": LANDING_IP },
-        maxRedirects: 0,
-      });
-      expect(
-        [200, 301, 302, 303, 307, 308].includes(probe.status()),
-        `Book-a-Demo CTA href ${href} must resolve (got ${probe.status()})`,
-      ).toBe(true);
-    } else if (/^https?:\/\//.test(href)) {
-      // External link — just assert it parses as a URL.
-      expect(() => new URL(href)).not.toThrow();
-    } else {
-      throw new Error(`Unexpected CTA href format: ${href}`);
-    }
+    const anchors = [...html.matchAll(/<a\b[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/gi)];
+    const primary = anchors.find(m => m[2].replace(/<[^>]+>/g, "").trim() === "Discuss a pilot");
+    expect(primary?.[1]).toBe("/#contact");
+    expect(html).toMatch(/id=["']contact["']/);
+    // The CTA opens a real form section, without promising a booked meeting.
+    expect(html).toContain("Save partner inquiry");
   });
 
   test("primary navigation links resolve", async ({ request }) => {

@@ -1,176 +1,153 @@
-import type { Metadata } from "next";
-import "../invest/invest.css";
-import LandingNav from "../components/LandingNav";
-import LandingFooter from "../components/LandingFooter";
-
-export const metadata: Metadata = {
-  title: "Privacy Policy",
-  description:
-    "How Learn2Earn collects, uses, and protects your personal information, lesson activity, payout details, and Hubert chat content.",
-  robots: { index: true, follow: true },
-  alternates: { canonical: "/privacy" },
-};
-
-const LAST_UPDATED = "May 27, 2026";
-
-export default function PrivacyPage() {
+import MarketingShell from "../components/marketing/MarketingShell";
+import styles from "../components/marketing/marketing.module.css";
+import { marketingMetadata } from "@/lib/marketing/metadata";
+export const metadata = marketingMetadata(
+  "Privacy summary",
+  "/privacy",
+  "How Learn2Earn handles learning records, program requests, partner inquiries and optional AI processing, including verification limits.",
+);
+export default function Page() {
   return (
-    <div className="inv-page">
-      <LandingNav />
-
-      <section className="inv-legal">
-        <div className="inv-legal-container">
-          <div className="inv-legal-header">
-            <div className="inv-legal-eyebrow">Legal</div>
-            <h1>Privacy Policy</h1>
-            <p className="inv-legal-updated">Last updated {LAST_UPDATED}</p>
-            <p className="inv-legal-draft" role="note">
-              Draft for partner review. This policy describes our current
-              practices in plain language and will be reviewed by counsel
-              before any public launch with a new city or shelter partner.
-            </p>
-          </div>
-
-          <article className="inv-legal-body">
-            <h2>Who we are</h2>
-            <p>
-              Learn2Earn is a Texas nonprofit that partners with cities,
-              shelters, and local service providers to help people experiencing
-              homelessness build life skills and earn small, verified cash
-              incentives. This policy explains what information we collect
-              when you use our learning app, our case-worker tools, our Hubert
-              support chat, and our public partner pages, and what we do with
-              that information.
-            </p>
-
-            <h2>What we collect</h2>
-            <p>We collect only what we need to run the program responsibly.</p>
-            <h3>Account information</h3>
-            <ul>
-              <li>Your name, email, and password (passwords are stored hashed, never in plain text)</li>
-              <li>Optional profile details you choose to share, such as date of birth, phone, city, state, ZIP, case number, and emergency contact</li>
-            </ul>
-            <h3>Learning activity</h3>
-            <ul>
-              <li>Which lessons you start and finish, and the XP you earn</li>
-              <li>Streaks, hearts, checkpoint and capstone results</li>
-              <li>Crash and error reports tied to your account so we can fix bugs</li>
-            </ul>
-            <h3>Payout information</h3>
-            <ul>
-              <li>The amount of XP you choose to redeem and the date you requested it</li>
-              <li>Your payout method (Zelle, Venmo, PayPal, Cash App, or check) and the handle, account email, phone number, or mailing address required to send it</li>
-              <li>The case worker or admin who reviewed and approved your request</li>
-            </ul>
-            <h3>Hubert chat</h3>
-            <ul>
-              <li>Each Hubert session is ephemeral, your messages are sent to our AI provider only to generate a reply and are not stored in your account history</li>
-              <li>We keep short-lived rate-limit counters in memory so a single user cannot overwhelm the service</li>
-            </ul>
-            <h3>Technical information</h3>
-            <ul>
-              <li>Standard server logs, including IP address, browser type, and the pages you visit, kept for security and debugging</li>
-              <li>Cookies that remember partner access codes and PINs you have unlocked, and local-browser storage that keeps your sign-in session and progress on your device</li>
-            </ul>
-
-            <h2>How we use your information</h2>
-            <ul>
-              <li>To deliver lessons, track your progress, and award XP</li>
-              <li>To process payout requests, verify completion, and reach you about a request</li>
-              <li>To keep accounts secure and to investigate fraud or abuse</li>
-              <li>To produce aggregate, anonymized reporting for our city and shelter partners and our funders</li>
-              <li>To improve the curriculum, the app, and the Hubert chat experience</li>
-            </ul>
-
-            <h2>Who we share it with</h2>
-            <p>
-              We do not sell your personal information. We share limited
-              information only with the people and services that need it to
-              run the program:
-            </p>
-            <ul>
-              <li>
-                Your city or shelter partner sees aggregate participation and
-                outcome data for the program they fund. Individual case
-                workers assigned to you see your name, lesson activity, and
-                payout requests so they can support you.
-              </li>
-              <li>
-                Payment processors and money-transfer services (for example
-                Zelle, Venmo, PayPal, Cash App, or our check-issuing
-                provider) receive only the information they need to send
-                your payout.
-              </li>
-              <li>
-                Our AI provider for Hubert receives the contents of your
-                current chat message in order to generate a reply. We do not
-                send them your name or contact details.
-              </li>
-              <li>
-                Law enforcement or other authorities, but only when we
-                reasonably believe disclosure is required by law or
-                necessary to protect someone from imminent harm.
-              </li>
-            </ul>
-
-            <h2>How long we keep it</h2>
-            <ul>
-              <li>Account, lesson, and payout records are kept while your account is active and for up to seven years afterward, which is the standard nonprofit and financial recordkeeping window</li>
-              <li>Hubert chat content is not retained on your account; provider-side retention follows our AI vendor&apos;s policy</li>
-              <li>Server logs are typically rotated within 90 days</li>
-            </ul>
-
-            <h2>Your rights</h2>
-            <p>You can ask us at any time to:</p>
-            <ul>
-              <li>See a copy of the personal information we hold about you</li>
-              <li>Correct anything that is wrong</li>
-              <li>Delete your account and the personal data attached to it (we may need to keep limited payout records to satisfy financial and audit requirements)</li>
-              <li>Export your learning history in a portable format</li>
-            </ul>
-            <p>
-              To make any of these requests, email{" "}
-              <a href="mailto:privacy@learn2earn.org">privacy@learn2earn.org</a>{" "}
-              from the email on your account, or ask your case worker to
-              submit the request on your behalf.
-            </p>
-
-            <h2>How we protect your information</h2>
-            <ul>
-              <li>Passwords are hashed with bcrypt</li>
-              <li>Traffic to and from the site is encrypted in transit</li>
-              <li>Access to admin tools is restricted by role and logged in an audit trail</li>
-              <li>We try to collect only what we need, and we review our practices regularly</li>
-            </ul>
-
-            <h2>Children</h2>
-            <p>
-              Learn2Earn is built for adults working with case workers or
-              other authorized partners. We do not knowingly collect
-              information from anyone under 13. If you believe a child has
-              created an account, please email us so we can remove it.
-            </p>
-
-            <h2>Changes to this policy</h2>
-            <p>
-              We may update this policy as the program evolves. Material
-              changes will be posted here with a new &quot;last updated&quot;
-              date, and we will notify active accounts by email when the
-              update affects them.
-            </p>
-
-            <h2>Contact us</h2>
-            <p>
-              Questions about your privacy or this policy? Email{" "}
-              <a href="mailto:privacy@learn2earn.org">privacy@learn2earn.org</a>{" "}
-              or our general partner address at{" "}
-              <a href="mailto:partners@learn2earn.org">partners@learn2earn.org</a>.
-            </p>
-          </article>
-        </div>
-      </section>
-
-      <LandingFooter />
-    </div>
+    <MarketingShell>
+      <article className={styles.legal}>
+        <p className={styles.eyebrow}>Privacy and accountability</p>
+        <h1>
+          What is recorded.
+          <br />
+          Who can see it.
+        </h1>
+        <p className={styles.notice}>
+          Draft operational summary, updated November 2, 2026. Deployment
+          practices, organizational identity, lawful retention and privacy
+          contacts require operator and qualified legal review before launch.
+          This page is not proof of a certification or zero-retention agreement.
+        </p>
+        <section>
+          <h2>Accounts and learning</h2>
+          <p>
+            Account information, password hashes, server sessions, lesson
+            attempts, answers, completion, progress and reward records support
+            the program. Optional profile fields may contain sensitive
+            information; share only what your program needs. Optional lesson
+            reflections stay in component memory and are not submitted or saved.
+          </p>
+          <p>
+            Staff access depends on active program membership, role and
+            MFA-verified sessions. Authorized program caseworkers and
+            administrators can see program participant/support records; finance
+            access is limited to reward-related work. A case does not need to be
+            assigned to a particular staff member for an authorized program role
+            to access it.
+          </p>
+        </section>
+        <section>
+          <h2>Program help is a stored request</h2>
+          <p>
+            Submitting program help stores a private case and the location you
+            explicitly choose to share. No device location is collected. The
+            page identifies the configured team and monitoring notice. A receipt
+            confirms storage, not notification or staff acknowledgment. Staff
+            acknowledgment appears only when actually recorded; it does not
+            establish completed follow-up.
+          </p>
+          <p>
+            The app sends no automatic support email, text or emergency
+            dispatch. <a href="/lifeline">Public human-help resources</a> are
+            available without a lesson or AI chat.
+          </p>
+        </section>
+        <section>
+          <h2>Partner inquiries</h2>
+          <p>
+            The partner form collects a contact name, organization, email,
+            interest, optional region and optional message, with explicit
+            consent. It routes the stored inquiry to authorized administrators
+            of one reviewed intake program; it is not visible to every
+            organization using the platform. The form states the responsible
+            team and its actual monitoring notice when configured.
+          </p>
+          <p>
+            No automatic email or calendar booking is sent. A server receipt
+            confirms storage only. The browser may retain an opaque retry key in
+            sessionStorage; names, email and inquiry text are not stored there.
+            Do not include participant names, health details, case files or
+            payment handles.
+          </p>
+        </section>
+        <section>
+          <h2>Optional AI and voice</h2>
+          <p>
+            Hubert is an AI support tool, not a clinician or monitored crisis
+            service. Chat/cloud voice are disabled until provider configuration
+            and a qualified response-policy review are recorded. When you
+            explicitly choose processing, conversation history is sent to
+            OpenAI; cloud voice separately sends selected reply text. The app
+            does not attach account profiles, case files or payment records, but
+            identifying details you type can be included.
+          </p>
+          <p>
+            Application source does not save chat transcripts to account tables
+            or browser storage. It stores account-linked usage counters, windows
+            and short concurrency leases. This does not establish provider or
+            hosting zero retention. Provider contracts, account settings,
+            logging and subprocessors must be verified. Local device voice and
+            keyboard dictation have their own device/provider behavior.
+          </p>
+        </section>
+        <section>
+          <h2>Payments and reporting</h2>
+          <p>
+            Program-defined terms, request snapshots, reservations, staff
+            decisions and recorded external payment evidence support audit and
+            reconciliation. Approval is not a transfer; this app does not
+            automatically send these manual payments. Payment details are masked
+            in ordinary history and revealed to authorized staff through an
+            audited workflow.
+          </p>
+          <p>
+            Program reports distinguish participation, practice, recorded
+            services and paid incentives. Aggregates do not guarantee anonymity,
+            especially in small groups, and do not establish housing or recovery
+            outcomes.
+          </p>
+        </section>
+        <section>
+          <h2>Logs, retention and requests</h2>
+          <p>When operators enable technical error reporting, the browser sends only a fixed error category and a route template. It does not send exception text, stack traces, query strings, chat, answers or participant identifiers, and it does not queue reports offline. Server error records use opaque request references. Hosting logs and retention still require operational review.</p>
+          <p>
+            Application support and inquiry endpoints do not log message bodies
+            or raw provider errors. Hosting/proxy/APM services may record
+            request metadata or bodies depending on their configuration; those
+            settings have not been verified here. There is no verified 90-day
+            log period, automatic account/case/inquiry deletion schedule or
+            blanket confidentiality guarantee.
+          </p>
+          <p>
+            Account, learning, payment, case and inquiry records remain until a
+            reviewed retention/deletion process is applied. Security/abuse
+            counters include HMAC-derived identifiers and time windows.
+            Operators must establish lawful retention, access, redaction and
+            financial-record preservation before enabling intake.
+          </p>
+          <p>
+            Use the verified privacy contact supplied by your program to request
+            access, correction, export or deletion review. This page does not
+            send a privacy request, promise automatic deletion or provide an
+            unverified mailbox. A partner inquiry is not the right place for
+            sensitive privacy or learner account-recovery details.
+          </p>
+        </section>
+        <section>
+          <h2>Fictional public previews</h2>
+          <p>
+            The public sample lesson runs locally without an account or API
+            submissions. Staff preview tasks are illustrative. Neither preview
+            reads participant records or creates real learning progress, rewards
+            or staff decisions.
+          </p>
+          <a href="/terms">Read the service information</a>
+        </section>
+      </article>
+    </MarketingShell>
   );
 }

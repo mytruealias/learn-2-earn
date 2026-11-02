@@ -1,110 +1,30 @@
-# Accessibility (WCAG 2.2 AA) — Patterns & Conventions
+# Accessibility conventions and verification limits
 
-This project targets **WCAG 2.2 AA**. Below are the conventions every contributor should follow. The shared primitives in `lib/use-modal-a11y.ts` and `app/globals.css` already cover the most common cases — when in doubt, copy from `HelpButton.tsx`, `FounderModal.tsx`, or the `login`/`signup` pages.
+WCAG 2.2 AA is the engineering target, not a certification. Use the [current route/state inventory](accessibility-reliability/routes.md), [verification](accessibility-reliability/verification.md) and [design conventions](design-system/README.md). Historical route checkmarks and references to nonexistent routes have been removed; earlier evidence remains in Git history and the prior stage reports. No automated score proves conformance.
 
-## 1. Focus
+## Keyboard, focus and layout
 
-- **Visible focus ring.** `app/globals.css` defines a global `:focus-visible` outline (2px solid `--accent-blue`). Do not set `outline: none` on interactive elements. If you must remove the default outline, you must replace it with another visible indicator that meets 3:1 contrast.
-- **Logical tab order.** Render interactive elements in the order they appear visually. Avoid `tabindex` values greater than 0.
-- **Skip-to-content** is implicit via the bottom navigation `aria-label="Primary"` and the page `<main>` wrapper. The single-page app pattern means there is no large header to skip past.
+- Use semantic links for destinations and buttons for actions, in reading order, with no positive tabindex. Every new control has visible focus: the adopted system uses a 3px high-contrast outline with offset. A target standard of at least 44 CSS px applies to controls and links; this is stronger than the minimum WCAG 2.2 target-size criterion.
+- Marketing, learner and staff shells provide keyboard-visible skip links. Heading levels describe page/section hierarchy; loading and error states still need a meaningful page heading. A landmark or heading name is not proof of a complete keyboard journey.
+- Measure sticky headers, bottom actions, safe areas and connection notices. Learner focus offsets use observed chrome size; the staff mobile menu moves below a visible connection notice. Test enlarged text, narrow viewports, validation focus and keyboard-open layouts. Never hide overflow just to pass a viewport check.
+- Shared Dialog uses the native top layer and `useModalA11y` for trapping, Escape, scroll lock and focus restoration. It has a named title and 44px close control. A documented pending action may disable dismissal; the reason must be visible and a bounded request must eventually resolve. Backdrop and Escape honor the same disabled-close guard. The staff navigation drawer uses the existing hook and inert background. Do not add a new custom overlay implementation.
 
-## 2. Modals & dialogs
+## Forms and feedback
 
-Every modal must:
-1. Use `useModalA11y(open, ref, onClose)` from `lib/use-modal-a11y.ts`. This hook provides:
-   - Background scroll lock
-   - Escape-to-close
-   - Tab / Shift+Tab focus trap
-   - Focus moved into the modal on open and restored to the previously-focused element on close
-2. Set `role="dialog"`, `aria-modal="true"`, and either `aria-labelledby` (preferred) or `aria-label`.
-3. Make the dialog container `tabIndex={-1}` so the hook can park focus on it as a fallback when no focusable child exists.
-4. Provide a visible Close control (button or link) labelled with `aria-label="Close"` if the visible label is just an icon.
+- Give each input a visible associated label (htmlFor/id or an appropriate wrapping label). A placeholder is not a label. Preserve correct autocomplete/input types and native required behavior; redundant aria-required is not necessary for a native required input.
+- Field hints/errors use stable describedby IDs; invalid fields use aria-invalid. Move focus to the first invalid control where appropriate without taking focus away during unrelated updates.
+- Errors are alerts; confirmations are polite status regions. Do not add a redundant aria-live when the role already supplies it. Keep messages long enough to use; shared toasts persist until dismissed. Never announce saved/paid/sent based only on a click, timer or animation.
+- The connection notice describes offline, slow and uncertain outcomes, with human-help access and no auto-replay. Client transport has a deadline covering response bodies and caller cancellation. Preserve the screen’s input after uncertain saves. The original intent key governs explicit financial/help retries; a generic network retry must not create a new payment/action.
 
-Reference implementations: `app/components/HelpButton.tsx`, `app/components/FounderModal.tsx`, `app/components/HubertChat.tsx`.
+## Meaning, contrast, motion and audio
 
-## 3. Forms
+- Pair color with meaningful text. Check contrast against the actual rendered background: 4.5:1 for normal text, 3:1 for large text and applicable component/focus boundaries. Token names or old screenshots do not prove every state passes.
+- Use named native progress; derive counts from server records. Do not simulate awards, make essential learning depend on hearts, or label an approval as a transfer. Badge explanation in Profile refers to first-completion evidence rather than lost hearts.
+- Decorative SVGs/images are hidden or have empty alt; informative images need meaningful alt. Icon-only controls need a name. New artwork must preserve the original Learn2Earn identity.
+- Respect prefers-reduced-motion; use short optional transitions and no compulsory celebration or audio. Device/cloud speech starts only after an explicit choice, can be stopped, and needs accurate provider/privacy language. Public human-help contacts stay accessible when AI, sign-in or storage fail.
 
-- **Every input has a `<label htmlFor="...">` paired with `id="..."`.** Visually-hidden labels use the `.sr-only` utility class.
-- **Required fields** carry both the HTML `required` attribute and `aria-required="true"`.
-- **Error containers** wrap a `role="alert" aria-live="assertive"` region so a screen-reader announces the error when it appears. Inputs related to the failure get `aria-invalid={true}` while the error is showing.
-- **Help text** is referenced from the input via `aria-describedby="<helpId>"`.
-- **Autocomplete tokens** match the HTML spec (`email`, `current-password`, `new-password`, `name`, `tel`, `address-level1`, `address-level2`, `postal-code`, `bday`).
-- **Submission** uses a `<form onSubmit>` so Enter-to-submit and browser autofill both work. The submit button uses `type="submit"` and sets `aria-busy={loading}` while the request is in flight.
+## What the current evidence means
 
-## 4. Icons & images
+The current Chromium suite checks selected WCAG tags with axe, inspects headings and accessibility-tree control names/roles, tests keyboard dialog/menu/skip behavior, offline/reconnect, text enlargement, and representative unavailable states. Public/city presentation uses no participant records. Staff client errors use explicit synthetic API interception and do not verify backend authorization. The nonce-attested full API/browser harness remains separately required.
 
-- All decorative SVG icons in `app/components/icons.tsx` and `app/components/LandingIcons.tsx` carry `aria-hidden="true"` and `focusable="false"`. They are always paired with adjacent text or a labelled button, so screen-readers ignore them.
-- Icon-only buttons (e.g. SOS, close) carry an explicit `aria-label`.
-- `<Image>` and `<img>` with semantic content get a meaningful `alt`. Decorative images get `alt=""`.
-
-## 5. Navigation
-
-- The bottom nav (`app/components/NavBar.tsx`) is a `<nav aria-label="Primary">`. The active link gets `aria-current="page"` so screen-readers announce location.
-- Each nav link gets an `aria-label` because the visible label is small and may be hidden on very narrow viewports.
-
-## 6. Motion
-
-- `app/globals.css` honours `prefers-reduced-motion: reduce` by collapsing animation/transition durations to 0.01ms. New animations should not opt out of this rule.
-
-## 7. Colour & contrast
-
-- Body text against `--bg-primary` and `--bg-secondary` meets 4.5:1.
-- Error text uses `--accent-red` on darker backgrounds where it meets 4.5:1; never put the red on the bright accent gradients.
-- Do not rely on colour alone to convey state — pair colour with text or an icon (e.g. error rows include both the red border and the alert text).
-
-## 8. Testing checklist (manual)
-
-Before shipping a UI change, verify with the keyboard only:
-
-1. Tab through the page — every interactive element receives a visible focus ring and the order is logical.
-2. Open every modal — Escape closes it, focus is trapped inside, and focus returns to the trigger on close.
-3. Submit the form with bad data — the error appears and is announced (use VoiceOver / NVDA).
-4. Re-test with `prefers-reduced-motion` enabled.
-5. Run an automated audit (Lighthouse > Accessibility) and resolve any new violations.
-
-## 9. Route-by-route status
-
-This is the audit baseline as of the WCAG 2.2 AA pass. Each route was walked
-keyboard-only with focus-visible enabled.
-
-### Public / marketing
-| Route | Forms labelled | Modals trapped | Focus ring | Notes |
-|---|---|---|---|---|
-| `/` (B2B landing) | n/a | `FounderModal` ✅ | ✅ | Icons hidden via `aria-hidden`. |
-| `/access` | ✅ (`access-code` + `aria-live` error) | n/a | ✅ | PIN gate. |
-| `/login` | ✅ (htmlFor + autoComplete + alert) | n/a | ✅ | Real `<form onSubmit>`. |
-| `/signup` | ✅ (3-step form, single submit, alert) | n/a | ✅ | Step Back is `type="button"`. |
-| `/austin`, `/la`, `/dallas`, `/denver`, `/houston` (CityDeck) | ✅ unlock form labelled | n/a | ✅ | All decorative SVGs hidden. |
-| `/invest` | n/a | n/a | ✅ | Static marketing. |
-
-### Learner app
-| Route | Forms labelled | Modals trapped | Focus ring | Notes |
-|---|---|---|---|---|
-| `/app` | n/a | `HelpButton` ✅ | ✅ | Bottom nav `aria-label="Primary"` + `aria-current`. |
-| `/profile` | ✅ (payout: handle input + radiogroup + status region) | n/a (inline panel, not a dialog) | ✅ | Submit is `type="button"` w/ `aria-busy`. |
-| `/lifeline` | ✅ (sr-only label on textarea + location input) | `HubertChat` ✅ | ✅ | SOS button has explicit `aria-label`. |
-| `/lesson/[lessonId]` | n/a | Celebration screens are full-page early returns, not modals | ✅ | Quiz buttons are real `<button>` with text. |
-
-### Admin
-| Route | Forms labelled | Modals trapped | Focus ring | Notes |
-|---|---|---|---|---|
-| `/admin/login` | ✅ (htmlFor + autoComplete) | n/a | ✅ | Pre-existing. |
-| `/admin/payouts` | ✅ (decision note + checkbox aria-label) | Inline panel | ✅ | Counter linked via `aria-describedby`. |
-| `/admin/users` | ✅ (search + edit modal labelled) | Edit modal uses overlay (see follow-up #57) | ✅ | All inputs have htmlFor/id. |
-| `/admin/staff` | ✅ (full name, email, role) | Create modal (see follow-up #57) | ✅ | autoComplete on name/email. |
-| `/admin/cases` | ✅ (search + status + priority filters labelled) | n/a | ✅ | |
-| `/admin/cases/[id]` | ✅ (note textarea + 3 modals: editMeta / dispatch / allocate) | Modals (see follow-up #57) | ✅ | All `<label>` now carry `htmlFor`. |
-| `/admin/directory` | ✅ (search + add/edit modal labelled, autoComplete on phone/address/website) | Add/edit modal (see follow-up #57) | ✅ | |
-| `/admin/finance` | ✅ (adjustment + payout config forms) | n/a | ✅ | |
-
-### Known follow-ups
-- **#57 — admin/lifeline modal hardening.** The remaining admin overlays
-  (`users` edit, `staff` create, `cases/[id]` editMeta/dispatch/allocate,
-  `directory` add/edit) close on overlay click but do not yet share
-  `useModalA11y` for focus trap / Escape / focus restore. The user-facing
-  `HelpButton`, `FounderModal`, `HubertChat` are all wrapped. Tracked.
-- **#58 — Automated axe scan in CI.** Tracked.
-
-Run `npm run typecheck` and Lighthouse → Accessibility against `/login`,
-`/signup`, `/access`, `/profile`, `/lifeline`, and `/admin/payouts` before
-merging UI changes.
+Root font-size 200% is a text-reflow simulation, not native browser UI zoom. Chromium’s accessibility tree is a semantics spot check, not VoiceOver/NVDA/Orca speech. This Linux/headless environment has no platform screen reader; native zoom, physical devices, assistive-technology reading/announcements and the complete interruption matrix remain unresolved. Production-mode lab measurements are also blocked by the native Prisma download prerequisite. See the route inventory for exactly which routes/states are source-reviewed, browser checked or blocked; do not turn these limitations into compliance claims.

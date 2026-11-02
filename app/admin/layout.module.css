@@ -96,7 +96,10 @@
   font-size: 0.875rem;
   font-weight: 500;
   text-decoration: none;
-  transition: color 0.15s, background-color 0.15s, border-color 0.15s;
+  transition:
+    color 0.15s,
+    background-color 0.15s,
+    border-color 0.15s;
   letter-spacing: 0;
 }
 
@@ -136,7 +139,11 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--adm-blue) 0%, var(--adm-indigo) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--adm-blue) 0%,
+    var(--adm-indigo) 100%
+  );
   display: flex;
   align-items: center;
   justify-content: center;
@@ -172,7 +179,10 @@
   border-radius: var(--adm-radius-sm);
   padding: 0.35rem 0.75rem;
   cursor: pointer;
-  transition: color 0.15s, border-color 0.15s, background-color 0.15s;
+  transition:
+    color 0.15s,
+    border-color 0.15s,
+    background-color 0.15s;
   letter-spacing: 0;
 }
 
@@ -242,3 +252,70 @@
     display: flex;
   }
 }
+
+/* Opt-in staff shell for the representative directory. */
+.designShell .navLink,
+.designShell .logoutBtn {
+  min-height: var(--l2e-target);
+  font-size: var(--l2e-text-sm);
+}
+.designShell .navGroupLabel {
+  text-transform: none;
+  letter-spacing: normal;
+  font-size: var(--l2e-text-sm);
+}
+.designShell .brandSubtitle,
+.designShell .adminRole {
+  font-size: var(--l2e-text-sm);
+}
+.designShell .navLinkActive {
+  background: var(--l2e-primary-soft);
+  border-left-color: var(--l2e-primary);
+}
+.designShell .hamburger {
+  width: var(--l2e-target);
+  height: var(--l2e-target);
+}
+.designShell .sidebarFooter {
+  padding: 1rem;
+}
+.designShell .mainContent {
+  padding: 3rem 2rem;
+}
+@media (max-width: 768px) {
+  .designShell .mainContent {
+    padding: 5rem 1rem 2rem;
+  }
+}
+
+.scopeLabel {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--adm-text);
+  overflow-wrap: anywhere;
+  margin: 1rem 0 0.5rem;
+}
+.scopeLink {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--adm-blue);
+  text-decoration: underline;
+  font-size: 0.875rem;
+}
+
+.scopeBanner {
+  margin: 0 0 1.5rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--l2e-border);
+  border-radius: 12px;
+  background: var(--l2e-surface-muted);
+  color: var(--l2e-ink);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.designShell :is(a, button, input, select, textarea, summary, [tabindex], h1, h2) { scroll-margin-block: 6rem 2rem; }
+
+.designShell .hamburger { top: calc(var(--l2e-connection-inset, 0px) + max(1rem, env(safe-area-inset-top))); }

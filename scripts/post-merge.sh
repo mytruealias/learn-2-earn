@@ -1,13 +1,7 @@
 #!/bin/bash
-set -e
-
-echo "==> Installing dependencies..."
-npm install --prefer-offline --no-audit --no-fund
-
-echo "==> Generating Prisma client..."
-npx prisma generate
-
-echo "==> Syncing database schema..."
-npx prisma db push --accept-data-loss
-
-echo "==> Post-merge setup complete."
+set -euo pipefail
+cd "$(dirname "$0")/.."
+npm ci --include=dev
+npm run prisma:generate
+echo "Dependencies and generated client refreshed. No schema, content or admin changes were made."
+echo "Use the documented explicit release commands after backup and target review."

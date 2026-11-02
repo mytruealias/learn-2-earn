@@ -1,0 +1,27 @@
+{
+  "scope": "Synthetic local test fixtures only; no identifiers or credentials in this report",
+  "existingUserBootstrap": {
+    "initiallyUnauthenticated": true,
+    "ensureStatus": 200,
+    "identityStatus": 200,
+    "assumedExistingIdentity": true
+  },
+  "zelle": {
+    "status": 400,
+    "rejected": true
+  },
+  "perfectRun": {
+    "status": 200,
+    "awarded": 3,
+    "base": 2,
+    "reportedBonus": 5,
+    "actualBonus": 1,
+    "balanceDelta": 3
+  },
+  "replay": {
+    "status": 200,
+    "alreadyCompleted": true,
+    "awardFieldPresent": false,
+    "balanceDelta": 0
+  }
+}

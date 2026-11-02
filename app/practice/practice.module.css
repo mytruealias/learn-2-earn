@@ -1,0 +1,83 @@
+.page {
+  max-width: 78rem;
+  padding: clamp(1rem, 3vw, 3rem);
+  margin: auto;
+  display: grid;
+  gap: 1.5rem;
+  overflow-wrap: anywhere;
+}
+.page header,
+.item {
+  display: grid;
+  gap: 0.75rem;
+}
+.page header {
+  max-width: 48rem;
+}
+.label {
+  color: var(--l2e-primary);
+  font-size: var(--l2e-text-sm);
+  font-weight: 650;
+}
+.totals,
+.filters {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.totals {
+  color: var(--l2e-muted);
+}
+.list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  list-style: none;
+  padding: 0;
+}
+.field {
+  display: grid;
+  gap: 0.5rem;
+  max-width: 32rem;
+}
+.field input,
+.field select {
+  font: inherit;
+  min-height: 48px;
+  border: 2px solid var(--l2e-border);
+  border-radius: var(--l2e-radius-control);
+  background: var(--l2e-surface);
+  color: var(--l2e-ink);
+  padding: 0.75rem;
+  width: 100%;
+}
+.item summary {
+  cursor: pointer;
+  min-height: 44px;
+  padding: 0.75rem 0;
+  font-weight: 650;
+}
+.item details ul {
+  padding-left: 1.25rem;
+}
+.note {
+  font-size: var(--l2e-text-sm);
+  color: var(--l2e-muted);
+}
+.settings {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  align-items: start;
+}
+.form {
+  display: grid;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+@media (max-width: 55rem) {
+  .list,
+  .settings {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

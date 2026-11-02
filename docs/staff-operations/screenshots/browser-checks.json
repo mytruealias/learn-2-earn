@@ -1,0 +1,200 @@
+[
+  {
+    "screen": "overview",
+    "width": 360,
+    "axeViolations": 0,
+    "noOverflow": true
+  },
+  {
+    "screen": "participants",
+    "width": 360,
+    "axeViolations": 0,
+    "noOverflow": true
+  },
+  {
+    "screen": "participant-detail",
+    "width": 360,
+    "axeViolations": 0,
+    "noOverflow": true
+  },
+  {
+    "screen": "cases",
+    "width": 360,
+    "axeViolations": 0,
+    "noOverflow": true
+  },
+  {
+    "screen": "case-detail",
+    "width": 360,
+    "axeViolations": 0,
+    "noOverflow": true
+  },
+  {
+    "screen": "payouts",
+    "width": 360,
+    "axeViolations": 0,
+    "noOverflow": true
+  },
+  {
+    "screen": "finance",
+    "width": 360,
+    "axeViolations": 0,
+    "noOverflow": true
+  },
+  {
+    "screen": "reports",
+    "width": 360,
+    "axeViolations": 0,
+    "noOverflow": true
+  },
+  {
+    "screen": "directory",
+    "width": 360,
+    "axeViolations": 0,
+    "noOverflow": true
+  },
+  {
+    "screen": "staff",
+    "width": 360,
+    "axeViolations": 0,
+    "noOverflow": true
+  },
+  {
+    "screen": "audit",
+    "width": 360,
+    "axeViolations": 0,
+    "noOverflow": true
+  },
+  {
+    "screen": "overview",
+    "width": 768,
+    "axeViolations": 0,
+    "noOverflow": true
+  },
+  {
+    "screen": "participants",
+    "width": 768,
+    "axeViolations": 0,
+    "noOverflow": true
+  },
+  {
+    "screen": "participant-detail",
+    "width": 768,
+    "axeViolations": 0,
+    "noOverflow": true
+  },
+  {
+    "screen": "cases",
+    "width": 768,
+    "axeViolations": 0,
+    "noOverflow": true
+  },
+  {
+    "screen": "case-detail",
+    "width": 768,
+    "axeViolations": 0,
+    "noOverflow": true
+  },
+  {
+    "screen": "payouts",
+    "width": 768,
+    "axeViolations": 0,
+    "noOverflow": true
+  },
+  {
+    "screen": "finance",
+    "width": 768,
+    "axeViolations": 0,
+    "noOverflow": true
+  },
+  {
+    "screen": "reports",
+    "width": 768,
+    "axeViolations": 0,
+    "noOverflow": true
+  },
+  {
+    "screen": "directory",
+    "width": 768,
+    "axeViolations": 0,
+    "noOverflow": true
+  },
+  {
+    "screen": "staff",
+    "width": 768,
+    "axeViolations": 0,
+    "noOverflow": true
+  },
+  {
+    "screen": "audit",
+    "width": 768,
+    "axeViolations": 0,
+    "noOverflow": true
+  },
+  {
+    "screen": "overview",
+    "width": 1440,
+    "axeViolations": 0,
+    "noOverflow": true
+  },
+  {
+    "screen": "participants",
+    "width": 1440,
+    "axeViolations": 0,
+    "noOverflow": true
+  },
+  {
+    "screen": "participant-detail",
+    "width": 1440,
+    "axeViolations": 0,
+    "noOverflow": true
+  },
+  {
+    "screen": "cases",
+    "width": 1440,
+    "axeViolations": 0,
+    "noOverflow": true
+  },
+  {
+    "screen": "case-detail",
+    "width": 1440,
+    "axeViolations": 0,
+    "noOverflow": true
+  },
+  {
+    "screen": "payouts",
+    "width": 1440,
+    "axeViolations": 0,
+    "noOverflow": true
+  },
+  {
+    "screen": "finance",
+    "width": 1440,
+    "axeViolations": 0,
+    "noOverflow": true
+  },
+  {
+    "screen": "reports",
+    "width": 1440,
+    "axeViolations": 0,
+    "noOverflow": true
+  },
+  {
+    "screen": "directory",
+    "width": 1440,
+    "axeViolations": 0,
+    "noOverflow": true
+  },
+  {
+    "screen": "staff",
+    "width": 1440,
+    "axeViolations": 0,
+    "noOverflow": true
+  },
+  {
+    "screen": "audit",
+    "width": 1440,
+    "axeViolations": 0,
+    "noOverflow": true
+  }
+]

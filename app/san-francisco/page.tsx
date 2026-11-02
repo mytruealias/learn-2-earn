@@ -1,25 +1,5 @@
-import type { Metadata } from "next";
 import CityDeckPage from "../components/CityDeck/CityDeckPage";
-import { sanFranciscoConfig as cfg } from "../components/CityDeck/configs/san-francisco";
-
-export const metadata: Metadata = {
-  title: cfg.metadata.title,
-  description: cfg.metadata.description,
-  openGraph: {
-    title: cfg.metadata.openGraphTitle ?? cfg.metadata.title,
-    description: cfg.metadata.openGraphDescription ?? cfg.metadata.description,
-    url: cfg.metadata.path,
-    type: "website",
-    siteName: "Learn 2 Earn",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: cfg.metadata.openGraphTitle ?? cfg.metadata.title,
-    description: cfg.metadata.openGraphDescription ?? cfg.metadata.description,
-  },
-  alternates: { canonical: "/san-francisco" },
-};
-
-export default function SanFranciscoPage() {
-  return <CityDeckPage config={cfg} />;
-}
+import {sanFranciscoConfig} from "../components/CityDeck/configs/san-francisco";
+import{marketingMetadata}from"@/lib/marketing/metadata";
+export const metadata=marketingMetadata("San Francisco — private pilot discussion","/san-francisco",sanFranciscoConfig.metadata.description,true);
+export default function Page(){return <CityDeckPage config={sanFranciscoConfig}/>;}

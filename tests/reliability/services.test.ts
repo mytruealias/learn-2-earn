@@ -1,0 +1,41 @@
+import { afterEach, expect, it, vi } from "vitest";
+const fake = vi.hoisted(() => ({ consume: vi.fn(), query: vi.fn(), transaction: vi.fn() }));
+vi.mock("@/lib/prisma", () => ({ default: { $transaction: fake.transaction } }));
+vi.mock("@/lib/reliability/rate-limit", async (original) => ({ ...await original<typeof import("@/lib/reliability/rate-limit")>(), consumeRateLimit: fake.consume }));
+import { GET as live } from "@/app/api/health/live/route";
+import { GET as ready } from "@/app/api/health/ready/route";
+import { POST } from "@/app/api/telemetry/route";
+afterEach(() => { vi.restoreAllMocks(); vi.unstubAllEnvs(); vi.clearAllMocks(); });
+it("separates process liveness from schema/database readiness without private details", async () => {
+    vi.stubEnv("SESSION_SECRET", "synthetic-health-secret");
+    vi.stubEnv("STAFF_MFA_ENCRYPTION_KEY", "a".repeat(64));
+    expect(live().status).toBe(200);
+    fake.transaction.mockRejectedValue(new Error("Synthetic database credential and participant@example.test"));
+    vi.spyOn(console, "error").mockImplementation(() => { });
+    const failed = await ready();
+    expect(failed.status).toBe(503);
+    expect(await failed.text()).not.toMatch(/credential|participant|Synthetic/);
+    expect(failed.headers.get("cache-control")).toContain("no-store");
+    fake.transaction.mockResolvedValue([{ ready: false }]);
+    expect((await ready()).status).toBe(503);
+    fake.transaction.mockResolvedValue([{ ready: true }]);
+    expect((await ready()).status).toBe(200);
+});
+it("keeps client error reports opt-in, bounded, same-origin and free of payload/URL fields", async () => {
+    const req = (body: object, origin = "http://test") => new Request("http://test/api/telemetry", { method: "POST", headers: { origin, "content-type": "application/json" }, body: JSON.stringify(body) });
+    vi.stubEnv("OPERATIONAL_TELEMETRY_ENABLED", "");
+    expect((await POST(req({ code: "client_error", route: "/" }))).status).toBe(404);
+    vi.stubEnv("OPERATIONAL_TELEMETRY_ENABLED", "true");
+    expect((await POST(req({ code: "client_error", route: "/" }, "https://other.example"))).status).toBe(403);
+    for (const body of [{ code: "client_error", route: "/profile", message: "Synthetic sensitive message" }, { code: "client_error", route: "/profile?email=person@example.test" }, { code: "client_error", route: "/admin/users/real-person" }])
+        expect((await POST(req(body))).status).toBe(400);
+    expect((await POST(req({ code: "client_error", route: "/", body: "x".repeat(600) }))).status).toBe(413);
+    const log = vi.spyOn(console, "error").mockImplementation(() => { });
+    fake.consume.mockResolvedValue({ allowed: true, retryAfterSec: 0 });
+    expect((await POST(req({ code: "client_error", route: "/admin/users/[userId]" }))).status).toBe(200);
+    expect(JSON.stringify(log.mock.calls)).not.toMatch(/message|email|cookie|body|stack/);
+    fake.consume.mockResolvedValue({ allowed: false, retryAfterSec: 30 });
+    expect((await POST(req({ code: "client_error", route: "/" }))).status).toBe(429);
+    fake.consume.mockRejectedValue(new Error());
+    expect((await POST(req({ code: "client_error", route: "/" }))).status).toBe(503);
+});

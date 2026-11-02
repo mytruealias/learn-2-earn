@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { POST as registerPOST } from "@/app/api/auth/register/route";
 import { POST as loginPOST } from "@/app/api/auth/login/route";
 import { POST as sessionPOST } from "@/app/api/auth/session/route";
-import { makeRequest, readJson, getSetCookies, readCookie } from "../helpers/request";
+import { makeInvitedRequest, makeRequest, readJson, getSetCookies, readCookie } from "../helpers/request";
 import { clearDb, createUser } from "../helpers/factories";
 import prisma from "@/lib/prisma";
 
@@ -12,7 +12,7 @@ describe("auth/register", () => {
   });
 
   it("creates a new user and sets a session cookie", async () => {
-    const req = makeRequest("http://test/api/auth/register", {
+    const req = makeInvitedRequest("http://test/api/auth/register", {
       body: {
         email: "new@example.com",
         password: "password123",
@@ -35,7 +35,7 @@ describe("auth/register", () => {
 
   it("rejects duplicate emails with 409", async () => {
     await createUser({ email: "dupe@example.com" });
-    const req = makeRequest("http://test/api/auth/register", {
+    const req = makeInvitedRequest("http://test/api/auth/register", {
       body: { email: "dupe@example.com", password: "password123", fullName: "Dup" },
       ip: "10.0.0.2",
     });
@@ -46,7 +46,7 @@ describe("auth/register", () => {
   });
 
   it("rejects malformed email with 400 validation_error", async () => {
-    const req = makeRequest("http://test/api/auth/register", {
+    const req = makeInvitedRequest("http://test/api/auth/register", {
       body: { email: "not-an-email", password: "password123", fullName: "X" },
       ip: "10.0.0.3",
     });
@@ -132,7 +132,7 @@ describe("auth/session", () => {
     const { user } = await createUser({ email: "sess@example.com" });
 
     // Mint a session cookie by registering, then re-use
-    const regReq = makeRequest("http://test/api/auth/register", {
+    const regReq = makeInvitedRequest("http://test/api/auth/register", {
       body: { email: "sess2@example.com", password: "password123", fullName: "S" },
       ip: "10.0.2.1",
     });
