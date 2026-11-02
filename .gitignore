@@ -60,3 +60,5 @@ replit.md
 
 # Isolated public-only browser build cache (no database fixtures).
 /.next-marketing-tests/
+
+.next-reliability-tests/

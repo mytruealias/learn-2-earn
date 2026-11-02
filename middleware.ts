@@ -1,3 +1,4 @@
+import { newRequestId, REQUEST_ID_HEADER } from "./lib/reliability/correlation";
 import { configuredRootDomain } from "./lib/site-identity";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
@@ -149,8 +150,8 @@ function redirect301(url: string): NextResponse {
   return NextResponse.redirect(url, { status: 301 });
 }
 
-function passThrough(pathname: string) {
-  const response = NextResponse.next();
+function passThrough(pathname: string, forwarded: Headers) {
+  const response = NextResponse.next({ request: { headers: forwarded } });
   if (
     pathname.startsWith("/admin") ||
     pathname.startsWith("/api/admin") ||
@@ -174,6 +175,15 @@ function passThrough(pathname: string) {
 }
 
 export async function middleware(request: NextRequest) {
+  const forwarded = new Headers(request.headers), id = newRequestId();
+  forwarded.set(REQUEST_ID_HEADER, id);
+  const response = await routeRequest(request, forwarded);
+  response.headers.set(REQUEST_ID_HEADER, id);
+  if (request.nextUrl.pathname.startsWith("/api/")) response.headers.set("X-Robots-Tag", "noindex, nofollow");
+  if (request.nextUrl.pathname.startsWith("/api/") || response.status >= 300) response.headers.set("Cache-Control", "private, no-store");
+  return response;
+}
+async function routeRequest(request: NextRequest, forwarded: Headers) {
   const { pathname } = request.nextUrl;
   const search = request.nextUrl.search;
   const rootDomain = configuredRootDomain();
@@ -209,7 +219,7 @@ export async function middleware(request: NextRequest) {
           ["/privacy", "/terms", "/demo", "/opengraph-image"].includes(pathname)
         )
           return isRoot
-            ? passThrough(pathname)
+            ? passThrough(pathname, forwarded)
             : redirect301(`https://${rootDomain}${pathname}${search}`);
         if (isRoot) {
           // Root domain serves / and the city-partnership decks (each PIN-gated)
@@ -277,7 +287,7 @@ export async function middleware(request: NextRequest) {
       url.searchParams.set("next", pathname);
       return NextResponse.redirect(url);
     }
-    return passThrough(pathname);
+    return passThrough(pathname, forwarded);
   }
 
   // ── DEMO ACCESS GATE ───────────────────────────────────────────────────────
@@ -286,7 +296,7 @@ export async function middleware(request: NextRequest) {
   );
 
   if (!isProtected) {
-    return passThrough(pathname);
+    return passThrough(pathname, forwarded);
   }
 
   // Allow through if they have a valid demo access token
@@ -295,7 +305,7 @@ export async function middleware(request: NextRequest) {
     const secret = process.env.SESSION_SECRET;
     const valid = secret ? await verifyToken(accessToken, secret) : false;
     if (valid) {
-      return passThrough(pathname);
+      return passThrough(pathname, forwarded);
     }
   }
 
@@ -307,7 +317,7 @@ export async function middleware(request: NextRequest) {
     process.env.SESSION_SECRET &&
     (await verifyHmacToken(userSession, process.env.SESSION_SECRET, null))
   ) {
-    return passThrough(pathname);
+    return passThrough(pathname, forwarded);
   }
 
   const url = request.nextUrl.clone();

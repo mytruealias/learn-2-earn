@@ -1,27 +1,14 @@
 import type { Metadata } from "next";
 import { marketingMetadata } from "@/lib/marketing/metadata";
-import { Inter, Share_Tech_Mono, Rajdhani } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
+import ConnectionNotice from "./components/reliability/ConnectionNotice";
+import ClientTelemetry from "./components/reliability/ClientTelemetry";
 import LearnerShell from "./components/learner/LearnerShell";
 
 const inter = Inter({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
   variable: "--font-inter",
-  display: "swap",
-});
-
-const shareTechMono = Share_Tech_Mono({
-  subsets: ["latin"],
-  weight: "400",
-  variable: "--font-share-tech-mono",
-  display: "swap",
-});
-
-const rajdhani = Rajdhani({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-rajdhani",
   display: "swap",
 });
 
@@ -47,9 +34,11 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${shareTechMono.variable} ${rajdhani.variable}`}
+      className={inter.variable}
     >
       <body>
+        <ConnectionNotice />
+        <ClientTelemetry enabled={process.env.OPERATIONAL_TELEMETRY_ENABLED === "true"} />
         <LearnerShell>{children}</LearnerShell>
       </body>
     </html>

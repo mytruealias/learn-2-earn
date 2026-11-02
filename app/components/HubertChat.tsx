@@ -1,4 +1,5 @@
 "use client";
+import { clientFetch } from "@/lib/reliability/client-fetch";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Alert, Button, Dialog } from "./ui";
 import { HubertIcon } from "./icons";
@@ -43,7 +44,7 @@ export default function HubertChat({ onClose }: { onClose: () => void }) {
   useEffect(() => {
     mounted.current = true;
     const c = new AbortController();
-    fetch("/api/support", {
+    clientFetch("/api/support", {
       credentials: "include",
       cache: "no-store",
       signal: c.signal,
@@ -234,7 +235,7 @@ export default function HubertChat({ onClose }: { onClose: () => void }) {
     audioRequest.current = c;
     setAudioBusy(true);
     try {
-      const r = await fetch("/api/tts", {
+      const r = await clientFetch("/api/tts", {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },

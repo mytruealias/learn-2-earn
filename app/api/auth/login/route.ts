@@ -1,3 +1,4 @@
+import { consumeRateLimit } from "@/lib/reliability/rate-limit";
 import { enrollFromInvitation } from "@/lib/program-enrollment";
 import { loginSchema } from "@/lib/learner-auth-schema";
 import bcrypt from "bcryptjs";
@@ -15,12 +16,10 @@ import {
   apiServerError,
   parseJson,
   getClientIp,
-  createRateLimiter,
   rateLimitResponse,
 } from "@/lib/api-helpers";
 
-// 10 failed login attempts per IP per 10 minutes.
-const loginLimiter = createRateLimiter({ max: 10, windowMs: 10 * 60 * 1000 });
+// Ten admitted login attempts per IP per ten minutes, shared across app instances.
 
 const Schema = loginSchema;
 
@@ -29,7 +28,7 @@ export async function POST(req: Request) {
     const origin = sameOriginError(req);
     if (origin) return origin;
     const ip = getClientIp(req);
-    const gate = loginLimiter.check(`login:${ip}`);
+    const gate = await consumeRateLimit("learner-login", ip, 10, 10 * 60 * 1000);
     if (!gate.allowed) {
       return rateLimitResponse(
         gate.retryAfterSec,
@@ -43,13 +42,13 @@ export async function POST(req: Request) {
 
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user || !user.passwordHash || !user.isActive) {
-      loginLimiter.record(`login:${ip}`);
+
       return apiError("unauthorized", "Invalid email or password", 401);
     }
 
     const valid = await bcrypt.compare(password, user.passwordHash);
     if (!valid) {
-      loginLimiter.record(`login:${ip}`);
+
       await logAudit({
         action: "USER_LOGIN_FAILED",
         entity: "User",
@@ -59,7 +58,6 @@ export async function POST(req: Request) {
       return apiError("unauthorized", "Invalid email or password", 401);
     }
 
-    loginLimiter.reset(`login:${ip}`);
 
     await logAudit({
       action: "USER_LOGIN_SUCCESS",
@@ -87,6 +85,7 @@ export async function POST(req: Request) {
       },
     });
 
+    await gate.release?.();
     await setUserSessionCookie(res, user.id);
     setDemoAccessCookie(res);
     return res;

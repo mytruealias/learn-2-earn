@@ -178,11 +178,11 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
     await load();
   }
   if (!data)
-    return error ? (
+    return <section className={styles.page} data-design="staff"><h1>Support case</h1>{error ? (
       <ErrorState onRetry={reload}>{error}</ErrorState>
     ) : (
       <Skeleton label="Loading authorized case…" />
-    );
+    )}</section>;
   return (
     <section className={styles.page} data-design="staff">
       <Link href="/admin/cases">Back to cases</Link>

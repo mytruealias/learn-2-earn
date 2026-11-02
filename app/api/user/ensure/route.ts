@@ -1,3 +1,4 @@
+import { consumeRateLimit } from "@/lib/reliability/rate-limit";
 import { enrollFromInvitation } from "@/lib/program-enrollment";
 import { newRewardRelations } from "@/lib/rewards/new-account";
 import { z } from "zod";
@@ -14,12 +15,10 @@ import {
   apiError,
   apiOk,
   apiServerError,
-  createRateLimiter,
   getClientIp,
   parseJson,
   rateLimitResponse,
 } from "@/lib/api-helpers";
-const limiter = createRateLimiter({ max: 20, windowMs: 60 * 60 * 1000 });
 // Caller IDs are never credentials. Older clients must reload instead of claiming a record.
 const Schema = z.object({}).strict();
 export async function POST(req: Request) {
@@ -43,9 +42,9 @@ export async function POST(req: Request) {
         403,
       );
     const ip = getClientIp(req),
-      gate = limiter.check(ip);
+      gate = await consumeRateLimit("guest", ip, 20, 60 * 60 * 1000);
     if (!gate.allowed) return rateLimitResponse(gate.retryAfterSec);
-    limiter.record(ip);
+
     const result = await prisma.$transaction(async (tx) => {
       const user = await tx.user.create({ data: newRewardRelations() });
       await enrollFromInvitation(req, tx, user.id);
@@ -54,10 +53,7 @@ export async function POST(req: Request) {
     const res = apiOk({ actualUserId: result.id });
     writeUserSessionCookie(res, result.token);
     return res;
-  } catch {
-    return apiServerError(
-      "user/ensure",
-      new Error("Guest session could not be created."),
-    );
+  } catch (error) {
+    return apiServerError("user/ensure", error);
   }
 }

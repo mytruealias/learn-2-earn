@@ -1,3 +1,4 @@
+import { boundedJson } from "@/lib/support/bounded-json";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
 import prisma from "@/lib/prisma";
@@ -73,7 +74,9 @@ export async function POST(req: Request) {
       );
     // Empty enroll code is an explicit setup request; later submission proves possession.
     const setupSchema = z.object({ action: z.literal("setup") }).strict();
-    const raw = await req.json();
+    const bounded = await boundedJson(req, 4096);
+    if (!bounded.ok) return bounded.response;
+    const raw = bounded.data;
     if (setupSchema.safeParse(raw).success) {
       const result = await prisma.$transaction(async (tx) => {
         await tx.$queryRaw`SELECT "id" FROM "AdminUser" WHERE "id"=${initial.adminId} FOR UPDATE`;

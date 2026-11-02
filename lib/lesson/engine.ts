@@ -5,7 +5,7 @@ import { z } from "zod";
 import prisma from "../prisma";
 import { activeLessonWhere } from "../learning-data";
 import { getUserIdFromRequest, sameOriginError } from "../user-session";
-import { apiError, apiOk, parseJson } from "../api-helpers";
+import { apiError, apiOk, parseJson, apiUnavailable } from "../api-helpers";
 import { adaptCard, evaluate, type CardAnswer } from "./cards";
 import {
   badgeDefinitions,
@@ -71,11 +71,9 @@ export async function lessonEndpoint<S extends z.ZodTypeAny>(
         headers: { "Cache-Control": "private, no-store" },
       });
     // Never log payloads, card keys, learner identifiers or Prisma connection details.
-    console.error("[lesson] Save failed; transaction rolled back.");
-    return apiError(
-      "service_unavailable",
+    return apiUnavailable(
+      "lesson",
       "Your save could not be confirmed. Try again; saved answers and rewards will not be duplicated.",
-      503,
     );
   }
 }

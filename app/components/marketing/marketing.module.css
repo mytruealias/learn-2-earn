@@ -142,6 +142,7 @@
   max-width: 46ch;
 }
 .sample {
+  container-type: inline-size;
   background: var(--l2e-surface);
   border: 1px solid var(--l2e-control-border);
   border-radius: 24px;
@@ -613,3 +614,11 @@
 }
 
 .field { display: grid; gap: 0.5rem; }
+
+.navActions { flex-wrap: wrap; min-width: 0; }
+.navActions .mobileMenu button { white-space: nowrap; }
+.navActions .signIn { flex-shrink: 0; }
+.footerTop { grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); }
+@container (max-width: 32rem) {
+  .sample [data-sample-cards] { padding: 0; }
+}

@@ -5,6 +5,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { parse } from "dotenv";
 
 const suites: Record<string, string[]> = {
+  performance: ["node_modules/tsx/dist/cli.mjs", "scripts/performance-lab.ts"],
   api: [
     "node_modules/vitest/vitest.mjs",
     "run",
@@ -133,6 +134,7 @@ async function main() {
       STAFF_MFA_ENCRYPTION_KEY: randomBytes(32).toString("hex"),
       SESSION_SECRET: randomBytes(32).toString("hex"),
       ROOT_DOMAIN: "",
+      OPERATIONAL_TELEMETRY_ENABLED: "",
       STAFF_RECOVERY_PASSWORD: "",
       STAFF_PROVISION_PASSWORD: "",
       ADMIN_BOOTSTRAP_EMAIL: "",

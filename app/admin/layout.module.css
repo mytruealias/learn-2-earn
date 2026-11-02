@@ -315,3 +315,7 @@
   line-height: 1.6;
   overflow-wrap: anywhere;
 }
+
+.designShell :is(a, button, input, select, textarea, summary, [tabindex], h1, h2) { scroll-margin-block: 6rem 2rem; }
+
+.designShell .hamburger { top: calc(var(--l2e-connection-inset, 0px) + max(1rem, env(safe-area-inset-top))); }

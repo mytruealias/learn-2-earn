@@ -1,0 +1,3590 @@
+[
+  {
+    "route": "/",
+    "width": 360,
+    "state": "rendered",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "Learning with support. Progress with purpose.",
+        "level": 1
+      },
+      {
+        "name": "Small steps for learners. Clear decisions for staff.",
+        "level": 2
+      },
+      {
+        "name": "A next step that feels possible.",
+        "level": 2
+      },
+      {
+        "name": "Teach. Try. Explain. Reflect if useful.",
+        "level": 3
+      },
+      {
+        "name": "Know what needs a person.",
+        "level": 2
+      },
+      {
+        "name": "Start with what matters to your program.",
+        "level": 2
+      },
+      {
+        "name": "Useful evidence. Honest limits.",
+        "level": 2
+      },
+      {
+        "name": "Records that can be reviewed",
+        "level": 3
+      },
+      {
+        "name": "Privacy is an operating responsibility",
+        "level": 3
+      },
+      {
+        "name": "Start focused. Agree the details.",
+        "level": 2
+      },
+      {
+        "name": "1. Understand the setting",
+        "level": 3
+      },
+      {
+        "name": "2. Agree readiness and scope",
+        "level": 3
+      },
+      {
+        "name": "3. Review what happened",
+        "level": 3
+      },
+      {
+        "name": "Before you begin.",
+        "level": 2
+      },
+      {
+        "name": "Bring your questions. Start a pilot conversation.",
+        "level": 2
+      },
+      {
+        "name": "Online intake is not enabled yet",
+        "level": 3
+      },
+      {
+        "name": "Explore",
+        "level": 2
+      },
+      {
+        "name": "For partners",
+        "level": 2
+      },
+      {
+        "name": "Our responsibilities",
+        "level": 2
+      },
+      {
+        "name": "A queue with a clear next decision.",
+        "level": 3
+      },
+      {
+        "name": "Try a small learning step",
+        "level": 2
+      },
+      {
+        "name": "Make room for one small step",
+        "level": 3
+      },
+      {
+        "name": "Invite and enroll",
+        "level": 3
+      },
+      {
+        "name": "Learn and return",
+        "level": 3
+      },
+      {
+        "name": "Review incentives",
+        "level": 3
+      },
+      {
+        "name": "Oversee and support",
+        "level": 3
+      },
+      {
+        "name": "Stability Basics",
+        "level": 3
+      },
+      {
+        "name": "Financial Literacy",
+        "level": 3
+      },
+      {
+        "name": "Addiction & Recovery Foundations",
+        "level": 3
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "button",
+        "name": "Menu"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "textbox",
+        "name": "Your name"
+      },
+      {
+        "role": "textbox",
+        "name": "Organization"
+      },
+      {
+        "role": "textbox",
+        "name": "Work email"
+      },
+      {
+        "role": "textbox",
+        "name": "Region or city (optional)"
+      },
+      {
+        "role": "button",
+        "name": "Save partner inquiry",
+        "description": "The reviewed intake queue must be configured before submission."
+      },
+      {
+        "role": "progressbar",
+        "name": "Sample step 1 of 3"
+      },
+      {
+        "role": "button",
+        "name": "Continue sample"
+      },
+      {
+        "role": "textbox",
+        "name": "Anything useful to know? (optional)"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/demo",
+    "width": 360,
+    "state": "rendered",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "A small step, tried together.",
+        "level": 1
+      },
+      {
+        "name": "Try a small learning step",
+        "level": 2
+      },
+      {
+        "name": "Make room for one small step",
+        "level": 3
+      },
+      {
+        "name": "Explore",
+        "level": 2
+      },
+      {
+        "name": "For partners",
+        "level": 2
+      },
+      {
+        "name": "Our responsibilities",
+        "level": 2
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "button",
+        "name": "Menu"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "progressbar",
+        "name": "Sample step 1 of 3"
+      },
+      {
+        "role": "button",
+        "name": "Continue sample"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/privacy",
+    "width": 360,
+    "state": "rendered",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "What is recorded. Who can see it.",
+        "level": 1
+      },
+      {
+        "name": "Explore",
+        "level": 2
+      },
+      {
+        "name": "For partners",
+        "level": 2
+      },
+      {
+        "name": "Our responsibilities",
+        "level": 2
+      },
+      {
+        "name": "Accounts and learning",
+        "level": 2
+      },
+      {
+        "name": "Program help is a stored request",
+        "level": 2
+      },
+      {
+        "name": "Partner inquiries",
+        "level": 2
+      },
+      {
+        "name": "Optional AI and voice",
+        "level": 2
+      },
+      {
+        "name": "Payments and reporting",
+        "level": 2
+      },
+      {
+        "name": "Logs, retention and requests",
+        "level": 2
+      },
+      {
+        "name": "Fictional public previews",
+        "level": 2
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "button",
+        "name": "Menu"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/terms",
+    "width": 360,
+    "state": "rendered",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "Clear expectations. Agreed responsibilities.",
+        "level": 1
+      },
+      {
+        "name": "Explore",
+        "level": 2
+      },
+      {
+        "name": "For partners",
+        "level": 2
+      },
+      {
+        "name": "Our responsibilities",
+        "level": 2
+      },
+      {
+        "name": "Learning alongside human services",
+        "level": 2
+      },
+      {
+        "name": "Progress and incentives",
+        "level": 2
+      },
+      {
+        "name": "Accounts and program oversight",
+        "level": 2
+      },
+      {
+        "name": "Hubert and human help",
+        "level": 2
+      },
+      {
+        "name": "Partner inquiries and pilot proposals",
+        "level": 2
+      },
+      {
+        "name": "Availability and privacy",
+        "level": 2
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "button",
+        "name": "Menu"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/recover",
+    "width": 360,
+    "state": "rendered",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "Help signing in",
+        "level": 1
+      },
+      {
+        "name": "Recover access with your program",
+        "level": 2
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/lifeline",
+    "width": 360,
+    "state": "unavailable-account-service",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "Request help from your program",
+        "level": 2
+      },
+      {
+        "name": "Help and human support",
+        "level": 1
+      },
+      {
+        "name": "Human help",
+        "level": 2
+      },
+      {
+        "name": "Optional Hubert AI",
+        "level": 2
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "status",
+        "name": "",
+        "live": "polite"
+      },
+      {
+        "role": "button",
+        "name": "Open Hubert AI"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/unknown-audit-address",
+    "width": 360,
+    "state": "rendered",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "We could not find that page",
+        "level": 1
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/austin/unlock",
+    "width": 360,
+    "state": "ready",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "Access required",
+        "level": 1
+      },
+      {
+        "name": "Explore",
+        "level": 2
+      },
+      {
+        "name": "For partners",
+        "level": 2
+      },
+      {
+        "name": "Our responsibilities",
+        "level": 2
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "button",
+        "name": "Menu"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Unlock deck",
+        "description": "Enter the PIN supplied for this private discussion."
+      },
+      {
+        "role": "textbox",
+        "name": "Access PIN"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/austin/unlock",
+    "width": 360,
+    "state": "store-unavailable",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "Access required",
+        "level": 1
+      },
+      {
+        "name": "Explore",
+        "level": 2
+      },
+      {
+        "name": "For partners",
+        "level": 2
+      },
+      {
+        "name": "Our responsibilities",
+        "level": 2
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "status",
+        "name": "",
+        "live": "polite"
+      },
+      {
+        "role": "button",
+        "name": "Dismiss connection notice"
+      },
+      {
+        "role": "button",
+        "name": "Menu"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Unlock deck"
+      },
+      {
+        "role": "textbox",
+        "name": "Access PIN"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/austin/unlock",
+    "width": 360,
+    "state": "gated",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "Access required",
+        "level": 1
+      },
+      {
+        "name": "Explore",
+        "level": 2
+      },
+      {
+        "name": "For partners",
+        "level": 2
+      },
+      {
+        "name": "Our responsibilities",
+        "level": 2
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "button",
+        "name": "Menu"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Unlock deck",
+        "description": "Enter the PIN supplied for this private discussion."
+      },
+      {
+        "role": "textbox",
+        "name": "Access PIN"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/austin",
+    "width": 360,
+    "state": "synthetic-signed-presentation",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "Explore",
+        "level": 2
+      },
+      {
+        "name": "For partners",
+        "level": 2
+      },
+      {
+        "name": "Our responsibilities",
+        "level": 2
+      },
+      {
+        "name": "A supported-learning pilot. A scope to agree together.",
+        "level": 1
+      },
+      {
+        "name": "1. Define the setting",
+        "level": 2
+      },
+      {
+        "name": "2. Review the product",
+        "level": 2
+      },
+      {
+        "name": "3. Agree content and incentive operations",
+        "level": 2
+      },
+      {
+        "name": "4. Establish privacy, staff access and support",
+        "level": 2
+      },
+      {
+        "name": "5. Define an honest evaluation",
+        "level": 2
+      },
+      {
+        "name": "6. Decide the next step",
+        "level": 2
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "button",
+        "name": "Menu"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Print discussion outline: print or save as PDF"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/dallas/unlock",
+    "width": 360,
+    "state": "gated",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "Access required",
+        "level": 1
+      },
+      {
+        "name": "Explore",
+        "level": 2
+      },
+      {
+        "name": "For partners",
+        "level": 2
+      },
+      {
+        "name": "Our responsibilities",
+        "level": 2
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "button",
+        "name": "Menu"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Unlock deck",
+        "description": "Enter the PIN supplied for this private discussion."
+      },
+      {
+        "role": "textbox",
+        "name": "Access PIN"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/dallas",
+    "width": 360,
+    "state": "synthetic-signed-presentation",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "Explore",
+        "level": 2
+      },
+      {
+        "name": "For partners",
+        "level": 2
+      },
+      {
+        "name": "Our responsibilities",
+        "level": 2
+      },
+      {
+        "name": "A supported-learning pilot. A scope to agree together.",
+        "level": 1
+      },
+      {
+        "name": "1. Define the setting",
+        "level": 2
+      },
+      {
+        "name": "2. Review the product",
+        "level": 2
+      },
+      {
+        "name": "3. Agree content and incentive operations",
+        "level": 2
+      },
+      {
+        "name": "4. Establish privacy, staff access and support",
+        "level": 2
+      },
+      {
+        "name": "5. Define an honest evaluation",
+        "level": 2
+      },
+      {
+        "name": "6. Decide the next step",
+        "level": 2
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "button",
+        "name": "Menu"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Print discussion outline: print or save as PDF"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/houston/unlock",
+    "width": 360,
+    "state": "gated",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "Access required",
+        "level": 1
+      },
+      {
+        "name": "Explore",
+        "level": 2
+      },
+      {
+        "name": "For partners",
+        "level": 2
+      },
+      {
+        "name": "Our responsibilities",
+        "level": 2
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "button",
+        "name": "Menu"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Unlock deck",
+        "description": "Enter the PIN supplied for this private discussion."
+      },
+      {
+        "role": "textbox",
+        "name": "Access PIN"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/houston",
+    "width": 360,
+    "state": "synthetic-signed-presentation",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "Explore",
+        "level": 2
+      },
+      {
+        "name": "For partners",
+        "level": 2
+      },
+      {
+        "name": "Our responsibilities",
+        "level": 2
+      },
+      {
+        "name": "A supported-learning pilot. A scope to agree together.",
+        "level": 1
+      },
+      {
+        "name": "1. Define the setting",
+        "level": 2
+      },
+      {
+        "name": "2. Review the product",
+        "level": 2
+      },
+      {
+        "name": "3. Agree content and incentive operations",
+        "level": 2
+      },
+      {
+        "name": "4. Establish privacy, staff access and support",
+        "level": 2
+      },
+      {
+        "name": "5. Define an honest evaluation",
+        "level": 2
+      },
+      {
+        "name": "6. Decide the next step",
+        "level": 2
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "button",
+        "name": "Menu"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Print discussion outline: print or save as PDF"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/denver/unlock",
+    "width": 360,
+    "state": "gated",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "Access required",
+        "level": 1
+      },
+      {
+        "name": "Explore",
+        "level": 2
+      },
+      {
+        "name": "For partners",
+        "level": 2
+      },
+      {
+        "name": "Our responsibilities",
+        "level": 2
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "button",
+        "name": "Menu"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Unlock deck",
+        "description": "Enter the PIN supplied for this private discussion."
+      },
+      {
+        "role": "textbox",
+        "name": "Access PIN"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/denver",
+    "width": 360,
+    "state": "synthetic-signed-presentation",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "Explore",
+        "level": 2
+      },
+      {
+        "name": "For partners",
+        "level": 2
+      },
+      {
+        "name": "Our responsibilities",
+        "level": 2
+      },
+      {
+        "name": "A supported-learning pilot. A scope to agree together.",
+        "level": 1
+      },
+      {
+        "name": "1. Define the setting",
+        "level": 2
+      },
+      {
+        "name": "2. Review the product",
+        "level": 2
+      },
+      {
+        "name": "3. Agree content and incentive operations",
+        "level": 2
+      },
+      {
+        "name": "4. Establish privacy, staff access and support",
+        "level": 2
+      },
+      {
+        "name": "5. Define an honest evaluation",
+        "level": 2
+      },
+      {
+        "name": "6. Decide the next step",
+        "level": 2
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "button",
+        "name": "Menu"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Print discussion outline: print or save as PDF"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/los-angeles/unlock",
+    "width": 360,
+    "state": "gated",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "Access required",
+        "level": 1
+      },
+      {
+        "name": "Explore",
+        "level": 2
+      },
+      {
+        "name": "For partners",
+        "level": 2
+      },
+      {
+        "name": "Our responsibilities",
+        "level": 2
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "button",
+        "name": "Menu"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Unlock deck",
+        "description": "Enter the PIN supplied for this private discussion."
+      },
+      {
+        "role": "textbox",
+        "name": "Access PIN"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/los-angeles",
+    "width": 360,
+    "state": "synthetic-signed-presentation",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "Explore",
+        "level": 2
+      },
+      {
+        "name": "For partners",
+        "level": 2
+      },
+      {
+        "name": "Our responsibilities",
+        "level": 2
+      },
+      {
+        "name": "A supported-learning pilot. A scope to agree together.",
+        "level": 1
+      },
+      {
+        "name": "1. Define the setting",
+        "level": 2
+      },
+      {
+        "name": "2. Review the product",
+        "level": 2
+      },
+      {
+        "name": "3. Agree content and incentive operations",
+        "level": 2
+      },
+      {
+        "name": "4. Establish privacy, staff access and support",
+        "level": 2
+      },
+      {
+        "name": "5. Define an honest evaluation",
+        "level": 2
+      },
+      {
+        "name": "6. Decide the next step",
+        "level": 2
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "button",
+        "name": "Menu"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Print discussion outline: print or save as PDF"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/san-francisco/unlock",
+    "width": 360,
+    "state": "gated",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "Access required",
+        "level": 1
+      },
+      {
+        "name": "Explore",
+        "level": 2
+      },
+      {
+        "name": "For partners",
+        "level": 2
+      },
+      {
+        "name": "Our responsibilities",
+        "level": 2
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "button",
+        "name": "Menu"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Unlock deck",
+        "description": "Enter the PIN supplied for this private discussion."
+      },
+      {
+        "role": "textbox",
+        "name": "Access PIN"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/san-francisco",
+    "width": 360,
+    "state": "synthetic-signed-presentation",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "Explore",
+        "level": 2
+      },
+      {
+        "name": "For partners",
+        "level": 2
+      },
+      {
+        "name": "Our responsibilities",
+        "level": 2
+      },
+      {
+        "name": "A supported-learning pilot. A scope to agree together.",
+        "level": 1
+      },
+      {
+        "name": "1. Define the setting",
+        "level": 2
+      },
+      {
+        "name": "2. Review the product",
+        "level": 2
+      },
+      {
+        "name": "3. Agree content and incentive operations",
+        "level": 2
+      },
+      {
+        "name": "4. Establish privacy, staff access and support",
+        "level": 2
+      },
+      {
+        "name": "5. Define an honest evaluation",
+        "level": 2
+      },
+      {
+        "name": "6. Decide the next step",
+        "level": 2
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "button",
+        "name": "Menu"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Print discussion outline: print or save as PDF"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/",
+    "width": 1440,
+    "state": "rendered",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "Learning with support. Progress with purpose.",
+        "level": 1
+      },
+      {
+        "name": "Small steps for learners. Clear decisions for staff.",
+        "level": 2
+      },
+      {
+        "name": "A next step that feels possible.",
+        "level": 2
+      },
+      {
+        "name": "Teach. Try. Explain. Reflect if useful.",
+        "level": 3
+      },
+      {
+        "name": "Know what needs a person.",
+        "level": 2
+      },
+      {
+        "name": "Start with what matters to your program.",
+        "level": 2
+      },
+      {
+        "name": "Useful evidence. Honest limits.",
+        "level": 2
+      },
+      {
+        "name": "Records that can be reviewed",
+        "level": 3
+      },
+      {
+        "name": "Privacy is an operating responsibility",
+        "level": 3
+      },
+      {
+        "name": "Start focused. Agree the details.",
+        "level": 2
+      },
+      {
+        "name": "1. Understand the setting",
+        "level": 3
+      },
+      {
+        "name": "2. Agree readiness and scope",
+        "level": 3
+      },
+      {
+        "name": "3. Review what happened",
+        "level": 3
+      },
+      {
+        "name": "Before you begin.",
+        "level": 2
+      },
+      {
+        "name": "Bring your questions. Start a pilot conversation.",
+        "level": 2
+      },
+      {
+        "name": "Online intake is not enabled yet",
+        "level": 3
+      },
+      {
+        "name": "Explore",
+        "level": 2
+      },
+      {
+        "name": "For partners",
+        "level": 2
+      },
+      {
+        "name": "Our responsibilities",
+        "level": 2
+      },
+      {
+        "name": "A queue with a clear next decision.",
+        "level": 3
+      },
+      {
+        "name": "Try a small learning step",
+        "level": 2
+      },
+      {
+        "name": "Make room for one small step",
+        "level": 3
+      },
+      {
+        "name": "Invite and enroll",
+        "level": 3
+      },
+      {
+        "name": "Learn and return",
+        "level": 3
+      },
+      {
+        "name": "Review incentives",
+        "level": 3
+      },
+      {
+        "name": "Oversee and support",
+        "level": 3
+      },
+      {
+        "name": "Stability Basics",
+        "level": 3
+      },
+      {
+        "name": "Financial Literacy",
+        "level": 3
+      },
+      {
+        "name": "Addiction & Recovery Foundations",
+        "level": 3
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "textbox",
+        "name": "Your name"
+      },
+      {
+        "role": "textbox",
+        "name": "Organization"
+      },
+      {
+        "role": "textbox",
+        "name": "Work email"
+      },
+      {
+        "role": "textbox",
+        "name": "Region or city (optional)"
+      },
+      {
+        "role": "button",
+        "name": "Save partner inquiry",
+        "description": "The reviewed intake queue must be configured before submission."
+      },
+      {
+        "role": "progressbar",
+        "name": "Sample step 1 of 3"
+      },
+      {
+        "role": "button",
+        "name": "Continue sample"
+      },
+      {
+        "role": "textbox",
+        "name": "Anything useful to know? (optional)"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/demo",
+    "width": 1440,
+    "state": "rendered",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "A small step, tried together.",
+        "level": 1
+      },
+      {
+        "name": "Try a small learning step",
+        "level": 2
+      },
+      {
+        "name": "Make room for one small step",
+        "level": 3
+      },
+      {
+        "name": "Explore",
+        "level": 2
+      },
+      {
+        "name": "For partners",
+        "level": 2
+      },
+      {
+        "name": "Our responsibilities",
+        "level": 2
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "progressbar",
+        "name": "Sample step 1 of 3"
+      },
+      {
+        "role": "button",
+        "name": "Continue sample"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/privacy",
+    "width": 1440,
+    "state": "rendered",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "What is recorded. Who can see it.",
+        "level": 1
+      },
+      {
+        "name": "Explore",
+        "level": 2
+      },
+      {
+        "name": "For partners",
+        "level": 2
+      },
+      {
+        "name": "Our responsibilities",
+        "level": 2
+      },
+      {
+        "name": "Accounts and learning",
+        "level": 2
+      },
+      {
+        "name": "Program help is a stored request",
+        "level": 2
+      },
+      {
+        "name": "Partner inquiries",
+        "level": 2
+      },
+      {
+        "name": "Optional AI and voice",
+        "level": 2
+      },
+      {
+        "name": "Payments and reporting",
+        "level": 2
+      },
+      {
+        "name": "Logs, retention and requests",
+        "level": 2
+      },
+      {
+        "name": "Fictional public previews",
+        "level": 2
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/terms",
+    "width": 1440,
+    "state": "rendered",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "Clear expectations. Agreed responsibilities.",
+        "level": 1
+      },
+      {
+        "name": "Explore",
+        "level": 2
+      },
+      {
+        "name": "For partners",
+        "level": 2
+      },
+      {
+        "name": "Our responsibilities",
+        "level": 2
+      },
+      {
+        "name": "Learning alongside human services",
+        "level": 2
+      },
+      {
+        "name": "Progress and incentives",
+        "level": 2
+      },
+      {
+        "name": "Accounts and program oversight",
+        "level": 2
+      },
+      {
+        "name": "Hubert and human help",
+        "level": 2
+      },
+      {
+        "name": "Partner inquiries and pilot proposals",
+        "level": 2
+      },
+      {
+        "name": "Availability and privacy",
+        "level": 2
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/recover",
+    "width": 1440,
+    "state": "rendered",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "Help signing in",
+        "level": 1
+      },
+      {
+        "name": "Recover access with your program",
+        "level": 2
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/lifeline",
+    "width": 1440,
+    "state": "unavailable-account-service",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "Request help from your program",
+        "level": 2
+      },
+      {
+        "name": "Help and human support",
+        "level": 1
+      },
+      {
+        "name": "Human help",
+        "level": 2
+      },
+      {
+        "name": "Optional Hubert AI",
+        "level": 2
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "status",
+        "name": "",
+        "live": "polite"
+      },
+      {
+        "role": "button",
+        "name": "Dismiss connection notice"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Reload program status"
+      },
+      {
+        "role": "button",
+        "name": "Open Hubert AI"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/unknown-audit-address",
+    "width": 1440,
+    "state": "rendered",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "We could not find that page",
+        "level": 1
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/austin/unlock",
+    "width": 1440,
+    "state": "ready",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "Access required",
+        "level": 1
+      },
+      {
+        "name": "Explore",
+        "level": 2
+      },
+      {
+        "name": "For partners",
+        "level": 2
+      },
+      {
+        "name": "Our responsibilities",
+        "level": 2
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Unlock deck",
+        "description": "Enter the PIN supplied for this private discussion."
+      },
+      {
+        "role": "textbox",
+        "name": "Access PIN"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/austin/unlock",
+    "width": 1440,
+    "state": "store-unavailable",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "Access required",
+        "level": 1
+      },
+      {
+        "name": "Explore",
+        "level": 2
+      },
+      {
+        "name": "For partners",
+        "level": 2
+      },
+      {
+        "name": "Our responsibilities",
+        "level": 2
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "status",
+        "name": "",
+        "live": "polite"
+      },
+      {
+        "role": "button",
+        "name": "Dismiss connection notice"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Unlock deck"
+      },
+      {
+        "role": "textbox",
+        "name": "Access PIN"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/austin/unlock",
+    "width": 1440,
+    "state": "gated",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "Access required",
+        "level": 1
+      },
+      {
+        "name": "Explore",
+        "level": 2
+      },
+      {
+        "name": "For partners",
+        "level": 2
+      },
+      {
+        "name": "Our responsibilities",
+        "level": 2
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Unlock deck",
+        "description": "Enter the PIN supplied for this private discussion."
+      },
+      {
+        "role": "textbox",
+        "name": "Access PIN"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/austin",
+    "width": 1440,
+    "state": "synthetic-signed-presentation",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "Explore",
+        "level": 2
+      },
+      {
+        "name": "For partners",
+        "level": 2
+      },
+      {
+        "name": "Our responsibilities",
+        "level": 2
+      },
+      {
+        "name": "A supported-learning pilot. A scope to agree together.",
+        "level": 1
+      },
+      {
+        "name": "1. Define the setting",
+        "level": 2
+      },
+      {
+        "name": "2. Review the product",
+        "level": 2
+      },
+      {
+        "name": "3. Agree content and incentive operations",
+        "level": 2
+      },
+      {
+        "name": "4. Establish privacy, staff access and support",
+        "level": 2
+      },
+      {
+        "name": "5. Define an honest evaluation",
+        "level": 2
+      },
+      {
+        "name": "6. Decide the next step",
+        "level": 2
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Print discussion outline: print or save as PDF"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/dallas/unlock",
+    "width": 1440,
+    "state": "gated",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "Access required",
+        "level": 1
+      },
+      {
+        "name": "Explore",
+        "level": 2
+      },
+      {
+        "name": "For partners",
+        "level": 2
+      },
+      {
+        "name": "Our responsibilities",
+        "level": 2
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Unlock deck",
+        "description": "Enter the PIN supplied for this private discussion."
+      },
+      {
+        "role": "textbox",
+        "name": "Access PIN"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/dallas",
+    "width": 1440,
+    "state": "synthetic-signed-presentation",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "Explore",
+        "level": 2
+      },
+      {
+        "name": "For partners",
+        "level": 2
+      },
+      {
+        "name": "Our responsibilities",
+        "level": 2
+      },
+      {
+        "name": "A supported-learning pilot. A scope to agree together.",
+        "level": 1
+      },
+      {
+        "name": "1. Define the setting",
+        "level": 2
+      },
+      {
+        "name": "2. Review the product",
+        "level": 2
+      },
+      {
+        "name": "3. Agree content and incentive operations",
+        "level": 2
+      },
+      {
+        "name": "4. Establish privacy, staff access and support",
+        "level": 2
+      },
+      {
+        "name": "5. Define an honest evaluation",
+        "level": 2
+      },
+      {
+        "name": "6. Decide the next step",
+        "level": 2
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Print discussion outline: print or save as PDF"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/houston/unlock",
+    "width": 1440,
+    "state": "gated",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "Access required",
+        "level": 1
+      },
+      {
+        "name": "Explore",
+        "level": 2
+      },
+      {
+        "name": "For partners",
+        "level": 2
+      },
+      {
+        "name": "Our responsibilities",
+        "level": 2
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Unlock deck",
+        "description": "Enter the PIN supplied for this private discussion."
+      },
+      {
+        "role": "textbox",
+        "name": "Access PIN"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/houston",
+    "width": 1440,
+    "state": "synthetic-signed-presentation",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "Explore",
+        "level": 2
+      },
+      {
+        "name": "For partners",
+        "level": 2
+      },
+      {
+        "name": "Our responsibilities",
+        "level": 2
+      },
+      {
+        "name": "A supported-learning pilot. A scope to agree together.",
+        "level": 1
+      },
+      {
+        "name": "1. Define the setting",
+        "level": 2
+      },
+      {
+        "name": "2. Review the product",
+        "level": 2
+      },
+      {
+        "name": "3. Agree content and incentive operations",
+        "level": 2
+      },
+      {
+        "name": "4. Establish privacy, staff access and support",
+        "level": 2
+      },
+      {
+        "name": "5. Define an honest evaluation",
+        "level": 2
+      },
+      {
+        "name": "6. Decide the next step",
+        "level": 2
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Print discussion outline: print or save as PDF"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/denver/unlock",
+    "width": 1440,
+    "state": "gated",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "Access required",
+        "level": 1
+      },
+      {
+        "name": "Explore",
+        "level": 2
+      },
+      {
+        "name": "For partners",
+        "level": 2
+      },
+      {
+        "name": "Our responsibilities",
+        "level": 2
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Unlock deck",
+        "description": "Enter the PIN supplied for this private discussion."
+      },
+      {
+        "role": "textbox",
+        "name": "Access PIN"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/denver",
+    "width": 1440,
+    "state": "synthetic-signed-presentation",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "Explore",
+        "level": 2
+      },
+      {
+        "name": "For partners",
+        "level": 2
+      },
+      {
+        "name": "Our responsibilities",
+        "level": 2
+      },
+      {
+        "name": "A supported-learning pilot. A scope to agree together.",
+        "level": 1
+      },
+      {
+        "name": "1. Define the setting",
+        "level": 2
+      },
+      {
+        "name": "2. Review the product",
+        "level": 2
+      },
+      {
+        "name": "3. Agree content and incentive operations",
+        "level": 2
+      },
+      {
+        "name": "4. Establish privacy, staff access and support",
+        "level": 2
+      },
+      {
+        "name": "5. Define an honest evaluation",
+        "level": 2
+      },
+      {
+        "name": "6. Decide the next step",
+        "level": 2
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Print discussion outline: print or save as PDF"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/los-angeles/unlock",
+    "width": 1440,
+    "state": "gated",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "Access required",
+        "level": 1
+      },
+      {
+        "name": "Explore",
+        "level": 2
+      },
+      {
+        "name": "For partners",
+        "level": 2
+      },
+      {
+        "name": "Our responsibilities",
+        "level": 2
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Unlock deck",
+        "description": "Enter the PIN supplied for this private discussion."
+      },
+      {
+        "role": "textbox",
+        "name": "Access PIN"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/los-angeles",
+    "width": 1440,
+    "state": "synthetic-signed-presentation",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "Explore",
+        "level": 2
+      },
+      {
+        "name": "For partners",
+        "level": 2
+      },
+      {
+        "name": "Our responsibilities",
+        "level": 2
+      },
+      {
+        "name": "A supported-learning pilot. A scope to agree together.",
+        "level": 1
+      },
+      {
+        "name": "1. Define the setting",
+        "level": 2
+      },
+      {
+        "name": "2. Review the product",
+        "level": 2
+      },
+      {
+        "name": "3. Agree content and incentive operations",
+        "level": 2
+      },
+      {
+        "name": "4. Establish privacy, staff access and support",
+        "level": 2
+      },
+      {
+        "name": "5. Define an honest evaluation",
+        "level": 2
+      },
+      {
+        "name": "6. Decide the next step",
+        "level": 2
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Print discussion outline: print or save as PDF"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/san-francisco/unlock",
+    "width": 1440,
+    "state": "gated",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "Access required",
+        "level": 1
+      },
+      {
+        "name": "Explore",
+        "level": 2
+      },
+      {
+        "name": "For partners",
+        "level": 2
+      },
+      {
+        "name": "Our responsibilities",
+        "level": 2
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Unlock deck",
+        "description": "Enter the PIN supplied for this private discussion."
+      },
+      {
+        "role": "textbox",
+        "name": "Access PIN"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/san-francisco",
+    "width": 1440,
+    "state": "synthetic-signed-presentation",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "Explore",
+        "level": 2
+      },
+      {
+        "name": "For partners",
+        "level": 2
+      },
+      {
+        "name": "Our responsibilities",
+        "level": 2
+      },
+      {
+        "name": "A supported-learning pilot. A scope to agree together.",
+        "level": 1
+      },
+      {
+        "name": "1. Define the setting",
+        "level": 2
+      },
+      {
+        "name": "2. Review the product",
+        "level": 2
+      },
+      {
+        "name": "3. Agree content and incentive operations",
+        "level": 2
+      },
+      {
+        "name": "4. Establish privacy, staff access and support",
+        "level": 2
+      },
+      {
+        "name": "5. Define an honest evaluation",
+        "level": 2
+      },
+      {
+        "name": "6. Decide the next step",
+        "level": 2
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Print discussion outline: print or save as PDF"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/demo",
+    "width": 360,
+    "state": "text-200",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "A small step, tried together.",
+        "level": 1
+      },
+      {
+        "name": "Try a small learning step",
+        "level": 2
+      },
+      {
+        "name": "What could Alex try next?",
+        "level": 3
+      },
+      {
+        "name": "Explore",
+        "level": 2
+      },
+      {
+        "name": "For partners",
+        "level": 2
+      },
+      {
+        "name": "Our responsibilities",
+        "level": 2
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "button",
+        "name": "Menu"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "progressbar",
+        "name": "Sample step 2 of 3"
+      },
+      {
+        "role": "button",
+        "name": "Check answer",
+        "description": "Choose an answer to see the explanation."
+      },
+      {
+        "role": "radio",
+        "name": "Choose one manageable action and a time to try it"
+      },
+      {
+        "role": "radio",
+        "name": "Wait until every problem can be solved at once"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/admin",
+    "width": 360,
+    "state": "synthetic-api-error",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "Your program workspace",
+        "level": 1
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "button",
+        "name": "Toggle sidebar"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "status",
+        "name": "",
+        "live": "polite"
+      },
+      {
+        "role": "button",
+        "name": "Dismiss connection notice"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Try again"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/admin/users",
+    "width": 360,
+    "state": "synthetic-api-error",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "Participants",
+        "level": 1
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "button",
+        "name": "Toggle sidebar"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "status",
+        "name": "",
+        "live": "polite"
+      },
+      {
+        "role": "button",
+        "name": "Dismiss connection notice"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Search"
+      },
+      {
+        "role": "button",
+        "name": "Clear filters"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      },
+      {
+        "role": "textbox",
+        "name": "Search"
+      },
+      {
+        "role": "button",
+        "name": "Retry"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/admin/cases",
+    "width": 360,
+    "state": "synthetic-api-error",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "Support cases",
+        "level": 1
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "button",
+        "name": "Toggle sidebar"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "status",
+        "name": "",
+        "live": "polite"
+      },
+      {
+        "role": "button",
+        "name": "Dismiss connection notice"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Search"
+      },
+      {
+        "role": "button",
+        "name": "Clear filters"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      },
+      {
+        "role": "textbox",
+        "name": "Search"
+      },
+      {
+        "role": "button",
+        "name": "Retry"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/admin/cases/synthetic-case",
+    "width": 360,
+    "state": "synthetic-api-error",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "Support case",
+        "level": 1
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "button",
+        "name": "Toggle sidebar"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "status",
+        "name": "",
+        "live": "polite"
+      },
+      {
+        "role": "button",
+        "name": "Dismiss connection notice"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Try again"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/admin/users/synthetic-user",
+    "width": 360,
+    "state": "synthetic-api-error",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "Participant detail",
+        "level": 1
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "button",
+        "name": "Toggle sidebar"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "status",
+        "name": "",
+        "live": "polite"
+      },
+      {
+        "role": "button",
+        "name": "Dismiss connection notice"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Try again"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/admin/payouts",
+    "width": 360,
+    "state": "synthetic-api-error",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "Reward requests",
+        "level": 1
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "button",
+        "name": "Toggle sidebar"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "status",
+        "name": "",
+        "live": "polite"
+      },
+      {
+        "role": "button",
+        "name": "Dismiss connection notice"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Try again"
+      },
+      {
+        "role": "button",
+        "name": "Previous page",
+        "description": "This is the first page."
+      },
+      {
+        "role": "button",
+        "name": "Next page",
+        "description": "There are no more records."
+      },
+      {
+        "role": "button",
+        "name": "Export filtered program records",
+        "description": "No records to export."
+      },
+      {
+        "role": "button",
+        "name": "Apply queue filters"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      },
+      {
+        "role": "textbox",
+        "name": "Search request or participant"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/admin/reports",
+    "width": 360,
+    "state": "synthetic-api-error",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "Program reports",
+        "level": 1
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "button",
+        "name": "Toggle sidebar"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "status",
+        "name": "",
+        "live": "polite"
+      },
+      {
+        "role": "button",
+        "name": "Dismiss connection notice"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "status",
+        "name": "",
+        "live": "polite"
+      },
+      {
+        "role": "button",
+        "name": "Apply report filters"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      },
+      {
+        "role": "button",
+        "name": "Retry report"
+      },
+      {
+        "role": "button",
+        "name": "Show date picker Show date picker"
+      },
+      {
+        "role": "button",
+        "name": "Show date picker Show date picker"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/admin/directory",
+    "width": 360,
+    "state": "synthetic-api-error",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "Service directory",
+        "level": 1
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "button",
+        "name": "Toggle sidebar"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "status",
+        "name": "",
+        "live": "polite"
+      },
+      {
+        "role": "button",
+        "name": "Dismiss connection notice"
+      },
+      {
+        "role": "button",
+        "name": "Add service"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Search"
+      },
+      {
+        "role": "button",
+        "name": "Clear filters"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      },
+      {
+        "role": "textbox",
+        "name": "Search"
+      },
+      {
+        "role": "button",
+        "name": "Retry"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/admin/staff",
+    "width": 360,
+    "state": "synthetic-api-error",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "Program staff",
+        "level": 1
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "button",
+        "name": "Toggle sidebar"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "status",
+        "name": "",
+        "live": "polite"
+      },
+      {
+        "role": "button",
+        "name": "Dismiss connection notice"
+      },
+      {
+        "role": "button",
+        "name": "Create program staff account"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Search"
+      },
+      {
+        "role": "button",
+        "name": "Clear filters"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      },
+      {
+        "role": "textbox",
+        "name": "Search"
+      },
+      {
+        "role": "button",
+        "name": "Retry"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/admin/audit",
+    "width": 360,
+    "state": "synthetic-api-error",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "Audit trail",
+        "level": 1
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "button",
+        "name": "Toggle sidebar"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "status",
+        "name": "",
+        "live": "polite"
+      },
+      {
+        "role": "button",
+        "name": "Dismiss connection notice"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Search"
+      },
+      {
+        "role": "button",
+        "name": "Clear filters"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      },
+      {
+        "role": "textbox",
+        "name": "Search"
+      },
+      {
+        "role": "button",
+        "name": "Retry"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/admin/inquiries",
+    "width": 360,
+    "state": "synthetic-api-error",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "Partner inquiries",
+        "level": 1
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "button",
+        "name": "Toggle sidebar"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "status",
+        "name": "",
+        "live": "polite"
+      },
+      {
+        "role": "button",
+        "name": "Dismiss connection notice"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Try again"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/admin/security",
+    "width": 360,
+    "state": "synthetic-api-error",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "Staff security",
+        "level": 1
+      },
+      {
+        "name": "Authenticator and recovery",
+        "level": 2
+      },
+      {
+        "name": "Private participant invitations",
+        "level": 2
+      },
+      {
+        "name": "Replace recovery codes",
+        "level": 3
+      },
+      {
+        "name": "Program support intake",
+        "level": 2
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "button",
+        "name": "Toggle sidebar"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "status",
+        "name": "",
+        "live": "polite"
+      },
+      {
+        "role": "button",
+        "name": "Dismiss connection notice"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Sign out other staff sessions",
+        "description": "This action is currently unavailable."
+      },
+      {
+        "role": "textbox",
+        "name": "Current authenticator code"
+      },
+      {
+        "role": "button",
+        "name": "Replace recovery codes",
+        "description": "This action is currently unavailable."
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "status",
+        "name": "",
+        "live": "polite"
+      },
+      {
+        "role": "button",
+        "name": "Create a private invitation"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      },
+      {
+        "role": "button",
+        "name": "Reload settings"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/admin/users",
+    "width": 1440,
+    "state": "session-unavailable",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "Staff access could not be checked",
+        "level": 1
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "status",
+        "name": "",
+        "live": "polite"
+      },
+      {
+        "role": "button",
+        "name": "Dismiss connection notice"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Try again"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/admin/login",
+    "width": 360,
+    "state": "sign-in",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "Staff sign in",
+        "level": 1
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "textbox",
+        "name": "Email"
+      },
+      {
+        "role": "textbox",
+        "name": "Password"
+      },
+      {
+        "role": "button",
+        "name": "Continue"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/admin/programs",
+    "width": 360,
+    "state": "memberships-unavailable",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "Choose your program",
+        "level": 1
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "status",
+        "name": "",
+        "live": "polite"
+      },
+      {
+        "role": "button",
+        "name": "Dismiss connection notice"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Retry"
+      },
+      {
+        "role": "button",
+        "name": "Sign out"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  },
+  {
+    "route": "/dev/design-system",
+    "width": 360,
+    "state": "component-states",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "headingTree": [
+      {
+        "name": "Actions",
+        "level": 2
+      },
+      {
+        "name": "Fields",
+        "level": 2
+      },
+      {
+        "name": "Feedback and meaning",
+        "level": 2
+      },
+      {
+        "name": "Progress and waiting",
+        "level": 2
+      },
+      {
+        "name": "No matching services",
+        "level": 2
+      },
+      {
+        "name": "A clearer way forward.",
+        "level": 1
+      }
+    ],
+    "accessibilityTreeControls": [
+      {
+        "role": "button",
+        "name": "Open example dialog"
+      },
+      {
+        "role": "button",
+        "name": "Preview notification"
+      },
+      {
+        "role": "button",
+        "name": "Preview dismiss action",
+        "description": "Preview dismiss action"
+      },
+      {
+        "role": "button",
+        "name": "Unavailable action",
+        "description": "Add a required organization name before saving."
+      },
+      {
+        "role": "button",
+        "name": "Saving example…",
+        "description": "A request is in progress. Please wait."
+      },
+      {
+        "role": "button",
+        "name": "A very long action label that stays readable on a narrow screen"
+      },
+      {
+        "role": "textbox",
+        "name": "Organization name (required)",
+        "description": "Use a name the team will recognize."
+      },
+      {
+        "role": "textbox",
+        "name": "Website",
+        "description": "Include https:// for a working website link."
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "textbox",
+        "name": "Account identifier",
+        "description": "This value is managed by the service and cannot be edited here."
+      },
+      {
+        "role": "status",
+        "name": "",
+        "live": "polite"
+      },
+      {
+        "role": "status",
+        "name": "",
+        "live": "polite"
+      },
+      {
+        "role": "status",
+        "name": "",
+        "live": "polite"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "progressbar",
+        "name": "Example path progress"
+      },
+      {
+        "role": "progressbar",
+        "name": "Completed example path"
+      },
+      {
+        "role": "progressbar",
+        "name": "New example path"
+      },
+      {
+        "role": "status",
+        "name": "",
+        "live": "polite"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Try again"
+      },
+      {
+        "role": "status",
+        "name": "",
+        "live": "polite"
+      },
+      {
+        "role": "alert",
+        "name": "",
+        "live": "assertive"
+      },
+      {
+        "role": "button",
+        "name": "Dismiss notification",
+        "description": "Dismiss notification"
+      },
+      {
+        "role": "button",
+        "name": "Open Next.js Dev Tools"
+      }
+    ],
+    "screenReaderSpeech": "not run"
+  }
+]

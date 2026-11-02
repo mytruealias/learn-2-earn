@@ -64,11 +64,17 @@ function Shell({ children }: { children: ReactNode }) {
     if (ref.current)
       mutations.observe(ref.current, { childList: true, subtree: true });
     attachNavigation();
+    const header = ref.current?.querySelector("header");
+    const headerObserver = new ResizeObserver(() => {
+      if (header) ref.current?.style.setProperty("--learner-header-height", `${header.getBoundingClientRect().height}px`);
+    });
+    if (header) headerObserver.observe(header);
     return () => {
       viewport?.removeEventListener("resize", measure);
       document.removeEventListener("focusin", measure);
       document.removeEventListener("focusout", measure);
       observer.disconnect();
+      headerObserver.disconnect();
       mutations.disconnect();
     };
   }, []);
@@ -143,11 +149,13 @@ function Shell({ children }: { children: ReactNode }) {
             children
           ) : state === "loading" ? (
             <main className={styles.sessionState}>
+              <h1 className="sr-only">Checking your saved session</h1>
               <Skeleton label="Checking your saved session" />
             </main>
           ) : state === "error" ? (
             <main className={styles.sessionState}>
               <Card>
+                <h1>Your session could not be checked</h1>
                 <ErrorState onRetry={() => void refresh()}>
                   We could not check your session. Reconnect and try again. Your
                   account has not been deleted.

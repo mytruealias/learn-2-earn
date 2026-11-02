@@ -1,4 +1,5 @@
 "use client";
+import { clientFetch } from "@/lib/reliability/client-fetch";
 import {
   createContext,
   useCallback,
@@ -33,7 +34,7 @@ export function LearnerSessionProvider({
     const current = ++generation.current;
     setState("loading");
     try {
-      const response = await fetch("/api/auth/session", {
+      const response = await clientFetch("/api/auth/session", {
         credentials: "same-origin",
         cache: "no-store",
         signal: AbortSignal.timeout(15000),
@@ -72,7 +73,7 @@ export function LearnerSessionProvider({
     };
   }, [active, refresh]);
   const signOut = useCallback(async () => {
-    const response = await fetch("/api/auth/session", {
+    const response = await clientFetch("/api/auth/session", {
       method: "DELETE",
       credentials: "same-origin",
       signal: AbortSignal.timeout(15000),

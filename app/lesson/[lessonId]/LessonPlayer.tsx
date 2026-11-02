@@ -1,4 +1,5 @@
 "use client";
+import { clientFetch } from "@/lib/reliability/client-fetch";
 import { useEffect, useRef, useState } from "react";
 import {
   Alert,
@@ -73,7 +74,7 @@ export default function LessonPlayer({
     setError("");
     setCode("");
     try {
-      const response = await fetch(path, {
+      const response = await clientFetch(path, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
@@ -219,7 +220,9 @@ export default function LessonPlayer({
             ? "Practice · no additional XP or cash credit"
             : "Your lesson"}
         </p>
-        <p className={styles.title}>{lesson.title}</p>
+        {(!attempt && phase === "loading") || (phase === "error" && !result)
+          ? <h1 className={styles.title}>{lesson.title}</h1>
+          : <p className={styles.title}>{lesson.title}</p>}
         {attempt && !result && (
           <div className={styles.progress}>
             <label htmlFor="lesson-progress">

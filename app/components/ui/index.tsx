@@ -273,7 +273,8 @@ export function Dialog({
 }) {
   const ref = useRef<HTMLDialogElement>(null);
   const id = useId();
-  useModalA11y(open, ref, onClose);
+  const close = () => { if (!closeDisabledReason) onClose(); };
+  useModalA11y(open, ref, close);
   useEffect(() => {
     if (open && ref.current && !ref.current.open) ref.current.showModal();
   }, [open]);
@@ -287,17 +288,17 @@ export function Dialog({
       className={styles.dialog}
       onCancel={(event) => {
         event.preventDefault();
-        onClose();
+        close();
       }}
       onClick={(event) => {
-        if (event.target === event.currentTarget) onClose();
+        if (event.target === event.currentTarget) close();
       }}
     >
       <div className={styles.dialogHeader}>
         <h2 id={id}>{title}</h2>
         <IconButton
           label="Close dialog"
-          onClick={onClose}
+          onClick={close}
           disabled={!!closeDisabledReason}
           disabledReason={closeDisabledReason}
         >

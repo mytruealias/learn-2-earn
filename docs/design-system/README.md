@@ -24,9 +24,9 @@ Inter is the body and heading face in adopted scopes; there are no terminal labe
 | Targets | At least `target` = 2.75rem / 44 CSS px for links, buttons, inputs and selects. Text can wrap; never use fixed text heights. |
 | Responsive layout | Compact 40rem, reading 52rem, wide 64rem. The inherited staff drawer switches at 768px/48rem. CSS variables cannot be substituted into media queries: keep literal queries and documented token values aligned. The learner content container query responds to enlarged text as well as available width. |
 
-- **Marketing:** `.inv-page` owns its `--cy-*` variables, not `:root`. City decks own their legacy font aliases inside `.cd-page`; no city artwork/copy changed.
+- **Marketing:** the shared MarketingShell and `app/components/marketing/marketing.module.css` own public/city presentation. See the partner website stage; legacy investor CSS no longer defines the live shell.
 - **Learner:** the adopted path root and its bottom navigation opt into `[data-design]`, with `data-ui-shell="learner"`. Existing utility aliases are mapped locally to the new tokens, including the existing help controls.
-- **Staff:** `data-ui-shell="staff"` identifies the staff wrapper. Only the directory route currently opts its shell/sidebar into the new presentation. Other staff modules retain their existing styling.
+- **Staff:** `data-ui-shell="staff"` identifies the staff wrapper. All current staff workspaces use the shared shell and scoped modules; see the staff and cross-route stage inventories for observed versus pending verification.
 - **Dialogs/notifications:** carry their own opt-in marker and CSS Module classes, so they remain correct in the native top layer. Do not rely on marketing or staff variable names in primitives.
 - **Shared behavior:** old components outside the adopted scopes are not automatically migrated. Reuse new primitives deliberately, and audit the actual route before broadening a scope.
 
@@ -78,3 +78,7 @@ No migration, runtime secret, provider or payout-rule change is required. The ba
 4. Include loading/empty/error/busy/disabled/success paths and a concrete recovery action. Avoid false balances or simulated production success.
 5. Recheck named roles/labels, live feedback, keyboard/focus, 44px targets, contrast, long text, 200% text size and reduced motion at narrow/tablet/desktop widths.
 6. Capture real screenshots with synthetic data, report exact tests/limits, and update `docs/upgrade-status.md` before review.
+
+## Current cross-route acceptance
+
+The [2026-11-02 audit](../accessibility-reliability/README.md) extends these conventions with bounded connection/error states, shared distributed limits and specific route/state verification. Profile/lesson initial/error headings, persistent feedback and pending-dialog close guards are source-fixed; real-session reruns remain blocked by native Prisma downloads. At enlarged text, shared choice rows can stack their radio above the text and sample padding contracts; navigation labels/footer use readable wrapping. Automated no-overflow is insufficient: visual inspection caught one-letter answer wrapping despite zero axe findings. Root fonts now use one variable Inter family with readable system fallback, not the old terminal/condensed families. Platform screen-reader/native browser zoom/physical device checks and production measurements remain open.

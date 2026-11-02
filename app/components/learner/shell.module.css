@@ -81,3 +81,5 @@
     bottom: 1.5rem !important;
   }
 }
+
+.shell :is(a, button, input, select, textarea, summary, [tabindex], h1, h2, h3) { scroll-margin-block-start: calc(var(--learner-header-height, 8rem) + 1rem); scroll-margin-block-end: calc(var(--learner-nav-height, 5rem) + env(safe-area-inset-bottom) + 1rem); }

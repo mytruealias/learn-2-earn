@@ -1,3 +1,4 @@
+import { consumeRateLimit } from "@/lib/reliability/rate-limit";
 import { z } from "zod";
 import { setDemoAccessCookie } from "@/lib/access-token";
 import {
@@ -6,7 +7,6 @@ import {
   apiServerError,
   parseJson,
   getClientIp,
-  createRateLimiter,
   rateLimitResponse,
 } from "@/lib/api-helpers";
 
@@ -20,7 +20,6 @@ import { sameOriginError } from "@/lib/user-session";
 
 // 15 attempts per 10 min per IP — generous for shared demo devices but
 // enough to throttle automated guessing of the demo gate code.
-const limiter = createRateLimiter({ max: 15, windowMs: 10 * 60 * 1000 });
 
 const Schema = z.object({
   code: z.string().min(1, "Access code is required").max(200),
@@ -37,7 +36,7 @@ export async function POST(req: Request) {
         503,
       );
     const ip = getClientIp(req);
-    const gate = limiter.check(`access:${ip}`);
+    const gate = await consumeRateLimit("access", ip, 15, 10 * 60 * 1000);
     if (!gate.allowed) {
       return rateLimitResponse(
         gate.retryAfterSec,
@@ -55,12 +54,12 @@ export async function POST(req: Request) {
       ? null
       : await invitedProgram(prisma, parsed.data.code);
     if (!demo && !programId) {
-      limiter.record(`access:${ip}`);
+
       return apiError("unauthorized", "Invalid access code", 401);
     }
 
-    limiter.reset(`access:${ip}`);
 
+    await gate.release?.();
     const response = apiOk();
     setDemoAccessCookie(response);
     response.cookies.set(

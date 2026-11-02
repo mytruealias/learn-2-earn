@@ -54,11 +54,11 @@ export default function Page() {
     void load();
   }, []);
   if (!data)
-    return error ? (
+    return <section className={styles.page} data-design="staff"><h1>Your program workspace</h1>{error ? (
       <ErrorState onRetry={load}>{error}</ErrorState>
     ) : (
       <Skeleton label="Loading program work queues…" />
-    );
+    )}</section>;
   const review = admin?.role !== "finance",
     finance = admin?.role !== "caseworker";
   const queues = [

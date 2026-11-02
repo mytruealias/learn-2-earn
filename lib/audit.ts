@@ -1,3 +1,4 @@
+import { failureReference } from "./api-helpers";
 import prisma from "@/lib/prisma";
 
 export async function logAudit({
@@ -30,6 +31,6 @@ export async function logAudit({
       },
     });
   } catch {
-    console.error("Audit log could not be saved.");
+    await failureReference("audit");
   }
 }

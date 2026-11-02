@@ -17,7 +17,7 @@ export default function Page() {
           Who can see it.
         </h1>
         <p className={styles.notice}>
-          Draft operational summary, updated November 1, 2026. Deployment
+          Draft operational summary, updated November 2, 2026. Deployment
           practices, organizational identity, lawful retention and privacy
           contacts require operator and qualified legal review before launch.
           This page is not proof of a certification or zero-retention agreement.
@@ -113,6 +113,7 @@ export default function Page() {
         </section>
         <section>
           <h2>Logs, retention and requests</h2>
+          <p>When operators enable technical error reporting, the browser sends only a fixed error category and a route template. It does not send exception text, stack traces, query strings, chat, answers or participant identifiers, and it does not queue reports offline. Server error records use opaque request references. Hosting logs and retention still require operational review.</p>
           <p>
             Application support and inquiry endpoints do not log message bodies
             or raw provider errors. Hosting/proxy/APM services may record

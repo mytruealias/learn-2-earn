@@ -1,7 +1,11 @@
+import { readRequestJson } from "./reliability/read-json";
 import { ScopeError } from "./scope-error";
 import { NextResponse } from "next/server";
 import { z, type ZodTypeAny } from "zod";
-import crypto from "crypto";
+import { headers as requestHeaders } from "next/headers";
+import { REQUEST_ID_HEADER, requestIdFrom } from "./reliability/correlation";
+import { operationalEvent } from "./reliability/events";
+import { RateStoreUnavailable } from "./reliability/rate-limit";
 
 /**
  * Standard error envelope used by every API route in the project:
@@ -64,24 +68,35 @@ export function apiOk<T extends Record<string, unknown>>(
 }
 
 /**
- * Generic 500 handler. Logs the real error server-side and returns a safe,
+ * Generic failure handler. Logs only allowlisted metadata and returns a safe,
  * generic message + a short request ID the user can quote in support.
  */
-export function apiServerError(label: string, error: unknown): NextResponse {
+export async function apiServerError(label: string, error: unknown): Promise<NextResponse> {
   if (error instanceof ScopeError)
     return apiError(
       error.status === 404 ? "not_found" : "forbidden",
       error.message,
       error.status,
     );
-  const requestId = crypto.randomBytes(6).toString("hex");
-  console.error(`[${label}] requestId=${requestId} operation failed`);
+  const requestId = await failureReference(label);
+  if (error instanceof RateStoreUnavailable) return apiError("service_unavailable", "The shared access service is unavailable. No access or save is confirmed. Try again later.", 503, { requestId, headers: { [REQUEST_ID_HEADER]: requestId, "Cache-Control": "private, no-store", "Retry-After": "30" } });
   return apiError(
     "internal_error",
     "Something went wrong on our side. Please try again in a moment.",
     500,
-    { requestId },
+    { requestId, headers: { [REQUEST_ID_HEADER]: requestId, "Cache-Control": "private, no-store" } },
   );
+}
+
+/** One opaque reference across API responses and the server operational channel. */
+export async function failureReference(label: string) {
+  let incoming: string | null = null;
+  try { incoming = (await requestHeaders()).get(REQUEST_ID_HEADER); } catch { /* Direct contracts have no request context. */ }
+  return operationalEvent("api_failure", requestIdFrom(incoming), label);
+}
+export async function apiUnavailable(label: string, message: string) {
+  const requestId = await failureReference(label);
+  return apiError("service_unavailable", message, 503, { requestId, headers: { [REQUEST_ID_HEADER]: requestId, "Cache-Control": "private, no-store", "Retry-After": "30" } });
 }
 
 /**
@@ -94,19 +109,9 @@ export async function parseJson<S extends ZodTypeAny>(
 ): Promise<
   { ok: true; data: z.infer<S> } | { ok: false; response: NextResponse }
 > {
-  let raw: unknown;
-  try {
-    raw = await req.json();
-  } catch {
-    return {
-      ok: false,
-      response: apiError(
-        "invalid_json",
-        "Request body must be valid JSON.",
-        400,
-      ),
-    };
-  }
+  const body = await readRequestJson(req, 65536, false);
+  if (!body.ok) return { ok: false, response: apiError(body.error.code, body.error.message, body.error.status) };
+  const raw = body.data;
 
   const parsed = schema.safeParse(raw);
   if (!parsed.success) {
@@ -193,109 +198,6 @@ export function getClientIp(req: Request): string {
   const realIp = req.headers.get("x-real-ip");
   if (realIp) return realIp.trim();
   return "unknown";
-}
-
-interface RateBucket {
-  count: number;
-  resetAt: number;
-}
-
-export interface RateLimiter {
-  check(key: string): { allowed: boolean; retryAfterSec: number };
-  record(key: string): void;
-  reset(key: string): void;
-}
-
-/**
- * Simple in-memory sliding-window rate limiter. Suitable for single-instance
- * deploys. Each call site owns its own bucket map so limits don't collide.
- */
-export function createRateLimiter({
-  max,
-  windowMs,
-}: {
-  max: number;
-  windowMs: number;
-}): RateLimiter {
-  const buckets = new Map<string, RateBucket>();
-
-  return {
-    check(key) {
-      const now = Date.now();
-      const entry = buckets.get(key);
-      if (!entry || now > entry.resetAt)
-        return { allowed: true, retryAfterSec: 0 };
-      if (entry.count >= max) {
-        return {
-          allowed: false,
-          retryAfterSec: Math.max(1, Math.ceil((entry.resetAt - now) / 1000)),
-        };
-      }
-      return { allowed: true, retryAfterSec: 0 };
-    },
-    record(key) {
-      const now = Date.now();
-      const entry = buckets.get(key);
-      if (!entry || now > entry.resetAt) {
-        buckets.set(key, { count: 1, resetAt: now + windowMs });
-        return;
-      }
-      entry.count++;
-    },
-    reset(key) {
-      buckets.delete(key);
-    },
-  };
-}
-
-export interface UsageQuota {
-  check(
-    key: string,
-    amount: number,
-  ): { allowed: boolean; retryAfterSec: number; remaining: number };
-  record(key: string, amount: number): void;
-}
-
-/**
- * In-memory per-key usage quota that resets on a fixed window (e.g. 24h).
- * Tracks a numeric total (characters, tokens, bytes) rather than request count.
- */
-export function createUsageQuota({
-  max,
-  windowMs,
-}: {
-  max: number;
-  windowMs: number;
-}): UsageQuota {
-  const buckets = new Map<string, { used: number; resetAt: number }>();
-
-  return {
-    check(key, amount) {
-      const now = Date.now();
-      const entry = buckets.get(key);
-      if (!entry || now > entry.resetAt) {
-        return { allowed: amount <= max, retryAfterSec: 0, remaining: max };
-      }
-      const remaining = Math.max(0, max - entry.used);
-      if (entry.used + amount > max) {
-        return {
-          allowed: false,
-          retryAfterSec: Math.max(1, Math.ceil((entry.resetAt - now) / 1000)),
-          remaining,
-        };
-      }
-      return { allowed: true, retryAfterSec: 0, remaining };
-    },
-    record(key, amount) {
-      const now = Date.now();
-      const entry = buckets.get(key);
-      if (!entry || now > entry.resetAt) {
-        buckets.set(key, { used: amount, resetAt: now + windowMs });
-        return;
-      }
-      entry.used += amount;
-    },
-  };
 }
 
 export function rateLimitResponse(

@@ -145,7 +145,7 @@ export default function Page({
     }
   }
   if (!data)
-    return error ? (
+    return <section className={styles.page} data-design="staff"><h1>Participant detail</h1>{error ? (
       <ErrorState
         onRetry={() => {
           setError("");
@@ -156,7 +156,7 @@ export default function Page({
       </ErrorState>
     ) : (
       <Skeleton label="Loading participant detail…" />
-    );
+    )}</section>;
   const finance = admin?.role === "finance",
     canCorrect = admin?.role !== "caseworker";
   const trail = [

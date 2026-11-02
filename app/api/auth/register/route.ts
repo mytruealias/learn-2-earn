@@ -1,3 +1,5 @@
+import { RateStoreUnavailable } from "@/lib/reliability/rate-limit";
+import { consumeRateLimit } from "@/lib/reliability/rate-limit";
 import { enrollFromInvitation } from "@/lib/program-enrollment";
 import { newRewardRelations } from "@/lib/rewards/new-account";
 import { registrationSchema } from "@/lib/learner-auth-schema";
@@ -18,17 +20,15 @@ import {
   apiServerError,
   parseJson,
   getClientIp,
-  createRateLimiter,
   rateLimitResponse,
 } from "@/lib/api-helpers";
-const signupLimiter = createRateLimiter({ max: 8, windowMs: 60 * 60 * 1000 });
 const Schema = registrationSchema;
 export async function POST(req: Request) {
   try {
     const origin = sameOriginError(req);
     if (origin) return origin;
     const ip = getClientIp(req),
-      gate = signupLimiter.check(ip);
+      gate = await consumeRateLimit("registration", ip, 8, 60 * 60 * 1000);
     if (!gate.allowed)
       return rateLimitResponse(
         gate.retryAfterSec,
@@ -49,7 +49,7 @@ export async function POST(req: Request) {
         "Enter your program access code before creating an account.",
         403,
       );
-    signupLimiter.record(ip);
+
     const { email, password, fullName } = parsed.data;
     const passwordHash = await bcrypt.hash(password, 10);
     const result = await prisma.$transaction(async (tx) => {
@@ -129,6 +129,7 @@ export async function POST(req: Request) {
     setDemoAccessCookie(res);
     return res;
   } catch (error) {
+    if (error instanceof RateStoreUnavailable) return apiServerError("auth/register", error);
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
       error.code === "P2002"

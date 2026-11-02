@@ -1,3 +1,4 @@
+import { syntheticCityAccess } from "./helpers/public-city";
 import { test, expect, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
@@ -107,6 +108,10 @@ for (const width of [360, 390, 768, 1440])
     await page
       .getByRole("button", { name: "Unlock deck", exact: true })
       .click();
+    await expect(page.locator("main").getByRole("alert")).toContainText("shared access service is unavailable");
+    // Public-only environment has no database: signed fictional presentation fixture, not a passed PIN save.
+    await syntheticCityAccess(page.context(), "austin");
+    await page.goto("/austin");
     await expect(page).toHaveURL(/\/austin$/);
     await expect(page.getByRole("heading", { level: 1 })).toContainText(
       "A supported-learning pilot",
@@ -328,7 +333,8 @@ test("all city decks remain gated, have noindex and produce readable print docum
           data: { pin: slug === "austin" ? "1234" : "9999" },
         })
       ).ok(),
-    ).toBe(true);
+    ).toBe(false);
+    await syntheticCityAccess(page.context(), slug);
     await page.goto(`/${slug}`);
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
       "content",

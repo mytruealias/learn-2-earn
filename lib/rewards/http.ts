@@ -1,6 +1,6 @@
 import { z } from "zod";
 import prisma from "../prisma";
-import { apiError, apiOk, parseJson } from "../api-helpers";
+import { apiError, apiOk, parseJson, apiUnavailable } from "../api-helpers";
 import { getUserIdFromRequest, sameOriginError } from "../user-session";
 import { scopedDb, ScopeError } from "../program-scope";
 import type { ScopedAdmin } from "../admin-auth";
@@ -15,13 +15,9 @@ export function rewardError(error: unknown) {
     );
   if (error instanceof RewardIssue)
     return apiError(error.code, error.message, error.status);
-  console.error(
-    "[rewards] Operation failed; no partial financial write committed.",
-  );
-  return apiError(
-    "service_unavailable",
+  return apiUnavailable(
+    "rewards",
     "This operation could not be confirmed. Retry with the same request; do not send another payment.",
-    503,
   );
 }
 export async function learnerWrite<S extends z.ZodTypeAny>(

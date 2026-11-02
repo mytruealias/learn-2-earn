@@ -1,4 +1,5 @@
 "use client";
+import { clientFetch } from "@/lib/reliability/client-fetch";
 import { useEffect, useState } from "react";
 import {
   Alert,
@@ -26,7 +27,7 @@ export default function Practice() {
   useEffect(() => {
     let active = true;
     setState("loading");
-    fetch("/api/practice", {
+    clientFetch("/api/practice", {
       cache: "no-store",
       signal: AbortSignal.timeout(20000),
     })
@@ -52,7 +53,7 @@ export default function Practice() {
     setError("");
     setMessage("");
     try {
-      const r = await fetch("/api/user/learning-plan", {
+      const r = await clientFetch("/api/user/learning-plan", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type: "timezone", zone }),

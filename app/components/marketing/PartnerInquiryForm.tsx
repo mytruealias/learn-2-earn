@@ -1,4 +1,5 @@
 "use client";
+import { clientFetch } from "@/lib/reliability/client-fetch";
 import { useEffect, useRef, useState } from "react";
 import { Alert, Button } from "../ui";
 import type { InquiryReceipt } from "@/lib/marketing/inquiries";
@@ -40,7 +41,7 @@ export default function PartnerInquiryForm() {
     const city = new URLSearchParams(location.search).get("city");
     if (city && /^[a-z-]{1,50}$/.test(city))
       setForm((f) => ({ ...f, region: city }));
-    fetch("/api/partner-inquiries", { cache: "no-store", signal: c.signal })
+    clientFetch("/api/partner-inquiries", { cache: "no-store", signal: c.signal })
       .then(async (r) => {
         if (!r.ok) throw new Error();
         setConfig(await r.json());
@@ -70,7 +71,7 @@ export default function PartnerInquiryForm() {
     const body = intent.current || { ...form, requestKey, consent: true };
     intent.current = body;
     try {
-      const r = await fetch("/api/partner-inquiries", {
+      const r = await clientFetch("/api/partner-inquiries", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(body),

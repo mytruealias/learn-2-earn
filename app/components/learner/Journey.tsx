@@ -1,4 +1,5 @@
 "use client";
+import { clientFetch } from "@/lib/reliability/client-fetch";
 import { useRef, useState, useEffect, type FormEvent } from "react";
 import Link from "next/link";
 import { Alert, Button, ButtonLink, Card, Dialog, Field } from "../ui";
@@ -73,7 +74,7 @@ export default function Journey({
     setError("");
     setFields({});
     try {
-      const response = await fetch(path, {
+      const response = await clientFetch(path, {
         method,
         credentials: "same-origin",
         headers: { "Content-Type": "application/json" },

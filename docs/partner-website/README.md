@@ -2,6 +2,8 @@
 
 Implemented 2026-11-01 (America/Chicago) on `feat/partner-website`, from `af9db34`. [Claims inventory](claims.md) was written before editing. [Verification](verification.md), [exact changed-file index](files.md), and [before/after evidence](screenshots/README.md) distinguish source implementation, browser evidence and remaining release checks. This is a local implementation, not a verified production rollout.
 
+The [2026-11-02 cross-route checkpoint](../accessibility-reliability/README.md) adds shared PostgreSQL PIN admission, so the public-only browser suite now explicitly tests store-unavailable feedback and uses signed synthetic presentation cookies for deck rendering. Its successful PIN/database path must pass the guarded native API suite before release. The earlier actual PIN evidence remains historical for its source version, not a new shared-store pass. Current text-zoom/footer/readable-choice fixes and privacy diagnostics wording are recorded in that checkpoint.
+
 ## Partner decisions and design
 
 The homepage leads with supported adult learning and program oversight. One primary action opens the pilot inquiry section; Learner sign in remains a separate destination. Editorial sections explain enrollment → learning → incentive review → oversight, then the learner interaction, staff workflow, curriculum, accountability, proposed pilot process and FAQ. Warm off-white, deep ink, teal and small amber details use the established semantic tokens, Inter/system sans, rounded controls and existing Button/Dialog/Alert primitives. Marketing CSS is scoped to the marketing shell; no second styling system, decorative gradient wall or new animation dependency was added.

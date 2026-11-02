@@ -1,4 +1,5 @@
 "use client";
+import { clientFetch } from "@/lib/reliability/client-fetch";
 import Link from "next/link";
 import { useState, useRef, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -26,7 +27,7 @@ function Form({ slug, basePath, badge, sub }: Omit<Props, "theme">) {
     setBusy(true);
     setError("");
     try {
-      const r = await fetch(`/api/city-access/${slug}`, {
+      const r = await clientFetch(`/api/city-access/${slug}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ pin: pin.trim() }),

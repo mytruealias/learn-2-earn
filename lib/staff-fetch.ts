@@ -1,4 +1,5 @@
 "use client";
+import { clientFetch } from "./reliability/client-fetch";
 let memoryScope: string | null = null;
 export function setStaffProgramHint(programId: string | null) {
   memoryScope = programId;
@@ -19,7 +20,7 @@ export function staffFetch(input: RequestInfo | URL, init: RequestInit = {}) {
     /* Storage is optional. */
   }
   if (programId) headers.set("x-l2e-program", programId);
-  return fetch(input, {
+  return clientFetch(input, {
     ...init,
     headers,
     credentials: "include",

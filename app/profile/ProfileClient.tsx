@@ -1,11 +1,13 @@
 "use client";
+import { clientFetch } from "@/lib/reliability/client-fetch";
 import Rewards from "./Rewards";
 import { usd } from "@/lib/rewards/money";
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ButtonLink, ErrorState } from "../components/ui";
+import styles from "./profile.module.css";
+import { Button, ButtonLink, ErrorState, Skeleton } from "../components/ui";
 import HelpButton from "../components/HelpButton";
 import {
   StarIcon,
@@ -107,9 +109,9 @@ const BADGE_HOW_TO: Record<string, string> = {
   first_path: "Complete every single lesson in one full learning path.",
   paths_2: "Finish all lessons in 2 different learning paths.",
   paths_3: "Master 3 complete learning paths from start to finish.",
-  perfect_lesson: "Complete any lesson without losing a single heart.",
-  perfect_3: "Achieve 3 perfectly completed lessons, no hearts lost.",
-  perfect_5: "Go flawless on 5 different lessons, no hearts lost.",
+  perfect_lesson: "Complete a lesson with every question correct on the first try.",
+  perfect_3: "Earn a perfect first completion on three lessons.",
+  perfect_5: "Earn a perfect first completion on five lessons.",
 };
 
 export default function ProfileClient({
@@ -146,7 +148,7 @@ export default function ProfileClient({
   const loadProfile = useCallback(async () => {
     setProfileError("");
     try {
-      const res = await fetch("/api/auth/session", {
+      const res = await clientFetch("/api/auth/session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: "{}",
@@ -191,7 +193,7 @@ export default function ProfileClient({
     setSaving(true);
     setSaveMsg("");
     try {
-      const res = await fetch("/api/user/profile", {
+      const res = await clientFetch("/api/user/profile", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(editForm),
@@ -201,7 +203,7 @@ export default function ProfileClient({
       setUser((prev) => (prev ? { ...prev, ...data.user } : prev));
       setEditing(false);
       setSaveMsg("Saved!");
-      setTimeout(() => setSaveMsg(""), 3000);
+
     } catch (err: unknown) {
       setSaveMsg(err instanceof Error ? err.message : "Something went wrong");
     } finally {
@@ -210,32 +212,16 @@ export default function ProfileClient({
   };
 
   if (loading) {
-    return (
-      <div
-        className="grid-bg"
-        style={{
-          minHeight: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <div
-          style={{
-            color: "var(--accent-green)",
-            fontSize: "1rem",
-            fontWeight: "600",
-          }}
-        >
-          Loading profile...
-        </div>
-      </div>
-    );
+    return <main data-design="profile" className={styles.profile} style={{ padding: "2rem 1rem" }}>
+      <h1>Your profile</h1>
+      <Skeleton label="Loading your profile" />
+    </main>;
   }
 
   if (profileError)
     return (
       <main style={{ padding: "2rem" }}>
+        <h1>Your profile could not load</h1>
         <ErrorState onRetry={() => void loadProfile()}>
           {profileError}
         </ErrorState>
@@ -245,8 +231,9 @@ export default function ProfileClient({
 
   if (tab === "earnings") return <main><Rewards /></main>;
   return (
-    <div
-      className="grid-bg"
+    <main
+      data-design="profile"
+      className={styles.profile}
       style={{ minHeight: "100vh", padding: "0 0 6rem 0" }}
     >
       <header
@@ -424,6 +411,7 @@ export default function ProfileClient({
               return (
                 <button
                   key={t}
+                  aria-pressed={active}
                   onClick={() => {
                     setTab(t);
                     router.replace(
@@ -851,6 +839,7 @@ export default function ProfileClient({
                               return (
                                 <div key={badge.id}>
                                   <button
+                                    aria-expanded={isOpen}
                                     onClick={() =>
                                       setSelectedBadge(isOpen ? null : badge.id)
                                     }
@@ -1093,6 +1082,7 @@ export default function ProfileClient({
                 >
                   {saveMsg && (
                     <span
+                      role={saveMsg === "Saved!" ? "status" : "alert"}
                       style={{
                         fontSize: "0.75rem",
                         color:
@@ -1124,23 +1114,7 @@ export default function ProfileClient({
                   >
                     Cancel
                   </button>
-                  <button
-                    onClick={saveProfile}
-                    disabled={saving}
-                    style={{
-                      background: "var(--accent-green)",
-                      border: "none",
-                      color: "#000",
-                      borderRadius: "8px",
-                      padding: "0.3rem 0.85rem",
-                      fontSize: "0.75rem",
-                      fontWeight: "700",
-                      cursor: saving ? "not-allowed" : "pointer",
-                      opacity: saving ? 0.7 : 1,
-                    }}
-                  >
-                    {saving ? "Saving…" : "Save"}
-                  </button>
+                  <Button onClick={saveProfile} busy={saving} disabledReason="Waiting for the profile save response. Please wait.">{saving ? "Saving…" : "Save"}</Button>
                 </div>
               )}
             </div>
@@ -1228,6 +1202,7 @@ export default function ProfileClient({
               return (
                 <div
                   key={field.key}
+                  data-profile-field
                   style={{
                     backgroundColor: editing
                       ? "rgba(59,158,255,0.04)"
@@ -1293,7 +1268,7 @@ export default function ProfileClient({
             })}
 
             {!editing && saveMsg === "Saved!" && (
-              <div
+              <div role="status"
                 style={{
                   textAlign: "center",
                   color: "var(--accent-green)",
@@ -1310,6 +1285,6 @@ export default function ProfileClient({
       </div>
 
       <HelpButton />
-    </div>
+    </main>
   );
 }

@@ -1,3 +1,4 @@
+import { readRequestJson } from "@/lib/reliability/read-json";
 import { rewardSummary } from "@/lib/rewards/accounting";
 import { z } from "zod";
 import prisma from "@/lib/prisma";
@@ -196,14 +197,12 @@ export async function POST(req: Request) {
     }
 
     let bodyUserId: string | undefined;
-    try {
-      const raw = await req.text();
-      if (raw && raw.trim()) {
-        const parsed = Schema.safeParse(JSON.parse(raw));
-        if (parsed.success) bodyUserId = parsed.data.userId;
-      }
-    } catch {
-      // ignore — body was missing or malformed
+    if (req.body) {
+      const raw = await readRequestJson(req, 4096, false);
+      if (!raw.ok) return apiError(raw.error.code, raw.error.message, raw.error.status);
+      const parsed = Schema.safeParse(raw.data);
+      if (!parsed.success) return apiError("validation_error", "Check the requested profile fields.", 400);
+      bodyUserId = parsed.data.userId;
     }
 
     if (bodyUserId && sessionUserId !== bodyUserId) {

@@ -47,6 +47,7 @@
   accent-color: var(--l2e-primary);
 }
 .card {
+  container-type: inline-size;
   display: grid;
   gap: 1.25rem;
   padding: clamp(1.25rem, 4vw, 2.5rem);
@@ -180,3 +181,9 @@
 .header { flex-wrap: wrap; }
 .header > span, .header > a { flex-shrink: 0; max-width: 100%; }
 .page :is(button, a, input, textarea, summary) { scroll-margin-block: 2rem calc(var(--lesson-actions-height, 8rem) + 2rem); }
+
+/* Text zoom must preserve a usable text column, not just suppress overflow. */
+.choice > span { min-width: 0; }
+@container (max-width: 16rem) {
+  .choice { display: grid; grid-template-columns: minmax(0, 1fr); justify-items: start; gap: .5rem; padding: .5rem; }
+}

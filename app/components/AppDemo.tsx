@@ -113,7 +113,7 @@ export default function AppDemo() {
               value={index + 1}
             />
           </div>
-          <div ref={focus} className={lessonStyles.card}>
+          <div ref={focus} className={lessonStyles.card} data-sample-cards>
             <CardRenderer
               key={card.public.id}
               card={card.public}

@@ -1,22 +1,17 @@
 "use client";
+import { clientFetch } from "@/lib/reliability/client-fetch";
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BookIcon, CheckCircleIcon } from "../icons";
 import { Alert, Button } from "../ui";
-import {
-  availableLessons,
-  pathProgress,
-  type LearningPath,
-} from "@/lib/learning-progression";
+import type { PathSummary } from "@/lib/path-summary";
 import styles from "./home.module.css";
 export default function PathExplorer({
   paths,
-  completedIds,
   initialSelected,
 }: {
-  paths: LearningPath[];
-  completedIds: string[];
+  paths: PathSummary[];
   initialSelected: string[];
 }) {
   const router = useRouter(),
@@ -24,15 +19,14 @@ export default function PathExplorer({
     [pending, setPending] = useState<string | null>(null),
     [error, setError] = useState(""),
     [message, setMessage] = useState("");
-  const completed = new Set(completedIds);
-  async function choose(path: LearningPath) {
+  async function choose(path: PathSummary) {
     if (pending) return;
     setPending(path.id);
     setError("");
     setMessage("");
     const keep = !selected.includes(path.id);
     try {
-      const response = await fetch("/api/user/learning-plan", {
+      const response = await clientFetch("/api/user/learning-plan", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         signal: AbortSignal.timeout(20000),
@@ -91,11 +85,7 @@ export default function PathExplorer({
         {message && <Alert tone="success">{message}</Alert>}
         <ul className={styles.paths}>
           {paths.map((path) => {
-            const progress = pathProgress(path, completed),
-              minutes = availableLessons(path).reduce(
-                (s, l) => s + Math.max(0, l.estimatedMinutes),
-                0,
-              );
+            const { progress, minutes } = path;
             return (
               <li key={path.id} className={styles.pathCard}>
                 <Link href={`/paths/${path.slug}`} className={styles.path}>
@@ -107,8 +97,8 @@ export default function PathExplorer({
                     <p>{path.description}</p>
                     <div className={styles.counts}>
                       <span>
-                        {path.modules.length}{" "}
-                        {path.modules.length === 1 ? "unit" : "units"}
+                        {path.units}{" "}
+                        {path.units === 1 ? "unit" : "units"}
                       </span>
                       <span>
                         {progress.total

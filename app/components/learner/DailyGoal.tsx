@@ -1,4 +1,5 @@
 "use client";
+import { clientFetch } from "@/lib/reliability/client-fetch";
 import { useEffect, useState } from "react";
 import {
   Alert,
@@ -30,7 +31,7 @@ export default function DailyGoal({
   useEffect(() => {
     let active = true;
     setState("loading");
-    fetch("/api/user/learning-plan", {
+    clientFetch("/api/user/learning-plan", {
       cache: "no-store",
       signal: AbortSignal.timeout(20000),
     })
@@ -54,7 +55,7 @@ export default function DailyGoal({
     setError("");
     setMessage("");
     try {
-      const response = await fetch("/api/user/learning-plan", {
+      const response = await clientFetch("/api/user/learning-plan", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         signal: AbortSignal.timeout(20000),

@@ -149,10 +149,14 @@ export default function AdminLayout({
       if (data.authenticated) {
         setStaffProgramHint(data.admin.programId);
         setAdmin(data.admin);
-      } else if (!isLoginPage) {
+      } else {
+        setAdmin(null);
+        setStaffProgramHint(null);
+        if (!isLoginPage) {
         router.push(
           data.nextStep === "program" ? "/admin/programs" : "/admin/login",
         );
+        }
       }
     } catch {
       setSessionError(
@@ -164,6 +168,12 @@ export default function AdminLayout({
   }, [isLoginPage, router]);
   useEffect(() => {
     void checkSession();
+  }, [checkSession]);
+  useEffect(() => {
+    const recheck = () => { if (!document.hidden) void checkSession(); };
+    const restored = (event: PageTransitionEvent) => { if (event.persisted) recheck(); };
+    window.addEventListener("pageshow", restored);
+    return () => { window.removeEventListener("pageshow", restored); };
   }, [checkSession]);
 
   useEffect(() => {
@@ -199,17 +209,18 @@ export default function AdminLayout({
   };
 
   if (loading) {
-    return <div className={styles.loadingScreen}>Loading...</div>;
+    return <main className={styles.loadingScreen} data-design="staff"><h1>Checking your staff session</h1><p role="status">Please wait. Program records stay hidden until the check succeeds.</p></main>;
   }
 
   if (sessionError)
     return (
-      <div className={styles.loadingScreen} data-design="staff">
+      <main className={styles.loadingScreen} data-design="staff">
+        <h1>Staff access could not be checked</h1>
         <ErrorState onRetry={() => void checkSession()}>
           {sessionError}
         </ErrorState>
         {admin && <Button onClick={logout}>Retry sign out</Button>}
-      </div>
+      </main>
     );
 
   if (isLoginPage) {

@@ -8,7 +8,7 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 35
     services:
       postgres:
         image: postgres:17
@@ -41,3 +41,10 @@ jobs:
       # Each suite gets a fresh DB + restricted role; scripts run sequentially.
       - run: npm test
       - run: npm run typecheck
+      - run: npm run test:performance
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: synthetic-production-lab
+          path: docs/accessibility-reliability/lab/production-lab.json
+          if-no-files-found: ignore

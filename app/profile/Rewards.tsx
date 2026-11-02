@@ -1,4 +1,5 @@
 "use client";
+import { clientFetch } from "@/lib/reliability/client-fetch";
 import { useEffect, useRef, useState } from "react";
 import {
   Alert,
@@ -38,7 +39,7 @@ export default function Rewards() {
     setLoading(true);
     setError("");
     try {
-      const r = await fetch("/api/rewards", {
+      const r = await clientFetch("/api/rewards", {
         cache: "no-store",
         signal: AbortSignal.timeout(20000),
       });
@@ -96,7 +97,7 @@ export default function Rewards() {
           },
         };
       }
-      const r = await fetch("/api/payout/request", {
+      const r = await clientFetch("/api/payout/request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -146,7 +147,7 @@ export default function Rewards() {
     setError("");
     try {
       cancelIntent.current ||= crypto.randomUUID();
-      const r = await fetch("/api/payout/cancel", {
+      const r = await clientFetch("/api/payout/cancel", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

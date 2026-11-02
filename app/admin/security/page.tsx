@@ -15,19 +15,20 @@ export default function Page() {
     [code, setCode] = useState(""),
     [codes, setCodes] = useState<string[]>([]),
     [message, setMessage] = useState(""),
+    [failed, setFailed] = useState(false),
     [busy, setBusy] = useState(false);
   async function load() {
+    setFailed(false);
     const r = await staffFetch("/api/admin/security");
     if (r.ok) setData(await r.json());
-    else setMessage("Sign in again to manage security.");
+    else { setFailed(true); setMessage("Security status could not be checked. Retry when connected, or sign in again if your session ended."); }
   }
   useEffect(() => {
-    load().catch(() =>
-      setMessage("Security status could not be loaded. Retry this page."),
-    );
+    load().catch(() => { setFailed(true); setMessage("Security status could not be loaded. Retry this page."); });
   }, []);
   async function act(regenerate: boolean) {
     setBusy(true);
+    setFailed(false);
     setMessage("");
     try {
       const r = await staffFetch(
@@ -56,6 +57,7 @@ export default function Page() {
       );
       await load();
     } catch (e) {
+      setFailed(true);
       setMessage(
         e instanceof Error
           ? e.message
@@ -80,10 +82,10 @@ export default function Page() {
             {data.recoveryCodesRemaining} unused recovery codes.{" "}
             {data.otherSessions} other unexpired sessions.
           </p>
-        ) : (
+        ) : !message ? (
           <p role="status">Loading security status…</p>
-        )}
-        {message && <p role="status">{message}</p>}
+        ) : null}
+        {message && <p role={failed ? "alert" : "status"}>{message}</p>}
         <Button disabled={busy || !data} onClick={() => act(false)}>
           Sign out other staff sessions
         </Button>

@@ -2,13 +2,22 @@ import prisma from "../prisma";
 import { activeLessonWhere } from "../learning-data";
 import { learningZone, nextReview, readIds } from "./rules";
 export async function practiceData(userId: string) {
-  const [user, lessons, progress, reviews, attempts] = await Promise.all([
+  const [user, progress, reviews, attempts] = await Promise.all([
     prisma.user.findUniqueOrThrow({
       where: { id: userId },
       select: { learningTimezone: true, streak: true, earnedBadges: true },
     }),
-    prisma.lesson.findMany({
-      where: { ...activeLessonWhere, cards: { some: {} } },
+    prisma.progress.findMany({
+      where: { userId },
+      select: { lessonId: true, completedAt: true, missedCardIds: true },
+    }),
+    prisma.lessonReview.findMany({ where: { userId } }),
+    prisma.lessonAttempt.count({
+      where: { userId, mode: "practice", completedAt: { not: null } },
+    }),
+  ]);
+  const lessons = await prisma.lesson.findMany({
+      where: { ...activeLessonWhere, id: { in: [...new Set([...progress.map(p => p.lessonId), ...reviews.map(r => r.lessonId)])] }, cards: { some: {} } },
       orderBy: [
         { module: { path: { order: "asc" } } },
         { module: { order: "asc" } },
@@ -23,20 +32,13 @@ export async function practiceData(userId: string) {
         },
         cards: { select: { id: true, type: true, prompt: true } },
       },
-    }),
-    prisma.progress.findMany({
-      where: { userId },
-      select: { lessonId: true, completedAt: true, missedCardIds: true },
-    }),
-    prisma.lessonReview.findMany({ where: { userId } }),
-    prisma.lessonAttempt.count({
-      where: { userId, mode: "practice", completedAt: { not: null } },
-    }),
-  ]);
+    });
+  const progressByLesson = new Map(progress.map(p => [p.lessonId, p]));
+  const reviewByLesson = new Map(reviews.map(r => [r.lessonId, r]));
   const now = new Date();
   const items = lessons.flatMap((l) => {
-    const saved = progress.find((p) => p.lessonId === l.id),
-      review = reviews.find((r) => r.lessonId === l.id);
+    const saved = progressByLesson.get(l.id),
+      review = reviewByLesson.get(l.id);
     if (!saved && !review) return [];
     const questionIds = new Set(
       l.cards

@@ -1,3 +1,4 @@
+import { summarizePath } from "@/lib/path-summary";
 import prisma from "@/lib/prisma";
 import { requireLearner } from "@/lib/learner-server";
 import { publishedPaths } from "@/lib/learning-data";
@@ -111,8 +112,7 @@ export default async function AppHome() {
       )}
       {paths.length ? (
         <PathExplorer
-          paths={paths}
-          completedIds={[...done]}
+          paths={paths.map(path => summarizePath(path, done))}
           initialSelected={selected}
         />
       ) : (

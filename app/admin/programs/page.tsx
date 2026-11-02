@@ -1,4 +1,5 @@
 "use client";
+import { Button } from "@/app/components/ui";
 import { useEffect, useState } from "react";
 import { staffFetch, setStaffProgramHint } from "@/lib/staff-fetch";
 import styles from "../login.module.css";
@@ -92,16 +93,16 @@ export default function Page() {
             </button>
           </section>
         ))}
-        <button
-          className={styles.textBtn}
-          onClick={async () => {
-            await staffFetch("/api/admin/session", { method: "DELETE" });
-            setStaffProgramHint(null);
-            window.location.href = "/admin/login";
-          }}
-        >
-          Sign out
-        </button>
+        <Button variant="quiet" busy={busy} disabledReason="Waiting for the server response. Please wait." onClick={async () => {
+          if (busy) return;
+          setBusy(true); setError("");
+          try {
+            const response = await staffFetch("/api/admin/session", { method: "DELETE" });
+            if (!response.ok) throw new Error();
+            setStaffProgramHint(null); window.location.href = "/admin/login";
+          } catch { setError("Sign out could not be confirmed. Retry before leaving this shared device."); }
+          finally { setBusy(false); }
+        }}>Sign out</Button>
       </main>
     </div>
   );

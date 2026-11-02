@@ -31,6 +31,7 @@ export default defineConfig({
       NEXT_DIST_DIR: ".next-marketing-tests",
       NEXT_TELEMETRY_DISABLED: "1",
       ROOT_DOMAIN: "",
+      OPERATIONAL_TELEMETRY_ENABLED: "",
       NEXT_PUBLIC_SITE_URL: "https://learn2earn.example",
       SESSION_SECRET: "synthetic-public-browser-session-not-production",
       AUSTIN_ACCESS_PIN: "1234",

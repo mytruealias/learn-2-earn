@@ -697,3 +697,10 @@ model PartnerInquiryRate {
   windowAt DateTime
   count Int
 }
+
+// Shared fixed-window admission limits; hashed identities only, no request/learner payloads.
+model HttpRateLimit {
+  key String @id
+  count Int
+  resetAt DateTime
+}

@@ -1,4 +1,5 @@
 "use client";
+import { clientFetch } from "@/lib/reliability/client-fetch";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Alert, Button, ButtonLink, Card } from "../ui";
 import styles from "./support.module.css";
@@ -54,7 +55,7 @@ export default function ProgramHelpRequest() {
       const current = ++generation.current;
       setBusy(true);
       try {
-        const r = await fetch(
+        const r = await clientFetch(
             `/api/stress-signal?requestKey=${encodeURIComponent(k)}`,
             { credentials: "include", cache: "no-store" },
           ),
@@ -84,7 +85,7 @@ export default function ProgramHelpRequest() {
     mounted.current = true;
     const c = new AbortController(),
       lifecycle = generation;
-    fetch("/api/support", {
+    clientFetch("/api/support", {
       credentials: "include",
       cache: "no-store",
       signal: c.signal,
@@ -146,7 +147,7 @@ export default function ProgramHelpRequest() {
     };
     intent.current = body;
     try {
-      const r = await fetch("/api/stress-signal", {
+      const r = await clientFetch("/api/stress-signal", {
           method: "POST",
           credentials: "include",
           headers: { "Content-Type": "application/json" },

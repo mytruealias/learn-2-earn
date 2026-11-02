@@ -1,0 +1,1360 @@
+{
+  "date": "2026-11-02",
+  "base": "39c7e7c",
+  "scope": "Source inventory plus explicitly labeled current browser states, not WCAG or production certification",
+  "pages": [
+    {
+      "route": "/access",
+      "source": "app/access/page.tsx",
+      "group": "learner",
+      "access": "Server-authoritative learner/invitation/account state; no arbitrary client ID authority",
+      "currentVerification": "Infrastructure blocked: RSC entry/session/curriculum needs generated Prisma client; source states audited, full current UI not rerun",
+      "browserStates": [],
+      "remaining": [
+        "Native screen-reader speech and browser UI zoom/device spot checks",
+        "Complete real-session loading/empty/error/denied/success/interruption matrix where not already recorded"
+      ]
+    },
+    {
+      "route": "/admin/audit",
+      "source": "app/admin/audit/page.tsx",
+      "group": "staff",
+      "access": "Session/challenge for login/program/security; active membership/MFA and server role/program scope for records",
+      "currentVerification": "Actual client error-state rendering with synthetic API interception; real backend/loaded/empty/many/conflict workflow not rerun",
+      "browserStates": [
+        {
+          "width": 360,
+          "state": "synthetic-api-error"
+        }
+      ],
+      "remaining": [
+        "Native screen-reader speech and browser UI zoom/device spot checks",
+        "Complete real-session loading/empty/error/denied/success/interruption matrix where not already recorded"
+      ]
+    },
+    {
+      "route": "/admin/cases/[id]",
+      "source": "app/admin/cases/[id]/page.tsx",
+      "group": "staff",
+      "access": "Session/challenge for login/program/security; active membership/MFA and server role/program scope for records",
+      "currentVerification": "Actual client error-state rendering with synthetic API interception; real backend/loaded/empty/many/conflict workflow not rerun",
+      "browserStates": [
+        {
+          "width": 360,
+          "state": "synthetic-api-error"
+        }
+      ],
+      "remaining": [
+        "Native screen-reader speech and browser UI zoom/device spot checks",
+        "Complete real-session loading/empty/error/denied/success/interruption matrix where not already recorded"
+      ]
+    },
+    {
+      "route": "/admin/cases",
+      "source": "app/admin/cases/page.tsx",
+      "group": "staff",
+      "access": "Session/challenge for login/program/security; active membership/MFA and server role/program scope for records",
+      "currentVerification": "Actual client error-state rendering with synthetic API interception; real backend/loaded/empty/many/conflict workflow not rerun",
+      "browserStates": [
+        {
+          "width": 360,
+          "state": "synthetic-api-error"
+        }
+      ],
+      "remaining": [
+        "Native screen-reader speech and browser UI zoom/device spot checks",
+        "Complete real-session loading/empty/error/denied/success/interruption matrix where not already recorded"
+      ]
+    },
+    {
+      "route": "/admin/directory",
+      "source": "app/admin/directory/page.tsx",
+      "group": "staff",
+      "access": "Session/challenge for login/program/security; active membership/MFA and server role/program scope for records",
+      "currentVerification": "Actual client error-state rendering with synthetic API interception; real backend/loaded/empty/many/conflict workflow not rerun",
+      "browserStates": [
+        {
+          "width": 360,
+          "state": "synthetic-api-error"
+        }
+      ],
+      "remaining": [
+        "Native screen-reader speech and browser UI zoom/device spot checks",
+        "Complete real-session loading/empty/error/denied/success/interruption matrix where not already recorded"
+      ]
+    },
+    {
+      "route": "/admin/finance",
+      "source": "app/admin/finance/page.tsx",
+      "group": "staff",
+      "access": "Session/challenge for login/program/security; active membership/MFA and server role/program scope for records",
+      "currentVerification": "Infrastructure blocked: server session/finance rendering needs generated Prisma client",
+      "browserStates": [],
+      "remaining": [
+        "Native screen-reader speech and browser UI zoom/device spot checks",
+        "Complete real-session loading/empty/error/denied/success/interruption matrix where not already recorded"
+      ]
+    },
+    {
+      "route": "/admin/inquiries",
+      "source": "app/admin/inquiries/page.tsx",
+      "group": "staff",
+      "access": "Session/challenge for login/program/security; active membership/MFA and server role/program scope for records",
+      "currentVerification": "Actual client error-state rendering with synthetic API interception; real backend/loaded/empty/many/conflict workflow not rerun",
+      "browserStates": [
+        {
+          "width": 360,
+          "state": "synthetic-api-error"
+        }
+      ],
+      "remaining": [
+        "Native screen-reader speech and browser UI zoom/device spot checks",
+        "Complete real-session loading/empty/error/denied/success/interruption matrix where not already recorded"
+      ]
+    },
+    {
+      "route": "/admin/login",
+      "source": "app/admin/login/page.tsx",
+      "group": "staff",
+      "access": "Session/challenge for login/program/security; active membership/MFA and server role/program scope for records",
+      "currentVerification": "Actual client error-state rendering with synthetic API interception; real backend/loaded/empty/many/conflict workflow not rerun",
+      "browserStates": [
+        {
+          "width": 360,
+          "state": "sign-in"
+        }
+      ],
+      "remaining": [
+        "Native screen-reader speech and browser UI zoom/device spot checks",
+        "Complete real-session loading/empty/error/denied/success/interruption matrix where not already recorded"
+      ]
+    },
+    {
+      "route": "/admin",
+      "source": "app/admin/page.tsx",
+      "group": "staff",
+      "access": "Session/challenge for login/program/security; active membership/MFA and server role/program scope for records",
+      "currentVerification": "Actual client error-state rendering with synthetic API interception; real backend/loaded/empty/many/conflict workflow not rerun",
+      "browserStates": [
+        {
+          "width": 360,
+          "state": "synthetic-api-error"
+        }
+      ],
+      "remaining": [
+        "Native screen-reader speech and browser UI zoom/device spot checks",
+        "Complete real-session loading/empty/error/denied/success/interruption matrix where not already recorded"
+      ]
+    },
+    {
+      "route": "/admin/payouts",
+      "source": "app/admin/payouts/page.tsx",
+      "group": "staff",
+      "access": "Session/challenge for login/program/security; active membership/MFA and server role/program scope for records",
+      "currentVerification": "Actual client error-state rendering with synthetic API interception; real backend/loaded/empty/many/conflict workflow not rerun",
+      "browserStates": [
+        {
+          "width": 360,
+          "state": "synthetic-api-error"
+        }
+      ],
+      "remaining": [
+        "Native screen-reader speech and browser UI zoom/device spot checks",
+        "Complete real-session loading/empty/error/denied/success/interruption matrix where not already recorded"
+      ]
+    },
+    {
+      "route": "/admin/programs",
+      "source": "app/admin/programs/page.tsx",
+      "group": "staff",
+      "access": "Session/challenge for login/program/security; active membership/MFA and server role/program scope for records",
+      "currentVerification": "Actual client error-state rendering with synthetic API interception; real backend/loaded/empty/many/conflict workflow not rerun",
+      "browserStates": [
+        {
+          "width": 360,
+          "state": "memberships-unavailable"
+        }
+      ],
+      "remaining": [
+        "Native screen-reader speech and browser UI zoom/device spot checks",
+        "Complete real-session loading/empty/error/denied/success/interruption matrix where not already recorded"
+      ]
+    },
+    {
+      "route": "/admin/reports",
+      "source": "app/admin/reports/page.tsx",
+      "group": "staff",
+      "access": "Session/challenge for login/program/security; active membership/MFA and server role/program scope for records",
+      "currentVerification": "Actual client error-state rendering with synthetic API interception; real backend/loaded/empty/many/conflict workflow not rerun",
+      "browserStates": [
+        {
+          "width": 360,
+          "state": "synthetic-api-error"
+        }
+      ],
+      "remaining": [
+        "Native screen-reader speech and browser UI zoom/device spot checks",
+        "Complete real-session loading/empty/error/denied/success/interruption matrix where not already recorded"
+      ]
+    },
+    {
+      "route": "/admin/security",
+      "source": "app/admin/security/page.tsx",
+      "group": "staff",
+      "access": "Session/challenge for login/program/security; active membership/MFA and server role/program scope for records",
+      "currentVerification": "Actual client error-state rendering with synthetic API interception; real backend/loaded/empty/many/conflict workflow not rerun",
+      "browserStates": [
+        {
+          "width": 360,
+          "state": "synthetic-api-error"
+        }
+      ],
+      "remaining": [
+        "Native screen-reader speech and browser UI zoom/device spot checks",
+        "Complete real-session loading/empty/error/denied/success/interruption matrix where not already recorded"
+      ]
+    },
+    {
+      "route": "/admin/staff",
+      "source": "app/admin/staff/page.tsx",
+      "group": "staff",
+      "access": "Session/challenge for login/program/security; active membership/MFA and server role/program scope for records",
+      "currentVerification": "Actual client error-state rendering with synthetic API interception; real backend/loaded/empty/many/conflict workflow not rerun",
+      "browserStates": [
+        {
+          "width": 360,
+          "state": "synthetic-api-error"
+        }
+      ],
+      "remaining": [
+        "Native screen-reader speech and browser UI zoom/device spot checks",
+        "Complete real-session loading/empty/error/denied/success/interruption matrix where not already recorded"
+      ]
+    },
+    {
+      "route": "/admin/users/[userId]",
+      "source": "app/admin/users/[userId]/page.tsx",
+      "group": "staff",
+      "access": "Session/challenge for login/program/security; active membership/MFA and server role/program scope for records",
+      "currentVerification": "Actual client error-state rendering with synthetic API interception; real backend/loaded/empty/many/conflict workflow not rerun",
+      "browserStates": [
+        {
+          "width": 360,
+          "state": "synthetic-api-error"
+        }
+      ],
+      "remaining": [
+        "Native screen-reader speech and browser UI zoom/device spot checks",
+        "Complete real-session loading/empty/error/denied/success/interruption matrix where not already recorded"
+      ]
+    },
+    {
+      "route": "/admin/users",
+      "source": "app/admin/users/page.tsx",
+      "group": "staff",
+      "access": "Session/challenge for login/program/security; active membership/MFA and server role/program scope for records",
+      "currentVerification": "Actual client error-state rendering with synthetic API interception; real backend/loaded/empty/many/conflict workflow not rerun",
+      "browserStates": [
+        {
+          "width": 360,
+          "state": "synthetic-api-error"
+        },
+        {
+          "width": 1440,
+          "state": "session-unavailable"
+        }
+      ],
+      "remaining": [
+        "Native screen-reader speech and browser UI zoom/device spot checks",
+        "Complete real-session loading/empty/error/denied/success/interruption matrix where not already recorded"
+      ]
+    },
+    {
+      "route": "/app",
+      "source": "app/app/page.tsx",
+      "group": "learner",
+      "access": "Server-authoritative learner/invitation/account state; no arbitrary client ID authority",
+      "currentVerification": "Infrastructure blocked: RSC entry/session/curriculum needs generated Prisma client; source states audited, full current UI not rerun",
+      "browserStates": [],
+      "remaining": [
+        "Native screen-reader speech and browser UI zoom/device spot checks",
+        "Complete real-session loading/empty/error/denied/success/interruption matrix where not already recorded"
+      ]
+    },
+    {
+      "route": "/austin",
+      "source": "app/austin/page.tsx",
+      "group": "city",
+      "access": "Private city PIN/HMAC gate; published discussion material does not authorize records",
+      "currentVerification": "Actual gate form/signed synthetic presentation at 360/1440; PIN store unavailable shown; successful PIN API requires guarded DB rerun",
+      "browserStates": [
+        {
+          "width": 360,
+          "state": "synthetic-signed-presentation"
+        },
+        {
+          "width": 1440,
+          "state": "synthetic-signed-presentation"
+        }
+      ],
+      "remaining": [
+        "Native screen-reader speech and browser UI zoom/device spot checks",
+        "Complete real-session loading/empty/error/denied/success/interruption matrix where not already recorded"
+      ]
+    },
+    {
+      "route": "/austin/unlock",
+      "source": "app/austin/unlock/page.tsx",
+      "group": "city",
+      "access": "Private city PIN/HMAC gate; published discussion material does not authorize records",
+      "currentVerification": "Actual gate form/signed synthetic presentation at 360/1440; PIN store unavailable shown; successful PIN API requires guarded DB rerun",
+      "browserStates": [
+        {
+          "width": 360,
+          "state": "ready"
+        },
+        {
+          "width": 360,
+          "state": "store-unavailable"
+        },
+        {
+          "width": 360,
+          "state": "gated"
+        },
+        {
+          "width": 1440,
+          "state": "ready"
+        },
+        {
+          "width": 1440,
+          "state": "store-unavailable"
+        },
+        {
+          "width": 1440,
+          "state": "gated"
+        }
+      ],
+      "remaining": [
+        "Native screen-reader speech and browser UI zoom/device spot checks",
+        "Complete real-session loading/empty/error/denied/success/interruption matrix where not already recorded"
+      ]
+    },
+    {
+      "route": "/dallas",
+      "source": "app/dallas/page.tsx",
+      "group": "city",
+      "access": "Private city PIN/HMAC gate; published discussion material does not authorize records",
+      "currentVerification": "Actual gate form/signed synthetic presentation at 360/1440; PIN store unavailable shown; successful PIN API requires guarded DB rerun",
+      "browserStates": [
+        {
+          "width": 360,
+          "state": "synthetic-signed-presentation"
+        },
+        {
+          "width": 1440,
+          "state": "synthetic-signed-presentation"
+        }
+      ],
+      "remaining": [
+        "Native screen-reader speech and browser UI zoom/device spot checks",
+        "Complete real-session loading/empty/error/denied/success/interruption matrix where not already recorded"
+      ]
+    },
+    {
+      "route": "/dallas/unlock",
+      "source": "app/dallas/unlock/page.tsx",
+      "group": "city",
+      "access": "Private city PIN/HMAC gate; published discussion material does not authorize records",
+      "currentVerification": "Actual gate form/signed synthetic presentation at 360/1440; PIN store unavailable shown; successful PIN API requires guarded DB rerun",
+      "browserStates": [
+        {
+          "width": 360,
+          "state": "gated"
+        },
+        {
+          "width": 1440,
+          "state": "gated"
+        }
+      ],
+      "remaining": [
+        "Native screen-reader speech and browser UI zoom/device spot checks",
+        "Complete real-session loading/empty/error/denied/success/interruption matrix where not already recorded"
+      ]
+    },
+    {
+      "route": "/demo",
+      "source": "app/demo/page.tsx",
+      "group": "public",
+      "access": "Public; program support/AI remains separately session/config gated",
+      "currentVerification": "Actual browser rendering/unavailable states; public demo fictional/local-only; no real participant data",
+      "browserStates": [
+        {
+          "width": 360,
+          "state": "rendered"
+        },
+        {
+          "width": 1440,
+          "state": "rendered"
+        },
+        {
+          "width": 360,
+          "state": "text-200"
+        }
+      ],
+      "remaining": [
+        "Native screen-reader speech and browser UI zoom/device spot checks",
+        "Complete real-session loading/empty/error/denied/success/interruption matrix where not already recorded"
+      ]
+    },
+    {
+      "route": "/denver",
+      "source": "app/denver/page.tsx",
+      "group": "city",
+      "access": "Private city PIN/HMAC gate; published discussion material does not authorize records",
+      "currentVerification": "Actual gate form/signed synthetic presentation at 360/1440; PIN store unavailable shown; successful PIN API requires guarded DB rerun",
+      "browserStates": [
+        {
+          "width": 360,
+          "state": "synthetic-signed-presentation"
+        },
+        {
+          "width": 1440,
+          "state": "synthetic-signed-presentation"
+        }
+      ],
+      "remaining": [
+        "Native screen-reader speech and browser UI zoom/device spot checks",
+        "Complete real-session loading/empty/error/denied/success/interruption matrix where not already recorded"
+      ]
+    },
+    {
+      "route": "/denver/unlock",
+      "source": "app/denver/unlock/page.tsx",
+      "group": "city",
+      "access": "Private city PIN/HMAC gate; published discussion material does not authorize records",
+      "currentVerification": "Actual gate form/signed synthetic presentation at 360/1440; PIN store unavailable shown; successful PIN API requires guarded DB rerun",
+      "browserStates": [
+        {
+          "width": 360,
+          "state": "gated"
+        },
+        {
+          "width": 1440,
+          "state": "gated"
+        }
+      ],
+      "remaining": [
+        "Native screen-reader speech and browser UI zoom/device spot checks",
+        "Complete real-session loading/empty/error/denied/success/interruption matrix where not already recorded"
+      ]
+    },
+    {
+      "route": "/dev/design-system",
+      "source": "app/dev/design-system/page.tsx",
+      "group": "development",
+      "access": "Development-only; production returns notFound in source",
+      "currentVerification": "Actual component workshop browser/keyboard check; production 404 rerun blocked",
+      "browserStates": [
+        {
+          "width": 360,
+          "state": "component-states"
+        }
+      ],
+      "remaining": [
+        "Native screen-reader speech and browser UI zoom/device spot checks",
+        "Complete real-session loading/empty/error/denied/success/interruption matrix where not already recorded"
+      ]
+    },
+    {
+      "route": "/houston",
+      "source": "app/houston/page.tsx",
+      "group": "city",
+      "access": "Private city PIN/HMAC gate; published discussion material does not authorize records",
+      "currentVerification": "Actual gate form/signed synthetic presentation at 360/1440; PIN store unavailable shown; successful PIN API requires guarded DB rerun",
+      "browserStates": [
+        {
+          "width": 360,
+          "state": "synthetic-signed-presentation"
+        },
+        {
+          "width": 1440,
+          "state": "synthetic-signed-presentation"
+        }
+      ],
+      "remaining": [
+        "Native screen-reader speech and browser UI zoom/device spot checks",
+        "Complete real-session loading/empty/error/denied/success/interruption matrix where not already recorded"
+      ]
+    },
+    {
+      "route": "/houston/unlock",
+      "source": "app/houston/unlock/page.tsx",
+      "group": "city",
+      "access": "Private city PIN/HMAC gate; published discussion material does not authorize records",
+      "currentVerification": "Actual gate form/signed synthetic presentation at 360/1440; PIN store unavailable shown; successful PIN API requires guarded DB rerun",
+      "browserStates": [
+        {
+          "width": 360,
+          "state": "gated"
+        },
+        {
+          "width": 1440,
+          "state": "gated"
+        }
+      ],
+      "remaining": [
+        "Native screen-reader speech and browser UI zoom/device spot checks",
+        "Complete real-session loading/empty/error/denied/success/interruption matrix where not already recorded"
+      ]
+    },
+    {
+      "route": "/lesson/[lessonId]",
+      "source": "app/lesson/[lessonId]/page.tsx",
+      "group": "learner",
+      "access": "Server-authoritative learner/invitation/account state; no arbitrary client ID authority",
+      "currentVerification": "Infrastructure blocked: RSC entry/session/curriculum needs generated Prisma client; source states audited, full current UI not rerun",
+      "browserStates": [],
+      "remaining": [
+        "Native screen-reader speech and browser UI zoom/device spot checks",
+        "Complete real-session loading/empty/error/denied/success/interruption matrix where not already recorded"
+      ]
+    },
+    {
+      "route": "/lifeline",
+      "source": "app/lifeline/page.tsx",
+      "group": "public",
+      "access": "Public; program support/AI remains separately session/config gated",
+      "currentVerification": "Actual browser rendering/unavailable states; public demo fictional/local-only; no real participant data",
+      "browserStates": [
+        {
+          "width": 360,
+          "state": "unavailable-account-service"
+        },
+        {
+          "width": 1440,
+          "state": "unavailable-account-service"
+        }
+      ],
+      "remaining": [
+        "Native screen-reader speech and browser UI zoom/device spot checks",
+        "Complete real-session loading/empty/error/denied/success/interruption matrix where not already recorded"
+      ]
+    },
+    {
+      "route": "/login",
+      "source": "app/login/page.tsx",
+      "group": "learner",
+      "access": "Server-authoritative learner/invitation/account state; no arbitrary client ID authority",
+      "currentVerification": "Infrastructure blocked: RSC entry/session/curriculum needs generated Prisma client; source states audited, full current UI not rerun",
+      "browserStates": [],
+      "remaining": [
+        "Native screen-reader speech and browser UI zoom/device spot checks",
+        "Complete real-session loading/empty/error/denied/success/interruption matrix where not already recorded"
+      ]
+    },
+    {
+      "route": "/los-angeles",
+      "source": "app/los-angeles/page.tsx",
+      "group": "city",
+      "access": "Private city PIN/HMAC gate; published discussion material does not authorize records",
+      "currentVerification": "Actual gate form/signed synthetic presentation at 360/1440; PIN store unavailable shown; successful PIN API requires guarded DB rerun",
+      "browserStates": [
+        {
+          "width": 360,
+          "state": "synthetic-signed-presentation"
+        },
+        {
+          "width": 1440,
+          "state": "synthetic-signed-presentation"
+        }
+      ],
+      "remaining": [
+        "Native screen-reader speech and browser UI zoom/device spot checks",
+        "Complete real-session loading/empty/error/denied/success/interruption matrix where not already recorded"
+      ]
+    },
+    {
+      "route": "/los-angeles/unlock",
+      "source": "app/los-angeles/unlock/page.tsx",
+      "group": "city",
+      "access": "Private city PIN/HMAC gate; published discussion material does not authorize records",
+      "currentVerification": "Actual gate form/signed synthetic presentation at 360/1440; PIN store unavailable shown; successful PIN API requires guarded DB rerun",
+      "browserStates": [
+        {
+          "width": 360,
+          "state": "gated"
+        },
+        {
+          "width": 1440,
+          "state": "gated"
+        }
+      ],
+      "remaining": [
+        "Native screen-reader speech and browser UI zoom/device spot checks",
+        "Complete real-session loading/empty/error/denied/success/interruption matrix where not already recorded"
+      ]
+    },
+    {
+      "route": "/onboarding",
+      "source": "app/onboarding/page.tsx",
+      "group": "learner",
+      "access": "Server-authoritative learner/invitation/account state; no arbitrary client ID authority",
+      "currentVerification": "Infrastructure blocked: RSC entry/session/curriculum needs generated Prisma client; source states audited, full current UI not rerun",
+      "browserStates": [],
+      "remaining": [
+        "Native screen-reader speech and browser UI zoom/device spot checks",
+        "Complete real-session loading/empty/error/denied/success/interruption matrix where not already recorded"
+      ]
+    },
+    {
+      "route": "/",
+      "source": "app/page.tsx",
+      "group": "public",
+      "access": "Public; program support/AI remains separately session/config gated",
+      "currentVerification": "Actual browser rendering/unavailable states; public demo fictional/local-only; no real participant data",
+      "browserStates": [
+        {
+          "width": 360,
+          "state": "rendered"
+        },
+        {
+          "width": 1440,
+          "state": "rendered"
+        }
+      ],
+      "remaining": [
+        "Native screen-reader speech and browser UI zoom/device spot checks",
+        "Complete real-session loading/empty/error/denied/success/interruption matrix where not already recorded"
+      ]
+    },
+    {
+      "route": "/paths/[pathSlug]",
+      "source": "app/paths/[pathSlug]/page.tsx",
+      "group": "learner",
+      "access": "Server-authoritative learner/invitation/account state; no arbitrary client ID authority",
+      "currentVerification": "Infrastructure blocked: RSC entry/session/curriculum needs generated Prisma client; source states audited, full current UI not rerun",
+      "browserStates": [],
+      "remaining": [
+        "Native screen-reader speech and browser UI zoom/device spot checks",
+        "Complete real-session loading/empty/error/denied/success/interruption matrix where not already recorded"
+      ]
+    },
+    {
+      "route": "/practice",
+      "source": "app/practice/page.tsx",
+      "group": "learner",
+      "access": "Server-authoritative learner/invitation/account state; no arbitrary client ID authority",
+      "currentVerification": "Infrastructure blocked: RSC entry/session/curriculum needs generated Prisma client; source states audited, full current UI not rerun",
+      "browserStates": [],
+      "remaining": [
+        "Native screen-reader speech and browser UI zoom/device spot checks",
+        "Complete real-session loading/empty/error/denied/success/interruption matrix where not already recorded"
+      ]
+    },
+    {
+      "route": "/privacy",
+      "source": "app/privacy/page.tsx",
+      "group": "public",
+      "access": "Public; program support/AI remains separately session/config gated",
+      "currentVerification": "Actual browser rendering/unavailable states; public demo fictional/local-only; no real participant data",
+      "browserStates": [
+        {
+          "width": 360,
+          "state": "rendered"
+        },
+        {
+          "width": 1440,
+          "state": "rendered"
+        }
+      ],
+      "remaining": [
+        "Native screen-reader speech and browser UI zoom/device spot checks",
+        "Complete real-session loading/empty/error/denied/success/interruption matrix where not already recorded"
+      ]
+    },
+    {
+      "route": "/profile",
+      "source": "app/profile/page.tsx",
+      "group": "learner",
+      "access": "Server-authoritative learner/invitation/account state; no arbitrary client ID authority",
+      "currentVerification": "Infrastructure blocked: RSC entry/session/curriculum needs generated Prisma client; source states audited, full current UI not rerun",
+      "browserStates": [],
+      "remaining": [
+        "Native screen-reader speech and browser UI zoom/device spot checks",
+        "Complete real-session loading/empty/error/denied/success/interruption matrix where not already recorded"
+      ]
+    },
+    {
+      "route": "/recover",
+      "source": "app/recover/page.tsx",
+      "group": "public",
+      "access": "Public; program support/AI remains separately session/config gated",
+      "currentVerification": "Actual browser rendering/unavailable states; public demo fictional/local-only; no real participant data",
+      "browserStates": [
+        {
+          "width": 360,
+          "state": "rendered"
+        },
+        {
+          "width": 1440,
+          "state": "rendered"
+        }
+      ],
+      "remaining": [
+        "Native screen-reader speech and browser UI zoom/device spot checks",
+        "Complete real-session loading/empty/error/denied/success/interruption matrix where not already recorded"
+      ]
+    },
+    {
+      "route": "/san-francisco",
+      "source": "app/san-francisco/page.tsx",
+      "group": "city",
+      "access": "Private city PIN/HMAC gate; published discussion material does not authorize records",
+      "currentVerification": "Actual gate form/signed synthetic presentation at 360/1440; PIN store unavailable shown; successful PIN API requires guarded DB rerun",
+      "browserStates": [
+        {
+          "width": 360,
+          "state": "synthetic-signed-presentation"
+        },
+        {
+          "width": 1440,
+          "state": "synthetic-signed-presentation"
+        }
+      ],
+      "remaining": [
+        "Native screen-reader speech and browser UI zoom/device spot checks",
+        "Complete real-session loading/empty/error/denied/success/interruption matrix where not already recorded"
+      ]
+    },
+    {
+      "route": "/san-francisco/unlock",
+      "source": "app/san-francisco/unlock/page.tsx",
+      "group": "city",
+      "access": "Private city PIN/HMAC gate; published discussion material does not authorize records",
+      "currentVerification": "Actual gate form/signed synthetic presentation at 360/1440; PIN store unavailable shown; successful PIN API requires guarded DB rerun",
+      "browserStates": [
+        {
+          "width": 360,
+          "state": "gated"
+        },
+        {
+          "width": 1440,
+          "state": "gated"
+        }
+      ],
+      "remaining": [
+        "Native screen-reader speech and browser UI zoom/device spot checks",
+        "Complete real-session loading/empty/error/denied/success/interruption matrix where not already recorded"
+      ]
+    },
+    {
+      "route": "/signup",
+      "source": "app/signup/page.tsx",
+      "group": "learner",
+      "access": "Server-authoritative learner/invitation/account state; no arbitrary client ID authority",
+      "currentVerification": "Infrastructure blocked: RSC entry/session/curriculum needs generated Prisma client; source states audited, full current UI not rerun",
+      "browserStates": [],
+      "remaining": [
+        "Native screen-reader speech and browser UI zoom/device spot checks",
+        "Complete real-session loading/empty/error/denied/success/interruption matrix where not already recorded"
+      ]
+    },
+    {
+      "route": "/terms",
+      "source": "app/terms/page.tsx",
+      "group": "public",
+      "access": "Public; program support/AI remains separately session/config gated",
+      "currentVerification": "Actual browser rendering/unavailable states; public demo fictional/local-only; no real participant data",
+      "browserStates": [
+        {
+          "width": 360,
+          "state": "rendered"
+        },
+        {
+          "width": 1440,
+          "state": "rendered"
+        }
+      ],
+      "remaining": [
+        "Native screen-reader speech and browser UI zoom/device spot checks",
+        "Complete real-session loading/empty/error/denied/success/interruption matrix where not already recorded"
+      ]
+    }
+  ],
+  "apis": [
+    {
+      "route": "/api/access",
+      "source": "app/api/access/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/admin/audit",
+      "source": "app/api/admin/audit/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/admin/cases/[id]/acknowledge",
+      "source": "app/api/admin/cases/[id]/acknowledge/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/admin/cases/[id]/allocate",
+      "source": "app/api/admin/cases/[id]/allocate/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/admin/cases/[id]/dispatch",
+      "source": "app/api/admin/cases/[id]/dispatch/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/admin/cases/[id]/notes",
+      "source": "app/api/admin/cases/[id]/notes/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/admin/cases/[id]",
+      "source": "app/api/admin/cases/[id]/route.ts",
+      "methods": [
+        "GET",
+        "PATCH"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/admin/cases",
+      "source": "app/api/admin/cases/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/admin/cases/staff",
+      "source": "app/api/admin/cases/staff/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/admin/directory/[id]",
+      "source": "app/api/admin/directory/[id]/route.ts",
+      "methods": [
+        "DELETE",
+        "PATCH"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/admin/directory",
+      "source": "app/api/admin/directory/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/admin/finance/payout-config",
+      "source": "app/api/admin/finance/payout-config/route.ts",
+      "methods": [
+        "GET",
+        "POST",
+        "PUT"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/admin/finance/pool",
+      "source": "app/api/admin/finance/pool/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/admin/finance",
+      "source": "app/api/admin/finance/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/admin/inquiries",
+      "source": "app/api/admin/inquiries/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/admin/invitations",
+      "source": "app/api/admin/invitations/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/admin/login",
+      "source": "app/api/admin/login/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/admin/mfa",
+      "source": "app/api/admin/mfa/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/admin/overview",
+      "source": "app/api/admin/overview/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/admin/payouts/[payoutId]/payment-details",
+      "source": "app/api/admin/payouts/[payoutId]/payment-details/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/admin/payouts",
+      "source": "app/api/admin/payouts/route.ts",
+      "methods": [
+        "GET",
+        "PATCH"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/admin/programs",
+      "source": "app/api/admin/programs/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/admin/rewards/program",
+      "source": "app/api/admin/rewards/program/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/admin/security",
+      "source": "app/api/admin/security/route.ts",
+      "methods": [
+        "DELETE",
+        "GET"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/admin/session",
+      "source": "app/api/admin/session/route.ts",
+      "methods": [
+        "DELETE",
+        "GET"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/admin/staff/[staffId]",
+      "source": "app/api/admin/staff/[staffId]/route.ts",
+      "methods": [
+        "PATCH"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/admin/staff",
+      "source": "app/api/admin/staff/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/admin/stats/activity",
+      "source": "app/api/admin/stats/activity/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/admin/stats/reports",
+      "source": "app/api/admin/stats/reports/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/admin/stats",
+      "source": "app/api/admin/stats/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/admin/stats/trends",
+      "source": "app/api/admin/stats/trends/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/admin/support-settings",
+      "source": "app/api/admin/support-settings/route.ts",
+      "methods": [
+        "GET",
+        "PUT"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/admin/users/[userId]",
+      "source": "app/api/admin/users/[userId]/route.ts",
+      "methods": [
+        "GET",
+        "PATCH"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/admin/users",
+      "source": "app/api/admin/users/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/auth/login",
+      "source": "app/api/auth/login/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/auth/register",
+      "source": "app/api/auth/register/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/auth/session",
+      "source": "app/api/auth/session/route.ts",
+      "methods": [
+        "DELETE",
+        "GET",
+        "POST"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/chat",
+      "source": "app/api/chat/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/city-access/[slug]",
+      "source": "app/api/city-access/[slug]/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "currentVerification": "Actual store-unavailable response/correlation + real SQL service concurrency; native Prisma/PIN success pending",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/health/live",
+      "source": "app/api/health/live/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "currentVerification": "Contract + actual unavailable/readiness/liveness browser HTTP; full schema/production configuration remains unverified",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/health/ready",
+      "source": "app/api/health/ready/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "currentVerification": "Contract + actual unavailable/readiness/liveness browser HTTP; full schema/production configuration remains unverified",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/lesson/answer",
+      "source": "app/api/lesson/answer/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/lesson/attempt",
+      "source": "app/api/lesson/attempt/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/lesson/next",
+      "source": "app/api/lesson/next/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/partner-inquiries",
+      "source": "app/api/partner-inquiries/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/payout/cancel",
+      "source": "app/api/payout/cancel/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/payout/request",
+      "source": "app/api/payout/request/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/practice",
+      "source": "app/api/practice/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/progress/complete",
+      "source": "app/api/progress/complete/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/progress/list",
+      "source": "app/api/progress/list/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/progress/open",
+      "source": "app/api/progress/open/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/rewards",
+      "source": "app/api/rewards/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/stress-signal",
+      "source": "app/api/stress-signal/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/support",
+      "source": "app/api/support/route.ts",
+      "methods": [
+        "GET"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/telemetry",
+      "source": "app/api/telemetry/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "currentVerification": "Strict mocked-store contract + actual default-off HTTP; real Prisma rate transport pending",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/tts",
+      "source": "app/api/tts/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/user/ensure",
+      "source": "app/api/user/ensure/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/user/learning-plan",
+      "source": "app/api/user/learning-plan/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/user/onboarding",
+      "source": "app/api/user/onboarding/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    },
+    {
+      "route": "/api/user/profile",
+      "source": "app/api/user/profile/route.ts",
+      "methods": [
+        "POST"
+      ],
+      "currentVerification": "Source permission/state review; full guarded API suite blocked at missing generated client",
+      "cache": "Middleware private,no-store,noindex for all API paths; no service worker added"
+    }
+  ],
+  "queryVariants": [
+    "/profile: overview, ?tab=info, ?tab=achievements, ?tab=earnings",
+    "Learning path visual/linear view and lesson practice mode retain their current source-controlled query handling",
+    "Staff page/search/sort/date/program filters retain server validation; program scope is not selected by an arbitrary URL parameter"
+  ],
+  "frameworkStates": [
+    "app/error.tsx",
+    "app/admin/error.tsx",
+    "app/global-error.tsx",
+    "app/not-found.tsx",
+    "app/app/error.tsx",
+    "app/app/loading.tsx"
+  ]
+}
