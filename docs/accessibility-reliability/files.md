@@ -120,6 +120,7 @@ Runtime behavior, database rollout and compatible rollback: [README](README.md).
 - [docs/accessibility-reliability/files.md](<files.md>)
 - [docs/accessibility-reliability/lab/README.md](<lab/README.md>)
 - [docs/accessibility-reliability/payload-evidence.json](<payload-evidence.json>)
+- [docs/accessibility-reliability/pull-request.md](<pull-request.md>)
 - [docs/accessibility-reliability/rate-store-evidence.json](<rate-store-evidence.json>)
 - [docs/accessibility-reliability/route-inventory.json](<route-inventory.json>)
 - [docs/accessibility-reliability/routes.md](<routes.md>)

@@ -30,6 +30,8 @@ Updated 2026-11-02 (America/Chicago) on `feat/accessibility-reliability`, based 
 - **Remaining acceptance:** Prisma checksum HTTP 403 blocks generated client/types/build, full native DB/API/learner/finance/provider reruns and real production laboratory. Native screen-reader speech/browser UI zoom/physical devices, complete route/state matrix, actual Replit/proxy/log/retention/restore/domain and remote Actions are not verified. No field-performance or WCAG compliance claim; [exact command results](accessibility-reliability/verification.md).
 - **Rollback:** retain additive counter/shared limits and earlier session/program/ledger/attempt/evidence guards; disable optional reports at build/runtime and revert presentation compatibly. Stop affected writers during an incompatible backend transition instead of loosening boundaries or deleting records.
 
+- **Collaboration:** implementation `7e4b601` is pushed on `feat/accessibility-reliability`, stacked on `feat/partner-website`. Draft PR creation returned GitHub GraphQL Forbidden; [prepared description](accessibility-reliability/pull-request.md) and [comparison link](https://github.com/mytruealias/learn-2-earn/compare/feat%2Fpartner-website...feat%2Faccessibility-reliability?expand=1) are available. Remote CI is unverified; no merge/deployment.
+
 ## Partner website report (preceding checkpoint, 2026-11-01)
 
 - **Behavior:** original editorial partner website with a real lesson-renderer sample, illustrative shared staff table, active-public-curriculum claims, pilot process/FAQ and factual draft legal summaries. Unsupported institutional/partnership/outcome/compliance/pricing/privacy claims are removed. Learner sign-in/help remain easy to find. All six city decks retain PIN gates/noindex and print layouts.

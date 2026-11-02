@@ -52,4 +52,6 @@ Rollback retains additive counters/shared admission and previous session/program
 
 ## Collaboration handoff
 
-This checkpoint is stacked on `feat/partner-website` (`39c7e7c`), not on an assumed merged main. Final commit/push/PR outcome is recorded below after the actual operation. No merge or deployment is authorized by this report.
+This checkpoint is stacked on `feat/partner-website` (`39c7e7c`), not on an assumed merged main. Implementation commit `7e4b601603972eeebc677fa400a99b6c0bec6aa3` was pushed and confirmed with native `git ls-remote`. A documentation-only handoff commit follows it on the same branch. No merge or deployment is authorized by this report.
+
+Draft PR creation was attempted with base `feat/partner-website` and head `feat/accessibility-reliability`; GitHub GraphQL returned **Forbidden** (exit 1). No PR was created and remote Actions has not been verified. Native Git read/push works through the existing proxy; no replacement credential was requested. [Prepared PR description](pull-request.md) · [review the stacked diff / open PR](https://github.com/mytruealias/learn-2-earn/compare/feat%2Fpartner-website...feat%2Faccessibility-reliability?expand=1).
