@@ -238,5 +238,18 @@
       "exitCode": 127,
       "evidenceScope": "binary missing; no restore executed"
     }
-  ]
+  ],
+  "githubHandoff": {
+    "branch": "feat/release-readiness",
+    "base": "main",
+    "applicationCandidate": "64c44367df821d01510b61a3cd04cd2cdd11898d",
+    "nativePushConfirmed": true,
+    "remoteMain": "4f59d419528ae5ff450b339ab1de512554a8094b",
+    "prCommand": "gh pr create --draft --repo mytruealias/learn-2-earn --base main --head feat/release-readiness --body-file docs/release-evidence/pull-request.md",
+    "prExitCode": 1,
+    "prResult": "POST https://api.github.com/graphql: Forbidden",
+    "prCreated": false,
+    "remoteCiVerified": false,
+    "comparison": "https://github.com/mytruealias/learn-2-earn/compare/main...feat%2Frelease-readiness?expand=1"
+  }
 }
