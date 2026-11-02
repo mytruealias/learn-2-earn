@@ -1,14 +1,15 @@
 name: Checks
 on:
   pull_request:
+  workflow_dispatch:
   push:
-    branches: [main]
+    branches: [main, feat/release-readiness]
 permissions:
   contents: read
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 45
     services:
       postgres:
         image: postgres:17
@@ -40,8 +41,14 @@ jobs:
       - run: npx playwright install --with-deps chromium
       # Each suite gets a fresh DB + restricted role; scripts run sequentially.
       - run: npm test
+      - run: npm run test:release:public
+        env:
+          MARKETING_EVIDENCE_DIR: ${{ runner.temp }}/release-marketing
+          RELEASE_EVIDENCE_DIR: ${{ runner.temp }}/release-public
       - run: npm run typecheck
       - run: npm run test:performance
+      # Keep the known high Zod advisory visible as a failing release gate.
+      - run: npm audit --omit=dev --audit-level=high
       - uses: actions/upload-artifact@v4
         if: always()
         with:

@@ -1,0 +1,58 @@
+[
+  {
+    "route": "/lifeline",
+    "width": 360,
+    "browser": "chromium",
+    "version": "154.0.8037.57",
+    "state": "public help with unavailable account service",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "pageErrors": 0,
+    "keyboardFocus": true,
+    "reducedMotion": true,
+    "offlineNotice": true,
+    "authenticatedJourney": false
+  },
+  {
+    "route": "/lifeline",
+    "width": 390,
+    "browser": "chromium",
+    "version": "154.0.8037.57",
+    "state": "public help with unavailable account service",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "pageErrors": 0,
+    "keyboardFocus": true,
+    "reducedMotion": true,
+    "offlineNotice": true,
+    "authenticatedJourney": false
+  },
+  {
+    "route": "/lifeline",
+    "width": 768,
+    "browser": "chromium",
+    "version": "154.0.8037.57",
+    "state": "public help with unavailable account service",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "pageErrors": 0,
+    "keyboardFocus": true,
+    "reducedMotion": true,
+    "offlineNotice": true,
+    "authenticatedJourney": false
+  },
+  {
+    "route": "/lifeline",
+    "width": 1440,
+    "browser": "chromium",
+    "version": "154.0.8037.57",
+    "state": "public help with unavailable account service",
+    "axeViolations": 0,
+    "noOverflow": true,
+    "pageErrors": 0,
+    "keyboardFocus": true,
+    "reducedMotion": true,
+    "offlineNotice": true,
+    "authenticatedJourney": false
+  }
+]

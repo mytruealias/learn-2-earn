@@ -1,0 +1,242 @@
+{
+  "date": "2026-11-02",
+  "timezone": "America/Chicago",
+  "base": "edf3fa89032e35f4bbdc4d83e708280d95cda112",
+  "rawLogs": "Workspace-only /workspace/.onboarding/release-readiness; no private logs copied",
+  "commands": [
+    {
+      "check": "clean-install-final",
+      "command": "npm ci --include=dev",
+      "exitCode": 0,
+      "seconds": 14.71,
+      "evidenceScope": "initial sequential release check"
+    },
+    {
+      "check": "generate-final",
+      "command": "npm run prisma:generate",
+      "exitCode": 1,
+      "seconds": 3.64,
+      "evidenceScope": "initial sequential release check"
+    },
+    {
+      "check": "lint",
+      "command": "npm run lint -- --max-warnings=0",
+      "exitCode": 0,
+      "seconds": 6.47,
+      "evidenceScope": "initial sequential release check"
+    },
+    {
+      "check": "typecheck",
+      "command": "npm run typecheck",
+      "exitCode": 2,
+      "seconds": 9.74,
+      "evidenceScope": "initial sequential release check"
+    },
+    {
+      "check": "build",
+      "command": "npm run build",
+      "exitCode": 1,
+      "seconds": 3.73,
+      "evidenceScope": "initial sequential release check"
+    },
+    {
+      "check": "unit",
+      "command": "npm run test:unit",
+      "exitCode": 1,
+      "seconds": 1.58,
+      "evidenceScope": "initial sequential release check",
+      "supersededBy": "unit-final: eager database import fixed, all 76 tests pass"
+    },
+    {
+      "check": "api",
+      "command": "npm run test:api",
+      "exitCode": 1,
+      "seconds": 0.37,
+      "evidenceScope": "initial sequential release check"
+    },
+    {
+      "check": "http",
+      "command": "npm run test:e2e",
+      "exitCode": 1,
+      "seconds": 0.37,
+      "evidenceScope": "initial sequential release check"
+    },
+    {
+      "check": "browser",
+      "command": "npm run test:browser",
+      "exitCode": 1,
+      "seconds": 0.42,
+      "evidenceScope": "initial sequential release check"
+    },
+    {
+      "check": "journey",
+      "command": "npm run test:journey",
+      "exitCode": 1,
+      "seconds": 0.42,
+      "evidenceScope": "initial sequential release check"
+    },
+    {
+      "check": "progression",
+      "command": "npm run test:progression",
+      "exitCode": 1,
+      "seconds": 0.42,
+      "evidenceScope": "initial sequential release check"
+    },
+    {
+      "check": "lesson-practice",
+      "command": "npm run test:lesson",
+      "exitCode": 1,
+      "seconds": 0.37,
+      "evidenceScope": "initial sequential release check"
+    },
+    {
+      "check": "rewards",
+      "command": "npm run test:rewards",
+      "exitCode": 1,
+      "seconds": 0.37,
+      "evidenceScope": "initial sequential release check"
+    },
+    {
+      "check": "staff",
+      "command": "npm run test:staff",
+      "exitCode": 1,
+      "seconds": 0.37,
+      "evidenceScope": "initial sequential release check"
+    },
+    {
+      "check": "support",
+      "command": "npm run test:support",
+      "exitCode": 1,
+      "seconds": 0.37,
+      "evidenceScope": "initial sequential release check"
+    },
+    {
+      "check": "performance",
+      "command": "npm run test:performance",
+      "exitCode": 1,
+      "seconds": 0.37,
+      "evidenceScope": "initial sequential release check"
+    },
+    {
+      "check": "cards",
+      "command": "npm run audit:cards",
+      "exitCode": 0,
+      "seconds": 1.18,
+      "evidenceScope": "initial sequential release check"
+    },
+    {
+      "check": "runtime-audit",
+      "command": "npm audit --omit=dev --json",
+      "exitCode": 1,
+      "seconds": 1.27,
+      "evidenceScope": "initial sequential release check"
+    },
+    {
+      "check": "full-audit",
+      "command": "npm audit --json",
+      "exitCode": 1,
+      "seconds": 42.05,
+      "evidenceScope": "initial sequential release check"
+    },
+    {
+      "check": "unit-final",
+      "command": "npm run test:unit",
+      "exitCode": 0,
+      "evidenceScope": "pure logic/security, eight files",
+      "passedCases": 76
+    },
+    {
+      "check": "lint-final",
+      "command": "npm run lint -- --max-warnings=0",
+      "exitCode": 0,
+      "evidenceScope": "current source; zero warnings"
+    },
+    {
+      "check": "typecheck-final",
+      "command": "npm run typecheck",
+      "exitCode": 2,
+      "evidenceScope": "missing generated Prisma exports and remaining diagnostics; not a pass"
+    },
+    {
+      "check": "contracts-final",
+      "command": "vitest run --config vitest.reliability.config.ts",
+      "exitCode": 0,
+      "evidenceScope": "transport/query/channel logic with disclosed mocks",
+      "passedCases": 16
+    },
+    {
+      "check": "marketing-contracts-final",
+      "command": "vitest run --config vitest.marketing.config.ts",
+      "exitCode": 0,
+      "evidenceScope": "public metadata/configuration/inquiry contracts",
+      "passedCases": 13
+    },
+    {
+      "check": "public-release-final",
+      "command": "npm run test:release:public",
+      "exitCode": 0,
+      "evidenceScope": "current Chromium public/synthetic/unavailable UI; one explicit missing-client skip",
+      "passedCases": 15
+    },
+    {
+      "check": "reliability-final",
+      "command": "npm run test:reliability",
+      "exitCode": 0,
+      "evidenceScope": "also 16 contracts; real browser on public/synthetic/unavailable states",
+      "passedCases": 11
+    },
+    {
+      "check": "help-focus-final",
+      "command": "npm run test:release:public -- --grep human help",
+      "exitCode": 1,
+      "evidenceScope": "one failed at /lifeline with development Unexpected end of JSON input; shared marketing cache; not hidden",
+      "passedCases": 3
+    },
+    {
+      "check": "public-isolated-final",
+      "command": "npm run test:release:public",
+      "exitCode": 0,
+      "evidenceScope": "fresh .next-release-tests, one explicit missing-client skip",
+      "passedCases": 15
+    },
+    {
+      "check": "help-focus-isolated-repeat",
+      "command": "npm run test:release:public -- --grep human help",
+      "exitCode": 0,
+      "evidenceScope": "warm isolated-cache repeat; explicit focused skip link hidden and viewport captures",
+      "passedCases": 4
+    },
+    {
+      "check": "receipt-focus-final",
+      "command": "npm run test:release:public -- --grep inquiry UI shows",
+      "exitCode": 0,
+      "evidenceScope": "synthetic receipt; keyboard retry, live focus/visibility and viewport captured before full-page scrolling",
+      "passedCases": 1
+    },
+    {
+      "check": "help-focus-current",
+      "command": "npm run test:release:public -- --grep human help",
+      "exitCode": 0,
+      "evidenceScope": "current conditional signed-out/unavailable states, live hidden skip-link geometry and viewport checks",
+      "passedCases": 4
+    },
+    {
+      "check": "firefox-install",
+      "command": "PLAYWRIGHT_BROWSERS_PATH=WRITABLE_CACHE playwright install firefox",
+      "exitCode": 1,
+      "evidenceScope": "official Playwright artifact HTTP 403, no second-engine run"
+    },
+    {
+      "check": "pg-dump",
+      "command": "pg_dump --version",
+      "exitCode": 127,
+      "evidenceScope": "binary missing; no backup executed"
+    },
+    {
+      "check": "pg-restore",
+      "command": "pg_restore --version",
+      "exitCode": 127,
+      "evidenceScope": "binary missing; no restore executed"
+    }
+  ]
+}

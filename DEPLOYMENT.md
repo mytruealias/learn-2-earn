@@ -2,6 +2,10 @@
 
 This runbook separates build artifacts from database operations. Application source uses Next.js App Router, Prisma/PostgreSQL and the existing integrations. No deployment or production database operation is authorized by running validation commands.
 
+## Current release decision
+
+[2026-11-02 release-readiness report](docs/release-readiness.md) is the current no-go decision and deployment checklist. It distinguishes blocked native generation/build/API/restore work from passing public/logic checks, records current advisory updates and Zod remediation, and requires an exact approved SHA plus preservation of newer Replit edits. This runbook is not deployment authorization.
+
 ## Verified settings versus uninspected host settings
 
 There is no tracked or local `.replit` / `replit.nix` in this checkout. `.gitignore` excludes `.replit` and `replit.md`. Therefore live Replit workspace modules, deployment commands, port mapping and Secrets remain **unverified**. Inspect the actual Replit workspace/deployment configuration read-only before changing it; do not infer it from an old publish commit or silently generate a replacement configuration.
@@ -80,7 +84,7 @@ Use the reviewed backup/restore and migration sequence below, against the verifi
 
 Require a strong private `SESSION_SECRET`; the demo/program code is no longer accepted as a signing secret. Keep the reviewed existing secret stable for legitimate guest continuity. Registered legacy cookies must sign in again because the old bootstrap could mint another account's token. Signed unexpired legacy guests retain their original IDs/progress through bounded lazy session registration. Unproven localStorage IDs and expired/lost guest cookies cannot safely authorize an account claim.
 
-Logout revokes the current learner DB session and clears its browser credentials; other devices remain signed in. `GET /api/auth/session` is a minimal no-store navigation description, POST retains the private profile API, and DELETE performs real logout. Staff sessions remain separate; the existing admin logout revocation defect is not fixed by this stage.
+Logout revokes the current learner DB session and clears its browser credentials; other devices remain signed in. `GET /api/auth/session` is a minimal no-store navigation description, POST retains the private profile API, and DELETE performs real logout. Current staff sessions are separate server-owned records with expiry, revocation, MFA and active program membership; staff logout revokes the current record. See the current program authorization gate above rather than the historical pre-upgrade logout defect.
 
 Recovery email/SMS delivery and a learner-reset endpoint are absent. `/recover` explicitly sends nothing and directs users to trusted program staff for operator escalation and identity review. Do not promise a message, add an unverified support address, or use `ADMIN_DEFAULT_PASSWORD` to recover a learner. Any automated reset needs a separately verified delivery/reset workflow.
 

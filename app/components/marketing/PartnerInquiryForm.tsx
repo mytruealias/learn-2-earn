@@ -27,7 +27,11 @@ export default function PartnerInquiryForm() {
     [pending, setPending] = useState(false),
     intent = useRef<object | null>(null),
     key = useRef<string | null>(null),
-    lock = useRef(false);
+    lock = useRef(false),
+    receiptRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (receipt) receiptRef.current?.focus();
+  }, [receipt]);
   useEffect(() => {
     const c = new AbortController();
     try {
@@ -120,7 +124,7 @@ export default function PartnerInquiryForm() {
   }
   if (receipt)
     return (
-      <div className={styles.receipt} role="status">
+      <div ref={receiptRef} tabIndex={-1} className={styles.receipt} role="status" aria-label="Partner inquiry receipt">
         <h3>Inquiry saved to the intake queue</h3>
         <p>Reference: {receipt.reference}</p>
         <p>

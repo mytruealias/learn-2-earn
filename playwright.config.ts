@@ -17,10 +17,7 @@ export default defineConfig({
   testDir: "./e2e",
   timeout: 60000,
   retries: 0,
-  // Force serial execution. The Next dev server compiles routes lazily on
-  // first hit and parallel workers race the compile + thrash the in-memory
-  // rate-limiter state shared across requests, producing flaky lockout
-  // counts. Serializing makes the suite deterministic.
+  // One suite database: keep fixtures/resets and the lazily compiled server sequential.
   workers: 1,
   fullyParallel: false,
   globalSetup: "./e2e/global-setup.ts",

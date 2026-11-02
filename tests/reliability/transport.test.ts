@@ -35,3 +35,14 @@ it("preserves confirmed status and JSON, including no-content replies", async ()
     expect(await (await clientFetch("/api/practice")).json()).toEqual({ ok: true });
     expect((await clientFetch("/api/example")).status).toBe(204);
 });
+it("keeps HTML framework failures unsuccessful and never exposes their body to JSON callers", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("<html>synthetic private exception</html>", { status: 503, headers: { "Content-Type": "text/html", "Retry-After": "30" } })));
+    const response = await clientFetch("/api/support");
+    expect(response.ok).toBe(false);
+    expect(response.status).toBe(503);
+    expect(response.headers.get("retry-after")).toBe("30");
+    const body = await response.json();
+    expect(body.error.code).toBe("service_unavailable");
+    expect(JSON.stringify(body)).not.toMatch(/private|exception|html|Unexpected/);
+    expect(events).toContain("l2e:connection-failed");
+});

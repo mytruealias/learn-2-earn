@@ -167,3 +167,18 @@ Measurable acceptance: every actual route/method has an inventory row and honest
 ## Completion report template
 
 For each stage record: implemented behavior; exact changed files and commit; tests passed/failed/skipped/unrun with counts; browser route/viewports/artifacts and limitations; migration/environment requirements; unresolved baseline IDs; rollback commands/constraints; PR link or exact API blocker. A stage with a blocked mandatory acceptance check is implemented but not verified; do not mark it released.
+
+## Release acceptance checkpoint — 2026-11-02
+
+See [the current report](release-readiness.md) and [exact files/evidence](release-evidence/files.md). This checklist supplements historical stage targets; no pending item is marked complete from a source review alone.
+
+- [x] Reinspect current clean branch, executable scripts, guidance, lockfile and GitHub main; preserve the existing upgrade stack.
+- [x] Perform a clean frozen install and current advisory review; apply targeted supported framework/transitive fixes without a blind major migration.
+- [x] Fix the pure-MFA unit import failure and inquiry receipt focus; execute unit and public/native-image/keyboard/reliability checks with synthetic/unavailable states labeled.
+- [x] Record no-go, exact environment names, migration/backfill order, restore manifests, compatible rollback, pilot monitoring roles and procurement gaps.
+- [ ] Resolve Zod advisory through a supported fix or tested migration; review residual tooling advisories.
+- [ ] Restore pinned Prisma download; pass full type/build/API/real browser journeys and production lab on the exact candidate.
+- [ ] Complete second-engine/native AT/device/loaded-volume/long-name/state checks with actual synthetic sessions.
+- [ ] Restore a consistent disposable pre-upgrade backup, migrate/backfill, reconcile manifests, then prove post-upgrade restore and compatible recovery.
+- [ ] Verify actual Replit commands/Secrets/ports/edits, ingress/log retention/domain, remote CI, human policy/staffing and named pilot response owners.
+- [ ] Create reviewable full-upgrade PR when GitHub API access permits; merge/deploy remain separate user decisions.

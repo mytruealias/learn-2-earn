@@ -7,7 +7,6 @@ import {
 } from "node:crypto";
 import { TOTP, Secret } from "otpauth";
 import type { Prisma } from "@prisma/client";
-import prisma from "./prisma";
 export const STAFF_ABSOLUTE_MS = 8 * 60 * 60_000;
 export const STAFF_IDLE_MS = 30 * 60_000;
 export const STAFF_CHALLENGE_MS = 10 * 60_000;
@@ -102,5 +101,9 @@ export async function staffThrottle(
     });
     return failures <= max;
   };
-  return tx ? work(tx) : prisma.$transaction(work);
+  // Pure authenticator/encryption utilities do not need an initialized database client.
+  // Admission still requires the real shared store unless the caller supplied its transaction.
+  if (tx) return work(tx);
+  const { default: prisma } = await import("./prisma");
+  return prisma.$transaction(work);
 }

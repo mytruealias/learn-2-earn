@@ -32,6 +32,10 @@ The platform has three access layers:
 
 ---
 
+## Release review
+
+[Current release-readiness report](docs/release-readiness.md): **no-go for deployment/live pilot** until the listed build, integration, migration/restore, dependency and operational blockers close. `npm run test:release:public` adds public four-width/keyboard/offline and native image smoke checks; it does not replace authenticated suites.
+
 ## Upgrade plan and verified baseline
 
 See the [current architecture and route inventory](docs/current-architecture.md), [staged upgrade checklist](docs/upgrade-plan.md), [baseline evidence](docs/upgrade-baseline.md), and [stage status](docs/upgrade-status.md) before starting improvement work. The baseline records known setup-documentation differences below.
@@ -150,7 +154,7 @@ The seed sources define learning journeys across life skills and recovery. Measu
 - Substance-Specific Safety
 - Supporter & Family Skills
 
-All content is trauma-informed and written at a 6th-grade reading level.
+Curriculum aims for plain adult language. Sensitive recovery content requires qualified human review before a pilot; structural card checks do not establish clinical approval or a verified reading level.
 
 ---
 
@@ -166,7 +170,7 @@ The admin panel (`/admin`) provides:
 
 - **User management** — view accounts, XP balances, enrollment status
 - **Payout workflow** — review, approve, or reject payout requests
-- **Audit log** — immutable record of all admin actions
+- **Audit log** — program-scoped history of recorded staff actions
 
 Program membership roles: `program_admin`, `caseworker`, `finance`. Historical `AdminUser.role` is preserved but grants no runtime program access. The compatibility API label `admin` means the selected membership is a program administrator. Staff sign-in includes required MFA; see the permission matrix above.
 
@@ -187,7 +191,7 @@ npm test
 
 | Command                    | Scope                                                                                                                                   |
 | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| `npm run test:unit`        | Logic/security tests; generated Prisma client needed, no database queries                                                                                               |
+| `npm run test:unit`        | Pure logic/security checks, including MFA cryptography; no database connection or generated client needed |
 | `npm run test:api`         | API integration + release safety tests on a fresh isolated DB                                                                           |
 | `npm run test:api:watch`   | Same isolated API database retained only for that watch session                                                                         |
 | `npm run test:e2e`         | Existing HTTP city/learner/payout tests; local server port 5050 and `.next-e2e` output                                                  |

@@ -232,9 +232,8 @@ test("inquiry UI shows only acknowledged storage, preserves retry intent and doe
     page.getByRole("heading", { name: "Inquiry saved to the intake queue" }),
   ).toHaveCount(0);
   await audit(page, "inquiry-uncertain", 390);
-  await page
-    .getByRole("button", { name: "Retry unchanged inquiry", exact: true })
-    .click();
+  await page.getByRole("button", { name: "Retry unchanged inquiry", exact: true }).focus();
+  await page.keyboard.press("Enter");
   await expect(
     page.getByRole("heading", { name: "Inquiry saved to the intake queue" }),
   ).toBeVisible();
@@ -243,7 +242,12 @@ test("inquiry UI shows only acknowledged storage, preserves retry intent and doe
   await expect(
     page.getByRole("status").filter({ hasText: "SYNTHETIC-RECEIPT" }),
   ).toContainText("No email was sent");
+  await expect(page.getByRole("status", { name: "Partner inquiry receipt" })).toBeFocused();
+  await expect(page.getByRole("status", { name: "Partner inquiry receipt" })).toBeInViewport();
+  // Preserve the actual viewport before full-page capture can reposition fixed layers/scroll.
+  await page.screenshot({ path: `${evidence}/inquiry-saved-390-viewport.png`, animations: "disabled" });
   await audit(page, "inquiry-saved", 390);
+  await expect(page.getByRole("status", { name: "Partner inquiry receipt" })).toBeFocused();
   const stored = await page.evaluate(() =>
     JSON.stringify({ ...sessionStorage, ...localStorage }),
   );

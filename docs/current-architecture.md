@@ -1,6 +1,10 @@
 # Current architecture and implementation baseline
 
-## Current cross-route resilience checkpoint (2026-11-02)
+## Current release checkpoint (2026-11-02)
+
+[Release readiness and no-go gates](release-readiness.md) supersede prior current-check claims. Next/ESLint are now 15.5.28; targeted same-major parser/ID fixes and sharp 0.35.5 address retrieved current advisories. Zod 3 remains a high finding pending a tested supported remediation. Pure MFA utilities no longer eagerly initialize Prisma; real throttling still requires the shared store. Saved inquiry replacement has an explicit focus destination. No API/model/schema/history/financial-rule change: 43 pages, 60 API files, 39 models. Current native generation/build/type/integration/restore and live Replit checks remain blocked/unverified; public and synthetic/unavailable-state browser passes are narrower evidence. [Exact current evidence](release-evidence/README.md).
+
+## Cross-route resilience checkpoint (preceding implementation, 2026-11-02)
 
 This supersedes historical accessibility/limiter/performance findings below without declaring all routes verified. Actual inventory is **43 pages, 60 API files, 39 models**. [Every page/API/state](accessibility-reliability/routes.md), [source audit](accessibility-reliability/audit.md), [verification](accessibility-reliability/verification.md) and [operations/migration/rollback](accessibility-reliability/README.md) are the current close-out contract.
 
