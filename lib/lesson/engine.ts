@@ -171,12 +171,15 @@ export async function startAttempt(
   });
   const mode = practice || progress ? "practice" : "first";
   let attempt = await tx.lessonAttempt.findFirst({
-    where: { userId, lessonId, mode, completedAt: null },
+    // Preserve old answers as evidence, but resume only the current content.
+    where: { userId, lessonId, mode, completedAt: null, contentHash: data.hash },
     orderBy: { createdAt: "desc" },
   });
   if (!attempt && mode === "first")
     attempt = await tx.lessonAttempt.findFirst({
-      where: { userId, lessonId, mode },
+      // A completed first attempt remains authoritative for reward deduplication.
+      // An unfinished stale attempt must not prevent a fresh start.
+      where: { userId, lessonId, mode, completedAt: { not: null } },
       orderBy: { createdAt: "desc" },
     });
   if (!attempt)

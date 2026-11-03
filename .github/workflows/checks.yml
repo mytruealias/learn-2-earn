@@ -35,6 +35,7 @@ jobs:
           cache: npm
       - run: npm ci --include=dev
       - run: npm run prisma:generate
+      - run: node --test tests/unit/release-corrections.test.mjs
       - run: npm run lint
       - run: npm run build
       - run: npm run typecheck

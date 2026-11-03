@@ -12,12 +12,16 @@ async function main() {
     }
   }
   const operation = process.argv[2];
+  if (operation === 'migrate') {
+    console.error('Manual schema migration is disabled: Replit Publish owns production schema changes. Review the publishing schema diff; run data backfills separately.');
+    process.exitCode = 1;
+    return;
+  }
   const args = process.argv.slice(3);
   if (args.length !== 2 || args[0] !== '--confirm-database' || !args[1]) {
     throw new Error('Use --confirm-database with the reviewed database name.');
   }
   const commands: Record<string, string[][]> = {
-    migrate: [['node_modules/prisma/build/index.js', 'migrate', 'deploy']],
     'content-sync': [['node_modules/tsx/dist/cli.mjs', 'prisma/seed.ts'], ['node_modules/tsx/dist/cli.mjs', 'prisma/seed-recovery.ts']],
     'bootstrap-admin': [['node_modules/tsx/dist/cli.mjs', 'prisma/seed-admin.ts']],
     'prepare-dev': [['node_modules/prisma/build/index.js', 'db', 'push', '--skip-generate']],

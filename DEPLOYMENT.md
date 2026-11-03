@@ -103,13 +103,16 @@ An active lesson without cards is unavailable to start/complete; inactive parent
 1. Inspect the exact release diff and current deployment configuration. Verify runtime database identity privately, migration status and the schema/data version required by both the old and new application. The explicit database-name confirmation prevents targeting mistakes; it is **not** a substitute for host/account inspection or authorization.
 2. Take a consistent database backup with the provider's supported tool or `pg_dump` using a secure connection mechanism. Retain schema, data, migration history, ownership and necessary extensions in access-controlled storage. Restore it into an isolated non-production database and verify account IDs, curriculum keys, progress/XP, payout totals/statuses and audit history. A backup file alone is not a verified recovery path.
 3. Validate from the lockfile: `npm ci --include=dev`, `npm run lint`, `npm run build`, `npm run typecheck`, `npm test`. Tests use fresh local databases, never the restored production copy. Stage any actual migration against a separate restored copy with appropriate access controls and verify reconciliation.
-4. After that verification and explicit release authorization, point the operator's `DATABASE_URL` at the reviewed target and run:
-
-   ```bash
-   npm run release:migrate -- --confirm-database reviewed_database_name
-   ```
-
-   This executes only `prisma migrate deploy`. No content/admin seeds or migration-history repair follow. A failure stops the command with a nonzero status. Resolve the diagnosed prerequisite instead of editing history to force success.
+4. After verification and explicit release authorization, review the schema diff
+   in Replit Publish. Replit-managed publishing owns production schema changes.
+   Do not run `prisma migrate deploy` separately against production: it can race
+   with publishing's prepared schema diff and cause duplicate table creation.
+   `release:migrate` is disabled and exits without connecting to the database.
+   Review any destructive changes before authorizing Publish; do not repair
+   migration history or reset data to force a release. Migration files remain
+   useful for disposable test databases, not as a second production migration
+   mechanism. This policy supersedes manual schema-application instructions in
+   the feature-specific notes below.
 
 5. If the release adds curriculum, review the authored content and run separately:
 
