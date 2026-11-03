@@ -16,12 +16,12 @@ function load(relative, mocks) {
   const compiled = ts.transpileModule(source, {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
   }).outputText;
-  const module = { exports: {} };
+  const loadedModule = { exports: {} };
   vm.runInNewContext(compiled, {
-    module, exports: module.exports,
+    module: loadedModule, exports: loadedModule.exports,
     require: (name) => Object.hasOwn(mocks, name) ? mocks[name] : require(name),
   });
-  return module.exports;
+  return loadedModule.exports;
 }
 
 function lessonHarness() {
