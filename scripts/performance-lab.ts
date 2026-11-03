@@ -8,6 +8,9 @@ import { getTestDatabaseUrl, assertTestDatabase } from "../lib/test-database-saf
 const origin = "http://127.0.0.1:5080";
 const pause = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 let cleanupDatabase: (() => Promise<void>) | undefined;
+// Only controlled stage names and route templates reach logs; never error objects,
+// request URLs, session tokens, database bindings or learner details.
+let stage = "validate isolated database and build";
 async function main() {
     getTestDatabaseUrl(); // Refuses production, development and unmarked/pre-existing targets.
     // Never publish a stale report when a subsequent run cannot complete.
@@ -18,6 +21,7 @@ async function main() {
     const files = execFileSync("git", ["ls-files", "--cached", "--others", "--exclude-standard", "app", "lib", "middleware.ts", "instrumentation.ts", "next.config.ts", "package.json", "package-lock.json", "prisma/schema.prisma", "scripts/build.ts"], { encoding: "utf8" }).trim().split("\n");
     if (files.some(file => existsSync(file) && statSync(file).mtimeMs > statSync(artifact).mtimeMs))
         throw new Error("The production artifact is stale. Rebuild before measuring.");
+    stage = "prepare synthetic fixtures";
     const { default: db } = await import("../lib/prisma");
     cleanupDatabase = () => db.$disconnect();
     await assertTestDatabase(db);
@@ -47,6 +51,7 @@ async function main() {
     const occupied = await new Promise<boolean>(resolve => { const socket = createConnection({ host: "127.0.0.1", port: 5080 }); socket.once("connect", () => { socket.destroy(); resolve(true); }); socket.once("error", () => resolve(false)); socket.setTimeout(1000, () => { socket.destroy(); resolve(true); }); });
     if (occupied)
         throw new Error("Pre-existing local servers are refused.");
+    stage = "start production server";
     let childReady = false;
     const server = spawn(process.execPath, ["node_modules/next/dist/bin/next", "start", "-p", "5080", "-H", "0.0.0.0"], { env: { ...process.env, NODE_ENV: "production", NEXT_DIST_DIR: ".next", ROOT_DOMAIN: "", OPERATIONAL_TELEMETRY_ENABLED: "", OPENAI_API_KEY: "", STRIPE_SECRET_KEY: "", HUBERT_APPROVED_POLICY_VERSION: "", HUBERT_REVIEW_REFERENCE: "" }, stdio: ["ignore", "pipe", "pipe"] });
     server.stdout?.on("data", chunk => { if (String(chunk).includes("Ready"))
@@ -67,6 +72,7 @@ async function main() {
         }
         if (!available)
             throw new Error("Local production server did not start; no measurements recorded.");
+        stage = "launch browser";
         browser = await chromium.launch({ executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE || (existsSync("/usr/bin/chromium") ? "/usr/bin/chromium" : undefined) });
         const routes = [
             { label: "/", path: "/", kind: "public" }, { label: "/app", path: "/app", kind: "learner" },
@@ -86,6 +92,8 @@ async function main() {
         }[] = [];
         for (const route of routes)
             for (let run = 0; run < 5; run++) {
+                stage = `navigate ${route.label}, sample ${run + 1}`;
+                console.log(`[performance] ${stage}`);
                 const headers: Record<string, string> = route.kind === "learner" ? { cookie: `l2e_user_session=${learnerToken}` } : route.kind === "staff" ? { cookie: `l2e_admin_session=${staffToken}`, "x-l2e-program": "test-program" } : {};
                 const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, deviceScaleFactor: 1, reducedMotion: "reduce", extraHTTPHeaders: headers });
                 // A lab fixture may only contact this newly started local server. Never send its credential to another origin.
@@ -127,14 +135,19 @@ async function main() {
                 const response = await page.goto(origin + route.path, { waitUntil: "networkidle", timeout: 45000 });
                 if (!response?.ok() || page.url().includes("/login") || page.url().includes("/access"))
                     throw new Error("Representative route did not load its intended state; no successful lab report is emitted.");
+                stage = `check loaded state ${route.label}, sample ${run + 1}`;
                 await page.waitForTimeout(2000);
                 await page.getByRole("status").filter({ hasText: /^Loading / }).first().waitFor({ state: "hidden", timeout: 20000 });
-                const heading = await page.locator("main h1").first().textContent();
+                stage = `check heading ${route.label}, sample ${run + 1}`;
+                // Some pages correctly place their title in the page header,
+                // before <main>. Check the accessible heading, not its wrapper.
+                const heading = await page.getByRole("heading", { level: 1 }).first().textContent();
                 if (!heading || /This page could not load|Learn2Earn could not open|could not find that page|Checking your staff session/.test(heading) || await page.locator("main").getByRole("alert").count())
                     throw new Error("The representative route is in an error state; no successful lab report is emitted.");
                 // Only a navigation dialog is exercised. No answer, reward or finance action is automatically submitted.
                 const menu = page.getByRole("button", { name: "Menu", exact: true });
                 if (await menu.count()) {
+                    stage = `open navigation ${route.label}, sample ${run + 1}`;
                     await menu.click();
                     await page.waitForTimeout(250);
                 }
@@ -163,4 +176,4 @@ async function main() {
     }
 }
 main().catch(async () => {
-    if (cleanupDatabase) await cleanupDatabase().catch(() => {}); console.error("Production lab could not complete. Check the safe build, fresh nonce-attested database, synthetic fixture state and local server. No partial lab results are claimed."); process.exitCode = 1; });
+    if (cleanupDatabase) await cleanupDatabase().catch(() => {}); console.error(`Production lab failed during: ${stage}. No partial lab results are claimed.`); process.exitCode = 1; });

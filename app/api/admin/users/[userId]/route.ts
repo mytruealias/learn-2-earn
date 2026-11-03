@@ -175,7 +175,7 @@ export async function PATCH(
           "Finance cannot change participant case or access status.",
           403,
         );
-      const sourceHash = hash(data),
+      const sourceHash = hash({ userId, data }),
         oldReceipt = await tx.staffActionReceipt.findUnique({
           where: {
             programId_requestKey: {
@@ -187,7 +187,10 @@ export async function PATCH(
       if (oldReceipt) {
         if (
           oldReceipt.payloadHash !== sourceHash ||
-          oldReceipt.adminId !== admin.id
+          oldReceipt.adminId !== admin.id ||
+          oldReceipt.entity !== "User" ||
+          oldReceipt.entityId !== userId ||
+          oldReceipt.action !== "update"
         )
           throw new RewardIssue(
             "conflict",

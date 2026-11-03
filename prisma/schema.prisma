@@ -236,7 +236,6 @@ model PayoutRequest {
 
 model AdminUser {
   acknowledgedCases Case[] @relation("CaseAcknowledger")
-  partnerInquiries PartnerInquiry[]
   staffActions StaffActionReceipt[]
   memberships StaffMembership[]
   mfaSecretEncrypted String?

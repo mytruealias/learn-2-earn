@@ -8,7 +8,8 @@ permissions:
   contents: read
 jobs:
   verify:
-    runs-on: ubuntu-latest
+    # Pin an OS supported by the installed Playwright browser builds.
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
     services:
       postgres:
@@ -35,10 +36,12 @@ jobs:
           cache: npm
       - run: npm ci --include=dev
       - run: npm run prisma:generate
+      - run: node --test tests/unit/release-corrections.test.mjs
       - run: npm run lint
       - run: npm run build
       - run: npm run typecheck
       - run: npx playwright install --with-deps chromium
+      - run: npm run test:performance
       # Each suite gets a fresh DB + restricted role; scripts run sequentially.
       - run: npm test
       - run: npm run test:release:public
@@ -46,7 +49,6 @@ jobs:
           MARKETING_EVIDENCE_DIR: ${{ runner.temp }}/release-marketing
           RELEASE_EVIDENCE_DIR: ${{ runner.temp }}/release-public
       - run: npm run typecheck
-      - run: npm run test:performance
       # Keep the known high Zod advisory visible as a failing release gate.
       - run: npm audit --omit=dev --audit-level=high
       - uses: actions/upload-artifact@v4
