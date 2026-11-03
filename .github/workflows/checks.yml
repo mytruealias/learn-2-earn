@@ -8,7 +8,8 @@ permissions:
   contents: read
 jobs:
   verify:
-    runs-on: ubuntu-latest
+    # Pin an OS supported by the installed Playwright browser builds.
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
     services:
       postgres:
