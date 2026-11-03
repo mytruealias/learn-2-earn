@@ -113,3 +113,67 @@ for (const [entityId, payloadUserId] of [["other", "target"], ["target", "other"
       (error) => error.code === "conflict");
   });
 }
+
+function validationHarness() {
+  return load("lib/api-helpers.ts", {
+    "./reliability/read-json": {
+      readRequestJson: async (request) => ({ ok: true, data: await request.json() }),
+    },
+    "./scope-error": { ScopeError: class extends Error {} },
+    "next/server": { NextResponse: {
+      json: (body, init) => ({ status: init?.status ?? 200, body }),
+    } },
+    "next/headers": {}, "./reliability/correlation": {},
+    "./reliability/events": {}, "./reliability/rate-limit": {},
+  });
+}
+
+test("validation keeps the 400 envelope, nested field paths and authored messages", async () => {
+  const { z } = require("zod");
+  const api = validationHarness();
+  const schema = z.object({
+    profile: z.object({ name: z.string().min(2, "Enter your full name.") }),
+    answers: z.array(z.string().min(1, "Choose an answer.")),
+  });
+  const result = await api.parseJson({ json: async () => ({
+    profile: { name: "" }, answers: [""],
+  }) }, schema);
+  assert.equal(result.ok, false);
+  assert.equal(result.response.status, 400);
+  const { error } = result.response.body;
+  assert.equal(error.code, "validation_error");
+  assert.equal(error.message, "Enter your full name.");
+  assert.equal(error.fields["profile.name"][0], "Enter your full name.");
+  assert.equal(error.fields["answers.0"][0], "Choose an answer.");
+});
+
+test("validation keeps transforms, defaults, partial updates and record answers", async () => {
+  const { z } = require("zod");
+  const api = validationHarness();
+  const schema = z.object({
+    name: z.string().trim().min(1),
+    answers: z.record(z.string().max(120), z.string().max(4000)).default({}),
+    enabled: z.boolean().default(false),
+  });
+  const result = await api.parseJson({ json: async () => ({ name: " Learner " }) }, schema);
+  assert.equal(result.ok, true);
+  assert.equal(result.data.name, "Learner");
+  assert.equal(result.data.enabled, false);
+  assert.equal(Object.keys(result.data.answers).length, 0);
+  const update = api.parseQuery({}, schema.partial());
+  assert.equal(update.ok, true);
+  assert.equal(Object.hasOwn(update.data, "name"), false);
+  assert.equal(schema.safeParse({ name: "Learner", answers: { card: 12 } }).success, false);
+});
+
+test("validation still rejects invalid IDs and oversized bounded collections", () => {
+  const { z } = require("zod");
+  const api = validationHarness();
+  const invalid = api.parseParam("../invalid", api.idParamSchema, "userId");
+  assert.equal(invalid.ok, false);
+  assert.equal(invalid.response.status, 400);
+  assert.equal(invalid.response.body.error.code, "validation_error");
+  assert.ok(invalid.response.body.error.fields.userId.length);
+  assert.equal(api.parseParam("valid-id_1", api.idParamSchema).ok, true);
+  assert.equal(z.array(z.string()).max(2).safeParse(Array(1000).fill("x")).success, false);
+});
