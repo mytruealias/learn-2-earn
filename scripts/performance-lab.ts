@@ -139,7 +139,9 @@ async function main() {
                 await page.waitForTimeout(2000);
                 await page.getByRole("status").filter({ hasText: /^Loading / }).first().waitFor({ state: "hidden", timeout: 20000 });
                 stage = `check heading ${route.label}, sample ${run + 1}`;
-                const heading = await page.locator("main h1").first().textContent();
+                // Some pages correctly place their title in the page header,
+                // before <main>. Check the accessible heading, not its wrapper.
+                const heading = await page.getByRole("heading", { level: 1 }).first().textContent();
                 if (!heading || /This page could not load|Learn2Earn could not open|could not find that page|Checking your staff session/.test(heading) || await page.locator("main").getByRole("alert").count())
                     throw new Error("The representative route is in an error state; no successful lab report is emitted.");
                 // Only a navigation dialog is exercised. No answer, reward or finance action is automatically submitted.
